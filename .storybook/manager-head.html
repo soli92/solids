@@ -1,0 +1,11 @@
+<script>
+  (function () {
+    var KEY = "solids:sb:theme";
+    window.addEventListener("storage", function (e) {
+      if (e && e.key === KEY) {
+        // Ricarica solo il manager UI per applicare il nuovo theme
+        window.location.reload();
+      }
+    });
+  })();
+</script>

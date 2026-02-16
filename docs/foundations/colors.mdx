@@ -1,0 +1,110 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Foundations / Colors" />
+
+# Colors
+
+SoliDS utilizza **color tokens semantici**, non colori grezzi.
+
+I consumer **non devono mai** usare direttamente la palette base
+(es. `gray.900`, `blue.600`), ma solo token con significato.
+
+---
+
+## Semantic color tokens
+
+### Text
+
+- `--sd-color-text-primary`
+- `--sd-color-text-secondary`
+- `--sd-color-text-inverse`
+
+### Background
+
+- `--sd-color-bg-canvas`
+- `--sd-color-bg-surface`
+- `--sd-color-bg-elevated`
+
+### Border
+
+- `--sd-color-border-default`
+- `--sd-color-border-muted`
+- `--sd-color-border-focus`
+
+### Intent
+
+- `--sd-color-intent-success`
+- `--sd-color-intent-warning`
+- `--sd-color-intent-danger`
+- `--sd-color-intent-info`
+
+---
+
+## Visual preview
+
+Di seguito lo **stesso set di token** mostrato in **light** e **dark**.
+
+### Light theme
+
+<div data-theme="light" style={{ padding: 16, borderRadius: 12, background: "var(--sd-color-bg-canvas)" }}>
+
+<ColorGrid />
+
+</div>
+
+### Dark theme
+
+<div data-theme="dark" style={{ padding: 16, borderRadius: 12, background: "var(--sd-color-bg-canvas)" }}>
+
+<ColorGrid />
+
+</div>
+
+---
+
+export function ColorGrid() {
+  const items = [
+    { name: "Text / Primary", var: "--sd-color-text-primary" },
+    { name: "Text / Secondary", var: "--sd-color-text-secondary" },
+    { name: "Background / Canvas", var: "--sd-color-bg-canvas" },
+    { name: "Background / Surface", var: "--sd-color-bg-surface" },
+    { name: "Border / Default", var: "--sd-color-border-default" },
+    { name: "Border / Focus", var: "--sd-color-border-focus" },
+    { name: "Intent / Success", var: "--sd-color-intent-success" },
+    { name: "Intent / Warning", var: "--sd-color-intent-warning" },
+    { name: "Intent / Danger", var: "--sd-color-intent-danger" },
+    { name: "Intent / Info", var: "--sd-color-intent-info" }
+  ];
+
+return (
+<div
+style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+        gap: 12
+      }} >
+{items.map((item) => (
+<div
+key={item.var}
+style={{
+            border: "1px solid var(--sd-color-border-default)",
+            borderRadius: 10,
+            padding: 12,
+            background: "var(--sd-color-bg-surface)",
+            color: "var(--sd-color-text-primary)"
+          }} >
+<div style={{ fontSize: 12, opacity: 0.7 }}>{item.name}</div>
+<div style={{ fontSize: 12, marginBottom: 8 }}>{item.var}</div>
+<div
+style={{
+              height: 32,
+              borderRadius: 6,
+              background: `var(${item.var})`,
+              border: "1px solid var(--sd-color-border-muted)"
+            }}
+/>
+</div>
+))}
+</div>
+);
+}

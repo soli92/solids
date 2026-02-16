@@ -1,0 +1,62 @@
+{
+  "name": "@Soli92/solids",
+  "version": "0.1.0",
+  "description": "SoliDS – agnostic design system foundations (tokens + CSS).",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Soli92/solids.git"
+  },
+  "homepage": "https://github.com/Soli92/solids#readme",
+  "bugs": {
+    "url": "https://github.com/Soli92/solids/issues"
+  },
+  "keywords": [
+    "design-system",
+    "tokens",
+    "css-variables",
+    "solids"
+  ],
+  "sideEffects": false,
+  "type": "module",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": {
+      "default": "./dist/tokens/tokens.json"
+    },
+    "./tokens": "./dist/tokens/tokens.json",
+    "./css/index.css": "./dist/css/index.css",
+    "./css/variables.css": "./dist/css/variables.css",
+    "./css/themes.css": "./dist/css/themes.css",
+    "./css/base.css": "./dist/css/base.css",
+    "./css/utilities.css": "./dist/css/utilities.css"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"",
+    "prepublishOnly": "npm run clean && npm run build",
+    "release": "semantic-release",
+    "storybook": "storybook dev -p 6006 --docs",
+    "build-storybook": "storybook build"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.0",
+    "@semantic-release/git": "^10.0.0",
+    "@semantic-release/github": "^10.0.0",
+    "@semantic-release/npm": "^12.0.2",
+    "@storybook/addon-docs": "^8.6.14",
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/blocks": "^8.6.14",
+    "@storybook/react-vite": "^8.6.14",
+    "semantic-release": "^25.0.0",
+    "storybook": "^8.6.14"
+  }
+}

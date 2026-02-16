@@ -1,0 +1,107 @@
+[11:10:35.252] [INFO] [36mInitializing Storybook[39m
+[11:10:35.764] [DEBUG] Getting package.json info for /Users/simone.olivieri/Documents/Personal/Repos/solids/package.json...
+[11:10:35.764] [DEBUG] Getting CLI versions from NPM for storybook...
+[11:10:35.764] [DEBUG] Executing command: npm info storybook version
+[11:10:36.830] [INFO] Adding Storybook version 10.2.8 to your project
+[11:10:36.831] [INFO] Installing Storybook for user specified project type: react
+[11:10:36.832] [DEBUG] Using cached package.json for /Users/simone.olivieri/Documents/Personal/Repos/solids/package.json...
+[11:10:58.878] [PROMPT] We were not able to detect the right builder for your project. Please select one: {"choice":"vite"}
+[11:10:58.878] [INFO] Framework detected: react-vite
+[11:10:58.878] [DEBUG] Getting installed version for vitest...
+[11:10:58.879] [DEBUG] Executing command: npm ls --json --depth=99 2>/dev/null
+[11:11:00.727] [DEBUG] Executing command: npm ls --json --depth=0 2>/dev/null
+[11:11:01.886] [DEBUG] Error finding installations for vitest: ExecaError: Command failed with exit code 1: npm ls --json '--depth=0' '2>/dev/null'
+
+{
+  "version": "0.1.0",
+  "name": "@Soli92/solids"
+}
+[11:11:01.886] [DEBUG] No installations found for vitest
+[11:11:01.886] [DEBUG] Getting installed version for msw...
+[11:11:01.886] [DEBUG] Executing command: npm ls --json --depth=99 2>/dev/null
+[11:11:03.059] [DEBUG] Executing command: npm ls --json --depth=0 2>/dev/null
+[11:11:04.278] [DEBUG] Error finding installations for msw: ExecaError: Command failed with exit code 1: npm ls --json '--depth=0' '2>/dev/null'
+
+{
+  "version": "0.1.0",
+  "name": "@Soli92/solids"
+}
+[11:11:04.278] [DEBUG] No installations found for msw
+[11:11:21.261] [PROMPT] New to Storybook? {"choice":false}
+[11:11:21.262] [INFO] Storybook collects completely anonymous usage telemetry. We use it to shape Storybook's roadmap and prioritize features. You can learn more, including how to opt out, at https://storybook.js.org/telemetry
+[11:11:32.556] [PROMPT] What configuration should we install? {"choice":"recommended"}
+[11:11:33.107] [INFO] base-generator-task-start: Generating Storybook configuration
+[11:11:33.107] [DEBUG] Using cached package.json for /Users/simone.olivieri/Documents/Personal/Repos/solids/package.json...
+[11:11:33.107] [DEBUG] Using cached package.json for /Users/simone.olivieri/Documents/Personal/Repos/solids/package.json...
+[11:11:33.107] [DEBUG] Using cached package.json for /Users/simone.olivieri/Documents/Personal/Repos/solids/package.json...
+[11:11:33.108] [DEBUG] Getting CLI versions from NPM for storybook...
+[11:11:33.108] [DEBUG] Executing command: npm info storybook version
+[11:11:33.109] [DEBUG] Getting CLI versions from NPM for @storybook/react-vite...
+[11:11:33.109] [DEBUG] Executing command: npm info @storybook/react-vite version
+[11:11:33.110] [DEBUG] Getting CLI versions from NPM for @chromatic-com/storybook...
+[11:11:33.110] [DEBUG] Executing command: npm info @chromatic-com/storybook version
+[11:11:33.112] [DEBUG] Getting CLI versions from NPM for @storybook/addon-vitest...
+[11:11:33.112] [DEBUG] Executing command: npm info @storybook/addon-vitest version
+[11:11:33.113] [DEBUG] Getting CLI versions from NPM for @storybook/addon-a11y...
+[11:11:33.113] [DEBUG] Executing command: npm info @storybook/addon-a11y version
+[11:11:33.114] [DEBUG] Getting CLI versions from NPM for @storybook/addon-docs...
+[11:11:33.114] [DEBUG] Executing command: npm info @storybook/addon-docs version
+[11:11:33.117] [DEBUG] Getting CLI versions from NPM for prop-types...
+[11:11:33.117] [DEBUG] Executing command: npm info prop-types version
+[11:11:35.336] [INFO] base-generator-task: - Configuring main.js
+[11:11:35.338] [INFO] base-generator-task: - Configuring preview.js
+[11:11:35.345] [INFO] base-generator-task: - Adding Storybook command to package.json
+[11:11:35.346] [DEBUG] Getting package.json info for /Users/simone.olivieri/Documents/Personal/Repos/solids/package.json...
+[11:11:35.346] [DEBUG] Using cached package.json for /Users/simone.olivieri/Documents/Personal/Repos/solids/package.json...
+[11:11:35.346] [DEBUG] Using cached package.json for /Users/simone.olivieri/Documents/Personal/Repos/solids/package.json...
+[11:11:35.347] [INFO] base-generator-task: - Copying framework templates
+[11:11:35.396] [DEBUG] Executing command: npm config get registry -ws=false -iwr
+[11:11:36.087] [INFO] base-generator-task-success: Storybook configuration generated
+[11:11:36.087] [DEBUG] Using cached package.json for /Users/simone.olivieri/Documents/Personal/Repos/solids/package.json...
+[11:11:36.087] [DEBUG] Using cached installed version for vitest...
+[11:11:36.087] [DEBUG] Getting installed version for @vitest/coverage-v8...
+[11:11:36.087] [DEBUG] Executing command: npm ls --json --depth=99 2>/dev/null
+[11:11:37.035] [DEBUG] Executing command: npm ls --json --depth=0 2>/dev/null
+[11:11:37.997] [DEBUG] Error finding installations for @vitest/coverage-v8: ExecaError: Command failed with exit code 1: npm ls --json '--depth=0' '2>/dev/null'
+
+{
+  "version": "0.1.0",
+  "name": "@Soli92/solids"
+}
+[11:11:37.997] [DEBUG] No installations found for @vitest/coverage-v8
+[11:11:37.997] [DEBUG] Getting installed version for @vitest/coverage-istanbul...
+[11:11:37.997] [DEBUG] Executing command: npm ls --json --depth=99 2>/dev/null
+[11:11:39.178] [DEBUG] Executing command: npm ls --json --depth=0 2>/dev/null
+[11:11:40.197] [DEBUG] Error finding installations for @vitest/coverage-istanbul: ExecaError: Command failed with exit code 1: npm ls --json '--depth=0' '2>/dev/null'
+
+{
+  "version": "0.1.0",
+  "name": "@Soli92/solids"
+}
+[11:11:40.197] [DEBUG] No installations found for @vitest/coverage-istanbul
+[11:11:40.197] [INFO] adding-dependencies-task-start: Adding dependencies to package.json
+[11:11:40.197] [INFO] adding-dependencies-task: Adding devDependencies:
+- storybook@10.2.8
+- @storybook/react-vite@10.2.8
+- @chromatic-com/storybook@^null
+- @storybook/addon-vitest@10.2.8
+- @storybook/addon-a11y@10.2.8
+- @storybook/addon-docs@10.2.8
+- prop-types@^null
+- vitest
+- playwright
+- @vitest/browser-playwright
+- @vitest/coverage-v8
+[11:11:40.197] [DEBUG] Using cached package.json for /Users/simone.olivieri/Documents/Personal/Repos/solids/package.json...
+[11:11:40.197] [DEBUG] Getting CLI versions from NPM for storybook...
+[11:11:40.197] [DEBUG] Executing command: npm info storybook version
+[11:11:41.004] [WARN] 
+     [33mError: No version found for storybook[39m
+[11:11:41.005] [DEBUG] Getting CLI versions from NPM for @storybook/react-vite...
+[11:11:41.005] [DEBUG] Executing command: npm info @storybook/react-vite version
+[11:11:41.900] [WARN] 
+     [33mError: No version found for @storybook/react-vite[39m
+[11:11:41.900] [DEBUG] Getting CLI versions from NPM for @chromatic-com/storybook...
+[11:11:41.900] [DEBUG] Executing command: npm info @chromatic-com/storybook version
+[11:11:42.662] [ERROR] 
+     [31mError: No version found for @chromatic-com/storybook[39m

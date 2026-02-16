@@ -1,0 +1,26 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Foundations / Themes" />
+
+# Themes
+
+SoliDS supporta temi tramite **override dei token semantici**.
+
+## Temi disponibili
+
+- light (default)
+- dark
+
+## Come funziona
+
+I temi:
+
+- non duplicano componenti
+- ridefiniscono solo i token semantici
+- non cambiano l’API dei consumer
+
+## Attivazione
+
+```html
+<html data-theme="dark"></html>
+```

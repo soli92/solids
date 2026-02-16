@@ -1,0 +1,30 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Design Principles" />
+
+# Design Principles
+
+Questi principi guidano ogni decisione all’interno di SoliDS.
+
+## Token‑first
+
+Ogni decisione di design deve vivere nei **design tokens**, non nei componenti o negli stili locali.
+
+## Semantic over visual
+
+I consumer usano **significati**, non valori visivi.
+
+✅ `color.text.primary`  
+❌ `#111827`
+
+## Framework agnostic
+
+SoliDS non impone React, Angular o altri framework.
+
+## Single Source of Truth
+
+I token rappresentano l’unica fonte di verità per colori, spacing, tipografia e temi.
+
+## Progressive adoption
+
+È possibile adottare SoliDS gradualmente, senza riscrivere tutto.

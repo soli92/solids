@@ -1,0 +1,37 @@
+{
+    "color": {
+        "text": {
+            "primary": "#111827",
+            "secondary": "#374151",
+            "inverse": "#FFFFFF"
+        },
+        "bg": {
+            "canvas": "#FFFFFF",
+            "surface": "#F9FAFB",
+            "elevated": "#FFFFFF"
+        },
+        "border": {
+            "default": "#E5E7EB",
+            "muted": "#F3F4F6",
+            "focus": "#3B82F6"
+        },
+        "intent": {
+            "success": "#16A34A",
+            "warning": "#D97706",
+            "danger": "#DC2626",
+            "info": "#2563EB"
+        }
+    },
+    "space": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "16px",
+        "lg": "24px",
+        "xl": "32px"
+    },
+    "radius": {
+        "sm": "6px",
+        "md": "10px",
+        "lg": "16px"
+    }
+}
