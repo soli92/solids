@@ -1,5 +1,9 @@
+import * as React from "react";
 import type { Preview } from "@storybook/react";
 import { themes } from "@storybook/theming";
+
+import { Toaster } from "../src/components/ui/toaster";
+import { TooltipProvider } from "../src/components/ui/tooltip";
 
 import "../dist/css/index.css";
 import "./preview-tw.built.css";
@@ -33,15 +37,15 @@ const preview: Preview = {
         icon: "circlehollow",
         items: [
           { value: "light", title: "Light", icon: "circlehollow" },
-          { value: "dark", title: "Dark", icon: "circle" }
+          { value: "dark", title: "Dark", icon: "circle" },
         ],
-        dynamicTitle: true
-      }
-    }
+        dynamicTitle: true,
+      },
+    },
   },
 
   initialGlobals: {
-    theme: initialTheme
+    theme: initialTheme,
   },
 
   parameters: {
@@ -49,8 +53,8 @@ const preview: Preview = {
     previewTabs: { canvas: { hidden: false } },
     options: { showPanel: true },
     docs: {
-      theme: initialTheme === "dark" ? themes.dark : themes.light
-    }
+      theme: initialTheme === "dark" ? themes.dark : themes.light,
+    },
   },
 
   decorators: [
@@ -58,19 +62,21 @@ const preview: Preview = {
       const raw = context.globals.theme;
       const theme = raw === "dark" ? "dark" : "light";
 
-      // Applica tema a <html>
       document.documentElement.setAttribute("data-theme", theme);
       document.documentElement.style.colorScheme = theme;
-
-      // ✅ Applica tema anche a <body> (necessario per Docs)
       document.body.setAttribute("data-theme", theme);
       document.body.style.colorScheme = theme;
 
       writeStoredTheme(theme);
 
-      return Story();
-    }
-  ]
+      return (
+        <TooltipProvider delayDuration={200}>
+          <Toaster />
+          <Story />
+        </TooltipProvider>
+      );
+    },
+  ],
 };
 
 export default preview;

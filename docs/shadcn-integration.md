@@ -61,7 +61,7 @@ Durante l'inizializzazione scegli:
 
 Riferimento `components.json`: [templates/components.json.example](../templates/components.json.example).
 
-**Modello 1 (componenti nel tuo repo + CLI):** vedi [registry-model-1.md](./registry-model-1.md) per il namespace `@solids` e `npx shadcn add @solids/solids-button`.
+**Modello 1 (componenti nel tuo repo + CLI):** vedi [registry-model-1.md](./registry-model-1.md) per il namespace `@solids`, il kit completo `npx shadcn add @solids/solids-ui` e il singolo `solids-button`.
 
 ---
 

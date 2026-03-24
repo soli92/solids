@@ -45,13 +45,21 @@ In questo modello i componenti UI **stanno nel progetto applicativo** (cartelle 
 
 6. **Installa i blocchi SoliDS**
 
+   **Kit completo** (tutti i componenti shadcn/ui allineati a SoliDS, come in Storybook):
+
+   ```bash
+   npx shadcn@latest add @solids/solids-ui
+   ```
+
+   Installa anche `@solids/solids-utils` e le dipendenze npm elencate nel payload del registry.
+
+   **Solo il Button** (progetti minimali):
+
    ```bash
    npx shadcn@latest add @solids/solids-button
    ```
 
-   La CLI installerà anche `@solids/solids-utils` (dipendenza dichiarata nel registry).
-
-7. **Resto dell’UI** — per card, dialog, ecc. puoi usare **@shadcn** standard oppure aggiungere voci al registry SoliDS seguendo la stessa convenzione.
+7. **Componenti extra da shadcn** — per blocchi non ancora nel registry (es. *combobox* se assente), usa `npx shadcn@latest add @shadcn/…` dopo aver allineato CSS e preset SoliDS.
 
 ---
 
@@ -66,9 +74,9 @@ In questo modello i componenti UI **stanno nel progetto applicativo** (cartelle 
 
   Lo script copia i file in `registry/solids/` e genera `registry/r/*.json`.
 
-- Dopo ogni modifica a `utils` o `button`, esegui `registry:build` e committa **sia** `registry/solids/**` **sia** `registry/r/**` così gli URL raw restano aggiornati.
+- Dopo ogni modifica ai componenti in `src/components/ui` o agli hook, esegui `npm run ui:stories` (o `npm run storybook` / `build-storybook`), poi `npm run registry:build`, e committa `registry/solids/**`, `registry/r/**` e `registry.json`.
 
-- Estendere il registry: aggiungi file sotto `registry/solids/…`, descrivi l’item in `registry.json`, usa `registryDependencies` con prefisso `@solids/…` per dipendenze interne.
+- Nuove dipendenze npm introdotte da `shadcn add`: aggiorna anche `scripts/solids-ui-npm-deps.json` così il blocco `@solids/solids-ui` installa i pacchetti corretti nei progetti consumer.
 
 ---
 

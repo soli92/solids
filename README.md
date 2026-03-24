@@ -59,7 +59,7 @@ Serve anche `tailwindcss-animate` (dipendenza tipica di shadcn):
 npm install tailwindcss-animate
 ```
 
-Poi inizializza shadcn e aggiungi i componenti con la CLI (`npx shadcn@latest init` → `add button`, …). I componenti useranno le variabili `--background`, `--primary`, ecc., già mappate da SoliDS. Un esempio di `components.json` è in [templates/components.json.example](./templates/components.json.example).
+Poi inizializza shadcn e aggiungi i componenti: **tutto il kit** con `npx shadcn@latest add @solids/solids-ui` oppure singoli item (`@solids/solids-button`, …). I componenti usano le variabili `--background`, `--primary`, ecc., già mappate da SoliDS. Esempio `components.json`: [templates/components.json.example](./templates/components.json.example).
 
 ➡️ Guida completa: [docs/shadcn-integration.md](./docs/shadcn-integration.md)
 
