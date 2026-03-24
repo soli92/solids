@@ -10,18 +10,6 @@
 
 * erroneous 1.1.0 release (wrong semver baseline) ([9842ef6](https://github.com/soli92/solids/commit/9842ef623b73feac9adb81d2e98afe60860ddab8))
 
-## [1.3.3](https://github.com/soli92/solids/compare/v1.3.2...v1.3.3) (2026-03-24)
-
-
-### Bug Fixes
-
-* **build:** sanitize CSS custom property segments for Turbopack ([f22c134](https://github.com/soli92/solids/commit/f22c134f85ba76fd19ca7ea83396252556f7365b))
-
-
-### Reverts
-
-* erroneous 1.1.0 release (wrong semver baseline) ([9842ef6](https://github.com/soli92/solids/commit/9842ef623b73feac9adb81d2e98afe60860ddab8))
-
 ## [1.3.2](https://github.com/soli92/solids/compare/v1.3.1...v1.3.2) (2026-03-24)
 
 
