@@ -266,6 +266,12 @@ docs/
 
 ---
 
+## Dove viene usato
+
+Esempi di progetti che consumano **`@soli92/solids`** (preset Tailwind + CSS): portale **[soli-dome](https://github.com/soli92/soli-dome)**, app **[soli-agent](https://github.com/soli92/soli-agent)**. Lo **Storybook** pubblicato è linkato anche da soli-dome (categoria Design).
+
+---
+
 ## License
 
 MIT © [soli92](https://github.com/soli92)
