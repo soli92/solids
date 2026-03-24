@@ -4,7 +4,20 @@
 una fondamenta **agnostica** basata su **design tokens** e **CSS variables**,
 pronta all'uso con qualsiasi framework web e compatibile con **shadcn/ui**.
 
-**Storybook** (docs + esempio Button): dopo ogni release su npm viene pubblicato su GitHub Pages — [soli92.github.io/solids](https://soli92.github.io/solids/) (attiva *Settings → Pages → Source: GitHub Actions* se è la prima volta).
+**Storybook** (documentazione interattiva + esempi UI) è pubblicato su **[GitHub Pages](https://soli92.github.io/solids/)** dopo ogni release su npm. Per la prima volta sul repo: *Settings → Pages → Build and deployment: GitHub Actions*.
+
+---
+
+## Documentazione
+
+| Dove | Contenuto |
+|------|-----------|
+| **[Storybook (online)](https://soli92.github.io/solids/)** | Foundations (token, colori, spacing, tipografia, radius, temi), *Getting Started*, *Design Principles*, *Roadmap*, story UI (es. Button) |
+| **Questo repo, `docs/*.mdx`** | Stesse pagine narrative servite da Storybook in locale (`npm run storybook`) |
+| **[`docs/shadcn-integration.md`](./docs/shadcn-integration.md)** | Integrazione completa Tailwind + shadcn/ui + temi |
+| **[`docs/registry-model-1.md`](./docs/registry-model-1.md)** | Registry `@solids`, `registry/r/`, CLI `shadcn add` |
+
+In sviluppo, dopo `npm install`: `npm run storybook` avvia la documentazione su `localhost` (prima viene rigenerato il CSS Tailwind di anteprima con `build:storybook-css`).
 
 ---
 
@@ -242,7 +255,12 @@ registry/
 registry.json               # Indice item shadcn (root repo)
 registry/r/                 # JSON pubblicati (`npm run registry:build`)
 docs/
-├── shadcn-integration.md   # Guida integrazione completa
+├── index.mdx               # Intro (Storybook)
+├── getting-started.mdx
+├── principles.mdx
+├── roadmap.mdx
+├── foundations/            # Colori, spacing, typography, radius, themes, tokens
+├── shadcn-integration.md   # Guida integrazione completa (markdown)
 └── registry-model-1.md     # Modello shadcn in repo + @solids
 ```
 

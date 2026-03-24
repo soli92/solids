@@ -4,6 +4,8 @@ SoliDS include un **compatibility layer** (`shadcn.css`) che mappa automaticamen
 tutte le CSS variables che shadcn/ui si aspetta sui token semantici di SoliDS.
 In questo modo usi un solo sistema di token per tutti i tuoi progetti.
 
+**Documentazione correlata:** [Storybook su GitHub Pages](https://soli92.github.io/solids/) (foundations e temi), [modello registry `@solids`](./registry-model-1.md), [README del repo](../README.md) (tabella documentazione e struttura).
+
 ---
 
 ## Setup rapido (Next.js + Tailwind v3 + shadcn/ui)

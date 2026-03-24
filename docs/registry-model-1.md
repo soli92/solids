@@ -2,6 +2,8 @@
 
 In questo modello i componenti UI **stanno nel progetto applicativo** (cartelle `components/`, `lib/`, …). SoliDS fornisce **token + CSS + preset Tailwind**; il registry in questo repository fornisce **snippet ufficiali** allineati a SoliDS, installabili con la CLI shadcn.
 
+**Altre guide:** [integrazione shadcn completa](./shadcn-integration.md), [Storybook (token, temi, esempi UI)](https://soli92.github.io/solids/), [README](../README.md).
+
 ---
 
 ## Flusso in un progetto nuovo
