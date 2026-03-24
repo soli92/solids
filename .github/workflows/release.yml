@@ -4,14 +4,11 @@ on:
   push:
     branches: ["main"]
 
-# workflows: @semantic-release/git fa `git push --tags`: ogni tag locale viene inviato; GitHub
-# rifiuta i tag che puntano a commit che modificano workflow senza questo scope.
 permissions:
   contents: write
   issues: write
   pull-requests: write
   id-token: write
-  workflows: write
 
 jobs:
   release:
@@ -27,6 +24,15 @@ jobs:
       # "would clobber existing tag". semantic-release esegue fetch dei tag: allinea prima al remoto.
       - name: Allinea tag al remoto
         run: git fetch origin --tags --force
+
+      # @semantic-release/git fa `git push --tags` (tutti i ref in refs/tags). I tag orfani
+      # presenti nel fetch non vanno pushati: GitHub può rifiutarli (commit che toccano workflow).
+      - name: Rimuovi tag locali non antenati di HEAD
+        run: |
+          git tag -l | while read -r t; do
+            c=$(git rev-parse "$t^{commit}" 2>/dev/null) || continue
+            git merge-base --is-ancestor "$c" HEAD 2>/dev/null || git tag -d "$t"
+          done
 
       - uses: actions/setup-node@v4
         with:
