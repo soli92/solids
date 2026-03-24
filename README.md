@@ -1,7 +1,7 @@
 # SoliDS
 
 **SoliDS** è il design system personale di [Soli92](https://github.com/Soli92) —
-un fondamenta **agnostica** basata su **design tokens** e **CSS variables**,
+una fondamenta **agnostica** basata su **design tokens** e **CSS variables**,
 pronta all'uso con qualsiasi framework web e compatibile con **shadcn/ui**.
 
 ---
@@ -14,7 +14,7 @@ pronta all'uso con qualsiasi framework web e compatibile con **shadcn/ui**.
 | 🔤 Variables | `dist/css/variables.css` | CSS vars `--sd-*` per tema light (default) |
 | 🌗 Themes | `dist/css/themes.css` | Override dark + `prefers-color-scheme` |
 | 🔗 shadcn | `dist/css/shadcn.css` | Mapping variabili shadcn/ui → token SoliDS |
-| 🧱 Base | `dist/css/base.css` | Reset minimale, body, focus-visible |
+| 🧱 Base | `dist/css/base.css` | Reset minimale, body, focus-visible, box-sizing |
 | 🛠️ Utilities | `dist/css/utilities.css` | Classi utility `sd-*` (flex, spacing, colori, badge, card…) |
 | 📦 Index | `dist/css/index.css` | Entrypoint unico che importa tutto nell'ordine corretto |
 
@@ -23,7 +23,7 @@ pronta all'uso con qualsiasi framework web e compatibile con **shadcn/ui**.
 ## Installazione
 
 ```bash
-npm install @Soli92/solids
+npm install @soli92/solids
 ```
 
 ---
@@ -34,7 +34,7 @@ npm install @Soli92/solids
 
 ```css
 /* globals.css */
-@import "@Soli92/solids/css/index.css";
+@import "@soli92/solids/css/index.css";
 
 @tailwind base;
 @tailwind components;
@@ -76,7 +76,7 @@ module.exports = {
 ### Senza framework
 
 ```html
-<link rel="stylesheet" href="node_modules/@Soli92/solids/dist/css/index.css" />
+<link rel="stylesheet" href="node_modules/@soli92/solids/dist/css/index.css" />
 ```
 
 ---
@@ -84,13 +84,13 @@ module.exports = {
 ## Esportazioni disponibili
 
 ```js
-import tokens from "@Soli92/solids/tokens";                    // tokens.json
-import "@Soli92/solids/css/index.css";                         // tutto
-import "@Soli92/solids/css/variables.css";                     // solo vars
-import "@Soli92/solids/css/themes.css";                        // solo dark
-import "@Soli92/solids/css/shadcn.css";                        // solo shadcn layer
-import "@Soli92/solids/css/base.css";                          // solo base
-import "@Soli92/solids/css/utilities.css";                     // solo utilities
+import tokens from "@soli92/solids/tokens";           // tokens.json
+import "@soli92/solids/css/index.css";                // tutto
+import "@soli92/solids/css/variables.css";            // solo vars
+import "@soli92/solids/css/themes.css";               // solo dark
+import "@soli92/solids/css/shadcn.css";               // solo shadcn layer
+import "@soli92/solids/css/base.css";                 // solo base
+import "@soli92/solids/css/utilities.css";            // solo utilities
 ```
 
 ---
@@ -127,7 +127,7 @@ import "@Soli92/solids/css/utilities.css";                     // solo utilities
 ### Tipografia
 - `--sd-font-size-xs` → `6xl`
 - `--sd-font-weight-light` → `extrabold`
-- `--sd-font-body` / `heading` / `mono`
+- `--sd-font-body` / `--sd-font-heading` / `--sd-font-mono`
 
 ### Shadow (`--sd-shadow-*`)
 `sm` `md` `lg` `xl`
