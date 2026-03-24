@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/soli92/solids/compare/v1.3.0...v1.3.1) (2026-03-24)
+
+
+### Bug Fixes
+
+* **storybook:** dedupe React in Vite to avoid production error [#130](https://github.com/soli92/solids/issues/130) ([888a5b4](https://github.com/soli92/solids/commit/888a5b46b6df9ea4cdc8a8eb76daad1dc0d7048a))
+
 # [1.3.0](https://github.com/soli92/solids/compare/v1.2.1...v1.3.0) (2026-03-24)
 
 
