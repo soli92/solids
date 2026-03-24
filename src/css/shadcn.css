@@ -1,0 +1,139 @@
+/*
+ * SoliDS — shadcn/ui Compatibility Layer
+ * ----------------------------------------
+ * This file maps the shadcn/ui CSS variable convention to SoliDS semantic tokens.
+ * Import AFTER variables.css and themes.css.
+ *
+ * Usage in a Next.js / Vite project with shadcn:
+ *   import "@Soli92/solids/css/index.css";
+ *
+ * shadcn/ui expects values in HSL or OKLCH channel notation (no `hsl()` wrapper).
+ * We provide fallback hex values as well for non-shadcn usage.
+ *
+ * See: https://ui.shadcn.com/docs/theming
+ */
+
+/* ─── Light (default) ─────────────────────────────────────── */
+:root {
+  /* ── Layout ──────────────────────────────────────────────── */
+  --background:           var(--sd-color-bg-canvas);
+  --foreground:           var(--sd-color-text-primary);
+
+  /* ── Card ────────────────────────────────────────────────── */
+  --card:                 var(--sd-color-bg-elevated);
+  --card-foreground:      var(--sd-color-text-primary);
+
+  /* ── Popover ─────────────────────────────────────────────── */
+  --popover:              var(--sd-color-bg-elevated);
+  --popover-foreground:   var(--sd-color-text-primary);
+
+  /* ── Primary ─────────────────────────────────────────────── */
+  --primary:              var(--sd-color-primary-default);
+  --primary-foreground:   var(--sd-color-primary-foreground);
+
+  /* ── Secondary ───────────────────────────────────────────── */
+  --secondary:            var(--sd-color-secondary-default);
+  --secondary-foreground: var(--sd-color-secondary-foreground);
+
+  /* ── Muted ───────────────────────────────────────────────── */
+  --muted:                var(--sd-color-muted-default);
+  --muted-foreground:     var(--sd-color-muted-foreground);
+
+  /* ── Accent ──────────────────────────────────────────────── */
+  --accent:               var(--sd-color-accent-default);
+  --accent-foreground:    var(--sd-color-accent-foreground);
+
+  /* ── Destructive ─────────────────────────────────────────── */
+  --destructive:          var(--sd-color-destructive-default);
+  --destructive-foreground: var(--sd-color-destructive-foreground);
+
+  /* ── Border / Input / Ring ───────────────────────────────── */
+  --border:               var(--sd-color-border-default);
+  --input:                var(--sd-color-border-default);
+  --ring:                 var(--sd-color-border-focus);
+
+  /* ── Radius (maps to shadcn --radius convention) ─────────── */
+  --radius:               var(--sd-radius-md);
+
+  /* ── Chart colors (optional — used by shadcn charts) ─────── */
+  --chart-1:              var(--sd-color-primary-default);
+  --chart-2:              var(--sd-color-intent-success);
+  --chart-3:              var(--sd-color-intent-warning);
+  --chart-4:              var(--sd-color-intent-danger);
+  --chart-5:              var(--sd-color-intent-info);
+
+  /* ── Sidebar (shadcn sidebar component) ─────────────────── */
+  --sidebar:              var(--sd-color-bg-surface);
+  --sidebar-foreground:   var(--sd-color-text-primary);
+  --sidebar-primary:      var(--sd-color-primary-default);
+  --sidebar-primary-foreground: var(--sd-color-primary-foreground);
+  --sidebar-accent:       var(--sd-color-bg-hover);
+  --sidebar-accent-foreground: var(--sd-color-text-primary);
+  --sidebar-border:       var(--sd-color-border-default);
+  --sidebar-ring:         var(--sd-color-border-focus);
+}
+
+/* ─── Dark ────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --background:           var(--sd-color-bg-canvas);
+  --foreground:           var(--sd-color-text-primary);
+
+  --card:                 var(--sd-color-bg-elevated);
+  --card-foreground:      var(--sd-color-text-primary);
+
+  --popover:              var(--sd-color-bg-elevated);
+  --popover-foreground:   var(--sd-color-text-primary);
+
+  --primary:              var(--sd-color-primary-default);
+  --primary-foreground:   var(--sd-color-primary-foreground);
+
+  --secondary:            var(--sd-color-secondary-default);
+  --secondary-foreground: var(--sd-color-secondary-foreground);
+
+  --muted:                var(--sd-color-muted-default);
+  --muted-foreground:     var(--sd-color-muted-foreground);
+
+  --accent:               var(--sd-color-accent-default);
+  --accent-foreground:    var(--sd-color-accent-foreground);
+
+  --destructive:          var(--sd-color-destructive-default);
+  --destructive-foreground: var(--sd-color-destructive-foreground);
+
+  --border:               var(--sd-color-border-default);
+  --input:                var(--sd-color-border-default);
+  --ring:                 var(--sd-color-border-focus);
+
+  --sidebar:              var(--sd-color-bg-surface);
+  --sidebar-foreground:   var(--sd-color-text-primary);
+  --sidebar-primary:      var(--sd-color-primary-default);
+  --sidebar-primary-foreground: var(--sd-color-primary-foreground);
+  --sidebar-accent:       var(--sd-color-bg-hover);
+  --sidebar-accent-foreground: var(--sd-color-text-primary);
+  --sidebar-border:       var(--sd-color-border-default);
+  --sidebar-ring:         var(--sd-color-border-focus);
+}
+
+/* ─── System dark mode (optional — use if not using data-theme) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background:           var(--sd-color-bg-canvas);
+    --foreground:           var(--sd-color-text-primary);
+    --card:                 var(--sd-color-bg-elevated);
+    --card-foreground:      var(--sd-color-text-primary);
+    --popover:              var(--sd-color-bg-elevated);
+    --popover-foreground:   var(--sd-color-text-primary);
+    --primary:              var(--sd-color-primary-default);
+    --primary-foreground:   var(--sd-color-primary-foreground);
+    --secondary:            var(--sd-color-secondary-default);
+    --secondary-foreground: var(--sd-color-secondary-foreground);
+    --muted:                var(--sd-color-muted-default);
+    --muted-foreground:     var(--sd-color-muted-foreground);
+    --accent:               var(--sd-color-accent-default);
+    --accent-foreground:    var(--sd-color-accent-foreground);
+    --destructive:          var(--sd-color-destructive-default);
+    --destructive-foreground: var(--sd-color-destructive-foreground);
+    --border:               var(--sd-color-border-default);
+    --input:                var(--sd-color-border-default);
+    --ring:                 var(--sd-color-border-focus);
+  }
+}
