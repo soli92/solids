@@ -45,7 +45,7 @@ const preview: Preview = {
           { value: "light", title: "Light", icon: "circlehollow" },
           { value: "dark", title: "Dark", icon: "circle" },
           { value: "fantasy", title: "Fantasy", icon: "bookmark" },
-          { value: "cyberpunk", title: "Cyberpunk", icon: "lightning" },
+          { value: "cyberpunk", title: "Cyberpunk" },
         ],
         dynamicTitle: true,
       },

@@ -38,6 +38,11 @@ const config: StorybookConfig = {
         alias: {
           "@": path.resolve(rootDir, "src"),
         },
+        // Avoid two Reacts (preview + Radix / sonner / etc.); #130 "element type is invalid … undefined".
+        dedupe: ["react", "react-dom"],
+      },
+      optimizeDeps: {
+        include: ["react", "react-dom", "react/jsx-runtime"],
       },
     });
   },
