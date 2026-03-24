@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/soli92/solids/compare/v1.1.0...v1.1.1) (2026-03-24)
+
+
+### Bug Fixes
+
+* align GitHub URLs to soli92; deploy Storybook on GitHub Release ([0faeb60](https://github.com/soli92/solids/commit/0faeb60fcfdb0b3e050e3e6e1d4e239e2ec58f0d))
+
 # [1.1.0](https://github.com/Soli92/solids/compare/v1.0.0...v1.1.0) (2026-03-24)
 
 
