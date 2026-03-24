@@ -1,7 +1,7 @@
 {
   "name": "@Soli92/solids",
   "version": "0.1.0",
-  "description": "SoliDS – agnostic design system foundations (tokens + CSS).",
+  "description": "SoliDS – agnostic design system foundations (tokens + CSS) with shadcn/ui compatibility.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -15,6 +15,9 @@
     "design-system",
     "tokens",
     "css-variables",
+    "shadcn",
+    "shadcn-ui",
+    "tailwind",
     "solids"
   ],
   "sideEffects": false,
@@ -30,19 +33,20 @@
       "default": "./dist/tokens/tokens.json"
     },
     "./tokens": "./dist/tokens/tokens.json",
-    "./css/index.css": "./dist/css/index.css",
-    "./css/variables.css": "./dist/css/variables.css",
-    "./css/themes.css": "./dist/css/themes.css",
-    "./css/base.css": "./dist/css/base.css",
-    "./css/utilities.css": "./dist/css/utilities.css"
+    "./css/index.css":      "./dist/css/index.css",
+    "./css/variables.css":  "./dist/css/variables.css",
+    "./css/themes.css":     "./dist/css/themes.css",
+    "./css/shadcn.css":     "./dist/css/shadcn.css",
+    "./css/base.css":       "./dist/css/base.css",
+    "./css/utilities.css":  "./dist/css/utilities.css"
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "build": "node ./scripts/build.mjs",
-    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"",
-    "prepublishOnly": "npm run clean && npm run build",
+    "clean": "node -e \"import('node:fs').then(({rmSync})=>rmSync('dist',{recursive:true,force:true}))\"",
+    "prepublishOnly": "npm run build",
     "release": "semantic-release",
     "storybook": "storybook dev -p 6006 --docs",
     "build-storybook": "storybook build"
