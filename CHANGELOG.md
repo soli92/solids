@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/soli92/solids/compare/v1.2.0...v1.2.1) (2026-03-24)
+
+
+### Bug Fixes
+
+* **ci:** disable GitHub issue labels for semantic-release failures ([4f9f18d](https://github.com/soli92/solids/commit/4f9f18dd81793d80267a8ca7951397532850911e))
+
 # [1.2.0](https://github.com/soli92/solids/compare/v1.1.1...v1.2.0) (2026-03-24)
 
 
