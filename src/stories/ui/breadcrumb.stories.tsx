@@ -1,23 +1,33 @@
-import * as UI from "@/components/ui/breadcrumb";
+import * as React from "react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Breadcrumb",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Breadcrumb", parameters: { layout: "padded" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Percorso: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/breadcrumb</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="#">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink href="#">Sezione</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>Pagina</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
   ),
 };

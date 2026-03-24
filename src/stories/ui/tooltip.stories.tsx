@@ -1,23 +1,20 @@
-import * as UI from "@/components/ui/tooltip";
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Tooltip",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Tooltip", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const AlPassaggio: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/tooltip</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="outline">Passa il mouse</Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Suggerimento breve</p>
+      </TooltipContent>
+    </Tooltip>
   ),
 };

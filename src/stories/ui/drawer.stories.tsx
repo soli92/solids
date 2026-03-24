@@ -1,23 +1,37 @@
-import * as UI from "@/components/ui/drawer";
+import * as React from "react";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Drawer",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Drawer", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Mobile: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/drawer</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <Drawer>
+      <DrawerTrigger asChild>
+        <Button variant="outline">Apri drawer</Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Drawer</DrawerTitle>
+          <DrawerDescription>Tipico pattern mobile / vaul.</DrawerDescription>
+        </DrawerHeader>
+        <DrawerFooter>
+          <DrawerClose asChild>
+            <Button variant="outline">Chiudi</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   ),
 };

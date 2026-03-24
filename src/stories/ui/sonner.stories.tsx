@@ -1,23 +1,18 @@
-import * as UI from "@/components/ui/sonner";
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Sonner",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Sonner", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Messaggi: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/sonner</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
+    <div className="flex gap-2">
+      <Button onClick={() => toast.success("Operazione riuscita")}>Success</Button>
+      <Button variant="destructive" onClick={() => toast.error("Qualcosa è andato storto")}>
+        Error
+      </Button>
     </div>
   ),
 };

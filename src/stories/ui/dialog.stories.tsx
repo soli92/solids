@@ -1,23 +1,32 @@
-import * as UI from "@/components/ui/dialog";
+import * as React from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Dialog",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Dialog", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Interattivo: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/dialog</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Apri dialog</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Modale</DialogTitle>
+          <DialogDescription>
+            Chiudi con Esc, clic sull&apos;overlay o il pulsante di chiusura.
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
   ),
 };

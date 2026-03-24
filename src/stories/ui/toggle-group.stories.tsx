@@ -1,23 +1,16 @@
-import * as UI from "@/components/ui/toggle-group";
+import * as React from "react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Toggle Group",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Toggle Group", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Gruppo: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/toggle-group</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <ToggleGroup type="multiple" variant="outline">
+      <ToggleGroupItem value="b">B</ToggleGroupItem>
+      <ToggleGroupItem value="i">I</ToggleGroupItem>
+      <ToggleGroupItem value="u">U</ToggleGroupItem>
+    </ToggleGroup>
   ),
 };

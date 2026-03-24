@@ -1,23 +1,20 @@
-import * as UI from "@/components/ui/hover-card";
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Hover Card",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Hover Card", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Anteprima: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/hover-card</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <Button variant="link">@soli92</Button>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-80">
+        <p className="text-sm">Card ricca al hover con ritardo.</p>
+      </HoverCardContent>
+    </HoverCard>
   ),
 };

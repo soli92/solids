@@ -1,23 +1,23 @@
-import * as UI from "@/components/ui/kbd";
+import * as React from "react";
+import { Kbd } from "@/components/ui/kbd";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
   title: "SoliDS/UI/Kbd",
+  component: Kbd,
   parameters: { layout: "centered" },
-} satisfies Meta;
+  argTypes: {},
+} satisfies Meta<typeof Kbd>;
 
 export default meta;
 
-export const Esportazioni: StoryObj = {
+type Story = StoryObj<typeof Kbd>;
+
+export const Playground: Story = {
+  args: {},
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/kbd</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <p className="text-sm">
+      Premi <Kbd className="pointer-events-none">⌘</Kbd> + <Kbd className="pointer-events-none">K</Kbd>
+    </p>
   ),
 };

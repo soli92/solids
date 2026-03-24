@@ -1,23 +1,24 @@
-import * as UI from "@/components/ui/button";
+import * as React from "react";
+import { Button } from "@/components/ui/button";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
   title: "SoliDS/UI/Button",
+  component: Button,
   parameters: { layout: "centered" },
-} satisfies Meta;
+  argTypes: {
+    children: { control: "text" },
+    variant: { control: "select", options: ["default", "destructive", "outline", "secondary", "ghost", "link"] },
+    size: { control: "select", options: ["default", "sm", "lg", "icon"] },
+    disabled: { control: "boolean" },
+  },
+} satisfies Meta<typeof Button>;
 
 export default meta;
 
-export const Esportazioni: StoryObj = {
-  render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/button</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
-  ),
+type Story = StoryObj<typeof Button>;
+
+export const Playground: Story = {
+  args: { children: "Pulsante", variant: "default", size: "default", disabled: false },
+  render: (args: { children?: React.ReactNode } & Record<string, unknown>) => <Button {...args}>{args.children}</Button>,
 };

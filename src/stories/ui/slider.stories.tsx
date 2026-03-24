@@ -1,23 +1,19 @@
-import * as UI from "@/components/ui/slider";
+import * as React from "react";
+import { Slider } from "@/components/ui/slider";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
   title: "SoliDS/UI/Slider",
+  component: Slider,
   parameters: { layout: "centered" },
-} satisfies Meta;
+  argTypes: { disabled: { control: "boolean" } },
+} satisfies Meta<typeof Slider>;
 
 export default meta;
 
-export const Esportazioni: StoryObj = {
-  render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/slider</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
-  ),
+type Story = StoryObj<typeof Slider>;
+
+export const Playground: Story = {
+  args: { defaultValue: [50], max: 100, step: 1, disabled: false },
+  render: (args) => <Slider className="w-[220px]" {...args} />,
 };

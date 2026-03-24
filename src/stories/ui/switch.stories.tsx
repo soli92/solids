@@ -1,23 +1,27 @@
-import * as UI from "@/components/ui/switch";
+import * as React from "react";
+import { Switch } from "@/components/ui/switch";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
   title: "SoliDS/UI/Switch",
+  component: Switch,
   parameters: { layout: "centered" },
-} satisfies Meta;
+  argTypes: { disabled: { control: "boolean" } },
+} satisfies Meta<typeof Switch>;
 
 export default meta;
 
-export const Esportazioni: StoryObj = {
-  render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/switch</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
-  ),
+type Story = StoryObj<typeof Switch>;
+
+export const Playground: Story = {
+  args: { disabled: false },
+  render: function R(args: Record<string, unknown>) {
+    const [on, setOn] = React.useState(false);
+    return (
+      <div className="flex items-center gap-2">
+        <Switch checked={on} onCheckedChange={setOn} {...args} />
+        <span className="text-sm text-muted-foreground">{on ? "On" : "Off"}</span>
+      </div>
+    );
+  },
 };

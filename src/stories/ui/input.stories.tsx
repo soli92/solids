@@ -1,23 +1,23 @@
-import * as UI from "@/components/ui/input";
+import * as React from "react";
+import { Input } from "@/components/ui/input";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
   title: "SoliDS/UI/Input",
+  component: Input,
   parameters: { layout: "centered" },
-} satisfies Meta;
+  argTypes: {
+    type: { control: "select", options: ["text", "email", "password", "search", "url"] },
+    placeholder: { control: "text" },
+    disabled: { control: "boolean" },
+  },
+} satisfies Meta<typeof Input>;
 
 export default meta;
 
-export const Esportazioni: StoryObj = {
-  render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/input</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
-  ),
+type Story = StoryObj<typeof Input>;
+
+export const Playground: Story = {
+  args: { type: "text", placeholder: "Scrivi qui…", disabled: false },
+  render: (args) => <Input {...args} />,
 };

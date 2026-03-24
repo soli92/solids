@@ -4,6 +4,7 @@ import { themes } from "@storybook/theming";
 
 import { Toaster } from "../src/components/ui/toaster";
 import { TooltipProvider } from "../src/components/ui/tooltip";
+import { Toaster as SonnerToaster } from "sonner";
 
 import "../dist/css/index.css";
 import "./preview-tw.built.css";
@@ -59,6 +60,7 @@ const preview: Preview = {
     viewMode: "docs",
     previewTabs: { canvas: { hidden: false } },
     options: { showPanel: true },
+    controls: { expanded: true },
     docs: {
       theme: initialTheme === "dark" || initialTheme === "cyberpunk" ? themes.dark : themes.light,
     },
@@ -78,9 +80,12 @@ const preview: Preview = {
 
       writeStoredTheme(theme);
 
+      const sonnerTheme = theme === "dark" || theme === "cyberpunk" ? "dark" : "light";
+
       return (
         <TooltipProvider delayDuration={200}>
           <Toaster />
+          <SonnerToaster theme={sonnerTheme} className="toaster group" />
           <Story />
         </TooltipProvider>
       );

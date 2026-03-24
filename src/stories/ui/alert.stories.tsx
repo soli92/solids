@@ -1,23 +1,24 @@
-import * as UI from "@/components/ui/alert";
+import * as React from "react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
   title: "SoliDS/UI/Alert",
+  component: Alert,
   parameters: { layout: "centered" },
-} satisfies Meta;
+  argTypes: { variant: { control: "select", options: ["default", "destructive"] } },
+} satisfies Meta<typeof Alert>;
 
 export default meta;
 
-export const Esportazioni: StoryObj = {
-  render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/alert</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+type Story = StoryObj<typeof Alert>;
+
+export const Playground: Story = {
+  args: { variant: "default" as const },
+  render: (args) => (
+    <Alert className="max-w-md" {...args}>
+      <AlertTitle>Attenzione</AlertTitle>
+      <AlertDescription>Messaggio descrittivo dell&apos;alert.</AlertDescription>
+    </Alert>
   ),
 };

@@ -1,23 +1,19 @@
-import * as UI from "@/components/ui/label";
+import * as React from "react";
+import { Label } from "@/components/ui/label";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
   title: "SoliDS/UI/Label",
+  component: Label,
   parameters: { layout: "centered" },
-} satisfies Meta;
+  argTypes: { children: { control: "text" } },
+} satisfies Meta<typeof Label>;
 
 export default meta;
 
-export const Esportazioni: StoryObj = {
-  render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/label</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
-  ),
+type Story = StoryObj<typeof Label>;
+
+export const Playground: Story = {
+  args: { children: "Etichetta campo" },
+  render: (args: { children?: React.ReactNode } & Record<string, unknown>) => <Label {...args}>{args.children}</Label>,
 };

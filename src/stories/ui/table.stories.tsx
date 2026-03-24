@@ -1,23 +1,38 @@
-import * as UI from "@/components/ui/table";
+import * as React from "react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Table",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Table", parameters: { layout: "padded" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Dati: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/table</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <Table>
+      <TableCaption>Esempio tabella token-aware.</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Nome</TableHead>
+          <TableHead>Ruolo</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow>
+          <TableCell>Ada</TableCell>
+          <TableCell>Dev</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>Alan</TableCell>
+          <TableCell>Design</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
   ),
 };

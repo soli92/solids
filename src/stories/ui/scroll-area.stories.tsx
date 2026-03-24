@@ -1,23 +1,16 @@
-import * as UI from "@/components/ui/scroll-area";
+import * as React from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Scroll Area",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Scroll Area", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Lista: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/scroll-area</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <ScrollArea className="h-48 w-64 rounded-md border p-4">
+      {Array.from({ length: 24 }, (_, i) => (
+        <div key={i} className="py-1 text-sm">Riga {i + 1}</div>
+      ))}
+    </ScrollArea>
   ),
 };

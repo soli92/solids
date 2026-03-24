@@ -1,23 +1,27 @@
-import * as UI from "@/components/ui/select";
+import * as React from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Select",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Select", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Scelta: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/select</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <Select defaultValue="b">
+      <SelectTrigger className="w-[220px]">
+        <SelectValue placeholder="Scegli" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="a">Opzione A</SelectItem>
+        <SelectItem value="b">Opzione B</SelectItem>
+        <SelectItem value="c">Opzione C</SelectItem>
+      </SelectContent>
+    </Select>
   ),
 };

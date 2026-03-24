@@ -1,23 +1,13 @@
-import * as UI from "@/components/ui/calendar";
+import * as React from "react";
+import { Calendar } from "@/components/ui/calendar";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Calendar",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Calendar", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
-  render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/calendar</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
-  ),
+export const Mese: StoryObj = {
+  render: function R() {
+    const [d, setD] = React.useState<Date | undefined>(new Date());
+    return <Calendar mode="single" selected={d} onSelect={setD} className="rounded-md border" />;
+  },
 };

@@ -1,23 +1,20 @@
-import * as UI from "@/components/ui/popover";
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Popover",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Popover", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Contenuto: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/popover</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline">Apri popover</Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64">
+        <p className="text-sm">Contenuto flottante con focus trap.</p>
+      </PopoverContent>
+    </Popover>
   ),
 };

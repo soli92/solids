@@ -1,23 +1,39 @@
-import * as UI from "@/components/ui/navigation-menu";
+import * as React from "react";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Navigation Menu",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Navigation Menu", parameters: { layout: "padded" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Nav: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/navigation-menu</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <NavigationMenu>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Voce</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul className="grid w-[200px] gap-2 p-2">
+              <li>
+                <NavigationMenuLink className="block rounded p-2 hover:bg-accent" href="#">
+                  Link A
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink className="block rounded p-2 hover:bg-accent" href="#">
+                  Link B
+                </NavigationMenuLink>
+              </li>
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+    </NavigationMenu>
   ),
 };

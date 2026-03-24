@@ -1,23 +1,21 @@
-import * as UI from "@/components/ui/tabs";
+import * as React from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Tabs",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Tabs", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Pannelli: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/tabs</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <Tabs defaultValue="1" className="w-[400px]">
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger value="1">Uno</TabsTrigger>
+        <TabsTrigger value="2">Due</TabsTrigger>
+        <TabsTrigger value="3">Tre</TabsTrigger>
+      </TabsList>
+      <TabsContent value="1" className="rounded-md border p-4 text-sm">Contenuto tab 1</TabsContent>
+      <TabsContent value="2" className="rounded-md border p-4 text-sm">Contenuto tab 2</TabsContent>
+      <TabsContent value="3" className="rounded-md border p-4 text-sm">Contenuto tab 3</TabsContent>
+    </Tabs>
   ),
 };

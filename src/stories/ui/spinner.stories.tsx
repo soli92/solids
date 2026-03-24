@@ -1,23 +1,19 @@
-import * as UI from "@/components/ui/spinner";
+import * as React from "react";
+import { Spinner } from "@/components/ui/spinner";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
   title: "SoliDS/UI/Spinner",
+  component: Spinner,
   parameters: { layout: "centered" },
-} satisfies Meta;
+  argTypes: {},
+} satisfies Meta<typeof Spinner>;
 
 export default meta;
 
-export const Esportazioni: StoryObj = {
-  render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/spinner</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
-  ),
+type Story = StoryObj<typeof Spinner>;
+
+export const Playground: Story = {
+  args: {},
+  render: () => <Spinner className="size-8" />,
 };

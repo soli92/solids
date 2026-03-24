@@ -1,23 +1,35 @@
-import * as UI from "@/components/ui/menubar";
+import * as React from "react";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Menubar",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Menubar", parameters: { layout: "padded" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Barra: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/menubar</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <Menubar>
+      <MenubarMenu>
+        <MenubarTrigger>File</MenubarTrigger>
+        <MenubarContent>
+          <MenubarItem>Nuovo</MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem>Esci</MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+      <MenubarMenu>
+        <MenubarTrigger>Modifica</MenubarTrigger>
+        <MenubarContent>
+          <MenubarItem>Taglia</MenubarItem>
+          <MenubarItem>Copia</MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+    </Menubar>
   ),
 };

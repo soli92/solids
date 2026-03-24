@@ -1,23 +1,25 @@
-import * as UI from "@/components/ui/context-menu";
+import * as React from "react";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Context Menu",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Context Menu", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const TastoDestro: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/context-menu</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <ContextMenu>
+      <ContextMenuTrigger className="flex h-32 w-[280px] items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+        Click destro qui
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem>Copia</ContextMenuItem>
+        <ContextMenuItem>Incolla</ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   ),
 };

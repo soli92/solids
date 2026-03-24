@@ -1,23 +1,27 @@
-import * as UI from "@/components/ui/checkbox";
+import * as React from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
   title: "SoliDS/UI/Checkbox",
+  component: Checkbox,
   parameters: { layout: "centered" },
-} satisfies Meta;
+  argTypes: { disabled: { control: "boolean" } },
+} satisfies Meta<typeof Checkbox>;
 
 export default meta;
 
-export const Esportazioni: StoryObj = {
-  render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/checkbox</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
-  ),
+type Story = StoryObj<typeof Checkbox>;
+
+export const Playground: Story = {
+  args: { disabled: false },
+  render: function R(args: Record<string, unknown>) {
+    const [c, setC] = React.useState(false);
+    return (
+      <label className="flex items-center gap-2 text-sm">
+        <Checkbox checked={c} onCheckedChange={(v) => setC(v === true)} {...args} />
+        Accetto i termini
+      </label>
+    );
+  },
 };

@@ -1,23 +1,26 @@
-import * as UI from "@/components/ui/input-group";
+import * as React from "react";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta = {
-  title: "SoliDS/UI/Input Group",
-  parameters: { layout: "centered" },
-} satisfies Meta;
-
+const meta = { title: "SoliDS/UI/Input Group", parameters: { layout: "centered" } } satisfies Meta;
 export default meta;
 
-export const Esportazioni: StoryObj = {
+export const Combinato: StoryObj = {
   render: () => (
-    <div className="max-w-md rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
-      <p className="mb-2 font-mono text-xs text-muted-foreground">@/components/ui/input-group</p>
-      <p className="text-sm text-muted-foreground">
-        Esportazioni:{" "}
-        <span className="font-medium text-foreground">
-          {Object.keys(UI).join(", ")}
-        </span>
-      </p>
-    </div>
+    <InputGroup className="max-w-md">
+      <InputGroupAddon>
+        <InputGroupText>@</InputGroupText>
+      </InputGroupAddon>
+      <InputGroupInput placeholder="username" />
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton type="button">Go</InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
   ),
 };
