@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Soli92/solids/compare/v1.0.0...v1.1.0) (2026-03-24)
+
+
+### Features
+
+* tailwind preset, shadcn registry [@solids](https://github.com/solids), Storybook button showcase ([2df67ce](https://github.com/Soli92/solids/commit/2df67ce8e1b810348775a717a0a106eac614378f))
+
 # 1.0.0 (2026-03-24)
 
 
