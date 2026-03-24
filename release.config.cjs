@@ -5,7 +5,13 @@ module.exports = {
     "@semantic-release/release-notes-generator",
     ["@semantic-release/changelog", { changelogFile: "CHANGELOG.md" }],
     "@semantic-release/npm",
-    "@semantic-release/github",
+    [
+      "@semantic-release/github",
+      {
+        // Evita 422 se l'etichetta non esiste ancora nel repo (default: ["semantic-release"])
+        labels: false,
+      },
+    ],
     [
       "@semantic-release/git",
       {
