@@ -14,7 +14,7 @@ pronta all'uso con qualsiasi framework web e compatibile con **shadcn/ui**.
 |-------|------|-------------|
 | 🎨 Tokens | `dist/tokens/tokens.json` | Palette completa, spacing, tipografia, shadow, radius, easing, z-index |
 | 🔤 Variables | `dist/css/variables.css` | CSS vars `--sd-*` per tema light (default) |
-| 🌗 Themes | `dist/css/themes.css` | Override dark + `prefers-color-scheme` |
+| 🌗 Themes | `dist/css/themes.css` | Override **dark**, **fantasy**, **cyberpunk** + `prefers-color-scheme: dark` quando `data-theme` non è impostato |
 | 🔗 shadcn | `dist/css/shadcn.css` | Mapping variabili shadcn/ui → token SoliDS |
 | 🧱 Base | `dist/css/base.css` | Reset minimale, body, focus-visible, box-sizing |
 | 🛠️ Utilities | `dist/css/utilities.css` | Classi utility `sd-*` (flex, spacing, colori, badge, card…) |
@@ -77,7 +77,7 @@ Poi inizializza shadcn e aggiungi i componenti: **tutto il kit** con `npx shadcn
 import tokens from "@soli92/solids/tokens";           // tokens.json
 import "@soli92/solids/css/index.css";                // tutto
 import "@soli92/solids/css/variables.css";            // solo vars
-import "@soli92/solids/css/themes.css";               // solo dark
+import "@soli92/solids/css/themes.css";               // override temi + OS dark
 import "@soli92/solids/css/shadcn.css";               // solo shadcn layer
 import "@soli92/solids/css/base.css";                 // solo base
 import "@soli92/solids/css/utilities.css";            // solo utilities
@@ -133,22 +133,21 @@ Preset Tailwind (shadcn): `require("@soli92/solids/tailwind-preset")` nel `tailw
 
 ---
 
-## Dark Mode
+## Temi (light, dark, fantasy, cyberpunk)
 
-SoliDS supporta tre strategie contemporaneamente:
+Quattro temi globali tramite `data-theme` su `<html>`. Stessi token semantici (`--sd-*`), valori diversi per colore, font, raggio e ombre dove definito nei JSON tema.
 
 ```html
-<!-- Forza dark -->
+<html data-theme="light">      <!-- esplicito (spesso coincide con default :root) -->
 <html data-theme="dark">
-
-<!-- Forza light -->
-<html data-theme="light">
-
-<!-- Automatico (segue sistema, default) -->
-<html>
+<html data-theme="fantasy">    <!-- pergamena / serif / Cinzel negli heading -->
+<html data-theme="cyberpunk">  <!-- neon; il preset Tailwind tratta anche questo come "dark" per le utility dark: -->
 ```
 
-Con **next-themes**:
+Se **`data-theme` non è impostato**, `prefers-color-scheme: dark` applica i token **dark** (come `data-theme="dark"`). **Fantasy** e **cyberpunk** vanno scelti esplicitamente.
+
+Con **next-themes**, usa `attribute="data-theme"` e, se vuoi tutti i temi nel selettore, estendi i temi oltre `light`/`dark` (vedi `docs/shadcn-integration.md`).
+
 ```tsx
 <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
 ```
@@ -225,7 +224,9 @@ src/
 │   ├── semantic.json       # Token semantici (testo, bg, border, intent, componenti)
 │   └── themes/
 │       ├── light.json      # Override tema light
-│       └── dark.json       # Override tema dark
+│       ├── dark.json       # Override tema dark
+│       ├── fantasy.json    # Tema fantasy (palette, font, radius, shadow)
+│       └── cyberpunk.json  # Tema cyberpunk
 ├── tailwind/
 │   └── preset.cjs          # Preset Tailwind (shadcn + token SD)
 ├── components/ui/          # Esempio shadcn in Storybook

@@ -11,7 +11,7 @@ export default meta;
 
 export const Pannelli: StoryObj = {
   render: () => (
-    <ResizablePanelGroup direction="horizontal" className="max-w-md rounded-lg border min-h-[120px]">
+    <ResizablePanelGroup orientation="horizontal" className="max-w-md rounded-lg border min-h-[120px]">
       <ResizablePanel defaultSize={50}>
         <div className="flex h-full items-center justify-center p-4 text-sm">A</div>
       </ResizablePanel>

@@ -4,10 +4,51 @@ import { Meta } from "@storybook/blocks";
 
 # Getting Started
 
-Questa guida spiega come iniziare a usare **SoliDS** in pochi minuti.
+Come usare **SoliDS** in un progetto in pochi passaggi.
 
-## Installazione
+## 1. Installazione
 
 ```bash
 npm install @soli92/solids
 ```
+
+## 2. Importa il CSS
+
+Entrypoint completo (consigliato):
+
+```css
+@import "@soli92/solids/css/index.css";
+```
+
+Include variabili, override per **dark / fantasy / cyberpunk**, layer shadcn, base e utilities. Ordine e contenuti: pagina **Foundations / Tokens**.
+
+## 3. Scegli il tema
+
+Imposta l’attributo su `<html>` (o `:root`):
+
+```html
+<html data-theme="light"></html>
+<html data-theme="dark"></html>
+<html data-theme="fantasy"></html>
+<html data-theme="cyberpunk"></html>
+```
+
+Senza `data-theme`, il **dark** di sistema (`prefers-color-scheme`) applica i token dark; **fantasy** e **cyberpunk** restano espliciti. Dettagli: **Foundations / Themes**.
+
+Con **next-themes**, usa `attribute="data-theme"` e valori `light | dark | fantasy | cyberpunk` (ed eventualmente `system`). Vedi `docs/shadcn-integration.md`.
+
+## 4. Tailwind + shadcn (opzionale ma consigliato)
+
+```js
+// tailwind.config.cjs (o .js)
+module.exports = {
+  presets: [require("@soli92/solids/tailwind-preset")],
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+};
+```
+
+Poi `npx shadcn@latest add …` con gli item del registry `@solids`. Guida: `docs/shadcn-integration.md`.
+
+## 5. Documentazione in Storybook
+
+Nella sidebar: **Foundations** (colori, spacing, tipografia, radius, temi, token) e le story **SoliDS / UI** per i componenti di esempio.

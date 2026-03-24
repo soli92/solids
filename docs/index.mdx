@@ -15,17 +15,19 @@ Nasce per fornire fondamenta solide, coerenti e riutilizzabili per la costruzion
 - Ridurre ambiguità e ridondanze
 - Abilitare un’adozione progressiva
 
-SoliDS non è una component library pubblicata su npm, ma la base su cui **componenti e applicazioni possono essere costruiti**.
+SoliDS non pubblica una component library “chiusa” nell’artifact npm: il pacchetto `@soli92/solids` offre **token + CSS**; i componenti UI vivono nei tuoi progetti (modello **shadcn**: codice in repo + registry).
 
 ## Cosa include
 
-- Design tokens (JSON)
-- CSS variables semantic‑first
-- Supporto nativo a light / dark theme
-- Base styles e utility CSS
-- Preset Tailwind per shadcn/ui
-- **Modello 1 (shadcn):** registry `@solids`, JSON in `registry/r/`; guida nel file `docs/registry-model-1.md` nel repository
+- Design tokens (JSON unificato: base, semantic, **quattro temi**)
+- CSS variables semantic‑first (`--sd-*`)
+- **Temi:** light, dark, **fantasy**, **cyberpunk** (`data-theme` su `<html>`)
+- Fallback **OS dark** quando `data-theme` non è impostato
+- Base styles e utility CSS (`sd-*`)
+- Preset Tailwind per allineamento con **shadcn/ui**
+- **Modello 1 (shadcn):** registry `@solids`, JSON in `registry/r/`; guida in `docs/registry-model-1.md`
+- **Storybook** (questa documentazione + esempi UI): pubblicato su GitHub Pages dopo le release
 
 ## Cosa non include nell’artifact npm
 
-- Componenti React nel pacchetto `@soli92/solids` (restano nel tuo progetto, installabili via CLI shadcn dal registry)
+- I file React in `src/components/ui/` non sono nel tarball npm: sono riferimento e **registry**; nei progetti si aggiungono con la CLI shadcn dagli item `@solids/…`.

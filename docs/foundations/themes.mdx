@@ -4,29 +4,47 @@ import { Meta } from "@storybook/blocks";
 
 # Themes
 
-SoliDS supporta temi tramite **override dei token semantici**.
+SoliDS applica i temi con **override dei token semantici** (colori, font, raggio, ombre): gli stessi nomi di variabile CSS (`--sd-*`) cambiano valore in base a `data-theme` su `<html>` (o `:root`).
 
 ## Temi disponibili
 
-- **light** (default, `:root` e `data-theme="light"`)
-- **dark** — contrasto elevato, ideale per notte / UI dense
-- **fantasy** — pergamena, inchiostro, ottone; font serif / titoli `Cinzel` (stack di fallback; per il look completo puoi aggiungere il font da CDN)
-- **cyberpunk** — fondo profondo, cyan / magenta, ombre “neon”; `Orbitron` / `Share Tech Mono` negli stack (fallback su system)
+| Tema | `data-theme` | Note |
+|------|----------------|------|
+| **Light** | `light` oppure default `:root` | Base chiara; allineato al default dei token in `variables.css`. |
+| **Dark** | `dark` | Contrasto elevato; adatto a UI dense e notte. |
+| **Fantasy** | `fantasy` | Pergamena, inchiostro, ottone; titoli con stack **Cinzel** (carica il font da CDN per il look completo). |
+| **Cyberpunk** | `cyberpunk` | Sfondo profondo, accenti cyan/magenta, ombre “neon”; titoli **Orbitron**, mono **Share Tech Mono** (stesso discorso CDN). |
 
-## Come funziona
+### Comportamento con il sistema
 
-I temi:
+- Se **`data-theme` non è impostato** su `:root`, **`prefers-color-scheme: dark`** applica gli stessi token del tema **dark** (senza toccare light/fantasy/cyberpunk espliciti).
+- Con **`fantasy`** o **`cyberpunk`** il tema resta quello scelto anche se il sistema è in dark mode.
 
-- non duplicano componenti
-- ridefiniscono solo i token semantici
-- non cambiano l’API dei consumer
+### Tailwind `dark:`
+
+Il preset Tailwind tratta come “dark” sia `data-theme="dark"` sia `data-theme="cyberpunk"`, così le utility `dark:` restano utili sul tema neon. Dettagli in `docs/shadcn-integration.md` nel repository.
+
+## Cosa resta stabile
+
+- Nessuna duplicazione di componenti: cambiano solo i **token**.
+- Il layer **shadcn** continua a leggere `--background`, `--primary`, ecc., già mappati sui token SoliDS.
 
 ## Attivazione
 
 ```html
+<html data-theme="light"></html>
 <html data-theme="dark"></html>
 <html data-theme="fantasy"></html>
 <html data-theme="cyberpunk"></html>
 ```
 
-Se **non** imposti `data-theme` su `<html>`, in assenza di preferenza esplicita il tema **dark** segue `prefers-color-scheme: dark` (stessi token di `data-theme="dark"`). Con `fantasy` o `cyberpunk` il tema scelto resta stabile anche se il sistema è in dark mode.
+Anteprima delle palette per tema nella pagina **Foundations / Colors** (sidebar Storybook).
+
+## Font opzionali (CDN)
+
+Per avvicinarti al look dei temi **fantasy** e **cyberpunk**, puoi aggiungere da Google Fonts (o simile):
+
+- **Fantasy:** [Cinzel](https://fonts.google.com/specimen/Cinzel)
+- **Cyberpunk:** [Orbitron](https://fonts.google.com/specimen/Orbitron), [Share Tech Mono](https://fonts.google.com/specimen/Share+Tech+Mono)
+
+Senza CDN, gli stack degradano su serif/sans/mono di sistema definiti nei JSON tema.

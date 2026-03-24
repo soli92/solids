@@ -4,16 +4,27 @@ import { Meta } from "@storybook/blocks";
 
 # Border Radius
 
-I border radius sono definiti tramite token per garantire coerenza.
+I border radius sono esposti come **CSS variables** `--sd-radius-*`, derivate da `src/tokens/base.json`. I temi **fantasy** e **cyberpunk** possono **sovrascrivere** i valori (fantasy tende a raggi più morbidi; cyberpunk a raggi più stretti / tech).
 
-## Token disponibili
+## Token CSS (default light / base)
 
-- radius.sm
-- radius.md
-- radius.lg
+| Variabile | Ruolo |
+| --------- | ----- |
+| `--sd-radius-none` | Nessun raggio (0) |
+| `--sd-radius-sm` | Piccolo |
+| `--sd-radius-md` | Standard (shadcn usa spesso questo come `--radius`) |
+| `--sd-radius-lg` | Grande |
+| `--sd-radius-xl` | Extra large |
+| `--sd-radius-2xl` | Molto arrotondato |
+| `--sd-radius-3xl` | Ancora più ampio |
+| `--sd-radius-full` | Pill / cerchio |
+
+## Utility
+
+Le classi in `utilities.css` includono ad esempio `.sd-rounded-sm`, `.sd-rounded-md`, `.sd-rounded-lg`, `.sd-rounded-xl`, `.sd-rounded-full`, `.sd-rounded-none`.
 
 ## Linee guida
 
-- Usa il radius più piccolo possibile
-- Evita radius custom nei componenti
-- Mantieni coerenza tra componenti simili
+- Parti dal token più piccolo adeguato al contesto
+- Evita valori arbitrari nei componenti; allinea i componenti simili allo stesso step
+- Per shadcn/ui, `--radius` nel layer `shadcn.css` punta a `--sd-radius-md` e segue i token del tema attivo

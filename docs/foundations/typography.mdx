@@ -4,7 +4,7 @@ import { Meta } from "@storybook/blocks";
 
 # Typography
 
-La tipografia in SoliDS è definita tramite token semantici.
+La tipografia in SoliDS è guidata da **token CSS** (`--sd-font-*`, `--sd-font-size-*`, `--sd-font-weight-*`, `--sd-line-height-*` dove definiti). I **font stack** per corpo, titoli e mono sono semantici: cambiano con il tema (in particolare **fantasy** e **cyberpunk**).
 
 ## Obiettivi
 
@@ -14,13 +14,31 @@ La tipografia in SoliDS è definita tramite token semantici.
 
 ## Principi
 
-- Niente font-size hardcoded nei componenti
-- Usare scale coerenti
-- Separare dimensione, peso e line-height
+- Niente `font-size` hardcoded nei componenti quando esiste un token
+- Usare una scala coerente (`--sd-font-size-*`)
+- Separare famiglia (body / heading / mono), peso e interlinea
 
-## Esempi di utilizzo
+## Famiglie semantiche
 
-- text.primary
-- text.secondary
+| Variabile | Uso |
+| --------- | --- |
+| `--sd-font-body` | Testo corrente, UI |
+| `--sd-font-heading` | Titoli |
+| `--sd-font-mono` | Codice, dati tabellari |
 
-La tipografia può evolvere senza impattare i consumer.
+### Per tema (indicativo)
+
+- **Light / dark:** stack sans di sistema su body e heading; mono di sistema.
+- **Fantasy:** corpo e titoli con enfasi **serif** / **Cinzel** negli heading (stack in `themes/fantasy.json`).
+- **Cyberpunk:** heading con **Orbitron**, mono con **Share Tech Mono** (stack in `themes/cyberpunk.json`); senza font da CDN si usano i fallback di sistema.
+
+## Dimensioni e pesi
+
+- Dimensioni tipiche: `--sd-font-size-xs` … `--sd-font-size-6xl` (vedi `dist/css/variables.css` o `tokens.json`)
+- Pesi: `--sd-font-weight-light` … `--sd-font-weight-extrabold`
+
+## Utility
+
+In `utilities.css`, classi come `.sd-font-sans`, `.sd-font-mono` e utility di testo (`sd-text-*`) si appoggiano ai token sopra.
+
+La tipografia può evolvere nei JSON tema senza cambiare l’API dei consumer: restano gli stessi nomi di variabile.

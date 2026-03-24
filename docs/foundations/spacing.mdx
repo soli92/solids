@@ -4,7 +4,7 @@ import { Meta } from "@storybook/blocks";
 
 # Spacing
 
-Lo spacing in SoliDS è basato su una **scala coerente e limitata**.
+Lo spacing in SoliDS è basato su una **scala numerica** in `base.json` (es. `--sd-space-1` … `--sd-space-6`, fino a valori più grandi) e su **alias semantici** in `semantic.json` (es. `--sd-space-xs` … `--sd-space-3xl`) che mappano su passi della scala.
 
 L’obiettivo è:
 
@@ -16,29 +16,33 @@ L’obiettivo è:
 
 ## Regole fondamentali
 
-- ✅ Usa **solo** valori della scala
-- ❌ Non usare `px` arbitrari nei componenti
+- ✅ Usa **solo** valori della scala (`var(--sd-space-*)` o alias `--sd-space-xs` …)
+- ❌ Evita `px` arbitrari nei componenti
 - ✅ Preferisci token semantici allo spacing “ad hoc”
 
 ---
 
-## Spacing scale
+## Scala di esempio (token numerici)
 
-| Token          | Uso consigliato      |
-| -------------- | -------------------- |
-| `--sd-space-0` | reset / collapse     |
-| `--sd-space-1` | gap minimo           |
-| `--sd-space-2` | padding interno      |
-| `--sd-space-3` | separazione elementi |
-| `--sd-space-4` | layout standard      |
-| `--sd-space-5` | layout ampio         |
-| `--sd-space-6` | separazioni macro    |
+| Token | Uso tipico |
+| ----- | ---------- |
+| `--sd-space-0` | reset / collapse |
+| `--sd-space-1` | gap minimo (4px) |
+| `--sd-space-2` | padding interno stretto (8px) |
+| `--sd-space-3` | separazione elementi (12px) |
+| `--sd-space-4` | layout standard (16px) |
+| `--sd-space-5` | respiro medio (20px) |
+| `--sd-space-6` | separazioni più ampie (24px) |
+
+La lista completa (fino a `--sd-space-64`, più `px` / frazioni) è in `dist/tokens/tokens.json` e in `dist/css/variables.css`.
 
 ---
 
-## Visual preview
+## Anteprima visiva
 
-### Light theme
+La scala sotto è mostrata con sfondo canvas dei temi **light**, **dark**, **fantasy** e **cyberpunk** (i valori in px non cambiano; cambiano colori e contrasto).
+
+### Light
 
 <div
   data-theme="light"
@@ -51,10 +55,36 @@ L’obiettivo è:
   <SpacingScale />
 </div>
 
-### Dark theme
+### Dark
 
 <div
   data-theme="dark"
+  style={{
+    padding: 16,
+    background: "var(--sd-color-bg-canvas)",
+    borderRadius: 12,
+  }}
+>
+  <SpacingScale />
+</div>
+
+### Fantasy
+
+<div
+  data-theme="fantasy"
+  style={{
+    padding: 16,
+    background: "var(--sd-color-bg-canvas)",
+    borderRadius: 12,
+  }}
+>
+  <SpacingScale />
+</div>
+
+### Cyberpunk
+
+<div
+  data-theme="cyberpunk"
   style={{
     padding: 16,
     background: "var(--sd-color-bg-canvas)",

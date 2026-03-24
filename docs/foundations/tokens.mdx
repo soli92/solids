@@ -4,12 +4,41 @@ import { Meta } from "@storybook/blocks";
 
 # Design Tokens
 
-I design tokens rappresentano le decisioni di design atomiche di SoliDS.
+I token sono la **singola fonte di verità** per colori, spazi, tipografia, raggio, ombre, motion e z-index. SoliDS li espone come:
 
-Sono disponibili come **JSON** e come **CSS variables**.
+1. **JSON** — per tooling, documentazione e integrazioni (`dist/tokens/tokens.json`)
+2. **CSS variables** — prefisso `--sd-*`, consumabili da qualsiasi stack
 
-## Accesso ai token (JSON)
+## Struttura del JSON pubblicato
+
+`tokens.json` unisce:
+
+- **`base`** — palette grezza, scala spacing numerica, radius base, font base, shadow, easing, z-index, …
+- **`semantic`** — significati (testo, sfondo, border, intent, primary, …) con default “light”
+- **`themes`** — override per **`light`**, **`dark`**, **`fantasy`**, **`cyberpunk`** (ogni file in `src/tokens/themes/*.json`)
+
+Esempio di accesso in JavaScript:
 
 ```js
 import tokens from "@soli92/solids/tokens";
+
+// tokens.semantic, tokens.base, tokens.themes.dark, …
 ```
+
+## Pipeline CSS (ordine di import)
+
+L’entrypoint consigliato è `@soli92/solids/css/index.css`, che importa nell’ordine:
+
+1. **`variables.css`** — `:root` con base + semantic + merge tema light
+2. **`themes.css`** — `[data-theme="dark"]`, `[data-theme="fantasy"]`, `[data-theme="cyberpunk"]`, più fallback `prefers-color-scheme: dark` quando `data-theme` non è impostato
+3. **`shadcn.css`** — mapping verso variabili shadcn (`--background`, `--primary`, …)
+4. **`base.css`** — reset e stili globali
+5. **`utilities.css`** — classi `sd-*`
+
+## Temi
+
+Panoramica e attivazione: pagina **Foundations / Themes**.
+
+## Riferimento rapido
+
+Per elenchi dettagliati di variabili (`--sd-color-*`, spacing, radius, font, shadow, …) vedi anche il **README** del pacchetto nella repo e le altre pagine Foundations (Colors, Spacing, Radius, Typography).

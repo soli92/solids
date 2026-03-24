@@ -4,7 +4,7 @@ import { Meta } from "@storybook/blocks";
 
 # Colors
 
-SoliDS utilizza **color tokens semantici**, non colori grezzi.
+SoliDS utilizza **color tokens semantici**, non colori grezzi. I valori dipendono dal **tema attivo** (`data-theme`): light, dark, fantasy e cyberpunk ridefiniscono la stessa struttura semantica.
 
 I consumer **non devono mai** usare direttamente la palette base
 (es. `gray.900`, `blue.600`), ma solo token con significato.
@@ -17,26 +17,32 @@ I consumer **non devono mai** usare direttamente la palette base
 
 - `--sd-color-text-primary`
 - `--sd-color-text-secondary`
+- `--sd-color-text-tertiary`
+- `--sd-color-text-disabled`
 - `--sd-color-text-inverse`
+- `--sd-color-text-link` / `--sd-color-text-link-hover`
 
 ### Background
 
 - `--sd-color-bg-canvas`
 - `--sd-color-bg-surface`
 - `--sd-color-bg-elevated`
+- `--sd-color-bg-overlay` / `hover` / `active` / `disabled`
 
 ### Border
 
 - `--sd-color-border-default`
 - `--sd-color-border-muted`
+- `--sd-color-border-strong`
 - `--sd-color-border-focus`
+- `--sd-color-border-disabled`
 
 ### Intent
 
-- `--sd-color-intent-success`
-- `--sd-color-intent-warning`
-- `--sd-color-intent-danger`
-- `--sd-color-intent-info`
+- `--sd-color-intent-success` (+ `-bg`, `-border`)
+- `--sd-color-intent-warning` (+ `-bg`, `-border`)
+- `--sd-color-intent-danger` (+ `-bg`, `-border`)
+- `--sd-color-intent-info` (+ `-bg`, `-border`)
 
 ### Icon (stroke / `currentColor`)
 
@@ -47,13 +53,17 @@ Usate dalle icone SoliDS e dalle utility `.sd-icon`, `.sd-icon-muted`, …
 - `--sd-color-icon-primary`
 - `--sd-color-icon-on-primary`
 
+### Componenti (brand)
+
+- `--sd-color-primary-*`, `--sd-color-secondary-*`, `--sd-color-muted-*`, `--sd-color-accent-*`, `--sd-color-destructive-*`
+
 ---
 
-## Visual preview
+## Anteprima visiva per tema
 
-Di seguito lo **stesso set di token** mostrato in **light** e **dark**.
+Stesso elenco di token campionato sotto **light**, **dark**, **fantasy** e **cyberpunk**. Per attivazione e comportamento dei temi vedi **Foundations / Themes**.
 
-### Light theme
+### Light
 
 <div data-theme="light" style={{ padding: 16, borderRadius: 12, background: "var(--sd-color-bg-canvas)" }}>
 
@@ -61,9 +71,25 @@ Di seguito lo **stesso set di token** mostrato in **light** e **dark**.
 
 </div>
 
-### Dark theme
+### Dark
 
 <div data-theme="dark" style={{ padding: 16, borderRadius: 12, background: "var(--sd-color-bg-canvas)" }}>
+
+<ColorGrid />
+
+</div>
+
+### Fantasy
+
+<div data-theme="fantasy" style={{ padding: 16, borderRadius: 12, background: "var(--sd-color-bg-canvas)" }}>
+
+<ColorGrid />
+
+</div>
+
+### Cyberpunk
+
+<div data-theme="cyberpunk" style={{ padding: 16, borderRadius: 12, background: "var(--sd-color-bg-canvas)" }}>
 
 <ColorGrid />
 
