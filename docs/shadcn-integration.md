@@ -11,14 +11,14 @@ In questo modo usi un solo sistema di token per tutti i tuoi progetti.
 ### 1. Installa SoliDS
 
 ```bash
-npm install @Soli92/solids
+npm install @soli92/solids
 ```
 
 ### 2. Importa il CSS nell'entrypoint globale
 
 ```css
 /* app/globals.css  –oppure–  styles/globals.css */
-@import "@Soli92/solids/css/index.css";
+@import "@soli92/solids/css/index.css";
 
 /* Il tuo Tailwind (dopo SoliDS) */
 @tailwind base;
@@ -29,60 +29,23 @@ npm install @Soli92/solids
 > ⚠️ `index.css` importa già **variables → themes → shadcn → base → utilities**
 > nell'ordine corretto. Non devi importare i singoli file separatamente.
 
-### 3. Configura Tailwind per usare le CSS Variables di SoliDS
+### 3. Configura Tailwind (preset SoliDS — consigliato)
 
 ```js
-// tailwind.config.js  (o tailwind.config.ts)
-const { fontFamily } = require("tailwindcss/defaultTheme");
-
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js  (o tailwind.config.ts con createRequire)
 module.exports = {
-  darkMode: ["class", '[data-theme="dark"]'],   // supporta sia class sia data-theme
+  presets: [require("@soli92/solids/tailwind-preset")],
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
-  theme: {
-    extend: {
-      colors: {
-        /* ── shadcn/ui standard ───────────────────────────── */
-        background:  "var(--background)",
-        foreground:  "var(--foreground)",
-        card:        { DEFAULT: "var(--card)",        foreground: "var(--card-foreground)" },
-        popover:     { DEFAULT: "var(--popover)",     foreground: "var(--popover-foreground)" },
-        primary:     { DEFAULT: "var(--primary)",     foreground: "var(--primary-foreground)" },
-        secondary:   { DEFAULT: "var(--secondary)",   foreground: "var(--secondary-foreground)" },
-        muted:       { DEFAULT: "var(--muted)",       foreground: "var(--muted-foreground)" },
-        accent:      { DEFAULT: "var(--accent)",      foreground: "var(--accent-foreground)" },
-        destructive: { DEFAULT: "var(--destructive)", foreground: "var(--destructive-foreground)" },
-        border:  "var(--border)",
-        input:   "var(--input)",
-        ring:    "var(--ring)",
-
-        /* ── SoliDS extras (disponibili come classi Tailwind) */
-        "sd-primary":  "var(--sd-color-primary-default)",
-        "sd-success":  "var(--sd-color-intent-success)",
-        "sd-warning":  "var(--sd-color-intent-warning)",
-        "sd-danger":   "var(--sd-color-intent-danger)",
-        "sd-info":     "var(--sd-color-intent-info)",
-      },
-      borderRadius: {
-        lg:   "var(--radius)",
-        md:   "calc(var(--radius) - 2px)",
-        sm:   "calc(var(--radius) - 4px)",
-      },
-      fontFamily: {
-        sans: ["var(--sd-font-body)", ...fontFamily.sans],
-        mono: ["var(--sd-font-mono)", ...fontFamily.mono],
-      },
-      boxShadow: {
-        sm:  "var(--sd-shadow-sm)",
-        md:  "var(--sd-shadow-md)",
-        lg:  "var(--sd-shadow-lg)",
-        xl:  "var(--sd-shadow-xl)",
-      },
-    },
-  },
-  plugins: [require("tailwindcss-animate")],
 };
 ```
+
+Installa anche `tailwindcss-animate` (richiesto dal preset, come in shadcn):
+
+```bash
+npm install tailwindcss-animate
+```
+
+**Alternativa manuale:** se non vuoi il preset, copia l’estensione `theme.extend` completa dalla versione precedente di questa guida (colori `var(--background)`, chart, sidebar, font, shadow) nel tuo `tailwind.config`.
 
 ### 4. Inizializza shadcn/ui
 
@@ -94,7 +57,11 @@ Durante l'inizializzazione scegli:
 - **CSS variables**: `yes`
 - **Base color**: qualsiasi (verrà sovrascritto da SoliDS)
 - Non aggiungere il blocco `@layer base` generato da shadcn in `globals.css`
-  se usi già `@import "@Soli92/solids/css/index.css"`.
+  se usi già `@import "@soli92/solids/css/index.css"`.
+
+Riferimento `components.json`: [templates/components.json.example](../templates/components.json.example).
+
+**Modello 1 (componenti nel tuo repo + CLI):** vedi [registry-model-1.md](./registry-model-1.md) per il namespace `@solids` e `npx shadcn add @solids/solids-button`.
 
 ---
 
@@ -134,9 +101,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 Se vuoi solo le variabili e il layer shadcn, senza reset e utility:
 
 ```css
-@import "@Soli92/solids/css/variables.css";
-@import "@Soli92/solids/css/themes.css";
-@import "@Soli92/solids/css/shadcn.css";
+@import "@soli92/solids/css/variables.css";
+@import "@soli92/solids/css/themes.css";
+@import "@soli92/solids/css/shadcn.css";
 ```
 
 ---
@@ -175,7 +142,7 @@ Se vuoi solo le variabili e il layer shadcn, senza reset e utility:
 
 ```tsx
 // main.tsx
-import "@Soli92/solids/css/index.css";
+import "@soli92/solids/css/index.css";
 ```
 
 ---

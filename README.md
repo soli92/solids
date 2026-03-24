@@ -32,6 +32,8 @@ npm install @soli92/solids
 
 ### Con Tailwind + shadcn/ui (Next.js, Vite…)
 
+**Consigliato:** usa il **preset Tailwind** del pacchetto così tema, colori shadcn, font e shadow restano allineati ai token in un solo punto.
+
 ```css
 /* globals.css */
 @import "@soli92/solids/css/index.css";
@@ -44,32 +46,18 @@ npm install @soli92/solids
 ```js
 // tailwind.config.js
 module.exports = {
-  darkMode: ["class", '[data-theme="dark"]'],
-  theme: {
-    extend: {
-      colors: {
-        background:  "var(--background)",
-        foreground:  "var(--foreground)",
-        primary:     { DEFAULT: "var(--primary)",   foreground: "var(--primary-foreground)" },
-        secondary:   { DEFAULT: "var(--secondary)", foreground: "var(--secondary-foreground)" },
-        muted:       { DEFAULT: "var(--muted)",     foreground: "var(--muted-foreground)" },
-        accent:      { DEFAULT: "var(--accent)",    foreground: "var(--accent-foreground)" },
-        destructive: { DEFAULT: "var(--destructive)",foreground: "var(--destructive-foreground)" },
-        card:        { DEFAULT: "var(--card)",      foreground: "var(--card-foreground)" },
-        popover:     { DEFAULT: "var(--popover)",   foreground: "var(--popover-foreground)" },
-        border: "var(--border)",
-        input:  "var(--input)",
-        ring:   "var(--ring)",
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-    },
-  },
+  presets: [require("@soli92/solids/tailwind-preset")],
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
 };
 ```
+
+Serve anche `tailwindcss-animate` (dipendenza tipica di shadcn):
+
+```bash
+npm install tailwindcss-animate
+```
+
+Poi inizializza shadcn e aggiungi i componenti con la CLI (`npx shadcn@latest init` → `add button`, …). I componenti useranno le variabili `--background`, `--primary`, ecc., già mappate da SoliDS. Un esempio di `components.json` è in [templates/components.json.example](./templates/components.json.example).
 
 ➡️ Guida completa: [docs/shadcn-integration.md](./docs/shadcn-integration.md)
 
@@ -92,6 +80,8 @@ import "@soli92/solids/css/shadcn.css";               // solo shadcn layer
 import "@soli92/solids/css/base.css";                 // solo base
 import "@soli92/solids/css/utilities.css";            // solo utilities
 ```
+
+Preset Tailwind (shadcn): `require("@soli92/solids/tailwind-preset")` nel `tailwind.config`.
 
 ---
 
@@ -195,12 +185,32 @@ npm install
 # Build (genera dist/)
 npm run build
 
-# Storybook
+# Storybook (build token + Tailwind preview, poi dev server)
 npm run storybook
 
 # Release (semantic-release — solo da CI)
 npm run release
+
+# Registry shadcn (sync src → registry/solids + JSON in registry/r)
+npm run registry:build
 ```
+
+Per Storybook, il CSS Tailwind viene precompilato in `.storybook/preview-tw.built.css` (file ignorato da git) dallo script `build:storybook-css`.
+
+---
+
+## Framework UI (progetti personali + shadcn)
+
+SoliDS resta **agnostico**: i componenti UI vivono nelle tue app (modello shadcn: codice in repo, non solo in `node_modules`). Il flusso consigliato:
+
+1. **Token e CSS** — `@soli92/solids` (`index.css` + opzionale solo layer).
+2. **Tailwind** — `presets: [require("@soli92/solids/tailwind-preset")]` + `tailwindcss-animate`.
+3. **shadcn/ui** — `npx shadcn@latest init` e `add` per ogni blocco (Radix + CVA + le tue classi).
+4. **Tema** — `data-theme` / `next-themes` come in [docs/shadcn-integration.md](./docs/shadcn-integration.md).
+
+In questo repository, **Storybook** include un esempio **Button** in stile shadcn in `src/components/ui/button.tsx` (solo sorgente di riferimento: **non** è incluso nell’artifact npm `dist/`; nei progetti veri aggiungi i componenti con la CLI shadcn).
+
+Il **registry shadcn** per il modello 1 è in `registry/` (sorgenti) e `registry/r/` (JSON generati). Guida operativa: [docs/registry-model-1.md](./docs/registry-model-1.md).
 
 ---
 
@@ -214,14 +224,23 @@ src/
 │   └── themes/
 │       ├── light.json      # Override tema light
 │       └── dark.json       # Override tema dark
+├── tailwind/
+│   └── preset.cjs          # Preset Tailwind (shadcn + token SD)
+├── components/ui/          # Esempio shadcn in Storybook
 ├── css/
 │   ├── shadcn.css          # Compatibility layer shadcn/ui
 │   ├── base.css            # Reset + global styles
 │   └── utilities.css       # Classi utility sd-*
 scripts/
-└── build.mjs               # Build script → genera dist/
+├── build.mjs               # Build script → genera dist/
+└── sync-registry.mjs       # Copia src → registry/solids (per shadcn build)
+registry/
+│   └── solids/             # Sorgenti registry (sync da src/)
+registry.json               # Indice item shadcn (root repo)
+registry/r/                 # JSON pubblicati (`npm run registry:build`)
 docs/
-└── shadcn-integration.md   # Guida integrazione completa
+├── shadcn-integration.md   # Guida integrazione completa
+└── registry-model-1.md     # Modello shadcn in repo + @solids
 ```
 
 ---

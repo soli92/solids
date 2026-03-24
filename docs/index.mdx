@@ -15,7 +15,7 @@ Nasce per fornire fondamenta solide, coerenti e riutilizzabili per la costruzion
 - Ridurre ambiguità e ridondanze
 - Abilitare un’adozione progressiva
 
-SoliDS non è una component library, ma la base su cui **componenti e applicazioni possono essere costruiti**.
+SoliDS non è una component library pubblicata su npm, ma la base su cui **componenti e applicazioni possono essere costruiti**.
 
 ## Cosa include
 
@@ -23,8 +23,9 @@ SoliDS non è una component library, ma la base su cui **componenti e applicazio
 - CSS variables semantic‑first
 - Supporto nativo a light / dark theme
 - Base styles e utility CSS
+- Preset Tailwind per shadcn/ui
+- **Modello 1 (shadcn):** registry `@solids`, JSON in `registry/r/`; guida nel file `docs/registry-model-1.md` nel repository
 
-## Cosa non include (per ora)
+## Cosa non include nell’artifact npm
 
-- Componenti UI
-- Dipendenze da framework specifici
+- Componenti React nel pacchetto `@soli92/solids` (restano nel tuo progetto, installabili via CLI shadcn dal registry)

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "solids",
+  "homepage": "https://github.com/Soli92/solids",
+  "items": [
+    {
+      "name": "solids-utils",
+      "type": "registry:lib",
+      "title": "SoliDS utils",
+      "description": "Helper cn() (clsx + tailwind-merge) per componenti shadcn/SoliDS.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "registry/solids/utils/utils.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "solids-button",
+      "type": "registry:ui",
+      "title": "SoliDS Button",
+      "description": "Button stile shadcn (Radix Slot + CVA), usa token SoliDS via CSS variables.",
+      "dependencies": ["@radix-ui/react-slot", "class-variance-authority"],
+      "registryDependencies": ["@solids/solids-utils"],
+      "files": [
+        {
+          "path": "registry/solids/button/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    }
+  ]
+}

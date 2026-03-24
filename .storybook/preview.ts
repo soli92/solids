@@ -2,6 +2,7 @@ import type { Preview } from "@storybook/react";
 import { themes } from "@storybook/theming";
 
 import "../dist/css/index.css";
+import "./preview-tw.built.css";
 
 const STORAGE_KEY = "solids:sb:theme";
 
@@ -45,8 +46,8 @@ const preview: Preview = {
 
   parameters: {
     viewMode: "docs",
-    previewTabs: { canvas: { hidden: true } },
-    options: { showPanel: false },
+    previewTabs: { canvas: { hidden: false } },
+    options: { showPanel: true },
     docs: {
       theme: initialTheme === "dark" ? themes.dark : themes.light
     }

@@ -54,6 +54,7 @@ const main = () => {
   cleanDist();
   ensureDir(join(DIST, "css"));
   ensureDir(join(DIST, "tokens"));
+  ensureDir(join(DIST, "tailwind"));
 
   /* 1 – Read sources */
   const base     = readJson(join(SRC, "tokens", "base.json"));
@@ -124,9 +125,12 @@ const main = () => {
   cpSync(join(SRC, "css", "base.css"),      join(DIST, "css", "base.css"));
   cpSync(join(SRC, "css", "utilities.css"), join(DIST, "css", "utilities.css"));
 
+  cpSync(join(SRC, "tailwind", "preset.cjs"), join(DIST, "tailwind", "preset.cjs"));
+
   console.log("✅ SoliDS build complete!");
   console.log(`   dist/tokens/tokens.json`);
   console.log(`   dist/css/index.css (variables → themes → shadcn → base → utilities)`);
+  console.log(`   dist/tailwind/preset.cjs`);
 };
 
 main();
