@@ -1,18 +1,68 @@
 {
-    "theme": "dark",
-    "color": {
-        "text": {
-            "primary": "#F9FAFB",
-            "secondary": "#D1D5DB"
-        },
-        "bg": {
-            "canvas": "#0B1220",
-            "surface": "#111827",
-            "elevated": "#0F172A"
-        },
-        "border": {
-            "default": "#243047",
-            "focus": "#60A5FA"
-        }
+  "_comment": "Dark theme overrides. All values here override the semantic defaults for [data-theme='dark'] or @media (prefers-color-scheme: dark).",
+  "color": {
+    "text": {
+      "primary":   "#F9FAFB",
+      "secondary":  "#D1D5DB",
+      "tertiary":   "#9CA3AF",
+      "disabled":   "#6B7280",
+      "inverse":    "#111827",
+      "link":       "#60A5FA",
+      "link-hover": "#93C5FD"
+    },
+    "bg": {
+      "canvas":   "#0B1120",
+      "surface":  "#111827",
+      "elevated": "#1F2937",
+      "hover":    "#1F2937",
+      "active":   "#374151",
+      "disabled": "#1F2937"
+    },
+    "border": {
+      "default":  "#374151",
+      "muted":    "#1F2937",
+      "strong":   "#4B5563",
+      "focus":    "#60A5FA",
+      "disabled": "#374151"
+    },
+    "intent": {
+      "success":          "#4ADE80",
+      "success-bg":       "#052e16",
+      "success-border":   "#166534",
+      "warning":          "#FBBF24",
+      "warning-bg":       "#1c1004",
+      "warning-border":   "#92400e",
+      "danger":           "#F87171",
+      "danger-bg":        "#1c0404",
+      "danger-border":    "#991b1b",
+      "info":             "#60A5FA",
+      "info-bg":          "#0c1a3a",
+      "info-border":      "#1e3a8a"
+    },
+    "primary": {
+      "default":    "#3B82F6",
+      "hover":      "#60A5FA",
+      "active":     "#93C5FD",
+      "subtle":     "#0c1a3a",
+      "foreground": "#FFFFFF"
+    },
+    "secondary": {
+      "default":    "#1F2937",
+      "hover":      "#374151",
+      "active":     "#4B5563",
+      "foreground": "#F9FAFB"
+    },
+    "muted": {
+      "default":    "#1F2937",
+      "foreground": "#9CA3AF"
+    },
+    "accent": {
+      "default":    "#1F2937",
+      "foreground": "#F9FAFB"
+    },
+    "destructive": {
+      "default":    "#DC2626",
+      "foreground": "#FFFFFF"
     }
+  }
 }
