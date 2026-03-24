@@ -34,6 +34,9 @@ const cleanDist = () => rmSync(DIST, { recursive: true, force: true });
 
 const filterMetaVars = (pairs) => pairs.filter(([k]) => !k.startsWith("--sd-_"));
 
+/** Segmenti JSON tipo "0.5" → "0-5" così il nome `--sd-space-0-5` è valido per i parser CSS (es. Turbopack). */
+const cssVarKeySegment = (k) => String(k).replace(/\./g, "-");
+
 /**
  * Recursively flatten a nested token object into CSS variable pairs.
  * { color: { text: { primary: "#111" } } }
@@ -47,7 +50,8 @@ const flattenToCssVars = (obj, prefix = []) => {
     if (v && typeof v === "object" && !Array.isArray(v)) {
       out.push(...flattenToCssVars(v, path));
     } else {
-      out.push([`--sd-${path.join("-")}`, String(v)]);
+      const name = path.map(cssVarKeySegment).join("-");
+      out.push([`--sd-${name}`, String(v)]);
     }
   }
   return out;
