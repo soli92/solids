@@ -1,21 +1,3 @@
-# [1.1.0](https://github.com/soli92/solids/compare/v1.0.0...v1.1.0) (2026-03-24)
-
-
-### Bug Fixes
-
-* align GitHub URLs to soli92; deploy Storybook on GitHub Release ([09f6da0](https://github.com/soli92/solids/commit/09f6da0201a0fce7edcdcbffbee8e1543164c06e))
-* **build:** sanitize CSS custom property segments for Turbopack ([f22c134](https://github.com/soli92/solids/commit/f22c134f85ba76fd19ca7ea83396252556f7365b))
-* **ci:** disable GitHub issue labels for semantic-release failures ([3a9dcb6](https://github.com/soli92/solids/commit/3a9dcb6dcabe9c918e99091ca4607f2d14ef65cb))
-* **storybook:** dedupe React in Vite to avoid production error [#130](https://github.com/soli92/solids/issues/130) ([76dbe03](https://github.com/soli92/solids/commit/76dbe0317629af30bc87a45d392dd94d81799377))
-* **ui:** align Resizable with react-resizable-panels v4 ([8dce9c2](https://github.com/soli92/solids/commit/8dce9c229f366fe9cc0eafe8bc85c80486d99324))
-
-
-### Features
-
-* fantasy/cyberpunk themes, icon set, Storybook Pages fixes ([86e02fe](https://github.com/soli92/solids/commit/86e02fef6b7c02286684ba2985099717870d5765))
-* full shadcn/ui kit, Storybook UI stories, registry solids-ui block ([e275dd5](https://github.com/soli92/solids/commit/e275dd5e57006af4fa521ef11508578dab92926f))
-* tailwind preset, shadcn registry [@solids](https://github.com/solids), Storybook button showcase ([0632416](https://github.com/soli92/solids/commit/063241652b322ce46f13680f00e4f31784bb7de8))
-
 ## [1.3.2](https://github.com/soli92/solids/compare/v1.3.1...v1.3.2) (2026-03-24)
 
 
