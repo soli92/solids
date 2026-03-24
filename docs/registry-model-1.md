@@ -31,13 +31,13 @@ In questo modello i componenti UI **stanno nel progetto applicativo** (cartelle 
 
    Usa `components.json` coerente con i path della tua app (esempio in [templates/components.json.example](../templates/components.json.example)).
 
-5. **Registry SoliDS** — aggiungi il namespace nel `components.json` del **tuo** progetto (sostituisci `Soli92/solids` e `main` se usi fork o branch diverso):
+5. **Registry SoliDS** — aggiungi il namespace nel `components.json` del **tuo** progetto (sostituisci `soli92/solids` e `main` se usi fork o branch diverso):
 
    ```json
    {
      "registries": {
        "@solids": {
-         "url": "https://raw.githubusercontent.com/Soli92/solids/main/registry/r/{name}.json"
+         "url": "https://raw.githubusercontent.com/soli92/solids/main/registry/r/{name}.json"
        }
      }
    }
@@ -77,11 +77,17 @@ In questo modello i componenti UI **stanno nel progetto applicativo** (cartelle 
 Puoi installare da URL diretto (utile per prove rapide):
 
 ```bash
-npx shadcn@latest add https://raw.githubusercontent.com/Soli92/solids/main/registry/r/solids-utils.json
-npx shadcn@latest add https://raw.githubusercontent.com/Soli92/solids/main/registry/r/solids-button.json
+npx shadcn@latest add https://raw.githubusercontent.com/soli92/solids/main/registry/r/solids-utils.json
+npx shadcn@latest add https://raw.githubusercontent.com/soli92/solids/main/registry/r/solids-button.json
 ```
 
 In questo caso `solids-button` potrebbe non risolvere automaticamente `solids-utils` se la CLI si aspetta il namespace; preferisci il flusso con `@solids` nel `components.json`.
+
+---
+
+## Storybook su GitHub Pages
+
+A ogni **GitHub Release** (creata da semantic-release insieme al publish npm) il workflow **Deploy Storybook** genera lo static e lo pubblica su `https://soli92.github.io/solids/`. La prima volta: *Repository → Settings → Pages → Build and deployment → Source: GitHub Actions*.
 
 ---
 

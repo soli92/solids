@@ -5,11 +5,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Soli92/solids.git"
+    "url": "git+https://github.com/soli92/solids.git"
   },
-  "homepage": "https://github.com/Soli92/solids#readme",
+  "homepage": "https://github.com/soli92/solids#readme",
   "bugs": {
-    "url": "https://github.com/Soli92/solids/issues"
+    "url": "https://github.com/soli92/solids/issues"
   },
   "keywords": [
     "design-system",

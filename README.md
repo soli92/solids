@@ -1,8 +1,10 @@
 # SoliDS
 
-**SoliDS** è il design system personale di [Soli92](https://github.com/Soli92) —
+**SoliDS** è il design system personale di [soli92](https://github.com/soli92) —
 una fondamenta **agnostica** basata su **design tokens** e **CSS variables**,
 pronta all'uso con qualsiasi framework web e compatibile con **shadcn/ui**.
+
+**Storybook** (docs + esempio Button): dopo ogni release su npm viene pubblicato su GitHub Pages — [soli92.github.io/solids](https://soli92.github.io/solids/) (attiva *Settings → Pages → Source: GitHub Actions* se è la prima volta).
 
 ---
 
@@ -247,4 +249,4 @@ docs/
 
 ## License
 
-MIT © [Soli92](https://github.com/Soli92)
+MIT © [soli92](https://github.com/soli92)

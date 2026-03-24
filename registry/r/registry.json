@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "solids",
-  "homepage": "https://github.com/Soli92/solids",
+  "homepage": "https://github.com/soli92/solids",
   "items": [
     {
       "name": "solids-utils",
