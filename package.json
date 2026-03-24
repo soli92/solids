@@ -1,6 +1,6 @@
 {
   "name": "@soli92/solids",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "SoliDS – agnostic design system foundations (tokens + CSS) with shadcn/ui compatibility.",
   "license": "MIT",
   "repository": {
@@ -33,12 +33,12 @@
       "default": "./dist/tokens/tokens.json"
     },
     "./tokens": "./dist/tokens/tokens.json",
-    "./css/index.css":      "./dist/css/index.css",
-    "./css/variables.css":  "./dist/css/variables.css",
-    "./css/themes.css":     "./dist/css/themes.css",
-    "./css/shadcn.css":     "./dist/css/shadcn.css",
-    "./css/base.css":       "./dist/css/base.css",
-    "./css/utilities.css":  "./dist/css/utilities.css"
+    "./css/index.css": "./dist/css/index.css",
+    "./css/variables.css": "./dist/css/variables.css",
+    "./css/themes.css": "./dist/css/themes.css",
+    "./css/shadcn.css": "./dist/css/shadcn.css",
+    "./css/base.css": "./dist/css/base.css",
+    "./css/utilities.css": "./dist/css/utilities.css"
   },
   "publishConfig": {
     "access": "public"
