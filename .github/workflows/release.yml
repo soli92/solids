@@ -17,7 +17,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true
           persist-credentials: false
+
+      # Dopo un force-push sui tag (es. riscrittura history), `git fetch --tags` fallirebbe con
+      # "would clobber existing tag". semantic-release esegue fetch dei tag: allinea prima al remoto.
+      - name: Allinea tag al remoto
+        run: git fetch origin --tags --force
 
       - uses: actions/setup-node@v4
         with:
