@@ -4,11 +4,14 @@ on:
   push:
     branches: ["main"]
 
+# workflows: @semantic-release/git fa `git push --tags`: ogni tag locale viene inviato; GitHub
+# rifiuta i tag che puntano a commit che modificano workflow senza questo scope.
 permissions:
   contents: write
   issues: write
   pull-requests: write
   id-token: write
+  workflows: write
 
 jobs:
   release:
