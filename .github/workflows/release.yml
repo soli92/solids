@@ -32,3 +32,56 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # Le release create con GITHUB_TOKEN non attivano workflow con `on: release`.
+  # Il deploy Pages deve stare nello stesso workflow, dopo semantic-release.
+  storybook-build:
+    name: Build Storybook (Pages)
+    needs: release
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      # semantic-release può aver pushato chore(release) su main nello step precedente: usa main aggiornato.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build Storybook (base path /solids/)
+        run: npm run build-storybook
+        env:
+          SB_BASE: /solids/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: storybook-static
+
+  storybook-deploy:
+    name: Deploy Storybook to GitHub Pages
+    needs: storybook-build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

@@ -1,9 +1,13 @@
-# Pubblica Storybook su GitHub Pages su release pubblicata o da Actions → Run workflow.
+# Deploy manuale di Storybook su GitHub Pages.
+#
+# Il deploy automatico dopo ogni release npm avviene nel workflow "Release"
+# (job storybook-build / storybook-deploy), perché le release create da
+# semantic-release con GITHUB_TOKEN non attivano workflow con `on: release`.
+#
+# Usa: Actions → Deploy Storybook → Run workflow.
 name: Deploy Storybook
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
 
 concurrency:
@@ -21,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.sha }}
+          ref: ${{ github.sha }}
 
       - uses: actions/setup-node@v4
         with:
