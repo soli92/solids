@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/soli92/solids/compare/v1.1.1...v1.2.0) (2026-03-24)
+
+
+### Features
+
+* full shadcn/ui kit, Storybook UI stories, registry solids-ui block ([2d55ae5](https://github.com/soli92/solids/commit/2d55ae5310e1106570753a234096a63ee202ecd0))
+
 ## [1.1.1](https://github.com/soli92/solids/compare/v1.1.0...v1.1.1) (2026-03-24)
 
 
