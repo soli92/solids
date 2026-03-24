@@ -1,5 +1,5 @@
 {
-  "_comment": "Semantic tokens reference base values. These are overridden per-theme in themes/light.json and themes/dark.json. Default = light.",
+  "_comment": "Semantic tokens are overridden per theme in src/tokens/themes/*.json. Default = light baked into :root.",
 
   "color": {
     "text": {
@@ -65,6 +65,12 @@
     "destructive": {
       "default":    "#DC2626",
       "foreground": "#FFFFFF"
+    },
+    "icon": {
+      "default":    "#111827",
+      "muted":      "#6B7280",
+      "primary":    "#2563EB",
+      "on-primary": "#FFFFFF"
     }
   },
 

@@ -59,13 +59,19 @@ In questo modello i componenti UI **stanno nel progetto applicativo** (cartelle 
    npx shadcn@latest add @solids/solids-button
    ```
 
+   **Icone SVG** (token `--sd-color-icon-*`):
+
+   ```bash
+   npx shadcn@latest add @solids/solids-icons
+   ```
+
 7. **Componenti extra da shadcn** — per blocchi non ancora nel registry (es. *combobox* se assente), usa `npx shadcn@latest add @shadcn/…` dopo aver allineato CSS e preset SoliDS.
 
 ---
 
 ## Sviluppo nel repo SoliDS (mantenitori)
 
-- **Sorgente canonica** dei componenti esposti: `src/lib/utils.ts` e `src/components/ui/*` (usati anche da Storybook).
+- **Sorgente canonica** dei componenti esposti: `src/lib/utils.ts`, `src/icons/*` e `src/components/ui/*` (usati anche da Storybook).
 - **Sync + build JSON** per GitHub Raw:
 
   ```bash

@@ -1,9 +1,10 @@
-# Pubblica Storybook su GitHub Pages quando esce una nuova release (npm + GitHub Release da semantic-release).
+# Pubblica Storybook su GitHub Pages su release pubblicata o da Actions → Run workflow.
 name: Deploy Storybook
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 concurrency:
   group: pages
@@ -20,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.sha }}
 
       - uses: actions/setup-node@v4
         with:

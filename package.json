@@ -52,7 +52,7 @@
     "build:storybook-css": "tailwindcss -c ./tailwind.config.cjs -i ./.storybook/preview-tw.input.css -o ./.storybook/preview-tw.built.css",
     "ui:stories": "node ./scripts/generate-ui-stories.mjs",
     "storybook": "npm run build && npm run build:storybook-css && npm run ui:stories && storybook dev -p 6006",
-    "build-storybook": "npm run build && npm run build:storybook-css && npm run ui:stories && storybook build",
+    "build-storybook": "npm run build && npm run build:storybook-css && npm run ui:stories && storybook build && node ./scripts/inject-storybook-base.mjs",
     "registry:sync": "node ./scripts/sync-registry.mjs",
     "registry:build": "node ./scripts/sync-registry.mjs && shadcn build --output ./registry/r"
   },

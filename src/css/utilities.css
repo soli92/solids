@@ -129,6 +129,15 @@
 .sd-text-danger     { color: var(--sd-color-intent-danger); }
 .sd-text-info       { color: var(--sd-color-intent-info); }
 
+/* Icons (stroke/fill via currentColor — pair with token-driven color) */
+.sd-icon {
+  flex-shrink: 0;
+  color: var(--sd-color-icon-default);
+}
+.sd-icon-muted { color: var(--sd-color-icon-muted); }
+.sd-icon-primary { color: var(--sd-color-icon-primary); }
+.sd-icon-on-primary { color: var(--sd-color-icon-on-primary); }
+
 .sd-bg-canvas   { background-color: var(--sd-color-bg-canvas); }
 .sd-bg-surface  { background-color: var(--sd-color-bg-surface); }
 .sd-bg-elevated { background-color: var(--sd-color-bg-elevated); }

@@ -65,15 +65,16 @@ Riferimento `components.json`: [templates/components.json.example](../templates/
 
 ---
 
-## Gestione del tema dark
+## Temi (light, dark, fantasy, cyberpunk)
 
-SoliDS supporta **tre strategie** contemporaneamente:
+Oltre a **light** e **dark**, SoliDS espone i temi globali **fantasy** e **cyberpunk** (`data-theme="fantasy"` / `"cyberpunk"` su `<html>`). Ridefiniscono palette, font, raggio e ombre; il layer shadcn continua a leggere gli stessi token semantici.
 
 | Strategia | Come funziona |
 |-----------|--------------|
-| `data-theme="dark"` sull'elemento root | Cambio manuale via JS |
-| `data-theme="light"` | Forza light anche se il sistema è dark |
-| `@media (prefers-color-scheme: dark)` | Rispetta le preferenze di sistema |
+| `data-theme="dark"` / `"fantasy"` / `"cyberpunk"` / `"light"` | Tema esplicito sul root |
+| `@media (prefers-color-scheme: dark)` | Applica i token **dark** solo se **`data-theme` non è impostato** su `:root` |
+
+Il preset Tailwind considera **dark** anche `data-theme="cyberpunk"` per le utility `dark:`.
 
 ### Esempio con next-themes
 

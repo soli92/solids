@@ -1,0 +1,93 @@
+{
+  "_comment": "Tema cyberpunk: neon cyan/magenta su base profonda. data-theme=\"cyberpunk\" su html.",
+  "color": {
+    "text": {
+      "primary":   "#e8e9ff",
+      "secondary":  "#a5b4fc",
+      "tertiary":   "#818cf8",
+      "disabled":   "#6366f1",
+      "inverse":    "#070714",
+      "link":       "#22d3ee",
+      "link-hover": "#67e8f9"
+    },
+    "bg": {
+      "canvas":   "#070714",
+      "surface":  "#0c0e22",
+      "elevated": "#12152e",
+      "overlay":  "rgba(0, 0, 0, 0.75)",
+      "hover":    "#1a1f3c",
+      "active":   "#252a4a",
+      "disabled": "#12152e"
+    },
+    "border": {
+      "default":  "#312e81",
+      "muted":    "#1e1b4b",
+      "strong":   "#6366f1",
+      "focus":    "#22d3ee",
+      "disabled": "#312e81"
+    },
+    "intent": {
+      "success":          "#4ade80",
+      "success-bg":       "#052e16",
+      "success-border":   "#166534",
+      "warning":          "#fbbf24",
+      "warning-bg":       "#1c1004",
+      "warning-border":   "#ca8a04",
+      "danger":           "#f472b6",
+      "danger-bg":        "#2a0a1a",
+      "danger-border":    "#db2777",
+      "info":             "#22d3ee",
+      "info-bg":          "#0c1a2e",
+      "info-border":      "#0891b2"
+    },
+    "primary": {
+      "default":    "#06b6d4",
+      "hover":      "#22d3ee",
+      "active":     "#67e8f9",
+      "subtle":     "#0e7490",
+      "foreground": "#030712"
+    },
+    "secondary": {
+      "default":    "#581c87",
+      "hover":      "#6b21a8",
+      "active":     "#7e22ce",
+      "foreground": "#fae8ff"
+    },
+    "muted": {
+      "default":    "#1a1f3c",
+      "foreground": "#a5b4fc"
+    },
+    "accent": {
+      "default":    "#db2777",
+      "foreground": "#fdf2f8"
+    },
+    "destructive": {
+      "default":    "#f43f5e",
+      "foreground": "#fff1f2"
+    },
+    "icon": {
+      "default":    "#e0e7ff",
+      "muted":      "#818cf8",
+      "primary":    "#22d3ee",
+      "on-primary": "#030712"
+    }
+  },
+  "font": {
+    "body": "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+    "heading": "'Orbitron', ui-sans-serif, system-ui, sans-serif",
+    "mono": "'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+  },
+  "radius": {
+    "sm": "2px",
+    "md": "4px",
+    "lg": "6px",
+    "xl": "8px",
+    "full": "9999px"
+  },
+  "shadow": {
+    "sm": "0 0 16px rgb(34 211 238 / 0.12), 0 1px 3px rgb(0 0 0 / 0.45)",
+    "md": "0 0 28px rgb(34 211 238 / 0.14), 0 4px 14px rgb(0 0 0 / 0.5)",
+    "lg": "0 0 40px rgb(34 211 238 / 0.16), 0 10px 28px rgb(0 0 0 / 0.55)",
+    "xl": "0 0 56px rgb(244 114 182 / 0.12), 0 18px 40px rgb(0 0 0 / 0.6)"
+  }
+}

@@ -6,7 +6,8 @@ const STORAGE_KEY = "solids:sb:theme";
 function readStoredTheme(): "light" | "dark" {
   try {
     const t = localStorage.getItem(STORAGE_KEY);
-    return t === "dark" ? "dark" : "light";
+    if (t === "dark" || t === "cyberpunk") return "dark";
+    return "light";
   } catch {
     return "light";
   }

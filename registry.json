@@ -39,6 +39,32 @@
       ]
     },
     {
+      "name": "solids-icons",
+      "type": "registry:lib",
+      "title": "SoliDS — icone SVG",
+      "description": "Set di icone stroke allineate ai token `--sd-color-icon-*` (varianti default, muted, primary, on-primary). Richiede @solids/solids-utils.",
+      "registryDependencies": [
+        "@solids/solids-utils"
+      ],
+      "dependencies": [
+        "react"
+      ],
+      "files": [
+        {
+          "path": "registry/solids/icons/glyphs.tsx",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/solids/icons/index.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/solids/icons/solids-icon.tsx",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
       "name": "solids-ui",
       "type": "registry:block",
       "title": "SoliDS — kit shadcn/ui completo",

@@ -8,8 +8,10 @@ SoliDS supporta temi tramite **override dei token semantici**.
 
 ## Temi disponibili
 
-- light (default)
-- dark
+- **light** (default, `:root` e `data-theme="light"`)
+- **dark** — contrasto elevato, ideale per notte / UI dense
+- **fantasy** — pergamena, inchiostro, ottone; font serif / titoli `Cinzel` (stack di fallback; per il look completo puoi aggiungere il font da CDN)
+- **cyberpunk** — fondo profondo, cyan / magenta, ombre “neon”; `Orbitron` / `Share Tech Mono` negli stack (fallback su system)
 
 ## Come funziona
 
@@ -23,4 +25,8 @@ I temi:
 
 ```html
 <html data-theme="dark"></html>
+<html data-theme="fantasy"></html>
+<html data-theme="cyberpunk"></html>
 ```
+
+Se **non** imposti `data-theme` su `<html>`, in assenza di preferenza esplicita il tema **dark** segue `prefers-color-scheme: dark` (stessi token di `data-theme="dark"`). Con `fantasy` o `cyberpunk` il tema scelto resta stabile anche se il sistema è in dark mode.

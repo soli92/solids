@@ -10,9 +10,14 @@ import "./preview-tw.built.css";
 
 const STORAGE_KEY = "solids:sb:theme";
 
-function readStoredTheme() {
+const DS_THEMES = ["light", "dark", "fantasy", "cyberpunk"] as const;
+type DsTheme = (typeof DS_THEMES)[number];
+
+function readStoredTheme(): DsTheme {
   try {
-    return localStorage.getItem(STORAGE_KEY) === "dark" ? "dark" : "light";
+    const v = localStorage.getItem(STORAGE_KEY);
+    if (v && (DS_THEMES as readonly string[]).includes(v)) return v as DsTheme;
+    return "light";
   } catch {
     return "light";
   }
@@ -31,13 +36,15 @@ const initialTheme = readStoredTheme();
 const preview: Preview = {
   globalTypes: {
     theme: {
-      description: "Global theme for SoliDS docs",
+      description: "Tema SoliDS (token CSS)",
       toolbar: {
-        title: "Theme",
-        icon: "circlehollow",
+        title: "Tema DS",
+        icon: "paintbrush",
         items: [
           { value: "light", title: "Light", icon: "circlehollow" },
           { value: "dark", title: "Dark", icon: "circle" },
+          { value: "fantasy", title: "Fantasy", icon: "bookmark" },
+          { value: "cyberpunk", title: "Cyberpunk", icon: "lightning" },
         ],
         dynamicTitle: true,
       },
@@ -53,19 +60,21 @@ const preview: Preview = {
     previewTabs: { canvas: { hidden: false } },
     options: { showPanel: true },
     docs: {
-      theme: initialTheme === "dark" ? themes.dark : themes.light,
+      theme: initialTheme === "dark" || initialTheme === "cyberpunk" ? themes.dark : themes.light,
     },
   },
 
   decorators: [
     (Story, context) => {
       const raw = context.globals.theme;
-      const theme = raw === "dark" ? "dark" : "light";
+      const theme: DsTheme =
+        raw && (DS_THEMES as readonly string[]).includes(raw) ? (raw as DsTheme) : "light";
 
       document.documentElement.setAttribute("data-theme", theme);
-      document.documentElement.style.colorScheme = theme;
+      const colorScheme = theme === "dark" || theme === "cyberpunk" ? "dark" : "light";
+      document.documentElement.style.colorScheme = colorScheme;
       document.body.setAttribute("data-theme", theme);
-      document.body.style.colorScheme = theme;
+      document.body.style.colorScheme = colorScheme;
 
       writeStoredTheme(theme);
 

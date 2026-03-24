@@ -5,12 +5,17 @@
   color-scheme: light;
 }
 
-[data-theme="dark"] {
+[data-theme="dark"],
+[data-theme="cyberpunk"] {
   color-scheme: dark;
 }
 
+[data-theme="fantasy"] {
+  color-scheme: light;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-theme]) {
     color-scheme: dark;
   }
 }

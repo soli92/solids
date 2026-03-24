@@ -5,6 +5,15 @@ import { mergeConfig } from "vite";
 
 const storybookDir = path.dirname(fileURLToPath(import.meta.url));
 
+/** GitHub Pages project site: set SB_BASE=/solids/ in CI */
+function storybookBase(): string | null {
+  const raw = process.env.SB_BASE?.trim();
+  if (!raw) return null;
+  return raw.endsWith("/") ? raw : `${raw}/`;
+}
+
+const sbBase = storybookBase();
+
 const config: StorybookConfig = {
   framework: "@storybook/react-vite",
 
@@ -22,11 +31,7 @@ const config: StorybookConfig = {
 
   async viteFinal(config) {
     const rootDir = path.resolve(storybookDir, "..");
-    /** GitHub Pages project site: set SB_BASE=/solids/ in CI */
-    const base =
-      process.env.SB_BASE && process.env.SB_BASE.length > 0
-        ? process.env.SB_BASE
-        : "/";
+    const base = sbBase ?? "/";
     return mergeConfig(config, {
       base,
       resolve: {

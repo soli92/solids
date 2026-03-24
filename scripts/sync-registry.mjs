@@ -54,6 +54,19 @@ const uiFiles = readdirSync(uiSrc)
     type: "registry:ui",
   }));
 
+const iconsSrc = join(ROOT, "src", "icons");
+const iconFiles = [];
+if (existsSync(iconsSrc)) {
+  const iconsDest = join(REG, "icons");
+  mkdirSync(iconsDest, { recursive: true });
+  for (const f of readdirSync(iconsSrc)) {
+    if (f.endsWith(".ts") || f.endsWith(".tsx")) {
+      cpSync(join(iconsSrc, f), join(iconsDest, f));
+      iconFiles.push({ path: `registry/solids/icons/${f}`, type: "registry:lib" });
+    }
+  }
+}
+
 const blockFiles = [...hookFiles, ...uiFiles];
 
 const registry = {
@@ -77,6 +90,16 @@ const registry = {
       dependencies: ["@radix-ui/react-slot", "class-variance-authority"],
       registryDependencies: ["@solids/solids-utils"],
       files: [{ path: "registry/solids/button/button.tsx", type: "registry:ui" }],
+    },
+    {
+      name: "solids-icons",
+      type: "registry:lib",
+      title: "SoliDS — icone SVG",
+      description:
+        "Set di icone stroke allineate ai token `--sd-color-icon-*` (varianti default, muted, primary, on-primary). Richiede @solids/solids-utils.",
+      registryDependencies: ["@solids/solids-utils"],
+      dependencies: ["react"],
+      files: iconFiles,
     },
     {
       name: "solids-ui",

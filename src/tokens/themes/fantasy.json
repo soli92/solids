@@ -1,0 +1,93 @@
+{
+  "_comment": "Tema fantasy: pergamena, inchiostro, ottone e bosco. data-theme=\"fantasy\" su html.",
+  "color": {
+    "text": {
+      "primary":   "#2c1810",
+      "secondary":  "#5c4033",
+      "tertiary":   "#7a6042",
+      "disabled":   "#a89078",
+      "inverse":    "#faf6ee",
+      "link":       "#7c5a1c",
+      "link-hover": "#5c3d10"
+    },
+    "bg": {
+      "canvas":   "#f0e6d2",
+      "surface":  "#e4d5bc",
+      "elevated": "#faf6ee",
+      "overlay":  "rgba(44, 24, 16, 0.45)",
+      "hover":    "#dcc9a8",
+      "active":   "#cfba92",
+      "disabled": "#e8dcc8"
+    },
+    "border": {
+      "default":  "#c4a574",
+      "muted":    "#dcc9a8",
+      "strong":   "#8b6914",
+      "focus":    "#b45309",
+      "disabled": "#dcc9a8"
+    },
+    "intent": {
+      "success":          "#3f6212",
+      "success-bg":       "#ecf4d9",
+      "success-border":   "#84cc16",
+      "warning":          "#b45309",
+      "warning-bg":       "#fff7e6",
+      "warning-border":   "#f59e0b",
+      "danger":           "#9f1239",
+      "danger-bg":        "#ffe4e6",
+      "danger-border":    "#fb7185",
+      "info":             "#1e3a5f",
+      "info-bg":          "#e0ecff",
+      "info-border":      "#60a5fa"
+    },
+    "primary": {
+      "default":    "#8b6914",
+      "hover":      "#a67c00",
+      "active":     "#6b4f0f",
+      "subtle":     "#f5edd4",
+      "foreground": "#1a0f08"
+    },
+    "secondary": {
+      "default":    "#d4c4a8",
+      "hover":      "#c4b08c",
+      "active":     "#a89078",
+      "foreground": "#2c1810"
+    },
+    "muted": {
+      "default":    "#e4d5bc",
+      "foreground": "#5c4033"
+    },
+    "accent": {
+      "default":    "#3d2914",
+      "foreground": "#faf6ee"
+    },
+    "destructive": {
+      "default":    "#9f1239",
+      "foreground": "#fff1f2"
+    },
+    "icon": {
+      "default":    "#3d2914",
+      "muted":      "#7a6042",
+      "primary":    "#a67c00",
+      "on-primary": "#1a0f08"
+    }
+  },
+  "font": {
+    "body": "'Palatino Linotype', 'Book Antiqua', Palatino, 'Liberation Serif', Georgia, serif",
+    "heading": "'Cinzel', 'Palatino Linotype', Palatino, Georgia, serif",
+    "mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace"
+  },
+  "radius": {
+    "sm": "6px",
+    "md": "10px",
+    "lg": "14px",
+    "xl": "20px",
+    "full": "9999px"
+  },
+  "shadow": {
+    "sm": "0 1px 4px rgb(44 24 16 / 0.12), 0 1px 2px rgb(44 24 16 / 0.08)",
+    "md": "0 4px 14px rgb(44 24 16 / 0.12), 0 2px 6px rgb(44 24 16 / 0.08)",
+    "lg": "0 12px 32px rgb(44 24 16 / 0.14), 0 4px 12px rgb(44 24 16 / 0.1)",
+    "xl": "0 22px 48px rgb(44 24 16 / 0.16), 0 8px 20px rgb(44 24 16 / 0.12)"
+  }
+}

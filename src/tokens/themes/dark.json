@@ -64,6 +64,12 @@
     "destructive": {
       "default":    "#DC2626",
       "foreground": "#FFFFFF"
+    },
+    "icon": {
+      "default":    "#F9FAFB",
+      "muted":      "#9CA3AF",
+      "primary":    "#60A5FA",
+      "on-primary": "#FFFFFF"
     }
   }
 }
