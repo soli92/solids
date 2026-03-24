@@ -1,3 +1,68 @@
 {
-    "theme": "light"
+  "_comment": "Light theme overrides. All values here override the semantic defaults for [data-theme='light'] or :root.",
+  "color": {
+    "text": {
+      "primary":   "#111827",
+      "secondary":  "#4B5563",
+      "tertiary":   "#6B7280",
+      "disabled":   "#9CA3AF",
+      "inverse":    "#FFFFFF",
+      "link":       "#2563EB",
+      "link-hover": "#1D4ED8"
+    },
+    "bg": {
+      "canvas":   "#FFFFFF",
+      "surface":  "#F9FAFB",
+      "elevated": "#FFFFFF",
+      "hover":    "#F3F4F6",
+      "active":   "#E5E7EB",
+      "disabled": "#F3F4F6"
+    },
+    "border": {
+      "default":  "#E5E7EB",
+      "muted":    "#F3F4F6",
+      "strong":   "#9CA3AF",
+      "focus":    "#3B82F6",
+      "disabled": "#E5E7EB"
+    },
+    "intent": {
+      "success":          "#16A34A",
+      "success-bg":       "#F0FDF4",
+      "success-border":   "#4ADE80",
+      "warning":          "#D97706",
+      "warning-bg":       "#FFFBEB",
+      "warning-border":   "#FBBF24",
+      "danger":           "#DC2626",
+      "danger-bg":        "#FEF2F2",
+      "danger-border":    "#F87171",
+      "info":             "#2563EB",
+      "info-bg":          "#EFF6FF",
+      "info-border":      "#93C5FD"
+    },
+    "primary": {
+      "default":    "#2563EB",
+      "hover":      "#1D4ED8",
+      "active":     "#1E40AF",
+      "subtle":     "#EFF6FF",
+      "foreground": "#FFFFFF"
+    },
+    "secondary": {
+      "default":    "#F3F4F6",
+      "hover":      "#E5E7EB",
+      "active":     "#D1D5DB",
+      "foreground": "#111827"
+    },
+    "muted": {
+      "default":    "#F3F4F6",
+      "foreground": "#6B7280"
+    },
+    "accent": {
+      "default":    "#F3F4F6",
+      "foreground": "#111827"
+    },
+    "destructive": {
+      "default":    "#DC2626",
+      "foreground": "#FFFFFF"
+    }
+  }
 }
