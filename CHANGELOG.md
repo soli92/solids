@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/soli92/solids/compare/v1.3.1...v1.3.2) (2026-03-24)
+
+
+### Bug Fixes
+
+* **ui:** align Resizable with react-resizable-panels v4 ([73f8bb5](https://github.com/soli92/solids/commit/73f8bb5e6210a14bcd4310042f7533907a45c848))
+
 ## [1.3.1](https://github.com/soli92/solids/compare/v1.3.0...v1.3.1) (2026-03-24)
 
 
