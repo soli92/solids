@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/soli92/solids/compare/v1.2.1...v1.3.0) (2026-03-24)
+
+
+### Features
+
+* fantasy/cyberpunk themes, icon set, Storybook Pages fixes ([3997055](https://github.com/soli92/solids/commit/3997055fc1f1ba0942857347c248fa61716ba665))
+
 ## [1.2.1](https://github.com/soli92/solids/compare/v1.2.0...v1.2.1) (2026-03-24)
 
 
