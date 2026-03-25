@@ -19,6 +19,11 @@ pronta all'uso con qualsiasi framework web e compatibile con **shadcn/ui**.
 
 In sviluppo, dopo `npm install`: `npm run storybook` avvia la documentazione su `localhost` (prima viene rigenerato il CSS Tailwind di anteprima con `build:storybook-css`).
 
+### Node e npm
+
+- **Node.js 22+** consigliato (file **`.nvmrc`**, workflow CI su GitHub Actions).
+- **`.npmrc`** in repo: `registry=https://registry.npmjs.org/` e `tag=latest` per evitare dist-tag globali non compatibili con il registry pubblico.
+
 ---
 
 ## Cosa include
@@ -202,7 +207,7 @@ npm run build
 # Storybook (build token + Tailwind preview, poi dev server)
 npm run storybook
 
-# Release (semantic-release — solo da CI)
+# Release (semantic-release — solo da CI; aggiorna CHANGELOG, versione npm, GitHub release)
 npm run release
 
 # Registry shadcn (sync src → registry/solids + JSON in registry/r)
@@ -210,6 +215,10 @@ npm run registry:build
 ```
 
 Per Storybook, il CSS Tailwind viene precompilato in `.storybook/preview-tw.built.css` (file ignorato da git) dallo script `build:storybook-css`.
+
+### Release, versioning e changelog
+
+Su push a **`main`**, il workflow GitHub **Release** esegue **semantic-release**: analizza i commit (**Conventional Commits**, es. `feat:`, `fix:`), aggiorna **`CHANGELOG.md`** (plugin `@semantic-release/changelog`), bump di versione su npm, tag Git e **GitHub Release** con note generate. Non lanciare `npm run release` in locale salvo esigenze di debug: è pensato per CI (token `NPM_TOKEN`, `GITHUB_TOKEN`).
 
 ---
 
