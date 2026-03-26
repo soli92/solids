@@ -4,6 +4,8 @@
 una fondamenta **agnostica** basata su **design tokens** e **CSS variables**,
 pronta all'uso con qualsiasi framework web e compatibile con **shadcn/ui**.
 
+Contesto operativo per assistenti AI: **[`AGENTS.md`](./AGENTS.md)**.
+
 **Storybook** (documentazione interattiva + esempi UI) è pubblicato su **[GitHub Pages](https://soli92.github.io/solids/)** dopo ogni release su npm. Per la prima volta sul repo: *Settings → Pages → Build and deployment: GitHub Actions*.
 
 ---

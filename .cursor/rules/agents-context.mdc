@@ -1,0 +1,10 @@
+---
+description: All’inizio del lavoro nel repo, leggere AGENTS.md e README
+alwaysApply: true
+---
+
+# Policy contesto repository
+
+Prima di task su **token, CSS, Storybook, registry o release** di SoliDS, **leggi `AGENTS.md`** nella root e allinea a **`README.md`** / **`CHANGELOG.md`** dove indicato.
+
+Non committare segreti; rispettare **`.npmrc`** del repo (registry pubblico, `tag=latest`).
