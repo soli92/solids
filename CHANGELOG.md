@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/soli92/solids/compare/v1.3.3...v1.4.0) (2026-03-26)
+
+
+### Features
+
+* **themes:** add 90s-party palette, fonts, Storybook toolbar ([bc26648](https://github.com/soli92/solids/commit/bc266489adfee951fde1a01990359cf82bd7b5e7))
+
 ## [Unreleased]
 
 ### Features
