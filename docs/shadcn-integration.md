@@ -67,16 +67,16 @@ Riferimento `components.json`: [templates/components.json.example](../templates/
 
 ---
 
-## Temi (light, dark, fantasy, cyberpunk)
+## Temi (light, dark, fantasy, cyberpunk, 90s-party)
 
-Oltre a **light** e **dark**, SoliDS espone i temi globali **fantasy** e **cyberpunk** (`data-theme="fantasy"` / `"cyberpunk"` su `<html>`). Ridefiniscono palette, font, raggio e ombre; il layer shadcn continua a leggere gli stessi token semantici.
+Oltre a **light** e **dark**, SoliDS espone i temi globali **fantasy**, **cyberpunk** e **90s-party** (`data-theme="fantasy"` / `"cyberpunk"` / `"90s-party"` su `<html>`). Ridefiniscono palette, font, raggio e ombre; il layer shadcn continua a leggere gli stessi token semantici.
 
 | Strategia | Come funziona |
 |-----------|--------------|
-| `data-theme="dark"` / `"fantasy"` / `"cyberpunk"` / `"light"` | Tema esplicito sul root |
+| `data-theme="dark"` / `"fantasy"` / `"cyberpunk"` / `"90s-party"` / `"light"` | Tema esplicito sul root |
 | `@media (prefers-color-scheme: dark)` | Applica i token **dark** solo se **`data-theme` non è impostato** su `:root` |
 
-Il preset Tailwind considera **dark** anche `data-theme="cyberpunk"` per le utility `dark:`.
+Il preset Tailwind considera **dark** anche `data-theme="cyberpunk"` e **`data-theme="90s-party"`** per le utility `dark:`.
 
 ### Esempio con next-themes
 

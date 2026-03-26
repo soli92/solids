@@ -14,15 +14,16 @@ SoliDS applica i temi con **override dei token semantici** (colori, font, raggio
 | **Dark** | `dark` | Contrasto elevato; adatto a UI dense e notte. |
 | **Fantasy** | `fantasy` | Pergamena, inchiostro, ottone; titoli con stack **Cinzel** (carica il font da CDN per il look completo). |
 | **Cyberpunk** | `cyberpunk` | Sfondo profondo, accenti cyan/magenta, ombre “neon”; titoli **Orbitron**, mono **Share Tech Mono** (stesso discorso CDN). |
+| **90s party** | `90s-party` | Viola/magenta/teal/lime (rave flyer / MTV); titoli **Russo One**, corpo **Tahoma/Verdana**, mono **VT323**; raggi chunk e ombre offset + glow. |
 
 ### Comportamento con il sistema
 
-- Se **`data-theme` non è impostato** su `:root`, **`prefers-color-scheme: dark`** applica gli stessi token del tema **dark** (senza toccare light/fantasy/cyberpunk espliciti).
-- Con **`fantasy`** o **`cyberpunk`** il tema resta quello scelto anche se il sistema è in dark mode.
+- Se **`data-theme` non è impostato** su `:root`, **`prefers-color-scheme: dark`** applica gli stessi token del tema **dark** (senza toccare light/fantasy/cyberpunk/**90s-party** espliciti).
+- Con **`fantasy`**, **`cyberpunk`** o **`90s-party`** il tema resta quello scelto anche se il sistema è in dark mode.
 
 ### Tailwind `dark:`
 
-Il preset Tailwind tratta come “dark” sia `data-theme="dark"` sia `data-theme="cyberpunk"`, così le utility `dark:` restano utili sul tema neon. Dettagli in `docs/shadcn-integration.md` nel repository.
+Il preset Tailwind tratta come “dark” `data-theme="dark"`, **`cyberpunk`** e **`90s-party`**, così le utility `dark:` restano utili sui temi scuri e neon. Dettagli in `docs/shadcn-integration.md` nel repository.
 
 ## Cosa resta stabile
 
@@ -36,15 +37,17 @@ Il preset Tailwind tratta come “dark” sia `data-theme="dark"` sia `data-them
 <html data-theme="dark"></html>
 <html data-theme="fantasy"></html>
 <html data-theme="cyberpunk"></html>
+<html data-theme="90s-party"></html>
 ```
 
 Anteprima delle palette per tema nella pagina **Foundations / Colors** (sidebar Storybook).
 
 ## Font opzionali (CDN)
 
-Per avvicinarti al look dei temi **fantasy** e **cyberpunk**, puoi aggiungere da Google Fonts (o simile):
+Per avvicinarti al look dei temi **fantasy**, **cyberpunk** e **90s party**, puoi aggiungere da Google Fonts (o simile):
 
 - **Fantasy:** [Cinzel](https://fonts.google.com/specimen/Cinzel)
 - **Cyberpunk:** [Orbitron](https://fonts.google.com/specimen/Orbitron), [Share Tech Mono](https://fonts.google.com/specimen/Share+Tech+Mono)
+- **90s party:** [Russo One](https://fonts.google.com/specimen/Russo+One), [VT323](https://fonts.google.com/specimen/VT323) (Storybook carica già questa coppia in `.storybook/preview-head.html`)
 
 Senza CDN, gli stack degradano su serif/sans/mono di sistema definiti nei JSON tema.

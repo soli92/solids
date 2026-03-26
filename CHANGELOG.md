@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Features
+
+* **themes:** nuovo tema **`90s-party`** (`data-theme="90s-party"`) — palette magenta/teal/lime su viola, font Russo One / Tahoma / VT323, ombre offset + glow; preset Tailwind `dark:` allineato a cyberpunk; Storybook toolbar + Google Fonts in preview.
+
 ## [1.3.3](https://github.com/soli92/solids/compare/v1.3.2...v1.3.3) (2026-03-24)
 
 

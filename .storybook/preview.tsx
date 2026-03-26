@@ -11,8 +11,10 @@ import "./preview-tw.built.css";
 
 const STORAGE_KEY = "solids:sb:theme";
 
-const DS_THEMES = ["light", "dark", "fantasy", "cyberpunk"] as const;
+const DS_THEMES = ["light", "dark", "fantasy", "cyberpunk", "90s-party"] as const;
 type DsTheme = (typeof DS_THEMES)[number];
+
+const DARK_DS_THEMES = new Set<DsTheme>(["dark", "cyberpunk", "90s-party"]);
 
 function readStoredTheme(): DsTheme {
   try {
@@ -46,6 +48,7 @@ const preview: Preview = {
           { value: "dark", title: "Dark", icon: "circle" },
           { value: "fantasy", title: "Fantasy", icon: "bookmark" },
           { value: "cyberpunk", title: "Cyberpunk" },
+          { value: "90s-party", title: "90s party" },
         ],
         dynamicTitle: true,
       },
@@ -61,8 +64,8 @@ const preview: Preview = {
     previewTabs: { canvas: { hidden: false } },
     options: { showPanel: true },
     controls: { expanded: true },
-    docs: {
-      theme: initialTheme === "dark" || initialTheme === "cyberpunk" ? themes.dark : themes.light,
+      docs: {
+      theme: DARK_DS_THEMES.has(initialTheme) ? themes.dark : themes.light,
     },
   },
 
@@ -73,14 +76,14 @@ const preview: Preview = {
         raw && (DS_THEMES as readonly string[]).includes(raw) ? (raw as DsTheme) : "light";
 
       document.documentElement.setAttribute("data-theme", theme);
-      const colorScheme = theme === "dark" || theme === "cyberpunk" ? "dark" : "light";
+      const colorScheme = DARK_DS_THEMES.has(theme) ? "dark" : "light";
       document.documentElement.style.colorScheme = colorScheme;
       document.body.setAttribute("data-theme", theme);
       document.body.style.colorScheme = colorScheme;
 
       writeStoredTheme(theme);
 
-      const sonnerTheme = theme === "dark" || theme === "cyberpunk" ? "dark" : "light";
+      const sonnerTheme = DARK_DS_THEMES.has(theme) ? "dark" : "light";
 
       return (
         <TooltipProvider delayDuration={200}>

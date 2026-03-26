@@ -20,7 +20,7 @@ Entrypoint completo (consigliato):
 @import "@soli92/solids/css/index.css";
 ```
 
-Include variabili, override per **dark / fantasy / cyberpunk**, layer shadcn, base e utilities. Ordine e contenuti: pagina **Foundations / Tokens**.
+Include variabili, override per **dark / fantasy / cyberpunk / 90s-party**, layer shadcn, base e utilities. Ordine e contenuti: pagina **Foundations / Tokens**.
 
 ## 3. Scegli il tema
 
@@ -31,11 +31,12 @@ Imposta l’attributo su `<html>` (o `:root`):
 <html data-theme="dark"></html>
 <html data-theme="fantasy"></html>
 <html data-theme="cyberpunk"></html>
+<html data-theme="90s-party"></html>
 ```
 
-Senza `data-theme`, il **dark** di sistema (`prefers-color-scheme`) applica i token dark; **fantasy** e **cyberpunk** restano espliciti. Dettagli: **Foundations / Themes**.
+Senza `data-theme`, il **dark** di sistema (`prefers-color-scheme`) applica i token dark; **fantasy**, **cyberpunk** e **90s-party** restano espliciti. Dettagli: **Foundations / Themes**.
 
-Con **next-themes**, usa `attribute="data-theme"` e valori `light | dark | fantasy | cyberpunk` (ed eventualmente `system`). Vedi `docs/shadcn-integration.md`.
+Con **next-themes**, usa `attribute="data-theme"` e valori `light | dark | fantasy | cyberpunk | 90s-party` (ed eventualmente `system`). Vedi `docs/shadcn-integration.md`.
 
 ## 4. Tailwind + shadcn (opzionale ma consigliato)
 

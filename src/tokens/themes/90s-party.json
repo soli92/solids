@@ -1,0 +1,93 @@
+{
+  "_comment": "Tema 90s party: rave / MTV / Memphis — magenta, teal, lime su viola profondo. data-theme=\"90s-party\" su html. Font consigliati da CDN: Russo One, VT323.",
+  "color": {
+    "text": {
+      "primary": "#f8f5ff",
+      "secondary": "#d4c4f0",
+      "tertiary": "#a78bfa",
+      "disabled": "#6b5a8c",
+      "inverse": "#1a0b2e",
+      "link": "#00e5ff",
+      "link-hover": "#67f8ff"
+    },
+    "bg": {
+      "canvas": "#0f0520",
+      "surface": "#1a0d32",
+      "elevated": "#251447",
+      "overlay": "rgba(12, 0, 32, 0.82)",
+      "hover": "#2d1854",
+      "active": "#3d2070",
+      "disabled": "#1a0d32"
+    },
+    "border": {
+      "default": "#7c3aed",
+      "muted": "#4c1d95",
+      "strong": "#e879f9",
+      "focus": "#d4ff00",
+      "disabled": "#3b2666"
+    },
+    "intent": {
+      "success": "#39ff14",
+      "success-bg": "#0a2e08",
+      "success-border": "#22c55e",
+      "warning": "#ffaa00",
+      "warning-bg": "#2e2000",
+      "warning-border": "#f59e0b",
+      "danger": "#ff0055",
+      "danger-bg": "#2e0014",
+      "danger-border": "#fb7185",
+      "info": "#00e5ff",
+      "info-bg": "#082830",
+      "info-border": "#06b6d4"
+    },
+    "primary": {
+      "default": "#e019dd",
+      "hover": "#f472f6",
+      "active": "#c026d3",
+      "subtle": "#4a1942",
+      "foreground": "#0a0414"
+    },
+    "secondary": {
+      "default": "#00c8c8",
+      "hover": "#00e5ff",
+      "active": "#0891b2",
+      "foreground": "#041a1c"
+    },
+    "muted": {
+      "default": "#2d1854",
+      "foreground": "#c4b5fd"
+    },
+    "accent": {
+      "default": "#d4ff00",
+      "foreground": "#1a0b2e"
+    },
+    "destructive": {
+      "default": "#ff0055",
+      "foreground": "#fff5f7"
+    },
+    "icon": {
+      "default": "#f0abfc",
+      "muted": "#a78bfa",
+      "primary": "#d4ff00",
+      "on-primary": "#1a0b2e"
+    }
+  },
+  "font": {
+    "body": "Tahoma, Verdana, 'Segoe UI', Geneva, sans-serif",
+    "heading": "'Russo One', Impact, 'Arial Black', 'Helvetica Neue', sans-serif",
+    "mono": "'VT323', 'Courier New', Courier, monospace"
+  },
+  "radius": {
+    "sm": "2px",
+    "md": "6px",
+    "lg": "10px",
+    "xl": "14px",
+    "full": "9999px"
+  },
+  "shadow": {
+    "sm": "3px 3px 0 rgb(224 25 221 / 0.45), 0 0 12px rgb(0 229 255 / 0.12), inset 0 1px 0 rgb(255 255 255 / 0.06)",
+    "md": "4px 4px 0 rgb(0 229 255 / 0.35), 0 0 20px rgb(224 25 221 / 0.2), 0 6px 16px rgb(0 0 0 / 0.5)",
+    "lg": "6px 6px 0 rgb(212 255 0 / 0.3), 0 0 32px rgb(224 25 221 / 0.25), 0 10px 28px rgb(0 0 0 / 0.55)",
+    "xl": "8px 8px 0 rgb(224 25 221 / 0.35), 0 0 48px rgb(0 229 255 / 0.2), 0 16px 40px rgb(0 0 0 / 0.6)"
+  }
+}

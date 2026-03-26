@@ -15,7 +15,7 @@ I token sono la **singola fonte di verità** per colori, spazi, tipografia, ragg
 
 - **`base`** — palette grezza, scala spacing numerica, radius base, font base, shadow, easing, z-index, …
 - **`semantic`** — significati (testo, sfondo, border, intent, primary, …) con default “light”
-- **`themes`** — override per **`light`**, **`dark`**, **`fantasy`**, **`cyberpunk`** (ogni file in `src/tokens/themes/*.json`)
+- **`themes`** — override per **`light`**, **`dark`**, **`fantasy`**, **`cyberpunk`**, **`90s-party`** (ogni file in `src/tokens/themes/*.json`)
 
 Esempio di accesso in JavaScript:
 
@@ -30,7 +30,7 @@ import tokens from "@soli92/solids/tokens";
 L’entrypoint consigliato è `@soli92/solids/css/index.css`, che importa nell’ordine:
 
 1. **`variables.css`** — `:root` con base + semantic + merge tema light
-2. **`themes.css`** — `[data-theme="dark"]`, `[data-theme="fantasy"]`, `[data-theme="cyberpunk"]`, più fallback `prefers-color-scheme: dark` quando `data-theme` non è impostato
+2. **`themes.css`** — `[data-theme="dark"]`, `[data-theme="fantasy"]`, `[data-theme="cyberpunk"]`, `[data-theme="90s-party"]`, più fallback `prefers-color-scheme: dark` quando `data-theme` non è impostato
 3. **`shadcn.css`** — mapping verso variabili shadcn (`--background`, `--primary`, …)
 4. **`base.css`** — reset e stili globali
 5. **`utilities.css`** — classi `sd-*`
