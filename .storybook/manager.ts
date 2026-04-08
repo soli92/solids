@@ -25,4 +25,6 @@ const theme = readStoredTheme() === "dark" ? themes.dark : themes.light;
 
 addons.setConfig({
   theme,
+  brandTitle: "SoliDS",
+  brandUrl: "https://github.com/soli92/solids",
 });

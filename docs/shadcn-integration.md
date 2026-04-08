@@ -87,15 +87,18 @@ import { ThemeProvider } from "next-themes";
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
-      attribute="data-theme"   // usa data-theme invece di class
+      attribute="data-theme"
       defaultTheme="system"
       enableSystem
+      themes={["light", "dark", "fantasy", "cyberpunk", "90s-party", "steampunk"]}
     >
       {children}
     </ThemeProvider>
   );
 }
 ```
+
+`themes` elenca i valori ammessi dal selettore; omettilo se ti bastano solo `light` e `dark`.
 
 ---
 
@@ -113,16 +116,19 @@ Se vuoi solo le variabili e il layer shadcn, senza reset e utility:
 
 ## Token disponibili come CSS Variables
 
-### Colori semantici
-| Variable | Valore light | Valore dark |
-|----------|-------------|-------------|
+### Colori semantici (light / dark — valori indicativi)
+
+Da `themes/light.json` e `themes/dark.json`. I temi **fantasy**, **cyberpunk**, **90s-party** e **steampunk** sostituiscono la stessa struttura con palette dedicate.
+
+| Variable | Valore light (tipico) | Valore dark (tipico) |
+|----------|----------------------|----------------------|
 | `--sd-color-text-primary` | `#111827` | `#F9FAFB` |
 | `--sd-color-text-secondary` | `#4B5563` | `#D1D5DB` |
-| `--sd-color-bg-canvas` | `#FFFFFF` | `#0B1220` |
-| `--sd-color-bg-surface` | `#F9FAFB` | `#111827` |
-| `--sd-color-bg-elevated` | `#FFFFFF` | `#1F2937` |
+| `--sd-color-bg-canvas` | `#FAFBFC` | `#0C0E12` |
+| `--sd-color-bg-surface` | `#F0F2F5` | `#161922` |
+| `--sd-color-bg-elevated` | `#FFFFFF` | `#1E2430` |
 | `--sd-color-primary-default` | `#2563EB` | `#3B82F6` |
-| `--sd-color-border-default` | `#E5E7EB` | `#243047` |
+| `--sd-color-border-default` | `#E2E5EA` | `#2E3545` |
 
 ### Mapping shadcn/ui
 | Variable shadcn | Mappa a |

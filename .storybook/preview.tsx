@@ -63,10 +63,28 @@ const preview: Preview = {
   parameters: {
     viewMode: "docs",
     previewTabs: { canvas: { hidden: false } },
-    options: { showPanel: true },
+    options: {
+      showPanel: true,
+      // Forma oggetto (Storybook 7+) — le funzioni non sono serializzabili in build statica
+      storySort: {
+        order: [
+          "SoliDS",
+          "Getting Started",
+          "Design Principles",
+          "Roadmap",
+          "Foundations",
+          ["Foundations", "*"],
+          "SoliDS/UI",
+          ["SoliDS/UI", "*"],
+        ],
+        method: "alphabetical",
+        locales: "it-IT",
+      },
+    },
     controls: { expanded: true },
     docs: {
       theme: DARK_DS_THEMES.has(initialTheme) ? themes.dark : themes.light,
+      toc: true,
     },
   },
 

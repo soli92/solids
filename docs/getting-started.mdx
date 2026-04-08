@@ -20,7 +20,7 @@ Entrypoint completo (consigliato):
 @import "@soli92/solids/css/index.css";
 ```
 
-Include variabili, override per **dark / fantasy / cyberpunk / 90s-party**, layer shadcn, base e utilities. Ordine e contenuti: pagina **Foundations / Tokens**.
+Include variabili, override per **dark**, **fantasy**, **cyberpunk**, **90s-party** e **steampunk**, layer shadcn, base e utilities. I default **light** / **dark** seguono una lettura **Material Design 3** (superfici tonali, raggi generosi, ombre a livelli), con primary blu allineato a shadcn. Ordine e contenuti: pagina **Foundations / Tokens**.
 
 ## 3. Scegli il tema
 
@@ -32,11 +32,12 @@ Imposta l’attributo su `<html>` (o `:root`):
 <html data-theme="fantasy"></html>
 <html data-theme="cyberpunk"></html>
 <html data-theme="90s-party"></html>
+<html data-theme="steampunk"></html>
 ```
 
-Senza `data-theme`, il **dark** di sistema (`prefers-color-scheme`) applica i token dark; **fantasy**, **cyberpunk** e **90s-party** restano espliciti. Dettagli: **Foundations / Themes**.
+Senza `data-theme`, il **dark** di sistema (`prefers-color-scheme`) applica i token dark; **fantasy**, **cyberpunk**, **90s-party** e **steampunk** restano espliciti. Dettagli: **Foundations / Themes**.
 
-Con **next-themes**, usa `attribute="data-theme"` e valori `light | dark | fantasy | cyberpunk | 90s-party` (ed eventualmente `system`). Vedi `docs/shadcn-integration.md`.
+Con **next-themes**, usa `attribute="data-theme"` e valori `light | dark | fantasy | cyberpunk | 90s-party | steampunk` (ed eventualmente `system`). Per comparire tutti nel selettore, estendi `themes` su `ThemeProvider` come in `docs/shadcn-integration.md`.
 
 ## 4. Tailwind + shadcn (opzionale ma consigliato)
 
@@ -53,5 +54,5 @@ Poi `npx shadcn@latest add …` con gli item del registry `@solids`. Guida: `doc
 ## 5. Documentazione e Storybook
 
 - **Online (sempre aggiornato con le release npm):** [soli92.github.io/solids](https://soli92.github.io/solids/) — nella sidebar trovi **Foundations** (colori, spacing, tipografia, radius, temi, token), le pagine **Getting Started**, **Design Principles**, **Roadmap** e le story **SoliDS / UI** (componenti di esempio).
-- **In locale** (clone di [github.com/soli92/solids](https://github.com/soli92/solids)): `npm install`, poi `npm run storybook`. Il deploy su GitHub Pages è gestito dalla CI dopo `semantic-release`; per un fork, configura *Pages* su *GitHub Actions* (vedi [README](https://github.com/soli92/solids/blob/main/README.md#documentazione)).
+- **In locale** (clone di [github.com/soli92/solids](https://github.com/soli92/solids)): `npm install`, poi `npm run storybook`. Smoke CI-style: `npm test` (esegue `build` + `build-storybook`). Il deploy su GitHub Pages è gestito dalla CI dopo `semantic-release`; per un fork, configura *Pages* su *GitHub Actions* (vedi [README](https://github.com/soli92/solids/blob/main/README.md#documentazione)).
 - **Guide in markdown nel repo:** [`shadcn-integration.md`](https://github.com/soli92/solids/blob/main/docs/shadcn-integration.md) e [`registry-model-1.md`](https://github.com/soli92/solids/blob/main/docs/registry-model-1.md).

@@ -4,7 +4,7 @@ import { Meta } from "@storybook/blocks";
 
 # Border Radius
 
-I border radius sono esposti come **CSS variables** `--sd-radius-*`, derivate da `src/tokens/base.json`. I temi **fantasy** e **cyberpunk** possono **sovrascrivere** i valori (fantasy tende a raggi più morbidi; cyberpunk a raggi più stretti / tech).
+I border radius sono esposti come **CSS variables** `--sd-radius-*`, da `src/tokens/base.json` con override in **`semantic.json`** e nei JSON tema. Per **light** / **dark** i passi semantici tipici sono **8px / 12px / 16px / 20px** (sm → xl), in linea con componenti **Material Design 3**; **fantasy**, **cyberpunk**, **90s-party** e **steampunk** possono **sovrascrivere** (es. fantasy più morbido, cyberpunk/steampunk più “tech” o meccanici).
 
 ## Token CSS (default light / base)
 
@@ -21,7 +21,7 @@ I border radius sono esposti come **CSS variables** `--sd-radius-*`, derivate da
 
 ## Utility
 
-Le classi in `utilities.css` includono ad esempio `.sd-rounded-sm`, `.sd-rounded-md`, `.sd-rounded-lg`, `.sd-rounded-xl`, `.sd-rounded-full`, `.sd-rounded-none`.
+Le classi in `utilities.css` includono ad esempio `.sd-rounded-sm`, `.sd-rounded-md`, `.sd-rounded-lg`, `.sd-rounded-xl`, `.sd-rounded-full`, `.sd-rounded-none`. In **Tailwind** con il preset SoliDS, `rounded-lg` / `rounded-md` / `rounded-sm` dei componenti shadcn seguono `--radius` → `--sd-radius-md` del tema attivo.
 
 ## Linee guida
 
