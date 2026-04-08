@@ -6,7 +6,9 @@
 }
 
 [data-theme="dark"],
-[data-theme="cyberpunk"] {
+[data-theme="cyberpunk"],
+[data-theme="90s-party"],
+[data-theme="steampunk"] {
   color-scheme: dark;
 }
 
@@ -38,10 +40,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── Focus ──────────────────────────────────────────────── */
+/* ─── Focus (2px ring + offset, aligned with Material / WCAG focus visibility) ─ */
 :focus-visible {
   outline: 2px solid var(--sd-color-border-focus);
   outline-offset: 2px;
+  transition: outline-offset var(--sd-duration-fast, 150ms)
+    var(--sd-easing-standard, cubic-bezier(0.2, 0, 0, 1));
 }
 
 /* ─── Box sizing ─────────────────────────────────────────── */

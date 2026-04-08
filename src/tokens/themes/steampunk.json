@@ -1,0 +1,92 @@
+{
+  "_comment": "Steampunk: laboratorio vittoriano, ottone e rame, cuoio e vapore. data-theme=\"steampunk\". Carica Cinzel + Libre Baskerville da Google Fonts per il look completo (vedi Storybook preview-head).",
+  "color": {
+    "text": {
+      "primary":   "#ede4d3",
+      "secondary":  "#c9bfad",
+      "tertiary":   "#9a9083",
+      "disabled":   "#6b6458",
+      "inverse":    "#1a1410",
+      "link":       "#7ec8d4",
+      "link-hover": "#a8dde6"
+    },
+    "bg": {
+      "canvas":   "#120e0b",
+      "surface":  "#1c1712",
+      "elevated": "#262018",
+      "overlay":  "rgba(8, 6, 4, 0.78)",
+      "hover":    "#30281e",
+      "active":   "#3a3228",
+      "disabled": "#1c1712"
+    },
+    "border": {
+      "default":  "#4a3f32",
+      "muted":    "#2e261f",
+      "strong":   "#8b7355",
+      "focus":    "#c9a227",
+      "disabled": "#3a3228"
+    },
+    "intent": {
+      "success":          "#84cc16",
+      "success-bg":       "#1a2410",
+      "success-border":   "#4d7c0f",
+      "warning":          "#eab308",
+      "warning-bg":       "#2a2208",
+      "warning-border":   "#a16207",
+      "danger":           "#ea580c",
+      "danger-bg":        "#2a1208",
+      "danger-border":    "#c2410c",
+      "info":             "#7ec8d4",
+      "info-bg":          "#0f1c1e",
+      "info-border":      "#3d8a96"
+    },
+    "primary": {
+      "default":    "#c9a227",
+      "hover":      "#ddb84a",
+      "active":     "#a68519",
+      "subtle":     "#3d3020",
+      "foreground": "#1a1410"
+    },
+    "secondary": {
+      "default":    "#3d3020",
+      "hover":      "#4a3c2e",
+      "active":     "#574836",
+      "foreground": "#ede4d3"
+    },
+    "muted": {
+      "default":    "#2e261f",
+      "foreground": "#9a9083"
+    },
+    "accent": {
+      "default":    "#4a2c1a",
+      "foreground": "#f0e6d2"
+    },
+    "destructive": {
+      "default":    "#b4532a",
+      "foreground": "#fff5f0"
+    },
+    "icon": {
+      "default":    "#ede4d3",
+      "muted":      "#9a9083",
+      "primary":    "#c9a227",
+      "on-primary": "#1a1410"
+    }
+  },
+  "font": {
+    "body": "'Libre Baskerville', Baskerville, 'Palatino Linotype', Palatino, Georgia, serif",
+    "heading": "'Cinzel', 'Copperplate', 'Palatino Linotype', Palatino, Georgia, serif",
+    "mono": "'Courier Prime', 'Courier New', Courier, monospace"
+  },
+  "radius": {
+    "sm": "3px",
+    "md": "6px",
+    "lg": "8px",
+    "xl": "10px"
+  },
+  "shadow": {
+    "sm": "0 1px 2px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,200,120,0.06)",
+    "md": "0 4px 14px rgba(0,0,0,0.55), 0 0 0 1px rgba(201,162,39,0.12)",
+    "lg": "0 8px 28px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,162,39,0.16)",
+    "xl": "0 16px 40px rgba(0,0,0,0.65), 0 0 24px rgba(201,162,39,0.1)"
+  }
+}

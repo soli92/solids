@@ -7,9 +7,15 @@
 
 ## [Unreleased]
 
+## [1.4.0](https://github.com/soli92/solids/compare/v1.3.3...v1.4.0) (2026-04-08)
+
 ### Features
 
-* **themes:** nuovo tema **`90s-party`** (`data-theme="90s-party"`) — palette magenta/teal/lime su viola, font Russo One / Tahoma / VT323, ombre offset + glow; preset Tailwind `dark:` allineato a cyberpunk; Storybook toolbar + Google Fonts in preview.
+* **themes:** nuovo tema **`steampunk`** (`data-theme="steampunk"`) — palette ottone/rame/cuoio, accenti vapore/teal, font Cinzel / Libre Baskerville / Courier Prime (Storybook); preset Tailwind `dark:` e `color-scheme: dark` allineati a cyberpunk/90s-party.
+* **tokens:** default light/dark più vicini a **Material Design 3** (superfici tonali, raggi 8/12/16/20px, ombre a doppio livello, curve di motion `standard` / `emphasized-*` in `base.json`, focus visibile con easing).
+* **tailwind-preset:** `fontFamily.heading` / `serif` da `--sd-font-heading`; utility `sd-font-heading`.
+* **themes:** tema **`90s-party`** (`data-theme="90s-party"`) — palette magenta/teal/lime su viola, font Russo One / Tahoma / VT323, ombre offset + glow; preset Tailwind `dark:` e Storybook toolbar + Google Fonts in preview.
+* **storybook:** toolbar e **manager** allineati ai temi scuri (`90s-party`, `steampunk`); pagine **Colors** / **index** con steampunk; script **`npm test`** (build + `build-storybook`).
 
 ## [1.3.3](https://github.com/soli92/solids/compare/v1.3.2...v1.3.3) (2026-03-24)
 

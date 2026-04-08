@@ -3,10 +3,18 @@ import { themes } from "@storybook/theming";
 
 const STORAGE_KEY = "solids:sb:theme";
 
+/** Allineato a preview.tsx: temi che usano UI Storybook “dark”. */
+const DARK_CHROME_THEMES = new Set([
+  "dark",
+  "cyberpunk",
+  "90s-party",
+  "steampunk",
+]);
+
 function readStoredTheme(): "light" | "dark" {
   try {
     const t = localStorage.getItem(STORAGE_KEY);
-    if (t === "dark" || t === "cyberpunk") return "dark";
+    if (t && DARK_CHROME_THEMES.has(t)) return "dark";
     return "light";
   } catch {
     return "light";
@@ -16,5 +24,5 @@ function readStoredTheme(): "light" | "dark" {
 const theme = readStoredTheme() === "dark" ? themes.dark : themes.light;
 
 addons.setConfig({
-  theme
+  theme,
 });

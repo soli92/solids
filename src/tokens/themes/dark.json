@@ -1,5 +1,5 @@
 {
-  "_comment": "Dark theme overrides. All values here override the semantic defaults for [data-theme='dark'] or @media (prefers-color-scheme: dark).",
+  "_comment": "Dark theme overrides. All values here override the semantic defaults for [data-theme='dark'] or @media (prefers-color-scheme: dark). Surfaces and shadows follow M3-style elevation on dark backgrounds.",
   "color": {
     "text": {
       "primary":   "#F9FAFB",
@@ -11,20 +11,20 @@
       "link-hover": "#93C5FD"
     },
     "bg": {
-      "canvas":   "#0B1120",
-      "surface":  "#111827",
-      "elevated": "#1F2937",
-      "overlay":  "rgba(0,0,0,0.7)",
-      "hover":    "#1F2937",
-      "active":   "#374151",
-      "disabled": "#1F2937"
+      "canvas":   "#0C0E12",
+      "surface":  "#161922",
+      "elevated": "#1E2430",
+      "overlay":  "rgba(0,0,0,0.65)",
+      "hover":    "#252B38",
+      "active":   "#2E3545",
+      "disabled": "#161922"
     },
     "border": {
-      "default":  "#374151",
-      "muted":    "#1F2937",
+      "default":  "#2E3545",
+      "muted":    "#1A1F2A",
       "strong":   "#4B5563",
       "focus":    "#60A5FA",
-      "disabled": "#374151"
+      "disabled": "#2E3545"
     },
     "intent": {
       "success":          "#4ADE80",
@@ -48,17 +48,17 @@
       "foreground": "#FFFFFF"
     },
     "secondary": {
-      "default":    "#1F2937",
-      "hover":      "#374151",
-      "active":     "#4B5563",
+      "default":    "#252B38",
+      "hover":      "#2E3545",
+      "active":     "#3D4658",
       "foreground": "#F9FAFB"
     },
     "muted": {
-      "default":    "#1F2937",
+      "default":    "#252B38",
       "foreground": "#9CA3AF"
     },
     "accent": {
-      "default":    "#1F2937",
+      "default":    "#252B38",
       "foreground": "#F9FAFB"
     },
     "destructive": {
@@ -71,5 +71,17 @@
       "primary":    "#60A5FA",
       "on-primary": "#FFFFFF"
     }
+  },
+  "radius": {
+    "sm": "8px",
+    "md": "12px",
+    "lg": "16px",
+    "xl": "20px"
+  },
+  "shadow": {
+    "sm": "0 1px 2px 0 rgb(0 0 0 / 0.35), 0 1px 3px 1px rgb(0 0 0 / 0.22)",
+    "md": "0 1px 3px 0 rgb(0 0 0 / 0.38), 0 4px 8px 3px rgb(0 0 0 / 0.28)",
+    "lg": "0 4px 8px 0 rgb(0 0 0 / 0.42), 0 6px 12px 4px rgb(0 0 0 / 0.32)",
+    "xl": "0 8px 16px 0 rgb(0 0 0 / 0.48), 0 12px 24px 6px rgb(0 0 0 / 0.36)"
   }
 }

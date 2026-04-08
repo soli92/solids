@@ -99,6 +99,7 @@
 .sd-font-bold     { font-weight: var(--sd-font-weight-bold); }
 
 .sd-font-sans  { font-family: var(--sd-font-body); }
+.sd-font-heading { font-family: var(--sd-font-heading); }
 .sd-font-mono  { font-family: var(--sd-font-mono); }
 
 .sd-text-left   { text-align: left; }
@@ -200,16 +201,16 @@
 .sd-cursor-default { cursor: default; }
 .sd-cursor-not-allowed { cursor: not-allowed; }
 
-/* ─── Transition ─────────────────────────────────────────── */
+/* ─── Transition (MD3-style standard curve when token present) ─ */
 .sd-transition {
   transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   transition-duration: var(--sd-duration-normal);
-  transition-timing-function: var(--sd-easing-ease-inout);
+  transition-timing-function: var(--sd-easing-standard, var(--sd-easing-ease-inout));
 }
 .sd-transition-fast {
   transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   transition-duration: var(--sd-duration-fast);
-  transition-timing-function: var(--sd-easing-ease-inout);
+  transition-timing-function: var(--sd-easing-standard, var(--sd-easing-ease-inout));
 }
 
 /* ─── Z-index ────────────────────────────────────────────── */

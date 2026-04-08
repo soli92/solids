@@ -1,11 +1,13 @@
 /*
  * SoliDS — shadcn/ui Compatibility Layer
  * ----------------------------------------
- * This file maps the shadcn/ui CSS variable convention to SoliDS semantic tokens.
+ * Maps shadcn/ui CSS variables (--background, --primary, --radius, …) to SoliDS tokens.
  * Import AFTER variables.css and themes.css.
  *
- * Usage in a Next.js / Vite project with shadcn:
- *   import "@soli92/solids/css/index.css";
+ * Default light/dark tokens are tuned toward Material Design 3 (tonal surfaces,
+ * layered elevation, larger component radii) while keeping the classic blue primary
+ * expected by most shadcn examples. Named themes (fantasy, cyberpunk, 90s-party,
+ * steampunk) override the same --sd-* pipeline.
  *
  * See: https://ui.shadcn.com/docs/theming
  */

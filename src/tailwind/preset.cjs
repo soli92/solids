@@ -13,6 +13,7 @@ module.exports = {
     '[data-theme="dark"]',
     '[data-theme="cyberpunk"]',
     '[data-theme="90s-party"]',
+    '[data-theme="steampunk"]',
   ],
   theme: {
     extend: {
@@ -80,6 +81,8 @@ module.exports = {
       },
       fontFamily: {
         sans: ["var(--sd-font-body)", ...fontFamily.sans],
+        serif: ["var(--sd-font-heading)", ...fontFamily.serif],
+        heading: ["var(--sd-font-heading)", ...fontFamily.serif],
         mono: ["var(--sd-font-mono)", ...fontFamily.mono],
       },
       boxShadow: {

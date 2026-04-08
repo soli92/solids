@@ -34,7 +34,7 @@ In sviluppo, dopo `npm install`: `npm run storybook` avvia la documentazione su 
 |-------|------|-------------|
 | 🎨 Tokens | `dist/tokens/tokens.json` | Palette completa, spacing, tipografia, shadow, radius, easing, z-index |
 | 🔤 Variables | `dist/css/variables.css` | CSS vars `--sd-*` per tema light (default) |
-| 🌗 Themes | `dist/css/themes.css` | Override **dark**, **fantasy**, **cyberpunk**, **90s-party** + `prefers-color-scheme: dark` quando `data-theme` non è impostato |
+| 🌗 Themes | `dist/css/themes.css` | Override **dark**, **fantasy**, **cyberpunk**, **90s-party**, **steampunk** + `prefers-color-scheme: dark` quando `data-theme` non è impostato |
 | 🔗 shadcn | `dist/css/shadcn.css` | Mapping variabili shadcn/ui → token SoliDS |
 | 🧱 Base | `dist/css/base.css` | Reset minimale, body, focus-visible, box-sizing |
 | 🛠️ Utilities | `dist/css/utilities.css` | Classi utility `sd-*` (flex, spacing, colori, badge, card…) |
@@ -146,16 +146,16 @@ Preset Tailwind (shadcn): `require("@soli92/solids/tailwind-preset")` nel `tailw
 
 ### Motion
 - `--sd-duration-fast` / `normal` / `slow`
-- `--sd-easing-ease-inout` / `ease-out` / …
+- `--sd-easing-standard` (curva MD3) / `emphasized-decelerate` / `emphasized-accelerate` / `ease-inout` / `ease-out` / …
 
 ### Z-index (`--sd-z-*`)
 `dropdown` `sticky` `overlay` `modal` `toast` `tooltip`
 
 ---
 
-## Temi (light, dark, fantasy, cyberpunk, 90s-party)
+## Temi (light, dark, fantasy, cyberpunk, 90s-party, steampunk)
 
-Quattro temi globali tramite `data-theme` su `<html>`. Stessi token semantici (`--sd-*`), valori diversi per colore, font, raggio e ombre dove definito nei JSON tema.
+Temi globali tramite `data-theme` su `<html>`. Stessi token semantici (`--sd-*`), valori diversi per colore, font, raggio e ombre. I default **light** / **dark** sono orientati a superfici tonali, raggi più generosi e ombre a livelli in stile **Material Design 3**, mantenendo il blu **primary** tipico di shadcn.
 
 ```html
 <html data-theme="light">      <!-- esplicito (spesso coincide con default :root) -->
@@ -163,9 +163,10 @@ Quattro temi globali tramite `data-theme` su `<html>`. Stessi token semantici (`
 <html data-theme="fantasy">    <!-- pergamena / serif / Cinzel negli heading -->
 <html data-theme="cyberpunk">  <!-- neon; il preset Tailwind tratta anche questo come "dark" per le utility dark: -->
 <html data-theme="90s-party"> <!-- rave / magenta-teal-lime; stesso trattamento dark: del preset Tailwind -->
+<html data-theme="steampunk"> <!-- ottone/rame, serif vittoriano; dark: come cyberpunk -->
 ```
 
-Se **`data-theme` non è impostato**, `prefers-color-scheme: dark` applica i token **dark** (come `data-theme="dark"`). **Fantasy**, **cyberpunk** e **90s-party** vanno scelti esplicitamente.
+Se **`data-theme` non è impostato**, `prefers-color-scheme: dark` applica i token **dark** (come `data-theme="dark"`). **Fantasy**, **cyberpunk**, **90s-party** e **steampunk** vanno scelti esplicitamente.
 
 Con **next-themes**, usa `attribute="data-theme"` e, se vuoi tutti i temi nel selettore, estendi i temi oltre `light`/`dark` (vedi `docs/shadcn-integration.md`).
 
@@ -206,6 +207,9 @@ npm install
 
 # Build (genera dist/)
 npm run build
+
+# Test smoke (build token/CSS + Storybook static)
+npm test
 
 # Storybook (build token + Tailwind preview, poi dev server)
 npm run storybook

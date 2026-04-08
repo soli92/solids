@@ -11,10 +11,10 @@ import "./preview-tw.built.css";
 
 const STORAGE_KEY = "solids:sb:theme";
 
-const DS_THEMES = ["light", "dark", "fantasy", "cyberpunk", "90s-party"] as const;
+const DS_THEMES = ["light", "dark", "fantasy", "cyberpunk", "90s-party", "steampunk"] as const;
 type DsTheme = (typeof DS_THEMES)[number];
 
-const DARK_DS_THEMES = new Set<DsTheme>(["dark", "cyberpunk", "90s-party"]);
+const DARK_DS_THEMES = new Set<DsTheme>(["dark", "cyberpunk", "90s-party", "steampunk"]);
 
 function readStoredTheme(): DsTheme {
   try {
@@ -49,6 +49,7 @@ const preview: Preview = {
           { value: "fantasy", title: "Fantasy", icon: "bookmark" },
           { value: "cyberpunk", title: "Cyberpunk" },
           { value: "90s-party", title: "90s party" },
+          { value: "steampunk", title: "Steampunk" },
         ],
         dynamicTitle: true,
       },
@@ -64,7 +65,7 @@ const preview: Preview = {
     previewTabs: { canvas: { hidden: false } },
     options: { showPanel: true },
     controls: { expanded: true },
-      docs: {
+    docs: {
       theme: DARK_DS_THEMES.has(initialTheme) ? themes.dark : themes.light,
     },
   },

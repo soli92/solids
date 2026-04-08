@@ -1,5 +1,5 @@
 {
-  "_comment": "Semantic tokens are overridden per theme in src/tokens/themes/*.json. Default = light baked into :root.",
+  "_comment": "Semantic tokens are overridden per theme in src/tokens/themes/*.json. Default = light baked into :root. Light/dark defaults follow Material Design 3 cues: tonal surfaces, layered elevation shadows, larger shape radii; brand primary stays blue for shadcn parity.",
 
   "color": {
     "text": {
@@ -12,20 +12,20 @@
       "link-hover": "#1D4ED8"
     },
     "bg": {
-      "canvas":   "#FFFFFF",
-      "surface":  "#F9FAFB",
+      "canvas":   "#FAFBFC",
+      "surface":  "#F0F2F5",
       "elevated": "#FFFFFF",
-      "overlay":  "rgba(0,0,0,0.5)",
-      "hover":    "#F3F4F6",
-      "active":   "#E5E7EB",
-      "disabled": "#F3F4F6"
+      "overlay":  "rgba(0,0,0,0.45)",
+      "hover":    "#E8EDF7",
+      "active":   "#DDE4F2",
+      "disabled": "#F0F2F5"
     },
     "border": {
-      "default":  "#E5E7EB",
-      "muted":    "#F3F4F6",
+      "default":  "#E2E5EA",
+      "muted":    "#EEF0F3",
       "strong":   "#9CA3AF",
-      "focus":    "#3B82F6",
-      "disabled": "#E5E7EB"
+      "focus":    "#2563EB",
+      "disabled": "#E2E5EA"
     },
     "intent": {
       "success":          "#16A34A",
@@ -49,17 +49,17 @@
       "foreground": "#FFFFFF"
     },
     "secondary": {
-      "default":    "#F3F4F6",
-      "hover":      "#E5E7EB",
+      "default":    "#E8EAEF",
+      "hover":      "#DDE0E7",
       "active":     "#D1D5DB",
       "foreground": "#111827"
     },
     "muted": {
-      "default":    "#F3F4F6",
+      "default":    "#E8EAEF",
       "foreground": "#6B7280"
     },
     "accent": {
-      "default":    "#F3F4F6",
+      "default":    "#E8EAEF",
       "foreground": "#111827"
     },
     "destructive": {
@@ -85,10 +85,10 @@
   },
 
   "radius": {
-    "sm":   "4px",
-    "md":   "8px",
-    "lg":   "12px",
-    "xl":   "16px",
+    "sm":   "8px",
+    "md":   "12px",
+    "lg":   "16px",
+    "xl":   "20px",
     "full": "9999px"
   },
 
@@ -99,9 +99,9 @@
   },
 
   "shadow": {
-    "sm":  "0 1px 3px 0 rgb(0 0 0 / 0.10), 0 1px 2px -1px rgb(0 0 0 / 0.10)",
-    "md":  "0 4px 6px -1px rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.10)",
-    "lg":  "0 10px 15px -3px rgb(0 0 0 / 0.10), 0 4px 6px -4px rgb(0 0 0 / 0.10)",
-    "xl":  "0 20px 25px -5px rgb(0 0 0 / 0.10), 0 8px 10px -6px rgb(0 0 0 / 0.10)"
+    "sm":  "0 1px 2px 0 rgb(0 0 0 / 0.06), 0 1px 3px 1px rgb(0 0 0 / 0.05)",
+    "md":  "0 1px 3px 0 rgb(0 0 0 / 0.08), 0 4px 8px 3px rgb(0 0 0 / 0.06)",
+    "lg":  "0 4px 8px 0 rgb(0 0 0 / 0.08), 0 6px 12px 4px rgb(0 0 0 / 0.06)",
+    "xl":  "0 8px 16px 0 rgb(0 0 0 / 0.10), 0 12px 24px 6px rgb(0 0 0 / 0.08)"
   }
 }
