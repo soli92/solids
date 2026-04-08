@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/soli92/solids/compare/v1.4.0...v1.5.0) (2026-04-08)
+
+
+### Features
+
+* steampunk theme, MD3 tokens, Storybook refresh v1.4.0 ([6005609](https://github.com/soli92/solids/commit/60056096e294bf7a75c74429da3ba015eba12b80))
+
 # [1.4.0](https://github.com/soli92/solids/compare/v1.3.3...v1.4.0) (2026-03-26)
 
 
