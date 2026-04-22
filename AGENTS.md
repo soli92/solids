@@ -20,7 +20,7 @@ Pacchetto **`@soli92/solids`**, Node **22+**, build in `dist/`. Documentazione i
 
 ## File utili
 
-`README.md` · `CHANGELOG.md` · `docs/shadcn-integration.md` · `docs/registry-model-1.md` · `registry/`
+`README.md` · `CHANGELOG.md` · `AI_LOG.md` · `docs/shadcn-integration.md` · `docs/registry-model-1.md` · `registry/`
 
 ## Regole per l’agente
 
