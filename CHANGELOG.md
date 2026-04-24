@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/soli92/solids/compare/v1.5.0...v1.6.0) (2026-04-24)
+
+
+### Features
+
+* **themes:** sei palette ispirate a Ichigo, Vegeta, Zoro, Captain America, Sasuke, Inuyasha ([b1d2bf2](https://github.com/soli92/solids/commit/b1d2bf2a3ccc1ab82071aeb3cd7d6a816bd3b9e1))
+
 # [1.5.0](https://github.com/soli92/solids/compare/v1.4.0...v1.5.0) (2026-04-08)
 
 
