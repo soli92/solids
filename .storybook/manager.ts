@@ -9,6 +9,12 @@ const DARK_CHROME_THEMES = new Set([
   "cyberpunk",
   "90s-party",
   "steampunk",
+  "captain-america",
+  "ichigo",
+  "inuyasha",
+  "sasuke",
+  "vegeta",
+  "zoro",
 ]);
 
 function readStoredTheme(): "light" | "dark" {

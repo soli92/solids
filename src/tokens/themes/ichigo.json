@@ -1,0 +1,93 @@
+{
+  "_comment": "Ispirato a Ichigo (Bleach): nero profondo, arancio/rosso Bankai, bianco osso. data-theme=\"ichigo\".",
+  "color": {
+    "text": {
+      "primary":   "#fafafa",
+      "secondary":  "#d4d4d8",
+      "tertiary":   "#a1a1aa",
+      "disabled":   "#71717a",
+      "inverse":    "#09090b",
+      "link":       "#fb923c",
+      "link-hover": "#fdba74"
+    },
+    "bg": {
+      "canvas":   "#09090b",
+      "surface":  "#18181b",
+      "elevated": "#27272a",
+      "overlay":  "rgba(9, 9, 11, 0.88)",
+      "hover":    "#3f3f46",
+      "active":   "#52525b",
+      "disabled": "#18181b"
+    },
+    "border": {
+      "default":  "#3f3f46",
+      "muted":    "#27272a",
+      "strong":   "#71717a",
+      "focus":    "#ea580c",
+      "disabled": "#3f3f46"
+    },
+    "intent": {
+      "success":          "#4ade80",
+      "success-bg":       "#052e16",
+      "success-border":   "#166534",
+      "warning":          "#fbbf24",
+      "warning-bg":       "#1c1004",
+      "warning-border":   "#ca8a04",
+      "danger":           "#f87171",
+      "danger-bg":        "#450a0a",
+      "danger-border":    "#dc2626",
+      "info":             "#fb923c",
+      "info-bg":          "#431407",
+      "info-border":      "#ea580c"
+    },
+    "primary": {
+      "default":    "#ea580c",
+      "hover":      "#f97316",
+      "active":     "#c2410c",
+      "subtle":     "#431407",
+      "foreground": "#0c0a09"
+    },
+    "secondary": {
+      "default":    "#3f3f46",
+      "hover":      "#52525b",
+      "active":     "#71717a",
+      "foreground": "#fafafa"
+    },
+    "muted": {
+      "default":    "#27272a",
+      "foreground": "#a1a1aa"
+    },
+    "accent": {
+      "default":    "#7f1d1d",
+      "foreground": "#fef2f2"
+    },
+    "destructive": {
+      "default":    "#dc2626",
+      "foreground": "#fef2f2"
+    },
+    "icon": {
+      "default":    "#fafafa",
+      "muted":      "#a1a1aa",
+      "primary":    "#ea580c",
+      "on-primary": "#0c0a09"
+    }
+  },
+  "font": {
+    "body": "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+    "heading": "'Bebas Neue', 'Oswald', 'Arial Narrow', ui-sans-serif, system-ui, sans-serif",
+    "mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+  },
+  "radius": {
+    "sm": "3px",
+    "md": "6px",
+    "lg": "10px",
+    "xl": "14px",
+    "full": "9999px"
+  },
+  "shadow": {
+    "sm": "0 1px 3px rgb(0 0 0 / 0.5), 0 0 12px rgb(234 88 12 / 0.12)",
+    "md": "0 4px 16px rgb(0 0 0 / 0.55), 0 0 24px rgb(234 88 12 / 0.14)",
+    "lg": "0 10px 32px rgb(0 0 0 / 0.6), 0 0 40px rgb(220 38 38 / 0.1)",
+    "xl": "0 18px 48px rgb(0 0 0 / 0.65), 0 0 56px rgb(234 88 12 / 0.12)"
+  }
+}

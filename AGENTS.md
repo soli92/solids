@@ -6,7 +6,7 @@ Riassunto operativo per **SoliDS** (design system: token, CSS, Storybook, regist
 
 ## Repo
 
-Pacchetto **`@soli92/solids`**, Node **22+**, build in `dist/`. Documentazione interattiva: **Storybook** (`npm run storybook`). Temi: `light`, `dark`, `fantasy`, `cyberpunk`, `90s-party`, `steampunk` (`data-theme`). Integrazione shadcn: `docs/shadcn-integration.md`, `docs/registry-model-1.md`.
+Pacchetto **`@soli92/solids`**, Node **22+**, build in `dist/`. Documentazione interattiva: **Storybook** (`npm run storybook`). Temi: `light`, `dark`, `fantasy`, `cyberpunk`, `90s-party`, `steampunk`, più `captain-america`, `ichigo`, `inuyasha`, `sasuke`, `vegeta`, `zoro` (`data-theme`). Integrazione shadcn: `docs/shadcn-integration.md`, `docs/registry-model-1.md`.
 
 ## Cosa fare dopo (checklist)
 

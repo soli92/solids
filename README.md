@@ -34,7 +34,7 @@ In sviluppo, dopo `npm install`: `npm run storybook` avvia la documentazione su 
 |-------|------|-------------|
 | 🎨 Tokens | `dist/tokens/tokens.json` | Palette completa, spacing, tipografia, shadow, radius, easing, z-index |
 | 🔤 Variables | `dist/css/variables.css` | CSS vars `--sd-*` per tema light (default) |
-| 🌗 Themes | `dist/css/themes.css` | Override **dark**, **fantasy**, **cyberpunk**, **90s-party**, **steampunk** + `prefers-color-scheme: dark` quando `data-theme` non è impostato |
+| 🌗 Themes | `dist/css/themes.css` | Override **dark**, **fantasy**, **cyberpunk**, **90s-party**, **steampunk**, temi **personaggio** (`ichigo`, `vegeta`, `zoro`, `captain-america`, `sasuke`, `inuyasha`) + `prefers-color-scheme: dark` quando `data-theme` non è impostato |
 | 🔗 shadcn | `dist/css/shadcn.css` | Mapping variabili shadcn/ui → token SoliDS |
 | 🧱 Base | `dist/css/base.css` | Reset minimale, body, focus-visible, box-sizing |
 | 🛠️ Utilities | `dist/css/utilities.css` | Classi utility `sd-*` (flex, spacing, colori, badge, card…) |
@@ -153,7 +153,7 @@ Preset Tailwind (shadcn): `require("@soli92/solids/tailwind-preset")` nel `tailw
 
 ---
 
-## Temi (light, dark, fantasy, cyberpunk, 90s-party, steampunk)
+## Temi (light, dark, fantasy, cyberpunk, 90s-party, steampunk, personaggio)
 
 Temi globali tramite `data-theme` su `<html>`. Stessi token semantici (`--sd-*`), valori diversi per colore, font, raggio e ombre. I default **light** / **dark** sono orientati a superfici tonali, raggi più generosi e ombre a livelli in stile **Material Design 3**, mantenendo il blu **primary** tipico di shadcn.
 
@@ -164,9 +164,15 @@ Temi globali tramite `data-theme` su `<html>`. Stessi token semantici (`--sd-*`)
 <html data-theme="cyberpunk">  <!-- neon; il preset Tailwind tratta anche questo come "dark" per le utility dark: -->
 <html data-theme="90s-party"> <!-- rave / magenta-teal-lime; stesso trattamento dark: del preset Tailwind -->
 <html data-theme="steampunk"> <!-- ottone/rame, serif vittoriano; dark: come cyberpunk -->
+<html data-theme="ichigo"> <!-- ispirazione palette Bleach; dark: -->
+<html data-theme="vegeta"> <!-- ispirazione Dragon Ball; dark: -->
+<html data-theme="zoro"> <!-- ispirazione One Piece; dark: -->
+<html data-theme="captain-america"> <!-- blu notte + rosso; dark: -->
+<html data-theme="sasuke"> <!-- ispirazione Naruto; dark: -->
+<html data-theme="inuyasha"> <!-- ispirazione Inuyasha; dark: -->
 ```
 
-Se **`data-theme` non è impostato**, `prefers-color-scheme: dark` applica i token **dark** (come `data-theme="dark"`). **Fantasy**, **cyberpunk**, **90s-party** e **steampunk** vanno scelti esplicitamente.
+Se **`data-theme` non è impostato**, `prefers-color-scheme: dark` applica i token **dark** (come `data-theme="dark"`). **Fantasy**, **cyberpunk**, **90s-party**, **steampunk** e i temi **personaggio** vanno scelti esplicitamente.
 
 Con **next-themes**, usa `attribute="data-theme"` e, se vuoi tutti i temi nel selettore, estendi i temi oltre `light`/`dark` (vedi `docs/shadcn-integration.md`).
 
@@ -251,12 +257,7 @@ src/
 ├── tokens/
 │   ├── base.json           # Palette, spacing, tipografia, shadow, easing, z-index
 │   ├── semantic.json       # Token semantici (testo, bg, border, intent, componenti)
-│   └── themes/
-│       ├── light.json      # Override tema light
-│       ├── dark.json       # Override tema dark
-│       ├── fantasy.json     # Tema fantasy (palette, font, radius, shadow)
-│       ├── cyberpunk.json   # Tema cyberpunk
-│       └── 90s-party.json    # Tema 90s party (rave / MTV)
+│   └── themes/             # light, dark, fantasy, cyberpunk, 90s-party, steampunk + temi personaggio (*.json)
 ├── tailwind/
 │   └── preset.cjs          # Preset Tailwind (shadcn + token SD)
 ├── components/ui/          # Esempio shadcn in Storybook

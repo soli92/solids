@@ -67,16 +67,16 @@ Riferimento `components.json`: [templates/components.json.example](../templates/
 
 ---
 
-## Temi (light, dark, fantasy, cyberpunk, 90s-party, steampunk)
+## Temi (light, dark, fantasy, cyberpunk, 90s-party, steampunk, + personaggio)
 
-Oltre a **light** e **dark** (default orientati a superfici e ombre in stile Material Design 3, con primary blu shadcn), SoliDS espone **fantasy**, **cyberpunk**, **90s-party** e **steampunk** (`data-theme="…"` su `<html>`). Ridefiniscono palette, font, raggio e ombre; il layer shadcn continua a leggere gli stessi token semantici.
+Oltre a **light** e **dark** (default orientati a superfici e ombre in stile Material Design 3, con primary blu shadcn), SoliDS espone **fantasy**, **cyberpunk**, **90s-party**, **steampunk** e sei temi **ispirati a personaggi** (`captain-america`, `ichigo`, `inuyasha`, `sasuke`, `vegeta`, `zoro`) — tutti con `data-theme="…"` su `<html>`. Ridefiniscono palette, font, raggio e ombre; il layer shadcn continua a leggere gli stessi token semantici.
 
 | Strategia | Come funziona |
 |-----------|--------------|
-| `data-theme="dark"` / `"fantasy"` / `"cyberpunk"` / `"90s-party"` / `"steampunk"` / `"light"` | Tema esplicito sul root |
+| `data-theme="dark"` / `"fantasy"` / `"cyberpunk"` / `"90s-party"` / `"steampunk"` / `"light"` / valori **personaggio** (vedi Foundations / Themes) | Tema esplicito sul root |
 | `@media (prefers-color-scheme: dark)` | Applica i token **dark** solo se **`data-theme` non è impostato** su `:root` |
 
-Il preset Tailwind considera **dark** anche `data-theme="cyberpunk"`, **`data-theme="90s-party"`** e **`data-theme="steampunk"`** per le utility `dark:`.
+Il preset Tailwind considera **dark** anche `data-theme="cyberpunk"`, **`90s-party`**, **`steampunk`** e i temi **personaggio** elencati sopra per le utility `dark:`.
 
 ### Esempio con next-themes
 
@@ -90,7 +90,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       attribute="data-theme"
       defaultTheme="system"
       enableSystem
-      themes={["light", "dark", "fantasy", "cyberpunk", "90s-party", "steampunk"]}
+      themes={["light", "dark", "fantasy", "cyberpunk", "90s-party", "steampunk", "captain-america", "ichigo", "inuyasha", "sasuke", "vegeta", "zoro"]}
     >
       {children}
     </ThemeProvider>
@@ -118,7 +118,7 @@ Se vuoi solo le variabili e il layer shadcn, senza reset e utility:
 
 ### Colori semantici (light / dark — valori indicativi)
 
-Da `themes/light.json` e `themes/dark.json`. I temi **fantasy**, **cyberpunk**, **90s-party** e **steampunk** sostituiscono la stessa struttura con palette dedicate.
+Da `themes/light.json` e `themes/dark.json`. I temi nominati in `src/tokens/themes/*.json` (fantasy, cyberpunk, 90s-party, steampunk, personaggio, …) sostituiscono la stessa struttura con palette dedicate.
 
 | Variable | Valore light (tipico) | Valore dark (tipico) |
 |----------|----------------------|----------------------|

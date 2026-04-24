@@ -6,7 +6,7 @@ Memoria di sviluppo AI-assisted. Annotazioni sui prompt, decisioni e pattern eme
 
 ## Overview del progetto
 
-**SoliDS** (pacchetto npm `@soli92/solids`): design system con **token** semantici (light/dark), layer di compatibilità **shadcn/ui**, preset **Tailwind**, **Storybook** su GitHub Pages, **semantic-release** per versioni npm, temi (fantasy, cyberpunk, **steampunk**, **90s-party**, MD3), kit componenti e documentazione incrociata con consumer (soli-dome, soli-agent citati in README).
+**SoliDS** (pacchetto npm `@soli92/solids`): design system con **token** semantici (light/dark), layer di compatibilità **shadcn/ui**, preset **Tailwind**, **Storybook** su GitHub Pages, **semantic-release** per versioni npm, temi (fantasy, cyberpunk, **steampunk**, **90s-party**, sei temi **personaggio** ispirati a Ichigo / Vegeta / Zoro / Captain America / Sasuke / Inuyasha, MD3), kit componenti e documentazione incrociata con consumer (soli-dome, soli-agent citati in README).
 
 **Stack AI usato (inferito; aggiornato 2026-04-22)**: **Cursor** — `d4f4a3d` + `.cursor/rules/agents-context.mdc`. `package.json` / pipeline **semantic-release** / Storybook — nessun SDK LLM nel design system. README collega consumer (`b412550`).
 

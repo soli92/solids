@@ -1,0 +1,93 @@
+{
+  "_comment": "Ispirato a Inuyasha: rosso haori, argento lunare, terra e legno feudale. data-theme=\"inuyasha\". Font Crimson Text / Merriweather in Storybook.",
+  "color": {
+    "text": {
+      "primary":   "#fef3c7",
+      "secondary":  "#fde68a",
+      "tertiary":   "#fcd34d",
+      "disabled":   "#a8a29e",
+      "inverse":    "#292524",
+      "link":       "#fca5a5",
+      "link-hover": "#fecaca"
+    },
+    "bg": {
+      "canvas":   "#1c1917",
+      "surface":  "#292524",
+      "elevated": "#44403c",
+      "overlay":  "rgba(28, 25, 23, 0.85)",
+      "hover":    "#57534e",
+      "active":   "#78716c",
+      "disabled": "#292524"
+    },
+    "border": {
+      "default":  "#57534e",
+      "muted":    "#44403c",
+      "strong":   "#a8a29e",
+      "focus":    "#b91c1c",
+      "disabled": "#44403c"
+    },
+    "intent": {
+      "success":          "#86efac",
+      "success-bg":       "#14532d",
+      "success-border":   "#166534",
+      "warning":          "#fcd34d",
+      "warning-bg":       "#422006",
+      "warning-border":   "#ca8a04",
+      "danger":           "#fca5a5",
+      "danger-bg":        "#450a0a",
+      "danger-border":    "#b91c1c",
+      "info":             "#cbd5e1",
+      "info-bg":          "#1e293b",
+      "info-border":      "#64748b"
+    },
+    "primary": {
+      "default":    "#b91c1c",
+      "hover":      "#dc2626",
+      "active":     "#991b1b",
+      "subtle":     "#450a0a",
+      "foreground": "#fef2f2"
+    },
+    "secondary": {
+      "default":    "#57534e",
+      "hover":      "#78716c",
+      "active":     "#a8a29e",
+      "foreground": "#fef3c7"
+    },
+    "muted": {
+      "default":    "#44403c",
+      "foreground": "#d6d3d1"
+    },
+    "accent": {
+      "default":    "#e2e8f0",
+      "foreground": "#1c1917"
+    },
+    "destructive": {
+      "default":    "#991b1b",
+      "foreground": "#fef2f2"
+    },
+    "icon": {
+      "default":    "#fef3c7",
+      "muted":      "#d6d3d1",
+      "primary":    "#b91c1c",
+      "on-primary": "#fef2f2"
+    }
+  },
+  "font": {
+    "body": "'Merriweather', Georgia, 'Times New Roman', serif",
+    "heading": "'Crimson Text', 'Merriweather', Georgia, serif",
+    "mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+  },
+  "radius": {
+    "sm": "6px",
+    "md": "10px",
+    "lg": "14px",
+    "xl": "18px",
+    "full": "9999px"
+  },
+  "shadow": {
+    "sm": "0 1px 3px rgb(0 0 0 / 0.45), inset 0 1px 0 rgb(254 243 199 / 0.04)",
+    "md": "0 4px 16px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(185 28 28 / 0.15)",
+    "lg": "0 10px 28px rgb(0 0 0 / 0.55), 0 0 24px rgb(185 28 28 / 0.12)",
+    "xl": "0 18px 40px rgb(0 0 0 / 0.6), 0 0 40px rgb(226 232 240 / 0.06)"
+  }
+}

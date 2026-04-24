@@ -20,7 +20,7 @@ Entrypoint completo (consigliato):
 @import "@soli92/solids/css/index.css";
 ```
 
-Include variabili, override per **dark**, **fantasy**, **cyberpunk**, **90s-party** e **steampunk**, layer shadcn, base e utilities. I default **light** / **dark** seguono una lettura **Material Design 3** (superfici tonali, raggi generosi, ombre a livelli), con primary blu allineato a shadcn. Ordine e contenuti: pagina **Foundations / Tokens**.
+Include variabili, override per **dark**, **fantasy**, **cyberpunk**, **90s-party**, **steampunk** e temi **personaggio**, layer shadcn, base e utilities. I default **light** / **dark** seguono una lettura **Material Design 3** (superfici tonali, raggi generosi, ombre a livelli), con primary blu allineato a shadcn. Ordine e contenuti: pagina **Foundations / Tokens**.
 
 ## 3. Scegli il tema
 
@@ -35,9 +35,9 @@ Imposta l’attributo su `<html>` (o `:root`):
 <html data-theme="steampunk"></html>
 ```
 
-Senza `data-theme`, il **dark** di sistema (`prefers-color-scheme`) applica i token dark; **fantasy**, **cyberpunk**, **90s-party** e **steampunk** restano espliciti. Dettagli: **Foundations / Themes**.
+Senza `data-theme`, il **dark** di sistema (`prefers-color-scheme`) applica i token dark; **fantasy**, **cyberpunk**, **90s-party**, **steampunk** e i temi **personaggio** restano espliciti. Dettagli: **Foundations / Themes**.
 
-Con **next-themes**, usa `attribute="data-theme"` e valori `light | dark | fantasy | cyberpunk | 90s-party | steampunk` (ed eventualmente `system`). Per comparire tutti nel selettore, estendi `themes` su `ThemeProvider` come in `docs/shadcn-integration.md`.
+Con **next-themes**, usa `attribute="data-theme"` e valori come in `docs/shadcn-integration.md` (inclusi i temi **personaggio**). Per comparire tutti nel selettore, estendi `themes` su `ThemeProvider`.
 
 ## 4. Tailwind + shadcn (opzionale ma consigliato)
 

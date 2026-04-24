@@ -16,15 +16,21 @@ SoliDS applica i temi con **override dei token semantici** (colori, font, raggio
 | **Cyberpunk** | `cyberpunk` | Sfondo profondo, accenti cyan/magenta, ombre “neon”; titoli **Orbitron**, mono **Share Tech Mono** (stesso discorso CDN). |
 | **90s party** | `90s-party` | Viola/magenta/teal/lime (rave flyer / MTV); titoli **Russo One**, corpo **Tahoma/Verdana**, mono **VT323**; raggi chunk e ombre offset + glow. |
 | **Steampunk** | `steampunk` | Cuoio/carbone, ottone e rame, accenti vapore/teal; titoli **Cinzel**, corpo **Libre Baskerville**, mono **Courier Prime** (Storybook carica i font in `.storybook/preview-head.html`). Raggi contenuti e ombre con bordo ottone. |
+| **Ichigo** | `ichigo` | Nero/arancio-rosso (ispirazione *Bleach* / Bankai); titoli **Bebas Neue** / Oswald. |
+| **Vegeta** | `vegeta` | Blu royal e oro (ispirazione *Dragon Ball*); titoli **Rajdhani**. |
+| **Zoro** | `zoro` | Verde profondo e argento (ispirazione *One Piece*); titoli **Merriweather**. |
+| **Captain America** | `captain-america` | Blu notte, rosso e bianco (MCU / fumetto); titoli **Oswald**. |
+| **Sasuke** | `sasuke` | Notte viola/indaco (ispirazione *Naruto* / Chidori); titoli **Rajdhani**. |
+| **Inuyasha** | `inuyasha` | Rosso haori, argento, terra (ispirazione *Inuyasha*); titoli **Crimson Text**, corpo **Merriweather**. |
 
 ### Comportamento con il sistema
 
-- Se **`data-theme` non è impostato** su `:root`, **`prefers-color-scheme: dark`** applica gli stessi token del tema **dark** (senza toccare light/fantasy/cyberpunk/**90s-party**/**steampunk** espliciti).
-- Con **`fantasy`**, **`cyberpunk`**, **`90s-party`** o **`steampunk`** il tema resta quello scelto anche se il sistema è in dark mode.
+- Se **`data-theme` non è impostato** su `:root`, **`prefers-color-scheme: dark`** applica gli stessi token del tema **dark** (senza toccare light/fantasy/cyberpunk/**90s-party**/**steampunk** o i temi **personaggio** elencati sopra quando sono espliciti).
+- Con **`fantasy`**, **`cyberpunk`**, **`90s-party`**, **`steampunk`** o uno dei temi **personaggio** il tema resta quello scelto anche se il sistema è in dark mode.
 
 ### Tailwind `dark:`
 
-Il preset Tailwind tratta come “dark” `data-theme="dark"`, **`cyberpunk`**, **`90s-party`** e **`steampunk`**, così le utility `dark:` restano utili sui temi scuri e neon. Dettagli in `docs/shadcn-integration.md` nel repository.
+Il preset Tailwind tratta come “dark” `data-theme="dark"`, **`cyberpunk`**, **`90s-party`**, **`steampunk`** e i temi **`captain-america`**, **`ichigo`**, **`inuyasha`**, **`sasuke`**, **`vegeta`**, **`zoro`**, così le utility `dark:` restano utili sui temi scuri e neon. Dettagli in `docs/shadcn-integration.md` nel repository.
 
 ## Cosa resta stabile
 
@@ -40,17 +46,24 @@ Il preset Tailwind tratta come “dark” `data-theme="dark"`, **`cyberpunk`**, 
 <html data-theme="cyberpunk"></html>
 <html data-theme="90s-party"></html>
 <html data-theme="steampunk"></html>
+<html data-theme="ichigo"></html>
+<html data-theme="vegeta"></html>
+<html data-theme="zoro"></html>
+<html data-theme="captain-america"></html>
+<html data-theme="sasuke"></html>
+<html data-theme="inuyasha"></html>
 ```
 
 Anteprima delle palette per tema nella pagina **Foundations / Colors** (sidebar Storybook).
 
 ## Font opzionali (CDN)
 
-Per avvicinarti al look dei temi **fantasy**, **cyberpunk**, **90s party** e **steampunk**, puoi aggiungere da Google Fonts (o simile):
+Per avvicinarti al look dei temi **fantasy**, **cyberpunk**, **90s party**, **steampunk** e dei temi **personaggio**, puoi aggiungere da Google Fonts (o simile):
 
 - **Fantasy:** [Cinzel](https://fonts.google.com/specimen/Cinzel)
 - **Cyberpunk:** [Orbitron](https://fonts.google.com/specimen/Orbitron), [Share Tech Mono](https://fonts.google.com/specimen/Share+Tech+Mono)
 - **90s party:** [Russo One](https://fonts.google.com/specimen/Russo+One), [VT323](https://fonts.google.com/specimen/VT323) (Storybook carica già questa coppia in `.storybook/preview-head.html`)
 - **Steampunk:** [Cinzel](https://fonts.google.com/specimen/Cinzel), [Libre Baskerville](https://fonts.google.com/specimen/Libre+Baskerville), [Courier Prime](https://fonts.google.com/specimen/Courier+Prime) (caricate in Storybook con Russo/VT323)
+- **Personaggio:** [Bebas Neue](https://fonts.google.com/specimen/Bebas+Neue), [Oswald](https://fonts.google.com/specimen/Oswald), [Rajdhani](https://fonts.google.com/specimen/Rajdhani), [Merriweather](https://fonts.google.com/specimen/Merriweather), [Crimson Text](https://fonts.google.com/specimen/Crimson+Text) (bundle Storybook in `.storybook/preview-head.html`)
 
 Senza CDN, gli stack degradano su serif/sans/mono di sistema definiti nei JSON tema.

@@ -14,6 +14,12 @@ module.exports = {
     '[data-theme="cyberpunk"]',
     '[data-theme="90s-party"]',
     '[data-theme="steampunk"]',
+    '[data-theme="captain-america"]',
+    '[data-theme="ichigo"]',
+    '[data-theme="inuyasha"]',
+    '[data-theme="sasuke"]',
+    '[data-theme="vegeta"]',
+    '[data-theme="zoro"]',
   ],
   theme: {
     extend: {

@@ -1,0 +1,93 @@
+{
+  "_comment": "Ispirato a Roronoa Zoro (One Piece): verde profondo, bandana, acciaio katana. data-theme=\"zoro\". Font Merriweather in Storybook.",
+  "color": {
+    "text": {
+      "primary":   "#ecfdf5",
+      "secondary":  "#d1fae5",
+      "tertiary":   "#a7f3d0",
+      "disabled":   "#6ee7b7",
+      "inverse":    "#022c22",
+      "link":       "#34d399",
+      "link-hover": "#6ee7b7"
+    },
+    "bg": {
+      "canvas":   "#022c22",
+      "surface":  "#064e3b",
+      "elevated": "#065f46",
+      "overlay":  "rgba(2, 44, 34, 0.88)",
+      "hover":    "#047857",
+      "active":   "#059669",
+      "disabled": "#064e3b"
+    },
+    "border": {
+      "default":  "#047857",
+      "muted":    "#064e3b",
+      "strong":   "#34d399",
+      "focus":    "#10b981",
+      "disabled": "#047857"
+    },
+    "intent": {
+      "success":          "#4ade80",
+      "success-bg":       "#052e16",
+      "success-border":   "#166534",
+      "warning":          "#fbbf24",
+      "warning-bg":       "#1c1004",
+      "warning-border":   "#ca8a04",
+      "danger":           "#fca5a5",
+      "danger-bg":        "#450a0a",
+      "danger-border":    "#dc2626",
+      "info":             "#5eead4",
+      "info-bg":          "#042f2e",
+      "info-border":      "#0d9488"
+    },
+    "primary": {
+      "default":    "#10b981",
+      "hover":      "#34d399",
+      "active":     "#059669",
+      "subtle":     "#064e3b",
+      "foreground": "#022c22"
+    },
+    "secondary": {
+      "default":    "#1e293b",
+      "hover":      "#334155",
+      "active":     "#475569",
+      "foreground": "#e2e8f0"
+    },
+    "muted": {
+      "default":    "#065f46",
+      "foreground": "#a7f3d0"
+    },
+    "accent": {
+      "default":    "#64748b",
+      "foreground": "#f1f5f9"
+    },
+    "destructive": {
+      "default":    "#dc2626",
+      "foreground": "#fef2f2"
+    },
+    "icon": {
+      "default":    "#ecfdf5",
+      "muted":      "#6ee7b7",
+      "primary":    "#34d399",
+      "on-primary": "#022c22"
+    }
+  },
+  "font": {
+    "body": "'Merriweather', Georgia, 'Times New Roman', serif",
+    "heading": "'Merriweather', Georgia, serif",
+    "mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+  },
+  "radius": {
+    "sm": "2px",
+    "md": "6px",
+    "lg": "10px",
+    "xl": "14px",
+    "full": "9999px"
+  },
+  "shadow": {
+    "sm": "0 1px 3px rgb(0 0 0 / 0.45), inset 0 1px 0 rgb(16 185 129 / 0.12)",
+    "md": "0 4px 16px rgb(0 0 0 / 0.5), 0 0 20px rgb(16 185 129 / 0.15)",
+    "lg": "0 10px 28px rgb(0 0 0 / 0.55), 0 0 28px rgb(52 211 153 / 0.12)",
+    "xl": "0 18px 40px rgb(0 0 0 / 0.6), 0 0 40px rgb(100 116 139 / 0.15)"
+  }
+}

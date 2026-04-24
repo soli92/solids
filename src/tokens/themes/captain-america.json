@@ -1,0 +1,93 @@
+{
+  "_comment": "Ispirato a Captain America: blu notte, rosso patriottico, argento/bianco. data-theme=\"captain-america\". Font Oswald in Storybook (preview-head).",
+  "color": {
+    "text": {
+      "primary":   "#f1f5f9",
+      "secondary":  "#cbd5e1",
+      "tertiary":   "#94a3b8",
+      "disabled":   "#64748b",
+      "inverse":    "#0f172a",
+      "link":       "#60a5fa",
+      "link-hover": "#93c5fd"
+    },
+    "bg": {
+      "canvas":   "#0f172a",
+      "surface":  "#1e293b",
+      "elevated": "#334155",
+      "overlay":  "rgba(15, 23, 42, 0.82)",
+      "hover":    "#334155",
+      "active":   "#475569",
+      "disabled": "#1e293b"
+    },
+    "border": {
+      "default":  "#334155",
+      "muted":    "#1e293b",
+      "strong":   "#64748b",
+      "focus":    "#dc2626",
+      "disabled": "#334155"
+    },
+    "intent": {
+      "success":          "#4ade80",
+      "success-bg":       "#052e16",
+      "success-border":   "#166534",
+      "warning":          "#fbbf24",
+      "warning-bg":       "#1c1004",
+      "warning-border":   "#ca8a04",
+      "danger":           "#f87171",
+      "danger-bg":        "#450a0a",
+      "danger-border":    "#dc2626",
+      "info":             "#3b82f6",
+      "info-bg":          "#172554",
+      "info-border":      "#2563eb"
+    },
+    "primary": {
+      "default":    "#dc2626",
+      "hover":      "#ef4444",
+      "active":     "#b91c1c",
+      "subtle":     "#450a0a",
+      "foreground": "#fef2f2"
+    },
+    "secondary": {
+      "default":    "#1d4ed8",
+      "hover":      "#2563eb",
+      "active":     "#1e40af",
+      "foreground": "#eff6ff"
+    },
+    "muted": {
+      "default":    "#1e293b",
+      "foreground": "#94a3b8"
+    },
+    "accent": {
+      "default":    "#e2e8f0",
+      "foreground": "#0f172a"
+    },
+    "destructive": {
+      "default":    "#b91c1c",
+      "foreground": "#fef2f2"
+    },
+    "icon": {
+      "default":    "#f1f5f9",
+      "muted":      "#94a3b8",
+      "primary":    "#dc2626",
+      "on-primary": "#fef2f2"
+    }
+  },
+  "font": {
+    "body": "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+    "heading": "'Oswald', 'Arial Narrow', ui-sans-serif, system-ui, sans-serif",
+    "mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+  },
+  "radius": {
+    "sm": "4px",
+    "md": "8px",
+    "lg": "12px",
+    "xl": "16px",
+    "full": "9999px"
+  },
+  "shadow": {
+    "sm": "0 1px 3px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(220 38 38 / 0.08)",
+    "md": "0 4px 14px rgb(0 0 0 / 0.4), 0 0 20px rgb(37 99 235 / 0.12)",
+    "lg": "0 10px 28px rgb(0 0 0 / 0.45), 0 0 32px rgb(220 38 38 / 0.1)",
+    "xl": "0 18px 44px rgb(0 0 0 / 0.5), 0 0 48px rgb(59 130 246 / 0.12)"
+  }
+}

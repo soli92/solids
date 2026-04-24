@@ -11,10 +11,34 @@ import "./preview-tw.built.css";
 
 const STORAGE_KEY = "solids:sb:theme";
 
-const DS_THEMES = ["light", "dark", "fantasy", "cyberpunk", "90s-party", "steampunk"] as const;
+const DS_THEMES = [
+  "light",
+  "dark",
+  "fantasy",
+  "cyberpunk",
+  "90s-party",
+  "steampunk",
+  "captain-america",
+  "ichigo",
+  "inuyasha",
+  "sasuke",
+  "vegeta",
+  "zoro",
+] as const;
 type DsTheme = (typeof DS_THEMES)[number];
 
-const DARK_DS_THEMES = new Set<DsTheme>(["dark", "cyberpunk", "90s-party", "steampunk"]);
+const DARK_DS_THEMES = new Set<DsTheme>([
+  "dark",
+  "cyberpunk",
+  "90s-party",
+  "steampunk",
+  "captain-america",
+  "ichigo",
+  "inuyasha",
+  "sasuke",
+  "vegeta",
+  "zoro",
+]);
 
 function readStoredTheme(): DsTheme {
   try {
@@ -50,6 +74,12 @@ const preview: Preview = {
           { value: "cyberpunk", title: "Cyberpunk" },
           { value: "90s-party", title: "90s party" },
           { value: "steampunk", title: "Steampunk" },
+          { value: "ichigo", title: "Ichigo (Bleach)" },
+          { value: "vegeta", title: "Vegeta (DB)" },
+          { value: "zoro", title: "Zoro (One Piece)" },
+          { value: "captain-america", title: "Captain America" },
+          { value: "sasuke", title: "Sasuke (Naruto)" },
+          { value: "inuyasha", title: "Inuyasha" },
         ],
         dynamicTitle: true,
       },

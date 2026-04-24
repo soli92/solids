@@ -14,6 +14,10 @@
 
 ## [Unreleased]
 
+### Features
+
+* **themes:** sei nuovi temi nominati (`captain-america`, `ichigo`, `inuyasha`, `sasuke`, `vegeta`, `zoro`) ispirati alle palette di Captain America, Ichigo (Bleach), Vegeta (Dragon Ball), Zoro (One Piece), Sasuke (Naruto), Inuyasha — JSON in `src/tokens/themes/`, `color-scheme: dark`, preset Tailwind `dark:` come gli altri temi scuri, toolbar Storybook e Google Fonts (Oswald, Rajdhani, Merriweather, Crimson Text, Bebas Neue) in `preview-head.html`.
+
 ### Documentation
 
 * **storybook:** ordinamento sidebar (home → guide → Foundations → UI), TOC nelle pagine docs, brand **SoliDS** nel manager.
