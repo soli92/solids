@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/soli92/solids/compare/v1.6.0...v1.7.0) (2026-04-24)
+
+
+### Features
+
+* a11y foundations, motion tokens, fonts and token sanity tests ([ba74e95](https://github.com/soli92/solids/commit/ba74e95334e26e67f029c435fbdefdb95f30822d))
+
 # [1.6.0](https://github.com/soli92/solids/compare/v1.5.0...v1.6.0) (2026-04-24)
 
 
