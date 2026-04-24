@@ -89,6 +89,10 @@ Poi inizializza shadcn e aggiungi i componenti: **tutto il kit** con `npx shadcn
 <link rel="stylesheet" href="node_modules/@soli92/solids/dist/css/index.css" />
 ```
 
+### App consumer (Next.js, Vite, CRA, …)
+
+Usa **`@soli92/solids@^1.7.0`** su npm. Per i token **`--sd-font-*`** (Inter, DM Sans, JetBrains Mono e famiglie dei temi fantasy / cyberpunk / 90s-party / personaggio) carica in **`<head>`** le stesse **Google Fonts** definite in **`.storybook/preview-head.html`** (due link `fonts.googleapis.com`), così eviti fallback di sistema rispetto a Storybook.
+
 ---
 
 ## Esportazioni disponibili

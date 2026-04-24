@@ -120,6 +120,8 @@ Memoria di sviluppo AI-assisted. Annotazioni sui prompt, decisioni e pattern eme
 
 **Lezioni**: smoke test su JSON/CSS generato costa poco e blocca regressioni su merge token; Storybook resta la superficie principale per doc foundations.
 
+**Ecosistema (2026-04-24)**: release **npm 1.7.0**; repo consumer (soli-agent, soli-prof, soli-dome, soli-dm-fe, casa-mia-fe, pippify/frontend, bachelor-party-claudiano) allineati a **`^1.7.0`**, font in layout/HTML e piccoli test su `package.json`.
+
 ---
 
 ## Pattern ricorrenti identificati

@@ -38,6 +38,7 @@
 * **storybook:** ordinamento sidebar (home → guide → Foundations → UI), TOC nelle pagine docs, brand **SoliDS** nel manager.
 * **docs:** allineamento a sei temi (steampunk), MD3/motion, spacing con anteprime 90s-party/steampunk, radius/typography/tokens/principles/roadmap/getting-started; **shadcn-integration**: tabella colori light/dark aggiornata ed esempio **next-themes** con `themes` estesi.
 * **docs:** **Foundations / Accessibility and Motion** (WCAG 2.2, MD3, HIG); **Design Principles** con rimando; **README** (tabella doc, token layout/motion, struttura `scripts/`); **AGENTS** / **AI_LOG** / **roadmap** aggiornati; **`npm run test:tokens`** documentato.
+* **docs:** README sezione **App consumer** — pin **`^1.7.0`** e font Google come in **`.storybook/preview-head.html`**.
 
 ## [1.4.0](https://github.com/soli92/solids/compare/v1.3.3...v1.4.0) (2026-04-08)
 
