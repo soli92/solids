@@ -165,7 +165,8 @@
     "fast":    "150ms",
     "normal":  "200ms",
     "slow":    "300ms",
-    "slower":  "450ms"
+    "slower":  "450ms",
+    "emphasized": "350ms"
   },
 
   "easing": {
@@ -177,6 +178,10 @@
     "standard":  "cubic-bezier(0.2, 0, 0, 1)",
     "emphasized-decelerate": "cubic-bezier(0, 0, 0, 1)",
     "emphasized-accelerate": "cubic-bezier(0.3, 0, 0.8, 0.15)"
+  },
+
+  "layout": {
+    "touch-target-min": "44px"
   },
 
   "z": {

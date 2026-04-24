@@ -6,7 +6,7 @@ Memoria di sviluppo AI-assisted. Annotazioni sui prompt, decisioni e pattern eme
 
 ## Overview del progetto
 
-**SoliDS** (pacchetto npm `@soli92/solids`): design system con **token** semantici (light/dark), layer di compatibilità **shadcn/ui**, preset **Tailwind**, **Storybook** su GitHub Pages, **semantic-release** per versioni npm, temi (fantasy, cyberpunk, **steampunk**, **90s-party**, sei temi **personaggio** ispirati a Ichigo / Vegeta / Zoro / Captain America / Sasuke / Inuyasha, MD3), kit componenti e documentazione incrociata con consumer (soli-dome, soli-agent citati in README).
+**SoliDS** (pacchetto npm `@soli92/solids`): design system con **token** semantici (light/dark), layer di compatibilità **shadcn/ui**, preset **Tailwind**, **Storybook** su GitHub Pages, **semantic-release** per versioni npm, temi (fantasy, cyberpunk, **steampunk**, **90s-party**, sei temi **personaggio** ispirati a Ichigo / Vegeta / Zoro / Captain America / Sasuke / Inuyasha, MD3), doc **Accessibility and Motion** (WCAG/MD3/HIG), font stack **Inter** / **DM Sans** / **JetBrains Mono** (default) e affinamenti per fantasy/cyberpunk, script **`npm run test:tokens`** (`scripts/tokens-sanity.mjs`) nel flusso **`npm test`**, kit componenti e documentazione incrociata con consumer (soli-dome, soli-agent citati in README).
 
 **Stack AI usato (inferito; aggiornato 2026-04-22)**: **Cursor** — `d4f4a3d` + `.cursor/rules/agents-context.mdc`. `package.json` / pipeline **semantic-release** / Storybook — nessun SDK LLM nel design system. README collega consumer (`b412550`).
 
@@ -114,6 +114,12 @@ Memoria di sviluppo AI-assisted. Annotazioni sui prompt, decisioni e pattern eme
 - **Turbopack** richiede sanitizzazione nomi segmenti variabili CSS (`f22c134`).
 - **Major release errata** va revertata e riallineata la baseline semver (`9842ef6`).
 
+### Fase 5 — Accessibilità, font Google, utility UX, test token (2026-04-24)
+
+**Cosa è stato fatto**: pagina **Foundations / Accessibility and Motion** con link a WCAG 2.2, MD3 Motion/Typography, Apple HIG; token `--sd-layout-touch-target-min`, `--sd-duration-emphasized`; `base.css` (scroll-padding, scroll-behavior condizionato, `text-rendering`); utility `.sd-min-touch-target`, `.sd-link`, `.sd-leading-*` da token, `.sd-transition-emphasized`; font **Inter** / **DM Sans** / **JetBrains Mono** su semantic e light/dark; **Source Serif 4** (fantasy corpo), **Space Grotesk** (cyberpunk); due blocchi Google Fonts in `.storybook/preview-head.html`; script **`scripts/tokens-sanity.mjs`** e **`npm run test:tokens`** dentro **`npm test`**; README / AGENTS / roadmap / principles aggiornati.
+
+**Lezioni**: smoke test su JSON/CSS generato costa poco e blocca regressioni su merge token; Storybook resta la superficie principale per doc foundations.
+
 ---
 
 ## Pattern ricorrenti identificati
@@ -131,6 +137,7 @@ Memoria di sviluppo AI-assisted. Annotazioni sui prompt, decisioni e pattern eme
 - **Styling**: CSS variables semantiche, Tailwind preset
 - **Compatibilità**: shadcn/ui variable mapping
 - **Deploy / distribuzione**: npm package; Storybook su GitHub Pages
+- **Qualità**: `npm test` = `build` + `test:tokens` (sanity su `dist/`) + `build-storybook`
 - **LLM integration**: nessuna nel package runtime
 
 ## Problemi tecnici risolti (inferiti)
@@ -176,16 +183,16 @@ Focus su release, CI, temi e fix infrastrutturali Storybook/npm.
 
 ---
 
-> **Nota metodologica**: completamento 2026-04-22; allineare versione npm con tag dopo ogni release.
+> **Nota metodologica**: aggiornamento contenuti 2026-04-24 (Fase 5 a11y/font/test); completamento precedente 2026-04-22; allineare versione npm con tag dopo ogni release.
 
 ---
 
 ## Metodologia compilazione automatica
 
-Completamento autonomo il **22 aprile 2026** analizzando:
+Completamento autonomo il **22 aprile 2026** (esteso **24 aprile 2026** per Fase 5) analizzando:
 
-- **58** commit (stima da prima stesura)
-- **~10** file (`package.json`, `CHANGELOG.md`, `AGENTS.md`, workflow release/Storybook, `docs/shadcn-integration.md`, preset Tailwind, Storybook config)
+- **58+** commit (stima)
+- **~15** file rilevanti (`package.json`, `CHANGELOG.md`, `AGENTS.md`, `scripts/tokens-sanity.mjs`, `docs/foundations/accessibility-and-motion.mdx`, workflow release/Storybook, `docs/shadcn-integration.md`, preset Tailwind, Storybook config)
 - **0** TODO/FIXME rilevanti dal grep workspace limitato
 
 **Punti di minore confidenza:**

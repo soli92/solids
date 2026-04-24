@@ -106,9 +106,12 @@
 .sd-text-center { text-align: center; }
 .sd-text-right  { text-align: right; }
 
-.sd-leading-tight   { line-height: 1.25; }
-.sd-leading-normal  { line-height: 1.5; }
-.sd-leading-relaxed { line-height: 1.625; }
+.sd-leading-none    { line-height: var(--sd-font-leading-none, 1); }
+.sd-leading-tight   { line-height: var(--sd-font-leading-tight, 1.25); }
+.sd-leading-snug    { line-height: var(--sd-font-leading-snug, 1.375); }
+.sd-leading-normal  { line-height: var(--sd-font-leading-normal, 1.5); }
+.sd-leading-relaxed { line-height: var(--sd-font-leading-relaxed, 1.625); }
+.sd-leading-loose   { line-height: var(--sd-font-leading-loose, 2); }
 
 .sd-truncate {
   overflow: hidden;
@@ -201,7 +204,25 @@
 .sd-cursor-default { cursor: default; }
 .sd-cursor-not-allowed { cursor: not-allowed; }
 
-/* ─── Transition (MD3-style standard curve when token present) ─ */
+/* ─── Touch target (WCAG 2.2 — min ~44×44 CSS px; Apple HIG 44pt equivalent) ─ */
+.sd-min-touch-target {
+  min-height: var(--sd-layout-touch-target-min, 44px);
+  min-width: var(--sd-layout-touch-target-min, 44px);
+}
+
+/* Link testuale con offset underline (WCAG 2.2 G183 / contrasto percepibile dei link) */
+.sd-link {
+  color: var(--sd-color-text-link);
+  text-decoration: underline;
+  text-underline-offset: max(0.12em, 2px);
+  text-decoration-thickness: max(0.06em, 1px);
+  transition: color var(--sd-duration-fast) var(--sd-easing-standard, ease);
+}
+.sd-link:hover {
+  color: var(--sd-color-text-link-hover);
+}
+
+/* ─── Transition (curve standard MD3: m3.material.io/styles/motion) ─ */
 .sd-transition {
   transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   transition-duration: var(--sd-duration-normal);
@@ -211,6 +232,14 @@
   transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   transition-duration: var(--sd-duration-fast);
   transition-timing-function: var(--sd-easing-standard, var(--sd-easing-ease-inout));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sd-transition-emphasized {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-duration: var(--sd-duration-emphasized, 350ms);
+    transition-timing-function: var(--sd-easing-emphasized-decelerate, cubic-bezier(0, 0, 0, 1));
+  }
 }
 
 /* ─── Z-index ────────────────────────────────────────────── */

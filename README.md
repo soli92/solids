@@ -14,7 +14,7 @@ Contesto operativo per assistenti AI: **[`AGENTS.md`](./AGENTS.md)**.
 
 | Dove | Contenuto |
 |------|-----------|
-| **[Storybook (online)](https://soli92.github.io/solids/)** | Foundations (token, colori, spacing, tipografia, radius, temi), *Getting Started*, *Design Principles*, *Roadmap*, story UI (es. Button) |
+| **[Storybook (online)](https://soli92.github.io/solids/)** | Foundations (token, colori, spacing, tipografia, radius, temi, **Accessibility and Motion**), *Getting Started*, *Design Principles*, *Roadmap*, story UI (es. Button) |
 | **Questo repo, `docs/*.mdx`** | Stesse pagine narrative servite da Storybook in locale (`npm run storybook`) |
 | **[`docs/shadcn-integration.md`](./docs/shadcn-integration.md)** | Integrazione completa Tailwind + shadcn/ui + temi |
 | **[`docs/registry-model-1.md`](./docs/registry-model-1.md)** | Registry `@solids`, `registry/r/`, CLI `shadcn add` |
@@ -36,8 +36,8 @@ In sviluppo, dopo `npm install`: `npm run storybook` avvia la documentazione su 
 | 🔤 Variables | `dist/css/variables.css` | CSS vars `--sd-*` per tema light (default) |
 | 🌗 Themes | `dist/css/themes.css` | Override **dark**, **fantasy**, **cyberpunk**, **90s-party**, **steampunk**, temi **personaggio** (`ichigo`, `vegeta`, `zoro`, `captain-america`, `sasuke`, `inuyasha`) + `prefers-color-scheme: dark` quando `data-theme` non è impostato |
 | 🔗 shadcn | `dist/css/shadcn.css` | Mapping variabili shadcn/ui → token SoliDS |
-| 🧱 Base | `dist/css/base.css` | Reset minimale, body, focus-visible, box-sizing |
-| 🛠️ Utilities | `dist/css/utilities.css` | Classi utility `sd-*` (flex, spacing, colori, badge, card…) |
+| 🧱 Base | `dist/css/base.css` | Reset, body, `scroll-padding` / `scroll-behavior` (rispetto `prefers-reduced-motion`), focus-visible, `text-rendering`, box-sizing |
+| 🛠️ Utilities | `dist/css/utilities.css` | Classi `sd-*` (flex, spacing, colori, badge, card, **`.sd-min-touch-target`**, **`.sd-link`**, leading da token, **`.sd-transition-emphasized`**) |
 | 📦 Index | `dist/css/index.css` | Entrypoint unico che importa tutto nell'ordine corretto |
 
 ---
@@ -139,14 +139,20 @@ Preset Tailwind (shadcn): `require("@soli92/solids/tailwind-preset")` nel `tailw
 ### Tipografia
 - `--sd-font-size-xs` → `6xl`
 - `--sd-font-weight-light` → `extrabold`
-- `--sd-font-body` / `--sd-font-heading` / `--sd-font-mono`
+- `--sd-font-body` / `--sd-font-heading` / `--sd-font-mono` (default: **Inter** / **DM Sans** / **JetBrains Mono**; temi nominati possono sovrascrivere)
+- `--sd-font-leading-none` … `loose` (interlinea da token)
 
 ### Shadow (`--sd-shadow-*`)
 `sm` `md` `lg` `xl`
 
-### Motion
-- `--sd-duration-fast` / `normal` / `slow`
+### Layout e motion (UX / a11y)
+- `--sd-layout-touch-target-min` — **44px**, target comodi (WCAG 2.5.8 / HIG; vedi doc *Accessibility and Motion*)
+- `--sd-duration-fast` / `normal` / `slow` / **`emphasized`** (350ms, transizioni più evidenti)
 - `--sd-easing-standard` (curva MD3) / `emphasized-decelerate` / `emphasized-accelerate` / `ease-inout` / `ease-out` / …
+
+### Documentazione accessibilità
+
+In Storybook e in `docs/foundations/accessibility-and-motion.mdx`: riferimenti a **WCAG 2.2**, **Material Design 3** (motion, typography), **Apple HIG**, e uso delle utility sopra.
 
 ### Z-index (`--sd-z-*`)
 `dropdown` `sticky` `overlay` `modal` `toast` `tooltip`
@@ -214,8 +220,10 @@ npm install
 # Build (genera dist/)
 npm run build
 
-# Test smoke (build token/CSS + Storybook static)
+# Test: build + verifiche token (`scripts/tokens-sanity.mjs`) + Storybook static
 npm test
+# Solo verifiche token (dopo build manuale)
+npm run test:tokens
 
 # Storybook (build token + Tailwind preview, poi dev server)
 npm run storybook
@@ -267,6 +275,7 @@ src/
 │   └── utilities.css       # Classi utility sd-*
 scripts/
 ├── build.mjs               # Build script → genera dist/
+├── tokens-sanity.mjs       # Verifiche post-build su tokens.json + variables.css (`npm run test:tokens`)
 └── sync-registry.mjs       # Copia src → registry/solids (per shadcn build)
 registry/
 │   └── solids/             # Sorgenti registry (sync da src/)
@@ -277,7 +286,7 @@ docs/
 ├── getting-started.mdx
 ├── principles.mdx
 ├── roadmap.mdx
-├── foundations/            # Colori, spacing, typography, radius, themes, tokens
+├── foundations/            # Colori, spacing, typography, radius, themes, tokens, accessibility-and-motion
 ├── shadcn-integration.md   # Guida integrazione completa (markdown)
 └── registry-model-1.md     # Modello shadcn in repo + @solids
 ```

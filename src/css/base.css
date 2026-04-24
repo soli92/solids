@@ -29,12 +29,20 @@
 }
 
 /* ─── Layout ─────────────────────────────────────────────── */
-html,
-body {
+html {
   height: 100%;
+  /* Anchor/sticky: scroll-padding (WCAG 2.4.1 Bypass Blocks — layout best practice) */
+  scroll-padding-top: var(--sd-space-lg, 1.5rem);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
+  height: 100%;
   margin: 0;
   background: var(--sd-color-bg-canvas);
   color: var(--sd-color-text-primary);
@@ -44,6 +52,8 @@ body {
   font-weight: var(--sd-font-weight-regular, 400);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Leggibilità (Material Design 3 typography / rendering guidance) */
+  text-rendering: optimizeLegibility;
 }
 
 /* ─── Focus (2px ring + offset, aligned with Material / WCAG focus visibility) ─ */

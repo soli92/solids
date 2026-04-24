@@ -10,10 +10,10 @@ SoliDS applica i temi con **override dei token semantici** (colori, font, raggio
 
 | Tema | `data-theme` | Note |
 |------|----------------|------|
-| **Light** | `light` oppure default `:root` | Base chiara; allineato al default dei token in `variables.css`. |
-| **Dark** | `dark` | Contrasto elevato; adatto a UI dense e notte. |
-| **Fantasy** | `fantasy` | Pergamena, inchiostro, ottone; titoli con stack **Cinzel** (carica il font da CDN per il look completo). |
-| **Cyberpunk** | `cyberpunk` | Sfondo profondo, accenti cyan/magenta, ombre “neon”; titoli **Orbitron**, mono **Share Tech Mono** (stesso discorso CDN). |
+| **Light** | `light` oppure default `:root` | Base chiara; corpo **Inter**, titoli **DM Sans**, mono **JetBrains Mono** (vedi Foundations / Accessibility and Motion). |
+| **Dark** | `dark` | Contrasto elevato; stessi stack font del light su superfici scure. |
+| **Fantasy** | `fantasy` | Pergamena, inchiostro, ottone; corpo **Source Serif 4**, titoli **Cinzel**; mono **JetBrains Mono**. |
+| **Cyberpunk** | `cyberpunk` | Sfondo profondo, accenti cyan/magenta; corpo **Space Grotesk**, titoli **Orbitron**, mono **Share Tech Mono** / JetBrains. |
 | **90s party** | `90s-party` | Viola/magenta/teal/lime (rave flyer / MTV); titoli **Russo One**, corpo **Tahoma/Verdana**, mono **VT323**; raggi chunk e ombre offset + glow. |
 | **Steampunk** | `steampunk` | Cuoio/carbone, ottone e rame, accenti vapore/teal; titoli **Cinzel**, corpo **Libre Baskerville**, mono **Courier Prime** (Storybook carica i font in `.storybook/preview-head.html`). Raggi contenuti e ombre con bordo ottone. |
 | **Ichigo** | `ichigo` | Nero/arancio-rosso (ispirazione *Bleach* / Bankai); titoli **Bebas Neue** / Oswald. |
@@ -64,6 +64,7 @@ Per avvicinarti al look dei temi **fantasy**, **cyberpunk**, **90s party**, **st
 - **Cyberpunk:** [Orbitron](https://fonts.google.com/specimen/Orbitron), [Share Tech Mono](https://fonts.google.com/specimen/Share+Tech+Mono)
 - **90s party:** [Russo One](https://fonts.google.com/specimen/Russo+One), [VT323](https://fonts.google.com/specimen/VT323) (Storybook carica già questa coppia in `.storybook/preview-head.html`)
 - **Steampunk:** [Cinzel](https://fonts.google.com/specimen/Cinzel), [Libre Baskerville](https://fonts.google.com/specimen/Libre+Baskerville), [Courier Prime](https://fonts.google.com/specimen/Courier+Prime) (caricate in Storybook con Russo/VT323)
-- **Personaggio:** [Bebas Neue](https://fonts.google.com/specimen/Bebas+Neue), [Oswald](https://fonts.google.com/specimen/Oswald), [Rajdhani](https://fonts.google.com/specimen/Rajdhani), [Merriweather](https://fonts.google.com/specimen/Merriweather), [Crimson Text](https://fonts.google.com/specimen/Crimson+Text) (bundle Storybook in `.storybook/preview-head.html`)
+- **Default UI + mono:** [Inter](https://fonts.google.com/specimen/Inter), [DM Sans](https://fonts.google.com/specimen/DM+Sans), [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono), [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk), [Source Serif 4](https://fonts.google.com/specimen/Source+Serif+4) (primo `<link>` in `.storybook/preview-head.html`).
+- **Personaggio:** [Bebas Neue](https://fonts.google.com/specimen/Bebas+Neue), [Oswald](https://fonts.google.com/specimen/Oswald), [Rajdhani](https://fonts.google.com/specimen/Rajdhani), [Merriweather](https://fonts.google.com/specimen/Merriweather), [Crimson Text](https://fonts.google.com/specimen/Crimson+Text), [Orbitron](https://fonts.google.com/specimen/Orbitron), [Share Tech Mono](https://fonts.google.com/specimen/Share+Tech+Mono) (secondo `<link>` in `.storybook/preview-head.html`).
 
 Senza CDN, gli stack degradano su serif/sans/mono di sistema definiti nei JSON tema.

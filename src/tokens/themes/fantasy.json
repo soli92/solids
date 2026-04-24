@@ -73,9 +73,9 @@
     }
   },
   "font": {
-    "body": "'Palatino Linotype', 'Book Antiqua', Palatino, 'Liberation Serif', Georgia, serif",
-    "heading": "'Cinzel', 'Palatino Linotype', Palatino, Georgia, serif",
-    "mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace"
+    "body": "'Source Serif 4', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif",
+    "heading": "'Cinzel', 'Source Serif 4', Palatino, Georgia, serif",
+    "mono": "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
   },
   "radius": {
     "sm": "6px",

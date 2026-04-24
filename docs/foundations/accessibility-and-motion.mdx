@@ -1,0 +1,72 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Foundations / Accessibility and Motion" />
+
+# Accessibilità, motion e UX
+
+Questa pagina riassume **come SoliDS si allinea** a linee guida riconosciute (WCAG, Material Design 3, HIG Apple) e dove trovare **token** e **utility** corrispondenti nel codice.
+
+## Fonti di riferimento (ufficiali)
+
+| Argomento | Fonte |
+|-----------|--------|
+| **WCAG 2.2** (contrasto, focus, riduzione movimento, target size) | [W3C WCAG 2.2](https://www.w3.org/TR/WCAG22/) |
+| **Target size minimo (2.5.8)** | [Understanding Target Size (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) |
+| **Animazioni e preferenze utente** | [Understanding Animation from Interactions](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) |
+| **Material Design 3 — Motion** | [M3 Motion overview](https://m3.material.io/styles/motion/overview) |
+| **Material Design 3 — Typography** | [M3 Typography](https://m3.material.io/styles/typography/overview) |
+| **Apple Human Interface Guidelines — Accessibility** | [Accessibility | Apple Developer Documentation](https://developer.apple.com/design/human-interface-guidelines/accessibility) |
+
+## Cosa fa già SoliDS
+
+- **Focus visibile** (`:focus-visible`): anello 2px + offset, colore da `--sd-color-border-focus` (allineato a pratiche Material / visibilità focus WCAG).
+- **`prefers-reduced-motion: reduce`**: in `base.css` vengono disattivate transizioni, animazioni e scroll animato globalmente, in linea con [WCAG 2.3.3](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) dove applicabile.
+- **Curve e durate** (`--sd-easing-*`, `--sd-duration-*`): naming coerente con **MD3** (es. `standard`, `emphasized-decelerate`).
+- **Tema e `color-scheme`**: valorizzato per light/dark e temi scuri, per controlli nativi coerenti ([CSS `color-scheme`](https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme)).
+
+## Migliorie introdotte (token + CSS + utility)
+
+### Tipografia e font
+
+- **Light / dark (default):** corpo **Inter**, titoli **DM Sans**, mono **JetBrains Mono** (caricati in Storybook via `.storybook/preview-head.html`; nei progetti consumer aggiungi gli stessi `@import` Google Fonts o self-host secondo policy).
+- **Fantasy:** corpo **Source Serif 4** (leggibilità lungo testo) + titoli **Cinzel**; mono **JetBrains Mono**.
+- **Cyberpunk:** corpo **Space Grotesk** (sans geometrica leggibile) + **Orbitron** titoli; mono **Share Tech Mono** / **JetBrains Mono**.
+- **Steampunk:** mono arricchito con **JetBrains Mono** come primo fallback tecnico.
+
+*Razionale:* Inter e DM Sans sono ampiamente usati in UI produttive; MD3 usa **Roboto** come default digitale — Inter è un’alternativa comune con metriche simili; le scelte per tema nominato restano distintive ma con stack leggibili.
+
+### Layout e scroll
+
+- **`scroll-padding-top`** su `html`: riduce il rischio che barre sticky coprano il contenuto dopo navigazione ad anchor (legato a [2.4.1 Bypass Blocks](https://www.w3.org/WAI/WCAG22/Understanding/bypass-blocks) come buona pratica layout).
+- **`scroll-behavior: smooth`** solo se **`prefers-reduced-motion: no-preference`**, per non forzare movimento quando l’utente chiede riduzione animazioni.
+
+### Touch target e link
+
+- Token **`--sd-layout-touch-target-min`** (`44px` in `base.json` → `layout.touch-target-min`): allineato a **WCAG 2.5.8** e alla convenzione **44×44 px** delle **Apple HIG** per target comodi.
+- Utility **`.sd-min-touch-target`**: applica `min-width` / `min-height` al token (pulsanti, chip, icone cliccabili).
+- Utility **`.sd-link`**: colore token + sottolineatura con **offset** e **spessore** minimi per non dipendere solo dal colore (cfr. [1.4.1 Use of Color](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color)).
+
+### Motion nelle utility
+
+- **`.sd-transition`** / **`.sd-transition-fast`**: durate e easing da token.
+- **`.sd-transition-emphasized`**: attiva solo con **`prefers-reduced-motion: no-preference`**, durata `--sd-duration-emphasized` (default 350ms), easing **emphasized-decelerate** (vedi [MD3 easing](https://m3.material.io/styles/motion/easing-and-duration)).
+
+### Interlinea
+
+- Utility **`.sd-leading-*`** ora usano **`--sd-font-leading-*`** da `base.json` dove disponibili (`none`, `tight`, `snug`, `normal`, `relaxed`, `loose`).
+
+## Cosa resta responsabilità del consumer
+
+- Verificare **contrasto** reale su combinazioni custom (tool: [APCA](https://readtech.org/ARC/), [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)).
+- Fornire **testi alternativi**, **heading logici**, **ordine focus** nei componenti React/Vue ecc.
+- Non disattivare `prefers-reduced-motion` con override aggressivi.
+
+## Riferimenti rapidi nel repo
+
+| Artefatto | Ruolo |
+|-----------|--------|
+| `src/tokens/base.json` | `layout.touch-target-min`, `duration.emphasized`, `font.leading.*` |
+| `src/tokens/semantic.json` | Font default Inter / DM Sans / JetBrains Mono |
+| `src/tokens/themes/*.json` | Override font per tema |
+| `src/css/base.css` | Scroll, body, focus, reduced motion |
+| `src/css/utilities.css` | `.sd-min-touch-target`, `.sd-link`, leading, `.sd-transition-emphasized` |

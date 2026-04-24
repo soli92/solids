@@ -75,7 +75,7 @@
   "font": {
     "body": "'Libre Baskerville', Baskerville, 'Palatino Linotype', Palatino, Georgia, serif",
     "heading": "'Cinzel', 'Copperplate', 'Palatino Linotype', Palatino, Georgia, serif",
-    "mono": "'Courier Prime', 'Courier New', Courier, monospace"
+    "mono": "'JetBrains Mono', 'Courier Prime', 'Courier New', Courier, monospace"
   },
   "radius": {
     "sm": "3px",

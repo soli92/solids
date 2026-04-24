@@ -55,7 +55,8 @@
     "build-storybook": "npm run build && npm run build:storybook-css && npm run ui:stories && storybook build && node ./scripts/inject-storybook-base.mjs",
     "registry:sync": "node ./scripts/sync-registry.mjs",
     "registry:build": "node ./scripts/sync-registry.mjs && shadcn build --output ./registry/r",
-    "test": "npm run build && npm run build-storybook"
+    "test:tokens": "node ./scripts/tokens-sanity.mjs",
+    "test": "npm run build && npm run test:tokens && npm run build-storybook"
   },
   "devDependencies": {
     "@hookform/resolvers": "^5.2.2",
