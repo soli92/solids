@@ -2,7 +2,7 @@
 
 Riassunto operativo per **SoliDS** (design system: token, CSS, Storybook, registry shadcn). Dettaglio e release: **`CHANGELOG.md`**, **`README.md`**. Stato file: **`git status`**.
 
-**Aggiornato:** 2026-04-24
+**Aggiornato:** 2026-04-27
 
 ## Repo
 
@@ -21,6 +21,10 @@ Pacchetto **`@soli92/solids`**, Node **22+**, build in `dist/`. Documentazione i
 ## File utili
 
 `README.md` · `CHANGELOG.md` · `AI_LOG.md` · `docs/foundations/accessibility-and-motion.mdx` · `docs/shadcn-integration.md` · `docs/registry-model-1.md` · `scripts/tokens-sanity.mjs` · `registry/`
+
+### Integrazione Soli Prof (RAG / webhook)
+
+Questo repository compare in **`CORPUS_REPOS`** su [soli-prof](https://github.com/soli92/soli-prof) (`lib/rag-service/config.ts`). Un webhook GitHub su **`push`** verso `https://soli-prof.vercel.app/api/webhooks/github` può attivare **re-ingest** selettivo lato Soli Prof (HMAC; segreto solo su Vercel e in GitHub). I test del design system **non** dipendono da quel flusso. Registrazione hook: **soli-prof** → `AGENTS.md`, `scripts/setup-webhooks.sh`.
 
 ## Regole per l’agente
 

@@ -16,6 +16,10 @@ Memoria di sviluppo AI-assisted. Annotazioni sui prompt, decisioni e pattern eme
 
 ---
 
+## Aggiornamento 2026-04-27 — Soli Prof: webhook e documentazione incrociata
+
+- **RAG / ingest**: SoliDS è in **`CORPUS_REPOS`** su [soli-prof](https://github.com/soli92/soli-prof). Documentato in **`AGENTS.md`** l’ingaggio **push** → `https://soli-prof.vercel.app/api/webhooks/github` (re-ingest, HMAC) e riferimenti a `setup-webhooks.sh` lato Soli Prof. I test locali `npm test` (token, Storybook, ecc.) **non** dipendono da quel flusso.
+
 ## Fasi di sviluppo (inferite dal history)
 
 ### Fase 1 — Token semantici, palette, shadcn bridge

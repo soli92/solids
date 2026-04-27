@@ -4,7 +4,7 @@
 una fondamenta **agnostica** basata su **design tokens** e **CSS variables**,
 pronta all'uso con qualsiasi framework web e compatibile con **shadcn/ui**.
 
-Contesto operativo per assistenti AI: **[`AGENTS.md`](./AGENTS.md)**.
+Contesto operativo per assistenti AI: **[`AGENTS.md`](./AGENTS.md)**. SoliDS è indicizzato nella **knowledge base** [Soli Prof](https://github.com/soli92/soli-prof) (RAG); un push su `main` può notificare **re-ingest** tramite [webhook](https://soli-prof.vercel.app/api/webhooks/github) lato Soli Prof (nessuna configurazione aggiuntiva in questo repository). Dettagli: **`AGENTS.md`** (Integrazione Soli Prof).
 
 **Storybook** (documentazione interattiva + esempi UI) è pubblicato su **[GitHub Pages](https://soli92.github.io/solids/)** dopo ogni release su npm. Per la prima volta sul repo: *Settings → Pages → Build and deployment: GitHub Actions*.
 
