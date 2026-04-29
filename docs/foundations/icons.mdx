@@ -106,6 +106,18 @@ Indice categorie:
 
 - `@soli92/solids/brand-assets/soli-category-icons/index.json`
 
+Loader logo animato (UI):
+
+```tsx
+import { LogoLoader } from "@/components/ui/logo-loader";
+
+// Default: Soli 4:3 theme-aware
+<LogoLoader size={120} animation="spin" />;
+
+// Custom SVG/PNG
+<LogoLoader src="/my-brand/logo.svg" size={96} animation="pulse" />;
+```
+
 Raccolta cross-repo centralizzata (raw + normalizzata):
 
 - Raw con path originale per repo: `@soli92/solids/brand-assets/workspace-icons/...`
