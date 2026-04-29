@@ -14,7 +14,7 @@
       "canvas":   "#FAFBFC",
       "surface":  "#F0F2F5",
       "elevated": "#FFFFFF",
-      "overlay":  "rgba(0,0,0,0.45)",
+      "overlay":  "rgba(17, 24, 39, 0.45)",
       "hover":    "#E8EDF7",
       "active":   "#DDE4F2",
       "disabled": "#F0F2F5"
