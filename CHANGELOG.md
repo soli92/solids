@@ -1,3 +1,11 @@
+# [1.12.0](https://github.com/soli92/solids/compare/v1.11.1...v1.12.0) (2026-04-29)
+
+
+### Features
+
+* **storybook:** add themed icons gallery with theme selector and variant controls ([1b5d7e8](https://github.com/soli92/solids/commit/1b5d7e83bc6a721535c6a99a9aa9c69cd15ef303))
+* **storybook:** enhance themes stories with token detail, icon preview and theme selector ([878e588](https://github.com/soli92/solids/commit/878e588bc1809eab6195e4e1980d4fc2b4293ec6))
+
 ## [1.11.1](https://github.com/soli92/solids/compare/v1.11.0...v1.11.1) (2026-04-29)
 
 
