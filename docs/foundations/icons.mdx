@@ -110,12 +110,16 @@ Loader logo animato (UI):
 
 ```tsx
 import { LogoLoader } from "@/components/ui/logo-loader";
+import { LogoLoaderOverlay } from "@/components/ui/logo-loader";
 
 // Default: Soli 4:3 theme-aware
 <LogoLoader size={120} animation="spin" />;
 
 // Custom SVG/PNG
 <LogoLoader src="/my-brand/logo.svg" size={96} animation="pulse" />;
+
+// Overlay fullscreen
+<LogoLoaderOverlay message="Caricamento..." />;
 ```
 
 Raccolta cross-repo centralizzata (raw + normalizzata):

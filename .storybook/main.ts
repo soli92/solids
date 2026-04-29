@@ -18,6 +18,12 @@ const config: StorybookConfig = {
   framework: "@storybook/react-vite",
 
   stories: ["../docs/**/*.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx|mdx)"],
+  staticDirs: [
+    {
+      from: "../docs/brand-assets/soli-category-icons",
+      to: "/soli-category-icons",
+    },
+  ],
 
   addons: ["@storybook/addon-docs", "@storybook/addon-essentials"],
 

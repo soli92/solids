@@ -31,6 +31,7 @@ const theme = readStoredTheme() === "dark" ? themes.dark : themes.light;
 
 addons.setConfig({
   theme,
-  brandTitle: "SoliDS",
+  brandTitle: "SoliDS Storybook",
+  brandImage: "/soli-category-icons/soli-icon-logo.svg",
   brandUrl: "https://github.com/soli92/solids",
 });

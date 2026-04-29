@@ -18,6 +18,13 @@ export interface LogoLoaderProps extends React.HTMLAttributes<HTMLDivElement> {
   imageClassName?: string;
 }
 
+export interface LogoLoaderOverlayProps
+  extends Omit<LogoLoaderProps, "className">,
+    React.HTMLAttributes<HTMLDivElement> {
+  message?: string;
+  blur?: boolean;
+}
+
 function LogoLoader({
   src,
   alt = "Loading",
@@ -66,4 +73,54 @@ function LogoLoader({
   );
 }
 
-export { LogoLoader };
+function LogoLoaderOverlay({
+  message = "Loading...",
+  blur = true,
+  size = 120,
+  animation = "spin",
+  durationMs = 1400,
+  src,
+  alt,
+  imageClassName,
+  style,
+  className,
+  ...props
+}: LogoLoaderOverlayProps) {
+  return (
+    <div
+      className={cn(
+        "fixed inset-0 z-[var(--sd-z-modal,60)] flex flex-col items-center justify-center gap-3",
+        className
+      )}
+      style={{
+        background: "var(--sd-color-bg-overlay)",
+        color: "var(--sd-color-text-inverse)",
+        backdropFilter: blur ? "blur(4px)" : undefined,
+        ...style,
+      }}
+      {...props}
+    >
+      <LogoLoader
+        src={src}
+        alt={alt ?? message}
+        size={size}
+        animation={animation}
+        durationMs={durationMs}
+        imageClassName={imageClassName}
+      />
+      {message ? (
+        <p
+          className="text-sm"
+          style={{
+            color: "var(--sd-color-text-inverse)",
+            fontFamily: "var(--sd-font-body)",
+          }}
+        >
+          {message}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+export { LogoLoader, LogoLoaderOverlay };

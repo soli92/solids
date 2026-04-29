@@ -1,0 +1,25 @@
+{
+  "name": "SoliDS Storybook",
+  "short_name": "SoliDS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0f14",
+  "theme_color": "#2563EB",
+  "icons": [
+    {
+      "src": "/soli-category-icons/soli-icon-favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/soli-category-icons/soli-icon-app-icon.png",
+      "sizes": "120x120",
+      "type": "image/png"
+    },
+    {
+      "src": "/soli-category-icons/soli-icon-apple-touch.png",
+      "sizes": "120x120",
+      "type": "image/png"
+    }
+  ]
+}
