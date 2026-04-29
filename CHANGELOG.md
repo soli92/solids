@@ -1,3 +1,15 @@
+# [1.11.0](https://github.com/soli92/solids/compare/v1.10.0...v1.11.0) (2026-04-29)
+
+
+### Bug Fixes
+
+* **tokens:** add color.icon.* and color.bg.overlay to light theme ([91cebe7](https://github.com/soli92/solids/commit/91cebe7a11461db3a275a93970bc9adc0ed5e235))
+
+
+### Features
+
+* **icons:** export themed icon sets from index ([01b89c9](https://github.com/soli92/solids/commit/01b89c9d4f25901dde5ee682969339a222fa451a))
+
 # [1.10.0](https://github.com/soli92/solids/compare/v1.9.0...v1.10.0) (2026-04-29)
 
 
