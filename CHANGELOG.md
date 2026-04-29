@@ -1,3 +1,14 @@
+# [1.14.0](https://github.com/soli92/solids/compare/v1.13.1...v1.14.0) (2026-04-29)
+
+
+### Features
+
+* **icons:** add Soli category logo pack ([7249923](https://github.com/soli92/solids/commit/7249923657fd2a2d43ac9a8b6ff08fb1da0ffd39))
+* **icons:** centralize workspace brand assets and typed exports ([be9f9a2](https://github.com/soli92/solids/commit/be9f9a2f619c7fef2f3f7e77cdc74c984fa4be75))
+* **storybook:** add live controls for LogoLoader story ([64fd081](https://github.com/soli92/solids/commit/64fd08101ad436c4c3e90355c3848733d31b7549))
+* **storybook:** apply Soli branding and interactive loader controls ([93f9bb3](https://github.com/soli92/solids/commit/93f9bb3f94c884a36692a2d1c36179b05c7affa6))
+* **ui:** add customizable LogoLoader component ([076f9ce](https://github.com/soli92/solids/commit/076f9cee1b8a146515477c595b2c2f262ae86ac2))
+
 ## [1.13.1](https://github.com/soli92/solids/compare/v1.13.0...v1.13.1) (2026-04-29)
 
 
