@@ -1,3 +1,11 @@
+# [1.9.0](https://github.com/soli92/solids/compare/v1.8.0...v1.9.0) (2026-04-29)
+
+
+### Features
+
+* **storybook:** add Foundations / Themes story with all-themes showcase and single theme preview ([275429e](https://github.com/soli92/solids/commit/275429e55a1bbaad0e8109de535863ec5a8c0077))
+* **tokens:** add color.icon.* and color.bg.overlay to light theme ([ff389be](https://github.com/soli92/solids/commit/ff389be14ed0fd33036103743a5f4ea28a842a01))
+
 # [1.8.0](https://github.com/soli92/solids/compare/v1.7.0...v1.8.0) (2026-04-29)
 
 
