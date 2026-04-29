@@ -10,6 +10,27 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
 const tokensPath = join(root, "dist", "tokens", "tokens.json");
 const variablesPath = join(root, "dist", "css", "variables.css");
+const workspaceNormalizedManifestPath = join(
+  root,
+  "dist",
+  "brand-assets",
+  "workspace-icons-normalized",
+  "manifest.json"
+);
+const workspaceNormalizedIndexPath = join(
+  root,
+  "dist",
+  "brand-assets",
+  "workspace-icons-normalized",
+  "index.json"
+);
+const workspaceNormalizedIndexTsPath = join(
+  root,
+  "dist",
+  "brand-assets",
+  "workspace-icons-normalized",
+  "index.d.ts"
+);
 
 function fail(msg) {
   console.error(`tokens-sanity: FAIL — ${msg}`);
@@ -101,5 +122,47 @@ for (const needle of [
   if (!css.includes(needle)) fail(`variables.css non contiene ${needle}`);
 }
 ok("variables.css contiene touch-target-min, duration-emphasized, font-body");
+
+// Brand assets centralizzati (workspace-icons-normalized)
+if (!existsSync(workspaceNormalizedManifestPath)) {
+  fail(`manca ${workspaceNormalizedManifestPath}`);
+}
+if (!existsSync(workspaceNormalizedIndexPath)) {
+  fail(`manca ${workspaceNormalizedIndexPath}`);
+}
+if (!existsSync(workspaceNormalizedIndexTsPath)) {
+  fail(`manca ${workspaceNormalizedIndexTsPath}`);
+}
+ok("workspace-icons-normalized: manifest/index/index.d.ts presenti");
+
+let workspaceManifest;
+let workspaceIndex;
+try {
+  workspaceManifest = JSON.parse(readFileSync(workspaceNormalizedManifestPath, "utf8"));
+  workspaceIndex = JSON.parse(readFileSync(workspaceNormalizedIndexPath, "utf8"));
+} catch {
+  fail("workspace-icons-normalized manifest/index non sono JSON validi");
+}
+
+if (!Array.isArray(workspaceManifest.items) || workspaceManifest.items.length === 0) {
+  fail("workspace-icons-normalized manifest.items deve contenere almeno un asset");
+}
+if (workspaceManifest.count !== workspaceManifest.items.length) {
+  fail("workspace-icons-normalized manifest.count non coincide con items.length");
+}
+for (const item of workspaceManifest.items) {
+  if (typeof item.normalized !== "string" || !item.normalized.startsWith("soli-icon-")) {
+    fail(`nome normalizzato non valido: ${JSON.stringify(item)}`);
+  }
+}
+ok("workspace-icons-normalized manifest coerente e naming soli-icon-* valido");
+
+const expectedCategories = ["app-icon", "apple-touch", "favicon", "logo", "symbol"];
+for (const category of expectedCategories) {
+  if (!workspaceIndex.categories?.[category]) {
+    fail(`workspace-icons-normalized index: categoria mancante "${category}"`);
+  }
+}
+ok("workspace-icons-normalized index contiene tutte le categorie attese");
 
 console.log("tokens-sanity: tutte le verifiche passate.");

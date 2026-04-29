@@ -1,0 +1,137 @@
+{
+  "count": 22,
+  "items": [
+    {
+      "repo": "Koollector",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/Koollector/apps/mobile/assets/images/android-icon-background.png",
+      "target": "Koollector/apps/mobile/assets/images/android-icon-background.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/Koollector/apps/mobile/assets/images/android-icon-foreground.png",
+      "target": "Koollector/apps/mobile/assets/images/android-icon-foreground.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/Koollector/apps/mobile/assets/images/android-icon-monochrome.png",
+      "target": "Koollector/apps/mobile/assets/images/android-icon-monochrome.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/Koollector/apps/mobile/assets/images/favicon.png",
+      "target": "Koollector/apps/mobile/assets/images/favicon.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/Koollector/apps/mobile/assets/images/icon.png",
+      "target": "Koollector/apps/mobile/assets/images/icon.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/Koollector/apps/mobile/assets/images/partial-react-logo.png",
+      "target": "Koollector/apps/mobile/assets/images/partial-react-logo.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/Koollector/apps/mobile/assets/images/react-logo.png",
+      "target": "Koollector/apps/mobile/assets/images/react-logo.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/Koollector/apps/mobile/assets/images/react-logo@2x.png",
+      "target": "Koollector/apps/mobile/assets/images/react-logo@2x.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/Koollector/apps/mobile/assets/images/react-logo@3x.png",
+      "target": "Koollector/apps/mobile/assets/images/react-logo@3x.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/Koollector/apps/mobile/assets/images/splash-icon.png",
+      "target": "Koollector/apps/mobile/assets/images/splash-icon.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "bachelor-party-claudiano",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/bachelor-party-claudiano/public/app-icon.svg",
+      "target": "bachelor-party-claudiano/public/app-icon.svg",
+      "ext": ".svg"
+    },
+    {
+      "repo": "bachelor-party-claudiano",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/bachelor-party-claudiano/public/apple-touch-icon.png",
+      "target": "bachelor-party-claudiano/public/apple-touch-icon.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "bachelor-party-claudiano",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/bachelor-party-claudiano/public/favicon-32.png",
+      "target": "bachelor-party-claudiano/public/favicon-32.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "pippify",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/pippify/frontend/public/logo.svg",
+      "target": "pippify/frontend/public/logo.svg",
+      "ext": ".svg"
+    },
+    {
+      "repo": "pippify",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/pippify/frontend/src/logo.svg",
+      "target": "pippify/frontend/src/logo.svg",
+      "ext": ".svg"
+    },
+    {
+      "repo": "soli-agent",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/soli-agent/public/favicon.svg",
+      "target": "soli-agent/public/favicon.svg",
+      "ext": ".svg"
+    },
+    {
+      "repo": "soli-dm-fe",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/soli-dm-fe/public/brand/d20-icon.svg",
+      "target": "soli-dm-fe/public/brand/d20-icon.svg",
+      "ext": ".svg"
+    },
+    {
+      "repo": "soli-dm-fe",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/soli-dm-fe/public/icons/apple-touch-icon.png",
+      "target": "soli-dm-fe/public/icons/apple-touch-icon.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "soli-dm-fe",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/soli-dm-fe/public/icons/icon-192.png",
+      "target": "soli-dm-fe/public/icons/icon-192.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "soli-dm-fe",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/soli-dm-fe/public/icons/icon-512.png",
+      "target": "soli-dm-fe/public/icons/icon-512.png",
+      "ext": ".png"
+    },
+    {
+      "repo": "soli-dome",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/soli-dome/public/icons/icon-192x192.svg",
+      "target": "soli-dome/public/icons/icon-192x192.svg",
+      "ext": ".svg"
+    },
+    {
+      "repo": "soli-dome",
+      "source": "/Users/simone.olivieri/Documents/Personal/Repos/soli-dome/public/icons/icon-512x512.svg",
+      "target": "soli-dome/public/icons/icon-512x512.svg",
+      "ext": ".svg"
+    }
+  ]
+}

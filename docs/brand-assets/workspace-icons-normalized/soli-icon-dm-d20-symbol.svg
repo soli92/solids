@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+  <title>Dado a 20 facce — faccia con punto interrogativo</title>
+  <!-- Allineato a D20Icon.tsx: pentagono y schiacciato 0.45, r=34, cy=66 -->
+  <path d="M50 10 L50 50.7 L82.3 61.3 Z" fill="#FDE047"/>
+  <path d="M50 10 L82.3 61.3 L70 78.4 Z" fill="#FACC15"/>
+  <path d="M50 10 L70 78.4 L30 78.4 Z" fill="#EAB308"/>
+  <path d="M50 10 L30 78.4 L17.7 61.3 Z" fill="#FBBF24"/>
+  <path d="M50 10 L17.7 61.3 L50 50.7 Z" fill="#FCD34D"/>
+  <line x1="50" y1="10" x2="82.3" y2="61.3" stroke="#0f0f0f" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="50" y1="10" x2="70" y2="78.4" stroke="#0f0f0f" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="50" y1="10" x2="30" y2="78.4" stroke="#0f0f0f" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="50" y1="10" x2="17.7" y2="61.3" stroke="#0f0f0f" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M50 10 L50 50.7 L82.3 61.3 L70 78.4 L30 78.4 L17.7 61.3 Z" fill="none" stroke="#0f0f0f" stroke-width="2.2" stroke-linejoin="round"/>
+  <text x="50" y="69.7" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="18" font-weight="800" fill="#0f0f0f">?</text>
+  <text x="60.8" y="40.5" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="7.5" font-weight="700" fill="#0f0f0f">7</text>
+  <text x="39.2" y="40.5" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="7.5" font-weight="700" fill="#0f0f0f">14</text>
+</svg>

@@ -340,3 +340,185 @@ export const IconPartyStar = React.forwardRef<SVGSVGElement, IconProps>(function
     </SolidsIcon>
   );
 });
+
+type SoliBrandPalette = {
+  frame: string;
+  symbol: string;
+  wordmark: string;
+};
+
+type SoliBrandIconProps = Omit<React.SVGProps<SVGSVGElement>, "color"> & {
+  size?: number;
+};
+
+const SoliBrandIcon = React.forwardRef<
+  SVGSVGElement,
+  SoliBrandIconProps & { showWordmark: boolean; wide: boolean; palette: SoliBrandPalette }
+>(function SoliBrandIcon(
+  {
+    size = 96,
+    className,
+    style,
+    showWordmark,
+    wide,
+    palette,
+    ...props
+  },
+  ref
+) {
+  const width = wide ? 160 : 120;
+  const height = showWordmark ? 120 : 90;
+  const cx = wide ? 80 : 60;
+  const cy = 44;
+  const frameLeft = wide ? 16 : 12;
+  const frameRight = wide ? 144 : 108;
+  const frameTop = 8;
+  const frameBottom = 80;
+  const gearR = 16;
+  const gearTeeth = Array.from({ length: 8 }, (_, i) => i * (Math.PI / 4));
+  return (
+    <svg
+      ref={ref}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={`0 0 ${width} ${height}`}
+      width={size}
+      height={(size * height) / width}
+      className={className}
+      style={style}
+      {...props}
+    >
+      <g fill="none" stroke={palette.frame} strokeWidth="2">
+        <rect x={frameLeft} y={frameTop} width={frameRight - frameLeft} height={frameBottom - frameTop} />
+        <polygon points={`${cx},${frameTop - 8} ${frameRight + 8},${cy} ${cx},${frameBottom + 8} ${frameLeft - 8},${cy}`} />
+        <line x1={frameLeft} y1={frameTop} x2={frameRight} y2={frameBottom} />
+        <line x1={frameRight} y1={frameTop} x2={frameLeft} y2={frameBottom} />
+        <line x1={cx} y1={frameTop} x2={cx} y2={frameBottom} />
+        <path d={`M${frameLeft + 10} ${cy + 8}h12`} />
+        <path d={`M${frameRight - 22} ${cy - 4}h12`} />
+      </g>
+      <g fill={palette.symbol} stroke={palette.symbol}>
+        {gearTeeth.map((a) => {
+          const x = cx + Math.cos(a) * (gearR + 5);
+          const y = cy + Math.sin(a) * (gearR + 5);
+          return <rect key={a} x={x - 2} y={y - 2} width="4" height="4" transform={`rotate(${(a * 180) / Math.PI} ${x} ${y})`} />;
+        })}
+        <circle cx={cx} cy={cy} r={gearR} />
+      </g>
+      <circle cx={cx} cy={cy} r={9} fill="white" />
+      <text
+        x={cx}
+        y={cy + 3}
+        textAnchor="middle"
+        fontFamily="Georgia, serif"
+        fontWeight="700"
+        fontSize="14"
+        fill={palette.symbol}
+      >
+        S
+      </text>
+      {showWordmark ? (
+        <text
+          x={cx}
+          y={108}
+          textAnchor="middle"
+          fontFamily="var(--sd-font-heading, Inter, sans-serif)"
+          fontWeight="700"
+          fontSize="18"
+          fill={palette.wordmark}
+        >
+          Soli
+        </text>
+      ) : null}
+    </svg>
+  );
+});
+
+const monoPalette: SoliBrandPalette = {
+  frame: "#0b0f14",
+  symbol: "#0b0f14",
+  wordmark: "#0b0f14",
+};
+
+const goldPalette: SoliBrandPalette = {
+  frame: "#b8922e",
+  symbol: "#c8a23a",
+  wordmark: "#0b0f14",
+};
+
+const themedPalette: SoliBrandPalette = {
+  frame: "var(--sd-color-icon-primary)",
+  symbol: "var(--sd-color-icon-primary)",
+  wordmark: "var(--sd-color-text-primary)",
+};
+
+export const IconSoli1x1WithTextMono = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli1x1WithTextMono(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark wide={false} palette={monoPalette} />;
+  }
+);
+
+export const IconSoli4x3WithTextMono = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli4x3WithTextMono(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark wide palette={monoPalette} />;
+  }
+);
+
+export const IconSoli1x1SymbolOnlyMono = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli1x1SymbolOnlyMono(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark={false} wide={false} palette={monoPalette} />;
+  }
+);
+
+export const IconSoli4x3SymbolOnlyMono = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli4x3SymbolOnlyMono(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark={false} wide palette={monoPalette} />;
+  }
+);
+
+export const IconSoli1x1WithTextGold = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli1x1WithTextGold(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark wide={false} palette={goldPalette} />;
+  }
+);
+
+export const IconSoli4x3WithTextGold = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli4x3WithTextGold(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark wide palette={goldPalette} />;
+  }
+);
+
+export const IconSoli1x1SymbolOnlyGold = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli1x1SymbolOnlyGold(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark={false} wide={false} palette={goldPalette} />;
+  }
+);
+
+export const IconSoli4x3SymbolOnlyGold = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli4x3SymbolOnlyGold(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark={false} wide palette={goldPalette} />;
+  }
+);
+
+export const IconSoli1x1WithTextTheme = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli1x1WithTextTheme(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark wide={false} palette={themedPalette} />;
+  }
+);
+
+export const IconSoli4x3WithTextTheme = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli4x3WithTextTheme(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark wide palette={themedPalette} />;
+  }
+);
+
+export const IconSoli1x1SymbolOnlyTheme = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli1x1SymbolOnlyTheme(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark={false} wide={false} palette={themedPalette} />;
+  }
+);
+
+export const IconSoli4x3SymbolOnlyTheme = React.forwardRef<SVGSVGElement, SoliBrandIconProps>(
+  function IconSoli4x3SymbolOnlyTheme(props, ref) {
+    return <SoliBrandIcon ref={ref} {...props} showWordmark={false} wide palette={themedPalette} />;
+  }
+);

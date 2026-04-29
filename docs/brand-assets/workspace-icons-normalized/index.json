@@ -1,0 +1,52 @@
+{
+  "count": 22,
+  "categories": {
+    "app-icon": {
+      "count": 10,
+      "files": [
+        "soli-icon-bpc-app-icon.svg",
+        "soli-icon-dm-pwa-192.png",
+        "soli-icon-dm-pwa-512.png",
+        "soli-icon-dome-pwa-192.svg",
+        "soli-icon-dome-pwa-512.svg",
+        "soli-icon-koollector-android-bg.png",
+        "soli-icon-koollector-android-fg.png",
+        "soli-icon-koollector-android-mono.png",
+        "soli-icon-koollector-app-icon.png",
+        "soli-icon-koollector-splash.png"
+      ]
+    },
+    "apple-touch": {
+      "count": 2,
+      "files": [
+        "soli-icon-bpc-apple-touch.png",
+        "soli-icon-dm-apple-touch.png"
+      ]
+    },
+    "favicon": {
+      "count": 3,
+      "files": [
+        "soli-icon-agent-favicon.svg",
+        "soli-icon-bpc-favicon-32.png",
+        "soli-icon-koollector-favicon.png"
+      ]
+    },
+    "logo": {
+      "count": 6,
+      "files": [
+        "soli-icon-koollector-react-logo-2x.png",
+        "soli-icon-koollector-react-logo-3x.png",
+        "soli-icon-koollector-react-logo.png",
+        "soli-icon-koollector-react-partial-logo.png",
+        "soli-icon-pippify-logo-2.svg",
+        "soli-icon-pippify-logo.svg"
+      ]
+    },
+    "symbol": {
+      "count": 1,
+      "files": [
+        "soli-icon-dm-d20-symbol.svg"
+      ]
+    }
+  }
+}

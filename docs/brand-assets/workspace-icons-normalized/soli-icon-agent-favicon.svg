@@ -1,0 +1,26 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradiente primary blue cyan SoliDS -->
+    <linearGradient id="soli-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0EA5E9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Sfondo circolare con gradiente -->
+  <circle cx="128" cy="128" r="128" fill="url(#soli-grad)" />
+
+  <!-- Icona centrale: S tech + nodo connesso -->
+  <g transform="translate(128, 128)">
+    <!-- S stilizzata minimalista -->
+    <path d="M -30 -35 Q -45 -35 -45 -20 Q -45 -5 -28 0 Q -45 5 -45 20 Q -45 35 -30 35 Q -15 35 -15 48" 
+          stroke="white" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Nodo tech: cerchio esterno bianco + punto interno cyan -->
+    <circle cx="45" cy="0" r="14" fill="white" />
+    <circle cx="45" cy="0" r="7" fill="#0EA5E9" />
+    
+    <!-- Linea connessione: S → nodo -->
+    <line x1="0" y1="0" x2="31" y2="0" stroke="white" stroke-width="6" opacity="0.9" stroke-linecap="round" />
+  </g>
+</svg>

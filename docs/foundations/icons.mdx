@@ -6,7 +6,7 @@ import { Meta } from "@storybook/blocks";
 
 SoliDS include un sistema di icone SVG React basato su **`SolidsIcon`** — un wrapper che applica i token `--sd-color-icon-*` automaticamente tramite CSS variables, seguendo il tema attivo su `data-theme`.
 
-> **v1.12.0** — aggiunto set di icone tema-specifiche per **fantasy**, **cyberpunk** e **90s-party**. Tutte le icone esportate da `@soli92/solids/icons`.
+> **v1.13.1** — aggiunto anche il **Soli brand icon pack** (8 varianti) con versioni mono, gold e theme-aware per tutti i temi SoliDS. Tutte le icone esportate da `@soli92/solids/icons`.
 
 ## Utilizzo base
 
@@ -44,6 +44,75 @@ Tutti i temi definiscono `color.icon.*` — il colore si adatta automaticamente 
 `Home` · `Search` · `User` · `Settings` · `Menu` · `X` · `Check` · `ChevronDown` · `ChevronRight` · `Plus` · `Minus` · `Trash` · `Pencil` · `Copy` · `ExternalLink` · `AlertCircle` · `Info` · `Star` · `Heart` · `Sun` · `Moon` · `Mail` · `Calendar` · `Folder`
 
 Anteprima interattiva → **Foundations / Icons → Gallery**.
+
+---
+
+## Soli Brand Icon Pack (image set #2)
+
+Nuove icone `soli-icon-*` integrate come componenti React:
+
+- `IconSoli1x1WithTextMono`
+- `IconSoli4x3WithTextMono`
+- `IconSoli1x1SymbolOnlyMono`
+- `IconSoli4x3SymbolOnlyMono`
+- `IconSoli1x1WithTextGold`
+- `IconSoli4x3WithTextGold`
+- `IconSoli1x1SymbolOnlyGold`
+- `IconSoli4x3SymbolOnlyGold`
+
+Versioni theme-aware (si adattano automaticamente ai token del tema attivo):
+
+- `IconSoli1x1WithTextTheme`
+- `IconSoli4x3WithTextTheme`
+- `IconSoli1x1SymbolOnlyTheme`
+- `IconSoli4x3SymbolOnlyTheme`
+
+```tsx
+import {
+  IconSoli1x1WithTextTheme,
+  IconSoli4x3WithTextTheme,
+  IconSoli1x1SymbolOnlyTheme,
+  IconSoli4x3SymbolOnlyTheme,
+} from "@soli92/solids/icons";
+
+<section data-theme="steampunk">
+  <IconSoli1x1WithTextTheme size={160} />
+  <IconSoli4x3WithTextTheme size={160} />
+  <IconSoli1x1SymbolOnlyTheme size={120} />
+  <IconSoli4x3SymbolOnlyTheme size={120} />
+</section>
+```
+
+Storybook:
+- **Foundations / Icons → Soli Brand Set — from Image Two**
+- **Foundations / Icons → Soli Brand Set — Theme Variants**
+
+Asset statici esportati dal package:
+
+```tsx
+import soliIconMonoSvg from "@soli92/solids/brand-assets/soli-icons/soli-icon-1x1-with-text-mono.svg";
+import soliIconGoldPng from "@soli92/solids/brand-assets/soli-icons/soli-icon-4x3-with-text-gold.png";
+```
+
+Raccolta cross-repo centralizzata (raw + normalizzata):
+
+- Raw con path originale per repo: `@soli92/solids/brand-assets/workspace-icons/...`
+- Normalizzata con prefisso uniforme `soli-icon-*`: `@soli92/solids/brand-assets/workspace-icons-normalized/...`
+
+Manifest disponibili:
+
+- `@soli92/solids/brand-assets/workspace-icons/manifest.json`
+- `@soli92/solids/brand-assets/workspace-icons-normalized/manifest.json`
+- `@soli92/solids/brand-assets/workspace-icons-normalized/index.json` (lookup rapido per categoria)
+
+Autocomplete TypeScript (index typed):
+
+```ts
+import workspaceIconsIndex, {
+  type WorkspaceIconCategory,
+  type WorkspaceIconFile,
+} from "@soli92/solids/brand-assets/workspace-icons-normalized";
+```
 
 ---
 

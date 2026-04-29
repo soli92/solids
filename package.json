@@ -40,6 +40,11 @@
     "./css/base.css": "./dist/css/base.css",
     "./css/utilities.css": "./dist/css/utilities.css",
     "./icons": "./dist/icons/index.js",
+    "./brand-assets/workspace-icons-normalized": {
+      "types": "./dist/brand-assets/workspace-icons-normalized/index.d.ts",
+      "default": "./dist/brand-assets/workspace-icons-normalized/index.js"
+    },
+    "./brand-assets/*": "./dist/brand-assets/*",
     "./tailwind-preset": "./dist/tailwind/preset.cjs"
   },
   "publishConfig": {

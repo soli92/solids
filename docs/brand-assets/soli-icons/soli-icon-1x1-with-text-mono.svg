@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <g stroke="#0b0f14" stroke-width="2">
+    <rect x="12" y="8" width="96" height="72" />
+    <polygon points="60,0 116,44 60,88 4,44" />
+    <line x1="12" y1="8" x2="108" y2="80" />
+    <line x1="108" y1="8" x2="12" y2="80" />
+  </g>
+  <circle cx="60" cy="44" r="16" fill="#0b0f14" />
+  <circle cx="60" cy="44" r="8" fill="#ffffff" />
+  <text x="60" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="12" font-weight="700" fill="#0b0f14">S</text>
+  <text x="60" y="108" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="700" fill="#0b0f14">Soli</text>
+</svg>

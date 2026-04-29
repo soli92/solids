@@ -1,0 +1,160 @@
+{
+  "count": 22,
+  "naming": "soli-icon-{brand}-{descriptor}.{ext}",
+  "items": [
+    {
+      "repo": "soli-agent",
+      "source": "soli-agent/public/favicon.svg",
+      "normalized": "soli-icon-agent-favicon.svg",
+      "category": "favicon",
+      "ext": ".svg"
+    },
+    {
+      "repo": "bachelor-party-claudiano",
+      "source": "bachelor-party-claudiano/public/app-icon.svg",
+      "normalized": "soli-icon-bpc-app-icon.svg",
+      "category": "app-icon",
+      "ext": ".svg"
+    },
+    {
+      "repo": "bachelor-party-claudiano",
+      "source": "bachelor-party-claudiano/public/apple-touch-icon.png",
+      "normalized": "soli-icon-bpc-apple-touch.png",
+      "category": "apple-touch",
+      "ext": ".png"
+    },
+    {
+      "repo": "bachelor-party-claudiano",
+      "source": "bachelor-party-claudiano/public/favicon-32.png",
+      "normalized": "soli-icon-bpc-favicon-32.png",
+      "category": "favicon",
+      "ext": ".png"
+    },
+    {
+      "repo": "soli-dm-fe",
+      "source": "soli-dm-fe/public/icons/apple-touch-icon.png",
+      "normalized": "soli-icon-dm-apple-touch.png",
+      "category": "apple-touch",
+      "ext": ".png"
+    },
+    {
+      "repo": "soli-dm-fe",
+      "source": "soli-dm-fe/public/brand/d20-icon.svg",
+      "normalized": "soli-icon-dm-d20-symbol.svg",
+      "category": "symbol",
+      "ext": ".svg"
+    },
+    {
+      "repo": "soli-dm-fe",
+      "source": "soli-dm-fe/public/icons/icon-192.png",
+      "normalized": "soli-icon-dm-pwa-192.png",
+      "category": "app-icon",
+      "ext": ".png"
+    },
+    {
+      "repo": "soli-dm-fe",
+      "source": "soli-dm-fe/public/icons/icon-512.png",
+      "normalized": "soli-icon-dm-pwa-512.png",
+      "category": "app-icon",
+      "ext": ".png"
+    },
+    {
+      "repo": "soli-dome",
+      "source": "soli-dome/public/icons/icon-192x192.svg",
+      "normalized": "soli-icon-dome-pwa-192.svg",
+      "category": "app-icon",
+      "ext": ".svg"
+    },
+    {
+      "repo": "soli-dome",
+      "source": "soli-dome/public/icons/icon-512x512.svg",
+      "normalized": "soli-icon-dome-pwa-512.svg",
+      "category": "app-icon",
+      "ext": ".svg"
+    },
+    {
+      "repo": "Koollector",
+      "source": "Koollector/apps/mobile/assets/images/android-icon-background.png",
+      "normalized": "soli-icon-koollector-android-bg.png",
+      "category": "app-icon",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "Koollector/apps/mobile/assets/images/android-icon-foreground.png",
+      "normalized": "soli-icon-koollector-android-fg.png",
+      "category": "app-icon",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "Koollector/apps/mobile/assets/images/android-icon-monochrome.png",
+      "normalized": "soli-icon-koollector-android-mono.png",
+      "category": "app-icon",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "Koollector/apps/mobile/assets/images/icon.png",
+      "normalized": "soli-icon-koollector-app-icon.png",
+      "category": "app-icon",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "Koollector/apps/mobile/assets/images/favicon.png",
+      "normalized": "soli-icon-koollector-favicon.png",
+      "category": "favicon",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "Koollector/apps/mobile/assets/images/react-logo@2x.png",
+      "normalized": "soli-icon-koollector-react-logo-2x.png",
+      "category": "logo",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "Koollector/apps/mobile/assets/images/react-logo@3x.png",
+      "normalized": "soli-icon-koollector-react-logo-3x.png",
+      "category": "logo",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "Koollector/apps/mobile/assets/images/react-logo.png",
+      "normalized": "soli-icon-koollector-react-logo.png",
+      "category": "logo",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "Koollector/apps/mobile/assets/images/partial-react-logo.png",
+      "normalized": "soli-icon-koollector-react-partial-logo.png",
+      "category": "logo",
+      "ext": ".png"
+    },
+    {
+      "repo": "Koollector",
+      "source": "Koollector/apps/mobile/assets/images/splash-icon.png",
+      "normalized": "soli-icon-koollector-splash.png",
+      "category": "app-icon",
+      "ext": ".png"
+    },
+    {
+      "repo": "pippify",
+      "source": "pippify/frontend/src/logo.svg",
+      "normalized": "soli-icon-pippify-logo-2.svg",
+      "category": "logo",
+      "ext": ".svg"
+    },
+    {
+      "repo": "pippify",
+      "source": "pippify/frontend/public/logo.svg",
+      "normalized": "soli-icon-pippify-logo.svg",
+      "category": "logo",
+      "ext": ".svg"
+    }
+  ]
+}

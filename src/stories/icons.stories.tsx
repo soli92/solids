@@ -35,6 +35,18 @@ import {
   IconPartyBolt,
   IconPartyDiamond,
   IconPartyStar,
+  IconSoli1x1WithTextMono,
+  IconSoli4x3WithTextMono,
+  IconSoli1x1SymbolOnlyMono,
+  IconSoli4x3SymbolOnlyMono,
+  IconSoli1x1WithTextGold,
+  IconSoli4x3WithTextGold,
+  IconSoli1x1SymbolOnlyGold,
+  IconSoli4x3SymbolOnlyGold,
+  IconSoli1x1WithTextTheme,
+  IconSoli4x3WithTextTheme,
+  IconSoli1x1SymbolOnlyTheme,
+  IconSoli4x3SymbolOnlyTheme,
   type SolidsIconVariant,
 } from "@/icons";
 
@@ -81,6 +93,17 @@ const themes = [
   "light", "dark", "fantasy", "cyberpunk", "90s-party",
   "steampunk", "ichigo", "vegeta", "zoro",
   "captain-america", "sasuke", "inuyasha",
+] as const;
+
+const soliBrandIcons = [
+  { name: "Soli 1:1 With Text (Mono)", Icon: IconSoli1x1WithTextMono },
+  { name: "Soli 4:3 With Text (Mono)", Icon: IconSoli4x3WithTextMono },
+  { name: "Soli 1:1 Symbol (Mono)", Icon: IconSoli1x1SymbolOnlyMono },
+  { name: "Soli 4:3 Symbol (Mono)", Icon: IconSoli4x3SymbolOnlyMono },
+  { name: "Soli 1:1 With Text (Gold)", Icon: IconSoli1x1WithTextGold },
+  { name: "Soli 4:3 With Text (Gold)", Icon: IconSoli4x3WithTextGold },
+  { name: "Soli 1:1 Symbol (Gold)", Icon: IconSoli1x1SymbolOnlyGold },
+  { name: "Soli 4:3 Symbol (Gold)", Icon: IconSoli4x3SymbolOnlyGold },
 ] as const;
 
 const meta: Meta = {
@@ -191,6 +214,63 @@ export const ThemedGallery: StoryObj = {
       ))}
     </div>
   ),
+};
+
+export const SoliBrandSet: StoryObj = {
+  name: "Soli Brand Set — from Image Two",
+  render: () => (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "var(--sd-space-lg)" }}>
+      {soliBrandIcons.map(({ name, Icon }) => (
+        <div
+          key={name}
+          style={{
+            padding: "var(--sd-space-md)",
+            borderRadius: "var(--sd-radius-lg)",
+            border: "1px solid var(--sd-color-border-default)",
+            background: "var(--sd-color-bg-surface)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "var(--sd-space-sm)",
+          }}
+        >
+          <Icon size={160} />
+          <span style={{ fontSize: "var(--sd-font-size-xs)", color: "var(--sd-color-text-secondary)", textAlign: "center" }}>{name}</span>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+export const SoliBrandThemeMatrix: StoryObj = {
+  name: "Soli Brand Set — Theme Variants",
+  render: () => {
+    const themedSet = [
+      { name: "1:1 With Text", Icon: IconSoli1x1WithTextTheme },
+      { name: "4:3 With Text", Icon: IconSoli4x3WithTextTheme },
+      { name: "1:1 Symbol", Icon: IconSoli1x1SymbolOnlyTheme },
+      { name: "4:3 Symbol", Icon: IconSoli4x3SymbolOnlyTheme },
+    ] as const;
+    return (
+      <div style={{ display: "grid", gap: "var(--sd-space-lg)" }}>
+        {themes.map((themeName) => (
+          <div key={themeName} data-theme={themeName} style={{ border: "1px solid var(--sd-color-border-default)", borderRadius: "var(--sd-radius-lg)", padding: "var(--sd-space-md)" }}>
+            <p style={{ marginBottom: "var(--sd-space-sm)", fontFamily: "var(--sd-font-mono)", fontSize: "var(--sd-font-size-xs)", color: "var(--sd-color-text-secondary)" }}>
+              data-theme=&quot;{themeName}&quot;
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: "var(--sd-space-md)" }}>
+              {themedSet.map(({ name, Icon }) => (
+                <div key={name} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--sd-space-xs)" }}>
+                  <Icon size={120} />
+                  <span style={{ fontSize: "var(--sd-font-size-xs)", color: "var(--sd-color-text-secondary)", textAlign: "center" }}>{name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  },
 };
 
 // ── Variants ────────────────────────────────────────────────────────────────────
