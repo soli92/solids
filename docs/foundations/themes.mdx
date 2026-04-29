@@ -10,65 +10,235 @@ SoliDS applica i temi con **override dei token semantici** (colori, font, raggio
 
 | Tema | `data-theme` | Note |
 |------|----------------|------|
-| **Light** | `light` oppure default `:root` | Base chiara; corpo **Inter**, titoli **DM Sans**, mono **JetBrains Mono** (vedi Foundations / Accessibility and Motion). |
+| **Light** | `light` oppure default `:root` | Base chiara; corpo **Inter**, titoli **DM Sans**, mono **JetBrains Mono**. |
 | **Dark** | `dark` | Contrasto elevato; stessi stack font del light su superfici scure. |
 | **Fantasy** | `fantasy` | Pergamena, inchiostro, ottone; corpo **Source Serif 4**, titoli **Cinzel**; mono **JetBrains Mono**. |
-| **Cyberpunk** | `cyberpunk` | Sfondo profondo, accenti cyan/magenta; corpo **Space Grotesk**, titoli **Orbitron**, mono **Share Tech Mono** / JetBrains. |
-| **90s party** | `90s-party` | Viola/magenta/teal/lime (rave flyer / MTV); titoli **Russo One**, corpo **Tahoma/Verdana**, mono **VT323**; raggi chunk e ombre offset + glow. |
-| **Steampunk** | `steampunk` | Cuoio/carbone, ottone e rame, accenti vapore/teal; titoli **Cinzel**, corpo **Libre Baskerville**, mono **Courier Prime** (Storybook carica i font in `.storybook/preview-head.html`). Raggi contenuti e ombre con bordo ottone. |
-| **Ichigo** | `ichigo` | Nero/arancio-rosso (ispirazione *Bleach* / Bankai); titoli **Bebas Neue** / Oswald. |
-| **Vegeta** | `vegeta` | Blu royal e oro (ispirazione *Dragon Ball*); titoli **Rajdhani**. |
-| **Zoro** | `zoro` | Verde profondo e argento (ispirazione *One Piece*); titoli **Merriweather**. |
-| **Captain America** | `captain-america` | Blu notte, rosso e bianco (MCU / fumetto); titoli **Oswald**. |
-| **Sasuke** | `sasuke` | Notte viola/indaco (ispirazione *Naruto* / Chidori); titoli **Rajdhani**. |
-| **Inuyasha** | `inuyasha` | Rosso haori, argento, terra (ispirazione *Inuyasha*); titoli **Crimson Text**, corpo **Merriweather**. |
+| **Cyberpunk** | `cyberpunk` | Sfondo profondo, accenti cyan/magenta; corpo **Space Grotesk**, titoli **Orbitron**, mono **Share Tech Mono**. |
+| **90s party** | `90s-party` | Viola/magenta/teal/lime rave; titoli **Russo One**, corpo **Tahoma/Verdana**, mono **VT323**. |
+| **Steampunk** | `steampunk` | Cuoio/carbone, ottone e rame; titoli **Cinzel**, corpo **Libre Baskerville**, mono **Courier Prime**. |
+| **Ichigo** | `ichigo` | Nero/arancio-rosso (*Bleach* / Bankai); titoli **Bebas Neue**. |
+| **Vegeta** | `vegeta` | Blu royal e oro (*Dragon Ball*); titoli **Rajdhani**. |
+| **Zoro** | `zoro` | Verde profondo e argento (*One Piece*); titoli **Merriweather**. |
+| **Captain America** | `captain-america` | Blu notte, rosso e bianco (MCU); titoli **Oswald**. |
+| **Sasuke** | `sasuke` | Notte viola/indaco (*Naruto* / Chidori); titoli **Rajdhani**. |
+| **Inuyasha** | `inuyasha` | Rosso haori, argento lunare, terra (*Inuyasha*); titoli **Crimson Text**, corpo **Merriweather**. |
 
 ### Comportamento con il sistema
 
-- Se **`data-theme` non è impostato** su `:root`, **`prefers-color-scheme: dark`** applica gli stessi token del tema **dark** (senza toccare light/fantasy/cyberpunk/**90s-party**/**steampunk** o i temi **personaggio** elencati sopra quando sono espliciti).
-- Con **`fantasy`**, **`cyberpunk`**, **`90s-party`**, **`steampunk`** o uno dei temi **personaggio** il tema resta quello scelto anche se il sistema è in dark mode.
+- Se **`data-theme` non è impostato**, `prefers-color-scheme: dark` applica i token **dark**.
+- Con temi espliciti (fantasy, cyberpunk, ecc.) il tema resta quello scelto indipendentemente dalla preferenza OS.
 
 ### Tailwind `dark:`
 
-Il preset Tailwind tratta come "dark" `data-theme="dark"`, **`cyberpunk`**, **`90s-party`**, **`steampunk`** e i temi **`captain-america`**, **`ichigo`**, **`inuyasha`**, **`sasuke`**, **`vegeta`**, **`zoro`**, così le utility `dark:` restano utili sui temi scuri e neon. Dettagli in `docs/shadcn-integration.md` nel repository.
+Il preset Tailwind tratta come "dark": `dark`, `cyberpunk`, `90s-party`, `steampunk`, `captain-america`, `ichigo`, `inuyasha`, `sasuke`, `vegeta`, `zoro`.
 
-## Identità visiva
+---
+
+## Identità visiva e palette
 
 ### Light
-Interfaccia pulita e professionale ispirata a Material Design 3. Superfici tonali su bianco/grigio freddo, primary blu shadcn-compatible, shadow leggere a livelli.
+
+Interfaccia pulita ispirata a Material Design 3. Superfici tonali su bianco/grigio freddo, primary blu shadcn-compatible.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#111827` |
+| `--sd-color-bg-canvas` | `#FAFBFC` |
+| `--sd-color-primary-default` | `#2563EB` |
+| `--sd-color-icon-default` | `#111827` |
+| `--sd-color-icon-primary` | `#2563EB` |
+| `--sd-font-body` | Inter |
+| `--sd-font-heading` | DM Sans |
+| `--sd-radius-md` | 12px |
+
+---
 
 ### Dark
-Profondità elevata su slate quasi-nero con accenti blu elettrico. Ombre dense e bordi sottili per separazione chiara su sfondo scuro.
+
+Profondità elevata su slate quasi-nero con accenti blu elettrico. Ombre dense e bordi sottili.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#F9FAFB` |
+| `--sd-color-bg-canvas` | `#0C0E12` |
+| `--sd-color-primary-default` | `#3B82F6` |
+| `--sd-color-icon-default` | `#F9FAFB` |
+| `--sd-color-icon-primary` | `#60A5FA` |
+| `--sd-font-body` | Inter |
+| `--sd-font-heading` | DM Sans |
+| `--sd-radius-md` | 12px |
+
+---
 
 ### Fantasy
-Atmosfera di pergamena medievale: canvas color avorio, testi inchiostro scuro, accenti oro antico. Font serif Cinzel per i titoli, corpo con Source Serif 4.
+
+Atmosfera di pergamena medievale: canvas avorio, testi inchiostro scuro, accenti oro antico. Set icone: **Scroll**, **Sword**, **Gem**.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#2c1810` |
+| `--sd-color-bg-canvas` | `#f0e6d2` |
+| `--sd-color-primary-default` | `#8b6914` |
+| `--sd-color-icon-default` | `#3d2914` |
+| `--sd-color-icon-primary` | `#a67c00` |
+| `--sd-font-body` | Source Serif 4 |
+| `--sd-font-heading` | Cinzel |
+| `--sd-radius-md` | 10px |
+| `--sd-shadow-md` | warm sepia tones |
+
+---
 
 ### Cyberpunk
-Neon cyan e magenta su fondi quasi-neri. Bordi sharp, font tecnici Orbitron/Space Grotesk, glow shadows su primary cyan.
+
+Neon cyan e magenta su fondi quasi-neri. Bordi sharp, font tecnici, glow shadows. Set icone: **Chip**, **Eye**, **Signal**.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#e8e9ff` |
+| `--sd-color-bg-canvas` | `#070714` |
+| `--sd-color-primary-default` | `#06b6d4` |
+| `--sd-color-icon-default` | `#e0e7ff` |
+| `--sd-color-icon-primary` | `#22d3ee` |
+| `--sd-font-body` | Space Grotesk |
+| `--sd-font-heading` | Orbitron |
+| `--sd-radius-md` | 4px |
+| `--sd-shadow-md` | cyan neon glow |
+
+---
 
 ### 90s Party
-Esplosione rave: magenta/teal/lime su viola profondo. Shadow offset stile Memphis, font bold Russo One, mono retrò VT323.
+
+Esplosione rave: magenta/teal/lime su viola profondo. Shadow offset Memphis. Set icone: **Bolt**, **Diamond**, **Star**.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#f8f5ff` |
+| `--sd-color-bg-canvas` | `#0f0520` |
+| `--sd-color-primary-default` | `#e019dd` |
+| `--sd-color-icon-default` | `#f0abfc` |
+| `--sd-color-icon-primary` | `#d4ff00` |
+| `--sd-font-body` | Tahoma/Verdana |
+| `--sd-font-heading` | Russo One |
+| `--sd-radius-md` | 6px |
+| `--sd-shadow-md` | offset + magenta glow |
+
+---
 
 ### Steampunk
-Laboratorio vittoriano in ottone e cuoio. Palette terra/ambra su nero carbone, serif Cinzel + Libre Baskerville, shadow con bordo ottone dorato.
+
+Laboratorio vittoriano in ottone e cuoio. Palette terra/ambra su nero carbone, shadow con bordo ottone.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#ede4d3` |
+| `--sd-color-bg-canvas` | `#120e0b` |
+| `--sd-color-primary-default` | `#c9a227` |
+| `--sd-color-icon-default` | `#ede4d3` |
+| `--sd-color-icon-primary` | `#c9a227` |
+| `--sd-font-body` | Libre Baskerville |
+| `--sd-font-heading` | Cinzel |
+| `--sd-radius-md` | 6px |
+| `--sd-shadow-md` | brass border glow |
+
+---
 
 ### Ichigo
-Minimalismo Bankai: nero profondo con fiamme arancio-rosse. Font Bebas Neue condensato, glow arancio sulle shadow.
+
+Minimalismo Bankai: nero profondo con fiamme arancio-rosse. Font Bebas Neue condensato.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#fafafa` |
+| `--sd-color-bg-canvas` | `#09090b` |
+| `--sd-color-primary-default` | `#ea580c` |
+| `--sd-color-icon-default` | `#fafafa` |
+| `--sd-color-icon-primary` | `#ea580c` |
+| `--sd-font-heading` | Bebas Neue |
+| `--sd-radius-md` | 6px |
+
+---
 
 ### Vegeta
-Armatura saiyan: blu royal su notte scura, accenti oro imperioso. Rajdhani militare, shadow con aura blu e oro.
+
+Armatura saiyan: blu royal su notte scura, accenti oro imperioso.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#f8fafc` |
+| `--sd-color-bg-canvas` | `#0c1929` |
+| `--sd-color-primary-default` | `#2563eb` |
+| `--sd-color-icon-default` | `#f8fafc` |
+| `--sd-color-icon-primary` | `#3b82f6` |
+| `--sd-font-heading` | Rajdhani |
+| `--sd-radius-md` | 8px |
+
+---
 
 ### Zoro
-Dojo del vento: verde profondo e acciaio katana. Merriweather serif evoca disciplina bushido, shadow verde con inset luminoso.
+
+Dojo del vento: verde profondo e acciaio katana. Merriweather serif evoca disciplina bushido.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#ecfdf5` |
+| `--sd-color-bg-canvas` | `#022c22` |
+| `--sd-color-primary-default` | `#10b981` |
+| `--sd-color-icon-default` | `#ecfdf5` |
+| `--sd-color-icon-primary` | `#34d399` |
+| `--sd-font-body` | Merriweather |
+| `--sd-font-heading` | Merriweather |
+| `--sd-radius-md` | 6px |
+
+---
 
 ### Captain America
-Patriottico e deciso: blu notte profondo, rosso primario, bianco argento. Oswald condensato, shadow con alone blu/rosso scudo.
+
+Patriottico e deciso: blu notte profondo, rosso primario, bianco argento.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#f1f5f9` |
+| `--sd-color-bg-canvas` | `#0f172a` |
+| `--sd-color-primary-default` | `#dc2626` |
+| `--sd-color-icon-default` | `#f1f5f9` |
+| `--sd-color-icon-primary` | `#dc2626` |
+| `--sd-font-heading` | Oswald |
+| `--sd-radius-md` | 8px |
+
+---
 
 ### Sasuke
-Chidori nella notte: nero slate e viola indaco freddo. Rajdhani affilato, glow viola sulle shadow, angoli ridotti per un feel tagliente.
+
+Chidori nella notte: nero slate e viola indaco freddo. Angoli ridotti per un feel tagliente.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#e2e8f0` |
+| `--sd-color-bg-canvas` | `#020617` |
+| `--sd-color-primary-default` | `#8b5cf6` |
+| `--sd-color-icon-default` | `#e2e8f0` |
+| `--sd-color-icon-primary` | `#a78bfa` |
+| `--sd-font-heading` | Rajdhani |
+| `--sd-radius-md` | 4px |
+
+---
 
 ### Inuyasha
-Haori rosso su terra feudale: canvas legno scuro, primary rosso Tessaiga, accenti ambra luna. Crimson Text + Merriweather per l'atmosfera japan-feudal.
+
+Haori rosso su terra feudale: canvas legno scuro, primary rosso Tessaiga, accenti ambra luna.
+
+| Token | Valore |
+|-------|--------|
+| `--sd-color-text-primary` | `#fef3c7` |
+| `--sd-color-bg-canvas` | `#1c1917` |
+| `--sd-color-primary-default` | `#b91c1c` |
+| `--sd-color-icon-default` | `#fef3c7` |
+| `--sd-color-icon-primary` | `#b91c1c` |
+| `--sd-font-body` | Merriweather |
+| `--sd-font-heading` | Crimson Text |
+| `--sd-radius-md` | 10px |
+
+---
 
 ## Cosa resta stabile
 
@@ -92,17 +262,15 @@ Haori rosso su terra feudale: canvas legno scuro, primary rosso Tessaiga, accent
 <html data-theme="inuyasha"></html>
 ```
 
-Anteprima delle palette per tema nella pagina **Foundations / Colors** (sidebar Storybook).
+Anteprima interattiva nella story **Foundations / Themes → Token Detail**.
 
 ## Font opzionali (CDN)
 
-Per avvicinarti al look dei temi **fantasy**, **cyberpunk**, **90s party**, **steampunk** e dei temi **personaggio**, puoi aggiungere da Google Fonts (o simile):
-
-- **Fantasy:** [Cinzel](https://fonts.google.com/specimen/Cinzel)
-- **Cyberpunk:** [Orbitron](https://fonts.google.com/specimen/Orbitron), [Share Tech Mono](https://fonts.google.com/specimen/Share+Tech+Mono)
-- **90s party:** [Russo One](https://fonts.google.com/specimen/Russo+One), [VT323](https://fonts.google.com/specimen/VT323) (Storybook carica già questa coppia in `.storybook/preview-head.html`)
-- **Steampunk:** [Cinzel](https://fonts.google.com/specimen/Cinzel), [Libre Baskerville](https://fonts.google.com/specimen/Libre+Baskerville), [Courier Prime](https://fonts.google.com/specimen/Courier+Prime) (caricate in Storybook con Russo/VT323)
-- **Default UI + mono:** [Inter](https://fonts.google.com/specimen/Inter), [DM Sans](https://fonts.google.com/specimen/DM+Sans), [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono), [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk), [Source Serif 4](https://fonts.google.com/specimen/Source+Serif+4) (primo `<link>` in `.storybook/preview-head.html`).
-- **Personaggio:** [Bebas Neue](https://fonts.google.com/specimen/Bebas+Neue), [Oswald](https://fonts.google.com/specimen/Oswald), [Rajdhani](https://fonts.google.com/specimen/Rajdhani), [Merriweather](https://fonts.google.com/specimen/Merriweather), [Crimson Text](https://fonts.google.com/specimen/Crimson+Text), [Orbitron](https://fonts.google.com/specimen/Orbitron), [Share Tech Mono](https://fonts.google.com/specimen/Share+Tech+Mono) (secondo `<link>` in `.storybook/preview-head.html`).
+- **Fantasy:** [Cinzel](https://fonts.google.com/specimen/Cinzel), [Source Serif 4](https://fonts.google.com/specimen/Source+Serif+4)
+- **Cyberpunk:** [Orbitron](https://fonts.google.com/specimen/Orbitron), [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk), [Share Tech Mono](https://fonts.google.com/specimen/Share+Tech+Mono)
+- **90s Party:** [Russo One](https://fonts.google.com/specimen/Russo+One), [VT323](https://fonts.google.com/specimen/VT323)
+- **Steampunk:** [Cinzel](https://fonts.google.com/specimen/Cinzel), [Libre Baskerville](https://fonts.google.com/specimen/Libre+Baskerville)
+- **Default UI:** [Inter](https://fonts.google.com/specimen/Inter), [DM Sans](https://fonts.google.com/specimen/DM+Sans), [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono)
+- **Personaggio:** [Bebas Neue](https://fonts.google.com/specimen/Bebas+Neue), [Oswald](https://fonts.google.com/specimen/Oswald), [Rajdhani](https://fonts.google.com/specimen/Rajdhani), [Merriweather](https://fonts.google.com/specimen/Merriweather), [Crimson Text](https://fonts.google.com/specimen/Crimson+Text)
 
 Senza CDN, gli stack degradano su serif/sans/mono di sistema definiti nei JSON tema.
