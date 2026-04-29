@@ -22,6 +22,7 @@ import {
   rmSync,
 } from "node:fs";
 import { basename, join } from "node:path";
+import ts from "typescript";
 
 const SRC = "src";
 const DIST = "dist";
@@ -31,6 +32,25 @@ const DIST = "dist";
 const readJson = (p) => JSON.parse(readFileSync(p, "utf8"));
 const ensureDir = (p) => mkdirSync(p, { recursive: true });
 const cleanDist = () => rmSync(DIST, { recursive: true, force: true });
+const transpileTs = (sourcePath, outputPath) => {
+  const source = readFileSync(sourcePath, "utf8");
+  const result = ts.transpileModule(source, {
+    compilerOptions: {
+      target: ts.ScriptTarget.ES2020,
+      module: ts.ModuleKind.ESNext,
+      jsx: ts.JsxEmit.ReactJSX,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      esModuleInterop: true,
+      skipLibCheck: true,
+    },
+    fileName: sourcePath,
+  });
+  const withEsmExtensions = result.outputText.replace(
+    /(from\s+["']\.{1,2}\/[^"']+)(["'])/g,
+    (_, prefix, quote) => (prefix.endsWith(".js") ? `${prefix}${quote}` : `${prefix}.js${quote}`)
+  );
+  writeFileSync(outputPath, withEsmExtensions, "utf8");
+};
 
 const filterMetaVars = (pairs) => pairs.filter(([k]) => !k.startsWith("--sd-_"));
 
@@ -68,6 +88,7 @@ const main = () => {
   ensureDir(join(DIST, "css"));
   ensureDir(join(DIST, "tokens"));
   ensureDir(join(DIST, "tailwind"));
+  ensureDir(join(DIST, "icons"));
 
   /* 1 – Read sources */
   const base = readJson(join(SRC, "tokens", "base.json"));
@@ -161,10 +182,14 @@ const main = () => {
   cpSync(join(SRC, "css", "utilities.css"), join(DIST, "css", "utilities.css"));
 
   cpSync(join(SRC, "tailwind", "preset.cjs"), join(DIST, "tailwind", "preset.cjs"));
+  transpileTs(join(SRC, "icons", "solids-icon.tsx"), join(DIST, "icons", "solids-icon.js"));
+  transpileTs(join(SRC, "icons", "glyphs.tsx"), join(DIST, "icons", "glyphs.js"));
+  transpileTs(join(SRC, "icons", "index.ts"), join(DIST, "icons", "index.js"));
 
   console.log("✅ SoliDS build complete!");
   console.log(`   dist/tokens/tokens.json`);
   console.log(`   dist/css/index.css (variables → themes → shadcn → base → utilities)`);
+  console.log(`   dist/icons/index.js`);
   console.log(`   dist/tailwind/preset.cjs`);
 };
 

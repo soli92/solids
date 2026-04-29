@@ -79,11 +79,14 @@
 
 ### Features
 
+* **icons:** export `@soli92/solids/icons` from npm package and generate ESM icon artifacts in `dist/icons` during build.
+
 * **themes:** sei nuovi temi nominati (`captain-america`, `ichigo`, `inuyasha`, `sasuke`, `vegeta`, `zoro`) ispirati alle palette di Captain America, Ichigo (Bleach), Vegeta (Dragon Ball), Zoro (One Piece), Sasuke (Naruto), Inuyasha — JSON in `src/tokens/themes/`, `color-scheme: dark`, preset Tailwind `dark:` come gli altri temi scuri, toolbar Storybook e Google Fonts (Oswald, Rajdhani, Merriweather, Crimson Text, Bebas Neue) in `preview-head.html`.
 * **a11y / UX / font:** documento **Foundations / Accessibility and Motion** (fonti W3C WCAG 2.2, MD3 Motion/Typography, Apple HIG); token `--sd-layout-touch-target-min`, `--sd-duration-emphasized`; `base.css` (`scroll-padding`, `scroll-behavior` rispettando `prefers-reduced-motion`, `text-rendering`); utility `.sd-min-touch-target`, `.sd-link`, `.sd-leading-*` da token, `.sd-transition-emphasized`; font **Inter** / **DM Sans** / **JetBrains Mono** (light/dark), **Source Serif 4** (fantasy corpo), **Space Grotesk** (cyberpunk corpo); secondo link Google Fonts in Storybook `preview-head.html`.
 
 ### Documentation
 
+* **docs/icons:** README e Storybook Foundations/Icons aggiornati con import consumer `@soli92/solids/icons`.
 * **storybook:** ordinamento sidebar (home → guide → Foundations → UI), TOC nelle pagine docs, brand **SoliDS** nel manager.
 * **docs:** allineamento a sei temi (steampunk), MD3/motion, spacing con anteprime 90s-party/steampunk, radius/typography/tokens/principles/roadmap/getting-started; **shadcn-integration**: tabella colori light/dark aggiornata ed esempio **next-themes** con `themes` estesi.
 * **docs:** **Foundations / Accessibility and Motion** (WCAG 2.2, MD3, HIG); **Design Principles** con rimando; **README** (tabella doc, token layout/motion, struttura `scripts/`); **AGENTS** / **AI_LOG** / **roadmap** aggiornati; **`npm run test:tokens`** documentato.

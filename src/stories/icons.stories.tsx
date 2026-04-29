@@ -85,7 +85,15 @@ const themes = [
 
 const meta: Meta = {
   title: "Foundations / Icons",
-  parameters: { layout: "padded" },
+  parameters: {
+    layout: "padded",
+    docs: {
+      description: {
+        component:
+          'Import from `@soli92/solids/icons` to use token-driven SVG icons in app projects.',
+      },
+    },
+  },
 };
 
 export default meta;

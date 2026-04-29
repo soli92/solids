@@ -1,7 +1,5 @@
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
-
 export const SOLIDS_ICON_SIZES = {
   sm: 16,
   md: 20,
@@ -60,7 +58,7 @@ export const SolidsIcon = React.forwardRef<SVGSVGElement, SolidsIconProps>(
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={cn("shrink-0", className)}
+        className={["shrink-0", className].filter(Boolean).join(" ")}
         style={{
           color: variantColor[variant],
           ...style,

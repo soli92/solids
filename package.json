@@ -39,6 +39,7 @@
     "./css/shadcn.css": "./dist/css/shadcn.css",
     "./css/base.css": "./dist/css/base.css",
     "./css/utilities.css": "./dist/css/utilities.css",
+    "./icons": "./dist/icons/index.js",
     "./tailwind-preset": "./dist/tailwind/preset.cjs"
   },
   "publishConfig": {

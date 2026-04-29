@@ -91,7 +91,7 @@ Poi inizializza shadcn e aggiungi i componenti: **tutto il kit** con `npx shadcn
 
 ### App consumer (Next.js, Vite, CRA, …)
 
-Usa **`@soli92/solids@^1.7.0`** su npm. Per i token **`--sd-font-*`** (Inter, DM Sans, JetBrains Mono e famiglie dei temi fantasy / cyberpunk / 90s-party / personaggio) carica in **`<head>`** le stesse **Google Fonts** definite in **`.storybook/preview-head.html`** (due link `fonts.googleapis.com`), così eviti fallback di sistema rispetto a Storybook.
+Usa **`@soli92/solids@^1.12.0`** su npm. Per i token **`--sd-font-*`** (Inter, DM Sans, JetBrains Mono e famiglie dei temi fantasy / cyberpunk / 90s-party / personaggio) carica in **`<head>`** le stesse **Google Fonts** definite in **`.storybook/preview-head.html`** (due link `fonts.googleapis.com`), così eviti fallback di sistema rispetto a Storybook.
 
 ---
 
@@ -105,6 +105,7 @@ import "@soli92/solids/css/themes.css";               // override temi + OS dark
 import "@soli92/solids/css/shadcn.css";               // solo shadcn layer
 import "@soli92/solids/css/base.css";                 // solo base
 import "@soli92/solids/css/utilities.css";            // solo utilities
+import { IconHome, IconSearch } from "@soli92/solids/icons"; // icone SoliDS
 ```
 
 Preset Tailwind (shadcn): `require("@soli92/solids/tailwind-preset")` nel `tailwind.config`.
