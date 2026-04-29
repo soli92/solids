@@ -1,0 +1,77 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Foundations / Icons" />
+
+# Icons
+
+SoliDS include un sistema di icone SVG React basato su **`SolidsIcon`** — un wrapper che applica i token `--sd-color-icon-*` automaticamente tramite CSS variables.
+
+## Utilizzo base
+
+```tsx
+import { IconHome, IconStar, IconAlertCircle } from "@soli92/solids/icons";
+
+// Dimensione e variante colore
+<IconHome size="md" variant="default" />
+<IconStar size="lg" variant="primary" />
+<IconAlertCircle size="sm" variant="muted" />
+```
+
+## Prop `variant`
+
+| Variant | Token CSS | Uso consigliato |
+|---------|-----------|-----------------|
+| `default` | `--sd-color-icon-default` | Icone standard su sfondo canvas/surface |
+| `muted` | `--sd-color-icon-muted` | Icone secondarie, placeholder |
+| `primary` | `--sd-color-icon-primary` | Icone in evidenza, azioni principali |
+| `on-primary` | `--sd-color-icon-on-primary` | Icone su sfondo primary (es. button filled) |
+
+## Prop `size`
+
+| Size | px |
+|------|----|
+| `sm` | 16px |
+| `md` | 20px |
+| `lg` | 24px |
+| `xl` | 32px |
+| `number` | valore custom (es. `size={40}`) |
+
+## Icone tema-specifiche
+
+Tre set di icone SVG disegnate per rispecchiare l'identità visiva dei temi fantasy, cyberpunk e 90s-party:
+
+### Fantasy
+
+- `IconFantasyScroll` — pergamena arrotolata
+- `IconFantasySword` — spada medievale
+- `IconFantasyGem` — gemma magica
+
+### Cyberpunk
+
+- `IconCyberpunkChip` — chip CPU
+- `IconCyberpunkEye` — occhio cybernetico
+- `IconCyberpunkSignal` — segnale glitch
+
+### 90s Party
+
+- `IconPartyBolt` — fulmine bold
+- `IconPartyDiamond` — diamante hip-hop
+- `IconPartyStar` — stella outline bold
+
+## Aggiungere icone personalizzate
+
+```tsx
+import { SolidsIcon, type SolidsIconProps } from "@soli92/solids/icons";
+
+const IconMyCustom = React.forwardRef<SVGSVGElement, Omit<SolidsIconProps, "children">>(
+  function IconMyCustom(props, ref) {
+    return (
+      <SolidsIcon ref={ref} {...props}>
+        <path d="..." />
+      </SolidsIcon>
+    );
+  }
+);
+```
+
+Il colore seguirà automaticamente il tema attivo tramite `--sd-color-icon-*`.
