@@ -243,3 +243,100 @@ export const IconFolder = React.forwardRef<SVGSVGElement, IconProps>(function Ic
     </SolidsIcon>
   );
 });
+
+// ─── Fantasy Icons (stroke arrotondato, feel medievale) ────────────────────────
+
+export const IconFantasyScroll = React.forwardRef<SVGSVGElement, IconProps>(function IconFantasyScroll(props, ref) {
+  return (
+    <SolidsIcon ref={ref} {...props}>
+      <path d="M6 4h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+      <path d="M4 8a2 2 0 0 0 0 4" />
+      <path d="M20 8a2 2 0 0 1 0 4" />
+      <path d="M9 12h6" />
+      <path d="M9 8h6" />
+      <path d="M9 16h4" />
+    </SolidsIcon>
+  );
+});
+
+export const IconFantasySword = React.forwardRef<SVGSVGElement, IconProps>(function IconFantasySword(props, ref) {
+  return (
+    <SolidsIcon ref={ref} {...props}>
+      <path d="M14.5 2.5 20 8l-9 9-5.5-1L4 21l5-1.5L18 10l-5.5-5.5" />
+      <path d="M10 14 6 18" />
+      <path d="M9 9.5 7 12" />
+    </SolidsIcon>
+  );
+});
+
+export const IconFantasyGem = React.forwardRef<SVGSVGElement, IconProps>(function IconFantasyGem(props, ref) {
+  return (
+    <SolidsIcon ref={ref} {...props}>
+      <path d="M12 2 7 7l-5 5 5 5 5 5 5-5 5-5-5-5-5-5z" />
+      <path d="m7 7 5 5 5-5" />
+      <path d="m7 17 5-5" />
+    </SolidsIcon>
+  );
+});
+
+// ─── Cyberpunk Icons (geometric sharp, feel tech) ──────────────────────────────
+
+export const IconCyberpunkChip = React.forwardRef<SVGSVGElement, IconProps>(function IconCyberpunkChip(props, ref) {
+  return (
+    <SolidsIcon ref={ref} {...props}>
+      <rect x="7" y="7" width="10" height="10" rx="1" />
+      <path d="M9 7V4M12 7V4M15 7V4" />
+      <path d="M9 20v-3M12 20v-3M15 20v-3" />
+      <path d="M7 9H4M7 12H4M7 15H4" />
+      <path d="M20 9h-3M20 12h-3M20 15h-3" />
+      <rect x="9" y="9" width="6" height="6" rx="0" />
+    </SolidsIcon>
+  );
+});
+
+export const IconCyberpunkEye = React.forwardRef<SVGSVGElement, IconProps>(function IconCyberpunkEye(props, ref) {
+  return (
+    <SolidsIcon ref={ref} {...props}>
+      <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 9v1M12 14v1M9 12h1M14 12h1" />
+    </SolidsIcon>
+  );
+});
+
+export const IconCyberpunkSignal = React.forwardRef<SVGSVGElement, IconProps>(function IconCyberpunkSignal(props, ref) {
+  return (
+    <SolidsIcon ref={ref} {...props}>
+      <path d="M2 12h3l2-5 3 10 2-7 2 4 2-2h6" />
+      <path d="M19 6v2M21 8l-2 2" />
+    </SolidsIcon>
+  );
+});
+
+// ─── 90s Party Icons (bold, feel rave/MTV) ─────────────────────────────────────
+
+export const IconPartyBolt = React.forwardRef<SVGSVGElement, IconProps>(function IconPartyBolt(props, ref) {
+  return (
+    <SolidsIcon ref={ref} {...props} strokeWidth={props.strokeWidth ?? 2.5}>
+      <path d="M13 2 4 13h7l-2 9 11-12h-7l2-8z" />
+    </SolidsIcon>
+  );
+});
+
+export const IconPartyDiamond = React.forwardRef<SVGSVGElement, IconProps>(function IconPartyDiamond(props, ref) {
+  return (
+    <SolidsIcon ref={ref} {...props} strokeWidth={props.strokeWidth ?? 2.5}>
+      <path d="M12 2 3 9l9 13 9-13-9-7z" />
+      <path d="M3 9h18" />
+      <path d="M9 2l-2 7M15 2l2 7" />
+    </SolidsIcon>
+  );
+});
+
+export const IconPartyStar = React.forwardRef<SVGSVGElement, IconProps>(function IconPartyStar(props, ref) {
+  return (
+    <SolidsIcon ref={ref} {...props} strokeWidth={props.strokeWidth ?? 2.5}>
+      <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" />
+    </SolidsIcon>
+  );
+});
