@@ -1,3 +1,10 @@
+## [1.11.1](https://github.com/soli92/solids/compare/v1.11.0...v1.11.1) (2026-04-29)
+
+
+### Bug Fixes
+
+* **icons:** correct import path and type for glyphs-themed; use SolidsIconProps ([64d105b](https://github.com/soli92/solids/commit/64d105bfcd83682c36f337c9fc31f3c52c571afd))
+
 # [1.11.0](https://github.com/soli92/solids/compare/v1.10.0...v1.11.0) (2026-04-29)
 
 
