@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/soli92/solids/compare/v1.14.0...v1.14.1) (2026-04-29)
+
+
+### Bug Fixes
+
+* **icons:** replace Soli logo assets with corrected source files ([ebeb19a](https://github.com/soli92/solids/commit/ebeb19aa7e03f5065efa1193884fae3dab8f42e8))
+
 # [1.14.0](https://github.com/soli92/solids/compare/v1.13.1...v1.14.0) (2026-04-29)
 
 
