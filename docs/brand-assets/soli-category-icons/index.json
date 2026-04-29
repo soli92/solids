@@ -1,0 +1,77 @@
+{
+  "count": 5,
+  "categories": {
+    "app-icon": {
+      "svg": "soli-icon-app-icon.svg",
+      "png": "soli-icon-app-icon.png"
+    },
+    "apple-touch": {
+      "svg": "soli-icon-apple-touch.svg",
+      "png": "soli-icon-apple-touch.png"
+    },
+    "favicon": {
+      "svg": "soli-icon-favicon.svg",
+      "png": "soli-icon-favicon.png"
+    },
+    "logo": {
+      "svg": "soli-icon-logo.svg",
+      "png": "soli-icon-logo.png"
+    },
+    "symbol": {
+      "svg": "soli-icon-symbol.svg",
+      "png": "soli-icon-symbol.png"
+    }
+  },
+  "items": [
+    {
+      "category": "app-icon",
+      "file": "soli-icon-app-icon.svg",
+      "source": "soli-icon-1x1-with-text-mono.svg"
+    },
+    {
+      "category": "app-icon",
+      "file": "soli-icon-app-icon.png",
+      "source": "soli-icon-1x1-with-text-mono.png"
+    },
+    {
+      "category": "apple-touch",
+      "file": "soli-icon-apple-touch.svg",
+      "source": "soli-icon-1x1-with-text-gold.svg"
+    },
+    {
+      "category": "apple-touch",
+      "file": "soli-icon-apple-touch.png",
+      "source": "soli-icon-1x1-with-text-gold.png"
+    },
+    {
+      "category": "favicon",
+      "file": "soli-icon-favicon.svg",
+      "source": "soli-icon-1x1-symbol-only-mono.svg"
+    },
+    {
+      "category": "favicon",
+      "file": "soli-icon-favicon.png",
+      "source": "soli-icon-1x1-symbol-only-mono.png"
+    },
+    {
+      "category": "logo",
+      "file": "soli-icon-logo.svg",
+      "source": "soli-icon-4x3-with-text-mono.svg"
+    },
+    {
+      "category": "logo",
+      "file": "soli-icon-logo.png",
+      "source": "soli-icon-4x3-with-text-mono.png"
+    },
+    {
+      "category": "symbol",
+      "file": "soli-icon-symbol.svg",
+      "source": "soli-icon-1x1-symbol-only-gold.svg"
+    },
+    {
+      "category": "symbol",
+      "file": "soli-icon-symbol.png",
+      "source": "soli-icon-1x1-symbol-only-gold.png"
+    }
+  ]
+}

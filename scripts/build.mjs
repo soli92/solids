@@ -190,6 +190,13 @@ const main = () => {
   cpSync(join("docs", "brand-assets", "soli-icons"), join(DIST, "brand-assets", "soli-icons"), {
     recursive: true,
   });
+  cpSync(
+    join("docs", "brand-assets", "soli-category-icons"),
+    join(DIST, "brand-assets", "soli-category-icons"),
+    {
+      recursive: true,
+    }
+  );
   cpSync(join("docs", "brand-assets", "workspace-icons"), join(DIST, "brand-assets", "workspace-icons"), {
     recursive: true,
   });
@@ -249,6 +256,7 @@ const main = () => {
   console.log(`   dist/css/index.css (variables → themes → shadcn → base → utilities)`);
   console.log(`   dist/icons/index.js`);
   console.log(`   dist/brand-assets/soli-icons/*.{svg,png}`);
+  console.log(`   dist/brand-assets/soli-category-icons/soli-icon-{app-icon|apple-touch|favicon|logo|symbol}.{svg,png}`);
   console.log(`   dist/brand-assets/workspace-icons/**/*.{svg,png}`);
   console.log(`   dist/brand-assets/workspace-icons-normalized/soli-icon-*`);
   console.log(`   dist/brand-assets/workspace-icons-normalized/index.{js,d.ts,json}`);

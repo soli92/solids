@@ -31,6 +31,13 @@ const workspaceNormalizedIndexTsPath = join(
   "workspace-icons-normalized",
   "index.d.ts"
 );
+const soliCategoryIconsIndexPath = join(
+  root,
+  "dist",
+  "brand-assets",
+  "soli-category-icons",
+  "index.json"
+);
 
 function fail(msg) {
   console.error(`tokens-sanity: FAIL — ${msg}`);
@@ -164,5 +171,30 @@ for (const category of expectedCategories) {
   }
 }
 ok("workspace-icons-normalized index contiene tutte le categorie attese");
+
+// Soli category icons (1 asset per categoria, svg+png)
+if (!existsSync(soliCategoryIconsIndexPath)) {
+  fail(`manca ${soliCategoryIconsIndexPath}`);
+}
+let soliCategoryIndex;
+try {
+  soliCategoryIndex = JSON.parse(readFileSync(soliCategoryIconsIndexPath, "utf8"));
+} catch {
+  fail("soli-category-icons index.json non è JSON valido");
+}
+const requiredSoliCategories = ["app-icon", "apple-touch", "favicon", "logo", "symbol"];
+for (const category of requiredSoliCategories) {
+  const entry = soliCategoryIndex.categories?.[category];
+  if (!entry?.svg || !entry?.png) {
+    fail(`soli-category-icons: entry mancante o incompleto per categoria "${category}"`);
+  }
+  if (!existsSync(join(root, "dist", "brand-assets", "soli-category-icons", entry.svg))) {
+    fail(`soli-category-icons: file svg mancante per "${category}"`);
+  }
+  if (!existsSync(join(root, "dist", "brand-assets", "soli-category-icons", entry.png))) {
+    fail(`soli-category-icons: file png mancante per "${category}"`);
+  }
+}
+ok("soli-category-icons contiene svg+png per tutte le categorie attese");
 
 console.log("tokens-sanity: tutte le verifiche passate.");
