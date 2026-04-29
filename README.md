@@ -39,6 +39,7 @@ In sviluppo, dopo `npm install`: `npm run storybook` avvia la documentazione su 
 | 🧱 Base | `dist/css/base.css` | Reset, body, `scroll-padding` / `scroll-behavior` (rispetto `prefers-reduced-motion`), focus-visible, `text-rendering`, box-sizing |
 | 🛠️ Utilities | `dist/css/utilities.css` | Classi `sd-*` (flex, spacing, colori, badge, card, **`.sd-min-touch-target`**, **`.sd-link`**, leading da token, **`.sd-transition-emphasized`**) |
 | 📦 Index | `dist/css/index.css` | Entrypoint unico che importa tutto nell'ordine corretto |
+| 🪪 Brand assets | `dist/brand-assets/**` | Set Soli (`soli-icons`, `soli-category-icons`) + raccolta workspace raw/normalized con index typed |
 
 ---
 
@@ -106,9 +107,27 @@ import "@soli92/solids/css/shadcn.css";               // solo shadcn layer
 import "@soli92/solids/css/base.css";                 // solo base
 import "@soli92/solids/css/utilities.css";            // solo utilities
 import { IconHome, IconSearch } from "@soli92/solids/icons"; // icone SoliDS
+import workspaceIconsIndex from "@soli92/solids/brand-assets/workspace-icons-normalized"; // index typed
 ```
 
 Preset Tailwind (shadcn): `require("@soli92/solids/tailwind-preset")` nel `tailwind.config`.
+
+Asset statici principali:
+
+```js
+import logoSvg from "@soli92/solids/brand-assets/soli-category-icons/soli-icon-logo.svg";
+import faviconPng from "@soli92/solids/brand-assets/soli-category-icons/soli-icon-favicon.png";
+import appIconPng from "@soli92/solids/brand-assets/soli-category-icons/soli-icon-app-icon.png";
+```
+
+Componenti logo/loader:
+
+```tsx
+import { LogoLoader, LogoLoaderOverlay } from "@/components/ui/logo-loader";
+```
+
+- `LogoLoader`: default Soli 4:3 theme-aware + supporto `src` custom svg/png
+- `LogoLoaderOverlay`: overlay fullscreen theme-aware con `message`, `blur`, animazione e dimensione configurabili
 
 ---
 

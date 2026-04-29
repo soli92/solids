@@ -99,6 +99,9 @@
 
 * **icons:** export `@soli92/solids/icons` from npm package and generate ESM icon artifacts in `dist/icons` during build.
 * **icons/brand:** add `soli-icon-*` React exports (mono, gold, theme-aware) and Storybook matrix covering all SoliDS themes.
+* **icons/brand-assets:** centralize workspace svg/png assets under `dist/brand-assets` (raw + normalized), add typed normalized index export, and publish Soli category set (`app-icon`, `apple-touch`, `favicon`, `logo`, `symbol`) with `index.json`.
+* **ui:** add `LogoLoader` and `LogoLoaderOverlay` with default Soli 4:3 theme-aware logo, optional custom svg/png source, and configurable animation/size.
+* **storybook:** apply Soli branding (favicon/title/manager brand image/manifest), expose `soli-category-icons` as static assets, and add persistent realtime controls for `LogoLoader` stories via `ui-story-data` preset.
 
 * **themes:** sei nuovi temi nominati (`captain-america`, `ichigo`, `inuyasha`, `sasuke`, `vegeta`, `zoro`) ispirati alle palette di Captain America, Ichigo (Bleach), Vegeta (Dragon Ball), Zoro (One Piece), Sasuke (Naruto), Inuyasha — JSON in `src/tokens/themes/`, `color-scheme: dark`, preset Tailwind `dark:` come gli altri temi scuri, toolbar Storybook e Google Fonts (Oswald, Rajdhani, Merriweather, Crimson Text, Bebas Neue) in `preview-head.html`.
 * **a11y / UX / font:** documento **Foundations / Accessibility and Motion** (fonti W3C WCAG 2.2, MD3 Motion/Typography, Apple HIG); token `--sd-layout-touch-target-min`, `--sd-duration-emphasized`; `base.css` (`scroll-padding`, `scroll-behavior` rispettando `prefers-reduced-motion`, `text-rendering`); utility `.sd-min-touch-target`, `.sd-link`, `.sd-leading-*` da token, `.sd-transition-emphasized`; font **Inter** / **DM Sans** / **JetBrains Mono** (light/dark), **Source Serif 4** (fantasy corpo), **Space Grotesk** (cyberpunk corpo); secondo link Google Fonts in Storybook `preview-head.html`.
@@ -106,6 +109,7 @@
 ### Documentation
 
 * **docs/icons:** README e Storybook Foundations/Icons aggiornati con import consumer `@soli92/solids/icons`.
+* **docs:** README, AGENTS e AI_LOG allineati a brand assets centralizzati, loader componenti e Storybook branding.
 * **storybook:** ordinamento sidebar (home → guide → Foundations → UI), TOC nelle pagine docs, brand **SoliDS** nel manager.
 * **docs:** allineamento a sei temi (steampunk), MD3/motion, spacing con anteprime 90s-party/steampunk, radius/typography/tokens/principles/roadmap/getting-started; **shadcn-integration**: tabella colori light/dark aggiornata ed esempio **next-themes** con `themes` estesi.
 * **docs:** **Foundations / Accessibility and Motion** (WCAG 2.2, MD3, HIG); **Design Principles** con rimando; **README** (tabella doc, token layout/motion, struttura `scripts/`); **AGENTS** / **AI_LOG** / **roadmap** aggiornati; **`npm run test:tokens`** documentato.

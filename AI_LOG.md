@@ -20,6 +20,16 @@ Memoria di sviluppo AI-assisted. Annotazioni sui prompt, decisioni e pattern eme
 
 - **RAG / ingest**: SoliDS è in **`CORPUS_REPOS`** su [soli-prof](https://github.com/soli92/soli-prof). Documentato in **`AGENTS.md`** l’ingaggio **push** → `https://soli-prof.vercel.app/api/webhooks/github` (re-ingest, HMAC) e riferimenti a `setup-webhooks.sh` lato Soli Prof. I test locali `npm test` (token, Storybook, ecc.) **non** dipendono da quel flusso.
 
+## Aggiornamento 2026-04-29 — Brand assets, loader e Storybook branding
+
+- **Icone Soli**: introdotto pack brand con varianti mono/gold/theme-aware in `src/icons/glyphs.tsx` + stories dedicate.
+- **Centralizzazione asset**: raccolta cross-repo in `docs/brand-assets/workspace-icons` (raw) e `workspace-icons-normalized` (naming `soli-icon-*`, `manifest.json`, `index.json`), con export typed (`index.js` + `index.d.ts`) generato in build.
+- **Categoria Soli**: nuovo set `docs/brand-assets/soli-category-icons` con 5 categorie (`app-icon`, `apple-touch`, `favicon`, `logo`, `symbol`) in `svg/png` + `index.json`.
+- **Loader UI**: aggiunti `LogoLoader` (default Soli 4:3 theme-aware, custom `svg/png`) e `LogoLoaderOverlay` (fullscreen, blur/message configurabili).
+- **Storybook branding**: favicon/title/manager brand image/manifest Soli applicati in `.storybook/*` e static assets serviti via `staticDirs`.
+- **Stories generate**: preset persistente per `logo-loader` in `scripts/ui-story-data.mjs`, così `npm run ui:stories` mantiene controlli realtime (`src`, `size`, `animation`, `durationMs`, `alt`).
+- **Sanity test estesi**: `scripts/tokens-sanity.mjs` ora verifica anche completezza e presenza file per `workspace-icons-normalized` e `soli-category-icons`.
+
 ## Fasi di sviluppo (inferite dal history)
 
 ### Fase 1 — Token semantici, palette, shadcn bridge
