@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/soli92/solids/compare/v1.9.0...v1.10.0) (2026-04-29)
+
+
+### Features
+
+* **icons:** add 9 theme-specific icons — fantasy, cyberpunk, 90s-party sets ([6a36570](https://github.com/soli92/solids/commit/6a36570f11629178229c43f73e2bb713ff84d189))
+
 # [1.9.0](https://github.com/soli92/solids/compare/v1.8.0...v1.9.0) (2026-04-29)
 
 
