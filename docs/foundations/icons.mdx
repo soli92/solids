@@ -6,6 +6,8 @@ import { Meta } from "@storybook/blocks";
 
 SoliDS include un sistema di icone SVG React basato su **`SolidsIcon`** — un wrapper che applica i token `--sd-color-icon-*` automaticamente tramite CSS variables, seguendo il tema attivo su `data-theme`.
 
+> **v1.12.0** — aggiunto set di icone tema-specifiche per **fantasy**, **cyberpunk** e **90s-party**. Tutte le icone esportate da `@soli92/solids/icons`.
+
 ## Utilizzo base
 
 ```tsx
@@ -25,7 +27,7 @@ import { IconHome, IconStar, IconAlertCircle } from "@soli92/solids/icons";
 | `primary` | `--sd-color-icon-primary` | Icone in evidenza, azioni principali |
 | `on-primary` | `--sd-color-icon-on-primary` | Icone su sfondo primary (es. button filled) |
 
-Tutti i temi definiscono `color.icon.*` — il colore si adatta automaticamente al `data-theme` attivo senza nessun cambio di codice.
+Tutti i temi definiscono `color.icon.*` — il colore si adatta automaticamente al `data-theme` attivo.
 
 ## Prop `size`
 
@@ -39,8 +41,6 @@ Tutti i temi definiscono `color.icon.*` — il colore si adatta automaticamente 
 
 ## Gallery icone base
 
-Disponibili in `@soli92/solids/icons` (o `@/icons` nei progetti interni):
-
 `Home` · `Search` · `User` · `Settings` · `Menu` · `X` · `Check` · `ChevronDown` · `ChevronRight` · `Plus` · `Minus` · `Trash` · `Pencil` · `Copy` · `ExternalLink` · `AlertCircle` · `Info` · `Star` · `Heart` · `Sun` · `Moon` · `Mail` · `Calendar` · `Folder`
 
 Anteprima interattiva → **Foundations / Icons → Gallery**.
@@ -49,7 +49,7 @@ Anteprima interattiva → **Foundations / Icons → Gallery**.
 
 ## Icone tema-specifiche
 
-Tre set di icone SVG disegnati per rispecchiare l'identità visiva dei temi fantasy, cyberpunk e 90s-party. Esportati da `@soli92/solids/icons`.
+Tre set di icone SVG disegnati per rispecchiare l'identità visiva dei temi fantasy, cyberpunk e 90s-party.
 
 ### Fantasy — stroke arrotondato, feel medievale
 
@@ -109,10 +109,9 @@ import { IconPartyBolt, IconPartyDiamond, IconPartyStar } from "@soli92/solids/i
 
 ## Usare icone nel tema corretto
 
-Le icone tema-specifiche funzionano con qualsiasi tema (usano comunque `--sd-color-icon-*`), ma danno il meglio se abbinate al tema corrispondente:
+Le icone tema-specifiche funzionano con qualsiasi tema (usano `--sd-color-icon-*`), ma danno il meglio abbinate al tema corrispondente:
 
 ```tsx
-// Esempio con data-theme sul container
 <section data-theme="cyberpunk" style={{ background: "var(--sd-color-bg-canvas)" }}>
   <IconCyberpunkEye variant="primary" size="xl" />
 </section>
@@ -142,8 +141,6 @@ const IconMyCustom = React.forwardRef<SVGSVGElement, IconProps>(
 );
 ```
 
-Il colore seguirà automaticamente il tema attivo tramite `--sd-color-icon-*`.
-
 ---
 
 ## Token `color.icon.*`
@@ -159,8 +156,10 @@ Tutti i temi definiscono questi quattro token:
 }
 ```
 
-Le CSS variables generate sono:
+CSS variables generate:
 - `--sd-color-icon-default`
 - `--sd-color-icon-muted`
 - `--sd-color-icon-primary`
 - `--sd-color-icon-on-primary`
+
+Anteprima interattiva con theme selector → **Foundations / Icons → Interactive**.
