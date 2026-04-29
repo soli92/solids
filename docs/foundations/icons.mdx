@@ -4,14 +4,13 @@ import { Meta } from "@storybook/blocks";
 
 # Icons
 
-SoliDS include un sistema di icone SVG React basato su **`SolidsIcon`** — un wrapper che applica i token `--sd-color-icon-*` automaticamente tramite CSS variables.
+SoliDS include un sistema di icone SVG React basato su **`SolidsIcon`** — un wrapper che applica i token `--sd-color-icon-*` automaticamente tramite CSS variables, seguendo il tema attivo su `data-theme`.
 
 ## Utilizzo base
 
 ```tsx
 import { IconHome, IconStar, IconAlertCircle } from "@soli92/solids/icons";
 
-// Dimensione e variante colore
 <IconHome size="md" variant="default" />
 <IconStar size="lg" variant="primary" />
 <IconAlertCircle size="sm" variant="muted" />
@@ -22,9 +21,11 @@ import { IconHome, IconStar, IconAlertCircle } from "@soli92/solids/icons";
 | Variant | Token CSS | Uso consigliato |
 |---------|-----------|-----------------|
 | `default` | `--sd-color-icon-default` | Icone standard su sfondo canvas/surface |
-| `muted` | `--sd-color-icon-muted` | Icone secondarie, placeholder |
+| `muted` | `--sd-color-icon-muted` | Icone secondarie, placeholder, decorative |
 | `primary` | `--sd-color-icon-primary` | Icone in evidenza, azioni principali |
 | `on-primary` | `--sd-color-icon-on-primary` | Icone su sfondo primary (es. button filled) |
+
+Tutti i temi definiscono `color.icon.*` — il colore si adatta automaticamente al `data-theme` attivo senza nessun cambio di codice.
 
 ## Prop `size`
 
@@ -34,40 +35,107 @@ import { IconHome, IconStar, IconAlertCircle } from "@soli92/solids/icons";
 | `md` | 20px |
 | `lg` | 24px |
 | `xl` | 32px |
-| `number` | valore custom (es. `size={40}`) |
+| `number` | valore custom (es. `size={48}`) |
+
+## Gallery icone base
+
+Disponibili in `@soli92/solids/icons` (o `@/icons` nei progetti interni):
+
+`Home` · `Search` · `User` · `Settings` · `Menu` · `X` · `Check` · `ChevronDown` · `ChevronRight` · `Plus` · `Minus` · `Trash` · `Pencil` · `Copy` · `ExternalLink` · `AlertCircle` · `Info` · `Star` · `Heart` · `Sun` · `Moon` · `Mail` · `Calendar` · `Folder`
+
+Anteprima interattiva → **Foundations / Icons → Gallery**.
+
+---
 
 ## Icone tema-specifiche
 
-Tre set di icone SVG disegnate per rispecchiare l'identità visiva dei temi fantasy, cyberpunk e 90s-party:
+Tre set di icone SVG disegnati per rispecchiare l'identità visiva dei temi fantasy, cyberpunk e 90s-party. Esportati da `@soli92/solids/icons`.
 
-### Fantasy
+### Fantasy — stroke arrotondato, feel medievale
 
-- `IconFantasyScroll` — pergamena arrotolata
-- `IconFantasySword` — spada medievale
-- `IconFantasyGem` — gemma magica
+| Icona | Descrizione |
+|-------|-------------|
+| `IconFantasyScroll` | Pergamena arrotolata con linee testo e sigillo in cera |
+| `IconFantasySword` | Spada medievale diagonale con elsa e pomello circolare |
+| `IconFantasyGem` | Gemma esagonale con raggi di luce e sparkle centrale |
 
-### Cyberpunk
+```tsx
+import { IconFantasyScroll, IconFantasySword, IconFantasyGem } from "@soli92/solids/icons";
 
-- `IconCyberpunkChip` — chip CPU
-- `IconCyberpunkEye` — occhio cybernetico
-- `IconCyberpunkSignal` — segnale glitch
+<div data-theme="fantasy">
+  <IconFantasyScroll size="lg" variant="primary" />
+  <IconFantasySword size="lg" variant="default" />
+  <IconFantasyGem size="lg" variant="muted" />
+</div>
+```
 
-### 90s Party
+### Cyberpunk — geometria sharp, feel tech/neon
 
-- `IconPartyBolt` — fulmine bold
-- `IconPartyDiamond` — diamante hip-hop
-- `IconPartyStar` — stella outline bold
+| Icona | Descrizione |
+|-------|-------------|
+| `IconCyberpunkChip` | Microchip CPU con pin su 4 lati e croce circuitale interna |
+| `IconCyberpunkEye` | Occhio cybernetico angolare con scan-lines e pupilla meccanica |
+| `IconCyberpunkSignal` | Segnale radio a chevron con effetto glitch |
+
+```tsx
+import { IconCyberpunkChip, IconCyberpunkEye, IconCyberpunkSignal } from "@soli92/solids/icons";
+
+<div data-theme="cyberpunk">
+  <IconCyberpunkChip size="lg" variant="primary" />
+  <IconCyberpunkEye size="lg" variant="default" />
+  <IconCyberpunkSignal size="lg" variant="muted" />
+</div>
+```
+
+### 90s Party — stroke bold, feel rave/MTV
+
+| Icona | Descrizione |
+|-------|-------------|
+| `IconPartyBolt` | Fulmine cartoon spesso, silhouette asimmetrica |
+| `IconPartyDiamond` | Diamante bold con sfaccettature e riflesso interno |
+| `IconPartyStar` | Stella 5 punte con double-outline retro MTV |
+
+```tsx
+import { IconPartyBolt, IconPartyDiamond, IconPartyStar } from "@soli92/solids/icons";
+
+<div data-theme="90s-party">
+  <IconPartyBolt size="lg" variant="primary" />
+  <IconPartyDiamond size="lg" variant="default" />
+  <IconPartyStar size="lg" variant="muted" />
+</div>
+```
+
+---
+
+## Usare icone nel tema corretto
+
+Le icone tema-specifiche funzionano con qualsiasi tema (usano comunque `--sd-color-icon-*`), ma danno il meglio se abbinate al tema corrispondente:
+
+```tsx
+// Esempio con data-theme sul container
+<section data-theme="cyberpunk" style={{ background: "var(--sd-color-bg-canvas)" }}>
+  <IconCyberpunkEye variant="primary" size="xl" />
+</section>
+```
+
+---
 
 ## Aggiungere icone personalizzate
 
 ```tsx
+import * as React from "react";
 import { SolidsIcon, type SolidsIconProps } from "@soli92/solids/icons";
 
-const IconMyCustom = React.forwardRef<SVGSVGElement, Omit<SolidsIconProps, "children">>(
+type IconProps = Omit<SolidsIconProps, "children">;
+
+const IconMyCustom = React.forwardRef<SVGSVGElement, IconProps>(
   function IconMyCustom(props, ref) {
     return (
       <SolidsIcon ref={ref} {...props}>
-        <path d="..." />
+        {/* viewBox="0 0 24 24", stroke="currentColor" già impostati */}
+        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+        <path d="M2 17l10 5 10-5" />
+        <path d="M2 12l10 5 10-5" />
       </SolidsIcon>
     );
   }
@@ -75,3 +143,24 @@ const IconMyCustom = React.forwardRef<SVGSVGElement, Omit<SolidsIconProps, "chil
 ```
 
 Il colore seguirà automaticamente il tema attivo tramite `--sd-color-icon-*`.
+
+---
+
+## Token `color.icon.*`
+
+Tutti i temi definiscono questi quattro token:
+
+```json
+"icon": {
+  "default":    "...",
+  "muted":      "...",
+  "primary":    "...",
+  "on-primary": "..."
+}
+```
+
+Le CSS variables generate sono:
+- `--sd-color-icon-default`
+- `--sd-color-icon-muted`
+- `--sd-color-icon-primary`
+- `--sd-color-icon-on-primary`
