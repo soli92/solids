@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/soli92/solids/compare/v1.7.0...v1.8.0) (2026-04-29)
+
+
+### Features
+
+* **icons:** add 9 themed SVG icons — Fantasy, Cyberpunk, 90s-Party sets ([55dd459](https://github.com/soli92/solids/commit/55dd45987e9636660d062662d4226ec09a1c67b6))
+
 # [1.7.0](https://github.com/soli92/solids/compare/v1.6.0...v1.7.0) (2026-04-24)
 
 
