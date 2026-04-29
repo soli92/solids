@@ -84,6 +84,10 @@
 
 ## [Unreleased]
 
+### Bug Fixes
+
+* **icons:** include `glyphs-themed.js` in npm build output so `@soli92/solids/icons` resolves correctly in Next.js consumers.
+
 ### Features
 
 * **icons:** export `@soli92/solids/icons` from npm package and generate ESM icon artifacts in `dist/icons` during build.

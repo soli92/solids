@@ -184,6 +184,7 @@ const main = () => {
   cpSync(join(SRC, "tailwind", "preset.cjs"), join(DIST, "tailwind", "preset.cjs"));
   transpileTs(join(SRC, "icons", "solids-icon.tsx"), join(DIST, "icons", "solids-icon.js"));
   transpileTs(join(SRC, "icons", "glyphs.tsx"), join(DIST, "icons", "glyphs.js"));
+  transpileTs(join(SRC, "icons", "glyphs-themed.tsx"), join(DIST, "icons", "glyphs-themed.js"));
   transpileTs(join(SRC, "icons", "index.ts"), join(DIST, "icons", "index.js"));
 
   console.log("✅ SoliDS build complete!");
