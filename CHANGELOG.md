@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/soli92/solids/compare/v1.13.0...v1.13.1) (2026-04-29)
+
+
+### Bug Fixes
+
+* **icons:** ship themed glyph artifact and remove duplicate re-export ([f00e3a1](https://github.com/soli92/solids/commit/f00e3a12f3b24c5af14e9b287a18a193c8be402d))
+
 # [1.13.0](https://github.com/soli92/solids/compare/v1.12.0...v1.13.0) (2026-04-29)
 
 
