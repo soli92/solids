@@ -14,6 +14,7 @@
       "canvas":   "#FAFBFC",
       "surface":  "#F0F2F5",
       "elevated": "#FFFFFF",
+      "overlay":  "rgba(0,0,0,0.45)",
       "hover":    "#E8EDF7",
       "active":   "#DDE4F2",
       "disabled": "#F0F2F5"
@@ -63,6 +64,12 @@
     "destructive": {
       "default":    "#DC2626",
       "foreground": "#FFFFFF"
+    },
+    "icon": {
+      "default":    "#111827",
+      "muted":      "#6B7280",
+      "primary":    "#2563EB",
+      "on-primary": "#FFFFFF"
     }
   },
   "font": {
