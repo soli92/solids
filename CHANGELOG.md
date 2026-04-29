@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/soli92/solids/compare/v1.12.0...v1.13.0) (2026-04-29)
+
+
+### Features
+
+* **icons:** export solids icons subpath for consumers ([3d782dc](https://github.com/soli92/solids/commit/3d782dc1da878163e9db2450c53d6e3b277bb2aa))
+
 # [1.12.0](https://github.com/soli92/solids/compare/v1.11.1...v1.12.0) (2026-04-29)
 
 
