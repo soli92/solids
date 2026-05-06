@@ -2,25 +2,40 @@
 type: overview
 created: 2026-05-06
 updated: 2026-05-06
-sources: []
+sources: [AGENTS.md, README.md, AI_LOG.md]
 status: draft
-language: en
+language: it
 ---
 
 # Wiki index
 
-> This wiki has just been bootstrapped. No sources have been ingested yet.
+> Mappa della conoscenza del progetto `solids`, derivata dai documenti di contesto del repository.
 
-## How to use this wiki
+## Repository snapshot
 
-1. Drop a source in `docs/raw/` (PDF, markdown, txt, etc.).
-2. Tell the agent: `Ingest docs/raw/<filename>`.
-3. After a few ingests, ask questions. Use the prompts in `prompts/`.
-4. Run `Lint the wiki` periodically.
+Riassunto operativo per SoliDS (design system: token, CSS, Storybook, registry shadcn). Dettaglio e release: CHANGELOG.md, README.md. Stato file: git status.
+
+Questo wiki usa come baseline `AGENTS.md`, `README.md` e `AI_LOG.md` ed e pronto per ingest incrementali da `docs/raw/`.
+
+## Focus di conoscenza iniziale
+
+- Architettura e confini del repository
+- Flussi operativi (setup, test, build, deploy)
+- Decisioni storiche e gotcha tracciati in AI log
+- Convenzioni per agenti e sicurezza segreti/env
 
 ## Top-level pages
 
-_(none yet — populated by the agent as sources are ingested)_
+- [[project-overview]] - mappa prodotto e perimetro
+- [[architecture]] - struttura tecnica e dipendenze
+- [[operations]] - procedure, checklist e comandi
+- [[known-gotchas]] - edge case e regressioni gia note
+
+## Primary references
+
+- `AGENTS.md`
+- `README.md`
+- `AI_LOG.md`
 
 ## Recent activity
 

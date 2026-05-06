@@ -217,3 +217,11 @@ Completamento autonomo il **22 aprile 2026** (esteso **24 aprile 2026** per Fase
 - Dettaglio interazioni consumer non lette file-per-file.
 
 ---
+
+---
+
+## Aggiornamento 2026-05-06 — LLM Wiki context refinement
+
+- Aggiornati `docs/wiki/wiki/index.md` e `docs/wiki/wiki/log.md` per allineare il wiki al contesto reale del repository.
+- Snapshot iniziale e pagine top-level resi coerenti con `AGENTS.md`, `README.md` e questo `AI_LOG.md`.
+- Nessun ingest di sorgenti effettuato: aggiornamento solo strutturale/documentale.
