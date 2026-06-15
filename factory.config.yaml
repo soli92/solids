@@ -1,0 +1,29 @@
+factory:
+  name: solids-design-system
+  description: "SoliDS — Design system EP-019 validation run v2.21.0"
+
+pattern_version: "2.21"
+topology: knowledge-only
+
+code_paths:
+  - name: solids
+    path: .
+    layers: [docs, fe]
+    vcs:
+      mode: monorepo
+      branch_strategy: feature-branch
+      commit_coupling: decoupled
+
+stack:
+  mode: manual
+
+routing:
+  docs: agent
+  fe: agent
+
+analytics:
+  dogfooding:
+    enabled: true
+
+design_intelligence:
+  enabled: true
