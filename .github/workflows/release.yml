@@ -19,6 +19,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
           persist-credentials: false
+          submodules: true
 
       # Dopo un force-push sui tag (es. riscrittura history), `git fetch --tags` fallirebbe con
       # "would clobber existing tag". semantic-release esegue fetch dei tag: allinea prima al remoto.
@@ -67,6 +68,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          submodules: true
 
       - uses: actions/setup-node@v4
         with:
