@@ -1,3 +1,11 @@
+# [1.15.0](https://github.com/soli92/solids/compare/v1.14.1...v1.15.0) (2026-06-25)
+
+
+### Features
+
+* **ci:** add submodules: true to checkout steps for soli-projects submodule ([ee62772](https://github.com/soli92/solids/commit/ee62772669bc92bff12233091cbf594251caa97b))
+* **infra:** add soli-projects submodule for wiki access ([6aa01ef](https://github.com/soli92/solids/commit/6aa01efdf8f05c0d904c6e8e94f3016736618339))
+
 ## [1.14.1](https://github.com/soli92/solids/compare/v1.14.0...v1.14.1) (2026-04-29)
 
 
