@@ -2,7 +2,7 @@ factory:
   name: solids-design-system
   description: "SoliDS — Design system EP-019 validation run v2.21.0"
 
-pattern_version: "2.21"
+pattern_version: "2.32"
 topology: knowledge-only
 
 code_paths:
@@ -27,3 +27,37 @@ analytics:
 
 design_intelligence:
   enabled: true
+
+# === v2.22→v2.32 opt-in capability stubs (added by 2.21→2.32 upgrade) ============
+# Tutti gli stub sono default-OFF (R.P3 opt-in totale): a flag spento la factory
+# si comporta esattamente come a v2.21. Abilita esplicitamente ciò che ti serve.
+
+# Central Model Registry (v2.27, PATTERN §29.2) — unico posto per i model ID
+models:
+  routing:
+    tier_fast:    claude-haiku-4-5-20251001   # ruoli ad alta frequenza / basso costo
+    tier_default: claude-sonnet-4-6            # maggioranza degli agenti
+    tier_deep:    claude-opus-4-8              # ruoli di ragionamento profondo
+  overrides: {}                                # eccezioni per-agente, es. wiki-query: tier_fast
+
+# Hybrid Wiki Search Layer (v2.29, EP-042, PATTERN §31)
+wiki_search:
+  enabled: false                              # opt-in esplicito (R.WS2)
+
+# Temporal Generative Time Model (v2.30, EP-043)
+temporal:
+  estimate_protocol:
+    enabled: false                            # opt-in EP-043 US-152 (R.P3 default off)
+
+# Capability Formativa — tutoring adattivo MVP (v2.32, EP-045)
+capability_formativa:
+  enabled: false                              # abilita agente tutor + skill EP-045
+  wiki_search_integration: false              # integra EP-042 se disponibile (opt-in)
+
+# Tavola Rotonda Mode (v2.27, EP-039, PATTERN §28)
+tavola_rotonda:
+  enabled: false                              # opt-in totale (R.P3-TR)
+
+# Prototype Generation Layer (v2.26, EP-035, PATTERN §27)
+prototyping:
+  enabled: false                              # master switch EP-035 (R.P3 default off)

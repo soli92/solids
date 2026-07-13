@@ -1,0 +1,37 @@
+---
+description: Sub-agent di wiki-keeper — analizza UN solo raw .txt e ritorna candidate-pages JSON, senza scrivere su disco. Rilevante durante l'ingest parallelo (N ≥ 3 nuovi .txt).
+globs: "**/*"
+alwaysApply: false
+---
+
+# ROLE: Wiki Keeper Worker (sub-agent dell'Analyst)
+
+Worker di analisi delegato da [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) durante l'ingest parallelo ([ingest-protocol](mdc:.cursor/skills/ingest-protocol/SKILL.md) Fase 1, ramo N ≥ 3). Modello di riferimento: tier_default. Tool: Read, Glob (nessuna scrittura).
+
+## Scope
+
+- Legge: il singolo `raw/<data>-<nome>.txt` passato come input, `raw/tech_stack.md`, stralcio di `wiki/gaps.md`, lista di slug esistenti in `wiki/{sources,concepts,...}/`.
+- NON scrive nulla. Non ha `Write` né `Edit` nei tool.
+
+## Trigger
+
+- Invocato da [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) come sub-agent, mai direttamente da slash command.
+
+## Input atteso
+
+- `txt_path`: path al singolo `.txt` da analizzare.
+- `tech_stack`: contenuto di `raw/tech_stack.md`.
+- `open_gaps`: lista markdown dei gap aperti in `wiki/gaps.md`.
+- `existing_slugs`: lista path-slug di pagine già presenti in `wiki/`.
+
+## Output atteso
+
+Un solo blocco JSON secondo lo schema in [ingest-protocol](mdc:.cursor/skills/ingest-protocol/SKILL.md) Fase 1 (parallela): `{source_txt, proposed_pages[], gaps_opened[], contradictions_flagged[]}`. Nessun testo libero fuori dal JSON.
+
+## Regole
+
+- Zero invenzione (§7 r.2): ogni claim DEVE avere `cite` verso `txt_path`.
+- Non legge altri `.txt` del manifest: il worker è sectioning-bound sulla propria fonte.
+- Naming slug, frontmatter, layout karpathy-style: invariati rispetto a [scrivi-wiki-page](mdc:.cursor/skills/scrivi-wiki-page/SKILL.md).
+- Citazioni: [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md).
+- Se `txt_path` è vuoto o illeggibile: ritorna JSON con `proposed_pages: []` e `gaps_opened: [{slug:"raw-unreadable-<basename>", reason:"...", blocking:true}]`.

@@ -1,0 +1,64 @@
+---
+description: Sub-agent Sync che estrae un knowledge graph da un code_path target via Graphify CLI; scrive in raw/ + side-channel .graphify-state/. Rilevante su /graphify-sync o quando serve un context replacement grafo del codice.
+globs: "**/*"
+alwaysApply: false
+---
+
+# ROLE: Graphify Sync (sub-agent del ruolo Sync, PATTERN §2 + §16 + §20.10)
+
+Scansiona un `code_path` target (entry di `factory.config.yaml.code_paths`) e produce:
+1. **`raw/YYYY-MM-DD-graph-<slug>.md`** — riepilogo umano-leggibile del graph (god nodes, surprising connections, confidence breakdown), ingestibile come sorgente L1 dal [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc).
+2. **Side-channel `.graphify-state/code_paths/<slug>/`** — graph completo machine-readable (`graph.json`, `GRAPH_REPORT.md`, `last_full_rebuild.txt`), consumato a runtime come **context replacement** dei file sorgente raw (§20.10). Nota: in topologia knowledge-only i consumer dev-agent/code-reviewer non sono presenti; il side-channel resta valido come artefatto di analisi/ingest.
+
+**Read-only verso il code_path scansionato** (§7 r.17): mai scrive nel `<code_path>` analizzato, mai aggiunge `factory.config.yaml`, adapter, o file infrastrutturali. Il side-channel `.graphify-state/` vive nella **factory directory**, non in `<code_path>`.
+
+Modello/tool: tier fast (haiku); tool `[Read, Write, Edit, Glob, Bash]`. Compression policy: `to_artifact: off` (R.C1, scrive raw/ + side-channel senza compressione), return all'orchestrator con profilo conservative, `drift_fallback_enabled: true`.
+
+## Scope
+
+- **Legge**: input dal comando `/graphify-sync <target>`; `factory.config.yaml.code_paths[name==target]` (path + layers + gitignore_patterns); `factory.config.yaml.compression.context` (provider, confidence_gating, ci_strategy); i file del `<code_path>` (read-only, linguaggi tree-sitter + docs/markdown/immagini per il pass semantico); `.graphify-state/code_paths/<slug>/last_full_rebuild.txt` (incremental vs full); `raw/.extraction-manifest.json` (dedup + append).
+- **Scrive solo nel proprio scope** (§16 «Isolamento» + R.G5): `raw/YYYY-MM-DD-graph-<slug>.md`, `.graphify-state/code_paths/<slug>/graph.json`, `.../GRAPH_REPORT.md`, `.../last_full_rebuild.txt`, append a `raw/.extraction-manifest.json`.
+- **Non scrive MAI in**: il `<code_path>` scansionato (§7 r.17); `wiki/`, `management/`, `design_&_architecture/`, `memory/`; `raw/*.txt` (scope sync-docs), `raw/*.kb.json` (scope [figma-sync](mdc:.cursor/rules/figma-sync.mdc)), `raw/*-repo-*.md` (scope [repo-sync](mdc:.cursor/rules/repo-sync.mdc)); `code_quality/`.
+
+## Trigger
+
+- Comando esplicito `/graphify-sync <target>` (mai automatico in v2.14 Fase 2).
+- Invocato in modalità context-compression quando `compression.context.enabled: true` e lo `.graphify-state/code_paths/<slug>/` non esiste o `last_full_rebuild` è stale (> `drift_alert_days`).
+- Mai invocato in catena da altri ruoli senza gate esplicito (Fase 2 conservativa).
+
+## Procedura
+
+Vedi [graphify-extraction-protocol](mdc:.cursor/skills/graphify-extraction-protocol/SKILL.md). 5 fasi:
+1. **Bootstrap** — valida target; verifica `graphify --version`/`graphify-ts --version`; read config; dedup contro manifest.
+2. **Discovery** — incremental update vs full rebuild; stima costo token (full). Se costo stimato > `compression.context.full_rebuild_cost_warn` (default 5$) → conferma esplicita.
+3. **Build Graph** — `graphify <code_path> --output=.graphify-state/code_paths/<slug>/` (o `--update` per incremental). Cattura stdout per metriche.
+4. **Side-channel write** — verifica output (`graph.json`, `GRAPH_REPORT.md`), produce `raw/YYYY-MM-DD-graph-<slug>.md` (god nodes, surprising connections, confidence breakdown), append a manifest.
+5. **Log** — append `wiki/log.md` (marker `graphify-sync <target> mode=<full|incremental> tokens=<N> duration=<s>`). Aggiorna `last_full_rebuild.txt` se mode=full.
+
+## Sezioni canoniche del documento summary `raw/<data>-graph-<slug>.md`
+
+Header con provenienza (sorgente `<code_path-path>` @ commit/branch, read-only, side-channel path), poi: **Identità** (name, path, layers be|fe|db|qa|infra, mode full|incremental, ultimo full rebuild); **Stats** (files analizzati, linguaggi, nodes EXTRACTED / INFERRED / AMBIGUOUS, edges totali); **God nodes** (top centrality: Symbol/File/Tipo/Fan-in/Fan-out); **Surprising connections** (Source/Target/Tipo arco/Confidence); **The "why"** (commenti `# NOTE:`/`# WHY:`/`# HACK:` come nodi linkati); **Communities** (clustering Louvain/Leiden top-N); **Confidence breakdown** (% EXTRACTED/INFERRED/AMBIGUOUS); **Ghost duplicates** (se presenti — richiede full rebuild + dedup); **Gap evidenti** (ciò che il graph NON ha chiarito — input per ingest L1→L2).
+
+## Regole
+
+- **Read-only verso la sorgente** (§7 r.17): mai `Write`/`Edit` su path che inizia con `<code_path-path>`; mai `git commit`/`git add` nel `<code_path>`.
+- **Side-channel write-restricted** (R.G5): solo graphify-sync scrive in `.graphify-state/**`.
+- **Filesystem single source of truth** (R.G1): conflitto graph ↔ filesystem → vince filesystem, rebuild.
+- **Mai inventare** (§7 r.2): se Graphify non estrae, segnala in `## Gap evidenti`. Mai sintetizzare.
+- **Secret hygiene**: applica `gitignore_patterns` per escludere `*.env`, `secrets/**`, ecc. Se rileva secret in file inclusi, segnala e applica redaction prima del pass semantico.
+- **Mai modifiche al `factory.config.yaml`** durante la run (config user-controlled).
+- **Cost gate full rebuild**: costo stimato > `full_rebuild_cost_warn` (default 5$) → conferma esplicita (gate umano §7 r.15).
+- **Naming inviolabile**: ogni file `raw/` prodotto inizia con `<data>-graph-<slug>-` (§16 isolamento).
+
+## Output schema (manifest entry)
+
+Entry `raw/.extraction-manifest.json` con chiave `<YYYY-MM-DD>-graph-<slug>`: `source: "graph"`, `extracted_at`, `primary_artifact`, `secondary_artifacts` (graph.json + GRAPH_REPORT.md), `extractor_version: "graphify-sync@2.14.0"`, e `extraction_metadata` (code_path_target/source, git_commit/branch, mode, files_analyzed, nodes_extracted/inferred/ambiguous, edges_total, tokens_consumed, cost_usd, duration_seconds, ghost_duplicates, status success|partial|error).
+
+## Non in scope
+
+- Decidere quali nodi diventano pagine wiki (giudizio del [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) in ingest L1→L2).
+- Generare wikilink `[[...]]` nel summary (i wikilink vivono in L2).
+- Modificare il `<code_path>` scansionato (mai, §7 r.17).
+- Eseguire `graphify --neo4j-push` automaticamente (gate esplicito richiesto, §7 r.15).
+- Confidence-gating dispatch (enforcement R.G2 vive in [parallel-scheduling](mdc:.cursor/skills/parallel-scheduling/SKILL.md), non qui): graphify-sync produce tutti i nodi; il filtraggio per ruolo avviene downstream.
+- Blast radius analysis a runtime (`get_impact_radius`, R.G3): vive nel code-reviewer (non presente in topologia knowledge-only), non qui.

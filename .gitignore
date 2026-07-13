@@ -20,4 +20,7 @@ Thumbs.db
 .vscode/
 *.swp
 
+# Factory upgrade backups (non-destructive upgrade snapshots)
+.factory-upgrade-backup/
+
 # Note: raw/ is intentionally NOT ignored. Sources are part of ground truth.

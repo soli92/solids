@@ -1,0 +1,90 @@
+schema_version: "1.0"
+curriculum_id: "factory-onboarding"
+title: "Factory Onboarding — Concetti Fondamentali"
+description: >
+  Curriculum di onboarding per nuovi collaboratori sulla soli-multi-agents-factory.
+  Copre la struttura del repo, il flusso di lavoro wiki-keeper → PM → TPM → dev,
+  la lettura di epiche e user story, e il consumo di task con dev-agent.
+author: "curato a mano — Opzione B"
+
+nodes:
+  - id: repo-structure
+    title: "Struttura del repo factory"
+    description: >
+      Il repo ospita management/kanban/ (epiche + US + TSK), wiki/ (knowledge base),
+      .claude/agents/ (agenti), .claude/skills/ (skill procedurali) e factory.config.yaml
+      (configurazione). Capire questa struttura e' il punto di partenza.
+    prerequisites: []
+    sources:
+      - path: "wiki/runbooks/factory-installer-runbook.md"
+        type: "runbook"
+      - path: "CLAUDE.md"
+        type: "wiki"
+    difficulty: 1
+
+  - id: wiki-keeper-flow
+    title: "Flusso wiki-keeper: ingest e sync docs"
+    description: >
+      Il wiki-keeper trasforma documenti raw (PDF, Figma, repo) in pagine wiki strutturate
+      tramite /sync-docs. Le pagine vivono in wiki/concepts/ e wiki/syntheses/.
+    prerequisites: [repo-structure]
+    sources:
+      - path: "wiki/concepts/llm-wiki-pattern.md"
+        type: "wiki"
+      - path: ".claude/agents/wiki-keeper.md"
+        type: "code"
+    difficulty: 1
+
+  - id: epica-user-story
+    title: "Come leggere un'epica e una user story"
+    description: >
+      Un'epica raggruppa user story correlate. Ogni US ha: descrizione, business rules,
+      acceptance criteria. I TSK atomici derivano dagli AC. Leggere un'epica significa
+      capire il perche', leggere una US significa capire il cosa verificabile.
+    prerequisites: [repo-structure]
+    sources:
+      - path: "management/kanban/EP-045-capability-formativa/EP-045.md"
+        type: "wiki"
+      - path: ".claude/skills/scrivi-user-story.md"
+        type: "code"
+    difficulty: 1
+
+  - id: pm-tpm-flow
+    title: "Flusso product-manager → tpm → dev"
+    description: >
+      Il PM scrive le user story; il TPM le taskizza in TSK atomici e pianifica gli sprint;
+      i dev-agent consumano i TSK via /dev. Capire questo flusso e' essenziale per
+      posizionarsi nella pipeline di sviluppo.
+    prerequisites: [wiki-keeper-flow, epica-user-story]
+    sources:
+      - path: ".claude/agents/product-manager.md"
+        type: "code"
+      - path: ".claude/agents/tpm.md"
+        type: "code"
+    difficulty: 2
+
+  - id: pattern-md
+    title: "PATTERN.md: invarianti e §7"
+    description: >
+      PATTERN.md e' la norma del meta-framework. La sezione §7 definisce le invarianti
+      non derogabili (es. no LLM come unico valutatore, no commenti fabricati). Ogni
+      agente e ogni skill deve rispettarle.
+    prerequisites: [epica-user-story]
+    sources:
+      - path: "PATTERN.md"
+        type: "wiki"
+    difficulty: 2
+
+  - id: dev-protocol
+    title: "Consumare un TSK con dev-agent (/dev)"
+    description: >
+      Il dev-protocol descrive le fasi di esecuzione di un TSK: preflight VCS, lettura
+      acceptance criteria, implementazione, test, handoff. Il comando /dev <TSK-id>
+      lancia il flusso completo con analytics instrumentation.
+    prerequisites: [pm-tpm-flow, pattern-md]
+    sources:
+      - path: ".claude/skills/dev-protocol.md"
+        type: "code"
+      - path: ".claude/skills/dev-handoff.md"
+        type: "code"
+    difficulty: 3
