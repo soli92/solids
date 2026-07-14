@@ -178,6 +178,27 @@ Se ramo parallel: l'entry include il campo `parallel_workers: N` e la lista dell
 collisions risolte. Per ogni gap chiuso, applica il template `gap-closed`. **Mai una
 entry per worker.**
 
+## Fase 6 — VCS handoff (OBBLIGATORIA, ACC-05 TR-20260714-14)
+
+Al termine della Fase 5, verifica lo stato del repository:
+
+```
+git status --short wiki/ raw/
+```
+
+Se risultano file modified o untracked nelle directory `wiki/` e `raw/`:
+1. Proponi in chat il commit con il messaggio pre-compilato:
+   ```
+   docs(ingest): <key> — <N> pagine wiki aggiornate/create
+   ```
+2. Attendi conferma esplicita o esegui il commit se il contesto è autonomo
+   (flag `auto_commit: true` o sessione scheduler).
+3. Se il commit ha successo, segnala in chat: `VCS: commit effettuato — wiki/ e raw/ puliti.`
+
+**Motivazione**: ogni ingest deve chiudersi con un repository in stato committato.
+Modifiche non committate a `wiki/` e `raw/` rischiano di essere sovrascritte o di
+creare conflitti in sessioni successive. (ACC-05 TR-20260714-14)
+
 ## Regola di concorrenza
 
 Se durante l'ingest trovi una pagina con `## Storie collegate` non vuota → non
