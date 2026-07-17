@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Fixture Small</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 1.5rem 2rem;
+      background: #f8f9fa;
+      color: #212529;
+    }
+    h1 { font-size: 1.5rem; color: #1a1a2e; margin-bottom: 0.25rem; }
+    .subtitle { color: #6c757d; font-size: 0.875rem; margin-bottom: 2rem; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .card {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+    }
+    .card-label { font-size: 0.75rem; color: #6c757d; text-transform: uppercase; letter-spacing: 0.05em; }
+    .card-value { font-size: 1.75rem; font-weight: 700; color: #1a1a2e; margin: 0.25rem 0; }
+    .card-delta { font-size: 0.8rem; }
+    .card-delta.pos { color: #198754; }
+    .card-delta.neg { color: #dc3545; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 6px; overflow: hidden; border: 1px solid #dee2e6; }
+    thead { background: #1a1a2e; color: #fff; }
+    th, td { padding: 0.6rem 0.9rem; text-align: left; font-size: 0.875rem; }
+    tr:not(:last-child) td { border-bottom: 1px solid #f0f0f0; }
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-pass { background: #d1e7dd; color: #0a3622; }
+    .badge-warn { background: #fff3cd; color: #664d03; }
+    .badge-fail { background: #f8d7da; color: #58151c; }
+    footer { margin-top: 2rem; font-size: 0.75rem; color: #adb5bd; border-top: 1px solid #dee2e6; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+
+  <h1>Analytics Report — Sprint 42</h1>
+  <p class="subtitle">Generato il 2026-07-17 &bull; Fixture di test &bull; Nessun dato reale</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-label">TSK completati</div>
+      <div class="card-value">24</div>
+      <div class="card-delta pos">+4 vs sprint precedente</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Coverage media</div>
+      <div class="card-value">87%</div>
+      <div class="card-delta pos">+3 pp</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Review iterations</div>
+      <div class="card-value">1.2</div>
+      <div class="card-delta pos">-0.3 vs target</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>TSK</th>
+        <th>Layer</th>
+        <th>Titolo</th>
+        <th>Stima</th>
+        <th>Stato</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>TSK-400</td>
+        <td>be</td>
+        <td>Skill content-share-protocol</td>
+        <td>M</td>
+        <td><span class="badge badge-pass">done</span></td>
+      </tr>
+      <tr>
+        <td>TSK-401</td>
+        <td>be</td>
+        <td>Comando /share</td>
+        <td>S</td>
+        <td><span class="badge badge-pass">done</span></td>
+      </tr>
+      <tr>
+        <td>TSK-402</td>
+        <td>be</td>
+        <td>Blocco config content_share:</td>
+        <td>S</td>
+        <td><span class="badge badge-pass">done</span></td>
+      </tr>
+      <tr>
+        <td>TSK-403</td>
+        <td>qa</td>
+        <td>Test smoke — fixture HTML</td>
+        <td>S</td>
+        <td><span class="badge badge-warn">in-progress</span></td>
+      </tr>
+      <tr>
+        <td>TSK-404</td>
+        <td>qa</td>
+        <td>Test integrazione egress check</td>
+        <td>M</td>
+        <td><span class="badge badge-fail">todo</span></td>
+      </tr>
+      <tr>
+        <td>TSK-405</td>
+        <td>be</td>
+        <td>Runbook setup credenziali</td>
+        <td>S</td>
+        <td><span class="badge badge-fail">todo</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <footer>
+    Factory Report &bull; soli-multi-agents-factory &bull; Sprint 42 &bull;
+    Questo file e' una fixture di test sintetica — nessun dato sensibile presente.
+  </footer>
+
+</body>
+</html>
