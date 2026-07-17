@@ -24,3 +24,9 @@ Thumbs.db
 .factory-upgrade-backup/
 
 # Note: raw/ is intentionally NOT ignored. Sources are part of ground truth.
+
+# Nested repo clone (accidental, not a submodule) — /solids anchored to root only
+/solids/
+
+# Claude Code worktrees (temporary isolated checkouts)
+.claude/worktrees/

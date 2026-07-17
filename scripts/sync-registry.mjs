@@ -107,7 +107,7 @@ const registry = {
       title: "SoliDS — kit shadcn/ui completo",
       description:
         "Tutti i componenti UI + hooks installabili in un colpo. Richiede @solids/solids-utils. Dipendenze npm come da package.json del DS.",
-      registryDependencies: ["@solids/solids-utils"],
+      registryDependencies: ["@solids/solids-utils", "@solids/solids-icons"],
       dependencies: deps,
       files: blockFiles,
     },

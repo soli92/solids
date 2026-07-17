@@ -4062,3 +4062,143 @@ EP-042 si integra con il framework esistente senza modificarlo:
 Fonte: EP-042 | [[hybrid-wiki-search-capability]] | `tools/wiki-search/` | `wiki/runbooks/wiki-search-installation.md`
 
 Fonte: factory-optimization-2026-07-07 | `CLAUDE.md §Meta-prompt versioning`
+
+## §32 — Content Share Consumer Layer (EP-048, v2.33, opt-in)
+
+### §32.1 — Problema
+
+Le factory producono artefatti HTML (prototipi EP-035, report analytics EP-009) che devono
+raggiungere un viewer pubblico condiviso (soli-frames, https://soli-frames.vercel.app/viewer/).
+Il canale diretto (commit nel repo viewer) e' impraticabile: richiede accesso cross-repo,
+introduce accoppiamento strutturale e bypassa il gate di review del viewer.
+
+Il pattern Content Share risolve questo disaccoppiando produzione e pubblicazione:
+la factory invia un `repository_dispatch` a soli-frames; soli-frames crea una PR in
+autonomia; la PR viene mergiata (draft → review → published). La factory non ha mai
+write access al viewer: il dispatch e' fire-and-forget con gate umano obbligatorio (R.CS3).
+
+### §32.2 — Architettura dispatch
+
+```
+factory (producer)                soli-frames (hub)
+─────────────────                 ─────────────────
+/share <html>                     POST /dispatches
+  → content-share-protocol  ────▶   event_type: content-ingest
+    Fase 0 Pre-flight              client_payload: { dispatch_secret, slug,
+    Fase 1 Build Payload             title, html_b64, publish, source_repo }
+    Fase 2 Validate                       │
+    Fase 3 Gate umano ◀── STOP dry-run    ▼
+    Fase 4 Dispatch ──────────▶  GHA workflow content-factory.yml
+                                   resolve-dispatch-payload.py
+                                   ingest-content-run.sh → node cli.js
+                                   create-pull-request → merge → Vercel
+```
+
+Il payload DEVE essere annidato: `{"event_type": "...", "client_payload": {...}}`.
+Un payload flat causa HTTP 422. La skill usa `gh api ... --input -` via heredoc.
+
+Due segreti distinti (non intercambiabili):
+- `CONTENT_DISPATCH_SECRET` — server-side su soli-frames, confrontato contro `dispatch_secret` nel payload
+- `SOLI_FRAMES_DISPATCH_SECRET` — client-side in factory (env var), valore inviato come `dispatch_secret`
+
+Due token distinti:
+- `SOLI_FRAMES_PAT` — Bearer token per il POST GitHub API (fine-grained, Contents:write su soli-frames ONLY)
+- `SOLI_FRAMES_DISPATCH_SECRET` — autenticazione payload (non usato come HTTP header)
+
+### §32.3 — Slug convention (R.CS1)
+
+Lo slug completo segue il pattern: `{source_repo_slug}-{content_slug}`.
+
+- **Regex**: `^[a-z][a-z0-9-]{1,78}[a-z0-9]$` (2–80 caratteri, solo lowercase + cifre + trattino)
+- **Auto-composizione**: se `--slug` omesso, `content_slug` e' il basename del file HTML in kebab-case
+- **Override esplicito**: `--slug=my-report` → slug finale `soli-factory-my-report`
+- **Vincolo unicita'**: soli-frames usa lo slug come filename (`content/<slug>.html`); un secondo dispatch
+  con lo stesso slug aggiorna il file esistente (upsert)
+- **source_repo_slug** e' dichiarato in `factory.config.yaml.content_share.source_repo_slug` —
+  mai auto-derivato a runtime (R.CS1 side-effect: slug deterministici cross-sessione)
+
+### §32.4 — Invarianti R.CS1..R.CS4
+
+| ID | Invariante | Violazione → |
+|---|---|---|
+| R.CS1 | Slug conforme `^[a-z][a-z0-9-]{1,78}[a-z0-9]$`, prefissato con `source_repo_slug` | STOP in Fase 1 |
+| R.CS2 | `content_share.enabled: false` di default — backward-compat totale v2.32 | STOP silenzioso con messaggio esplicito |
+| R.CS3 | Gate umano obbligatorio prima di ogni dispatch (azione outward non reversibile) | `--dry-run` bypassa Fase 4, non Fase 3 |
+| R.CS4 | Egress classification check: `analytics_report` con dati sensibili → EGRESS_BLOCK | STOP in Fase 0 |
+
+Vincoli aggiuntivi (non invarianti §7 ma contratti locali EP-048):
+- Dimensione HTML hard limit: 100 KB decoded (EGRESS_BLOCK); warning a 80 KB (EGRESS_WARN)
+- `publish_default: draft` — mai publish automatico (viewer pubblico, no unpublish)
+- Nessun agente lancia `/share` in autonomia (deliberazione TR A11)
+
+### §32.5 — Configurazione
+
+```yaml
+content_share:
+  enabled: false                              # R.CS2 opt-in — backward-compat totale v2.32
+  target_repo: "soli92/soli-frames"          # hub destinazione
+  source_repo_slug: ""                        # ESPLICITO obbligatorio — es. "soli-factory"
+  source_repo: ""                             # formato org/repo — es. "soli92/soli-multi-agents-factory"
+  pat_env: SOLI_FRAMES_PAT                   # PAT fine-grained (Contents:write su soli-frames SOLO)
+  secret_env: SOLI_FRAMES_DISPATCH_SECRET    # valore inviato come dispatch_secret nel payload
+  publish_default: draft                      # mai publish automatico
+  size_limit_kb: 100                         # hard limit decoded HTML (EGRESS_BLOCK)
+  size_warn_kb: 80                           # soglia warning (EGRESS_WARN)
+  artifact_categories:
+    prototype: true                           # artefatti EP-035
+    analytics_report: true                    # report EP-009 (soggetti a R.CS4)
+    custom: true
+```
+
+Secret locali in `.claude/settings.local.json` (gitignored):
+```json
+{ "env": { "SOLI_FRAMES_PAT": "<pat>", "SOLI_FRAMES_DISPATCH_SECRET": "<secret>" } }
+```
+
+### §32.6 — Comandi
+
+```
+/share <html-path> [--slug=<slug>] [--title=<titolo>] [--dry-run]
+```
+
+| Flag | Default | Descrizione |
+|---|---|---|
+| `<html-path>` | obbligatorio | Path al file HTML da pubblicare |
+| `--slug` | `{source_repo_slug}-{basename}` | Override content-slug (senza prefisso) |
+| `--title` | estratto da `<title>` HTML | Titolo leggibile; fallback a slug |
+| `--dry-run` | off | Fasi 0-3 incluso gate umano; bypassa Fase 4 |
+
+Il comando `/share` non ha side-effect automatici: ogni invocazione richiede gate umano (R.CS3).
+Per prototipi EP-035: usare il path di output di `prototype-generator`. Per report EP-009:
+verificare R.CS4 egress classification con `--dry-run` prima del dispatch reale.
+
+### §32.7 — Autenticazione
+
+Il PAT `SOLI_FRAMES_PAT` DEVE essere fine-grained (non PAT classic):
+- **Scope**: `Contents:write` su `soli92/soli-frames` ONLY (non org-wide)
+- **Rationale**: blast radius minimo su revoca; PAT classic con scope `repo` darebbe
+  write access a tutti i repo privati
+- **Rotation**: ≤90 giorni (raccomandata); la revoca non impatta altri repo
+- **`GITHUB_TOKEN` nativo**: NON usabile — e' disponibile solo dentro GHA, non dall'esterno
+
+Setup completo: `wiki/runbooks/content-share-setup.md`
+
+### §32.8 — Integrazione con capability esistenti
+
+EP-048 si integra con il framework esistente senza modificarlo:
+
+- **EP-035 Prototype Generation**: l'output di `prototype-generator` (HTML file) e' direttamente
+  pubblicabile via `/share`. Workflow tipico: `/prototype` → `/share <output.html>`.
+- **EP-009 Analytics**: i report HTML sono pubblicabili ma soggetti a R.CS4 egress check.
+  Artefatti con dati per-attore o rate card → EGRESS_BLOCK. Usare `--dry-run` per verificare.
+- **Token Ledger (EP-022)**: il dispatch via `gh api` non genera chiamate LLM; il costo e'
+  trascurabile. La Fase 3 (gate umano) e' l'unica interazione che produce token.
+- **Dispatch policy §8**: `content_share` annunciato come capability opt-in nella tabella slug.
+- **Backward compat totale**: nessuna factory v2.32 e' impattata. Il blocco `content_share:`
+  con `enabled: false` e' l'unico artefatto aggiunto a `factory.config.yaml` (R.CS2).
+  Tutti gli altri file sono invariati.
+- **soli-frames hub**: il viewer accetta HTML da qualsiasi factory autorizzata via
+  `CONTENT_DISPATCH_SECRET`. Slug guard US-021 + sourceRepo field US-022 gia' in produzione.
+  `<a href="https://...">` navigazionali permessi; `src/poster/action` assoluti bloccati.
+
+Fonte: EP-048 | [[content-share-hub-pattern]] | `.claude/skills/content-share-protocol.md` | `wiki/runbooks/content-share-setup.md`

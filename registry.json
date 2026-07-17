@@ -51,6 +51,10 @@
       ],
       "files": [
         {
+          "path": "registry/solids/icons/glyphs-themed.tsx",
+          "type": "registry:lib"
+        },
+        {
           "path": "registry/solids/icons/glyphs.tsx",
           "type": "registry:lib"
         },
@@ -70,7 +74,8 @@
       "title": "SoliDS — kit shadcn/ui completo",
       "description": "Tutti i componenti UI + hooks installabili in un colpo. Richiede @solids/solids-utils. Dipendenze npm come da package.json del DS.",
       "registryDependencies": [
-        "@solids/solids-utils"
+        "@solids/solids-utils",
+        "@solids/solids-icons"
       ],
       "dependencies": [
         "@hookform/resolvers@^5.2.2",
@@ -242,6 +247,10 @@
         },
         {
           "path": "registry/solids/label/label.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/solids/logo-loader/logo-loader.tsx",
           "type": "registry:ui"
         },
         {
