@@ -1,6 +1,6 @@
 factory:
   name: solids-design-system
-  description: "SoliDS — Design system EP-019 validation run v2.21.0"
+  description: "SoliDS — Design system React (@soli92/solids)"
 
 pattern_version: "2.33"
 topology: knowledge-only
@@ -71,8 +71,8 @@ scheduler:
 content_share:
   enabled: false                              # R.CS2 opt-in
   target_repo: "soli92/soli-frames"
-  source_repo_slug: ""                        # obbligatorio se enabled: true
-  source_repo: ""                             # formato org/repo
+  source_repo_slug: "solids"                  # obbligatorio se enabled: true
+  source_repo: "soli92/solids"               # formato org/repo
   pat_env: SOLI_FRAMES_PAT
   secret_env: SOLI_FRAMES_DISPATCH_SECRET
   publish_default: draft

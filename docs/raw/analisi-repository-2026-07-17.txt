@@ -1,0 +1,454 @@
+# Analisi repository solids — Sessione 2026-07-17
+
+## Metadati
+
+- Data: 2026-07-17
+- Progetto: @soli92/solids (Design System React)
+- Tipo: Repository analysis + Factory consistency check
+- Pattern factory: v2.33
+- Autore: Claude Sonnet 4.6 (sessione assistita)
+- Scope: cartella `docs/` + verifica coerenza con factory multi-agente
+
+---
+
+## Parte 1 — Anatomia della cartella docs/
+
+### 1.1 Struttura complessiva
+
+```
+docs/
+├── brand-assets/
+│   ├── soli-icons/              (16 file: brand icon pack principale)
+│   ├── soli-category-icons/     (10 file + webmanifest: icone Storybook)
+│   ├── workspace-icons/         (raw per-project, 5 progetti)
+│   └── workspace-icons-normalized/ (18 file normalizzati + manifest.json + index.json)
+├── foundations/                 (8 MDX: doc Storybook — produzione)
+├── inbox/                       (.gitkeep — scratch zone factory, vuota)
+├── raw/                         (.gitkeep + file raw per ingest factory)
+├── wiki/                        ⚠️ GHOST SCHEMA — da eliminare, vedi §3
+├── getting-started.mdx
+├── index.mdx
+├── principles.mdx
+├── registry-model-1.md
+├── roadmap.mdx
+└── shadcn-integration.md
+```
+
+### 1.2 docs/foundations/ — Storybook MDX (8 file)
+
+Documentazione di produzione che alimenta il sito Storybook su GitHub Pages. Tutti i file usano
+il blocco `<Meta title="Foundations / ...">` di Storybook Blocks.
+
+| File | Contenuto |
+|------|-----------|
+| `accessibility-and-motion.mdx` | WCAG 2.2, Material Design 3, Apple HIG; utility `sd-min-touch-target`, `sd-link`; motion `standard`/`emphasized` |
+| `colors.mdx` | Palette semantica, token `color.*`, uso light/dark |
+| `icons.mdx` | Sistema icone SVG React (`SolidsIcon`), prop variant/size, gallery, brand pack, icone tematiche |
+| `radius.mdx` | Border radius tokens (`--sd-radius-*`) |
+| `spacing.mdx` | Scale spacing (`--sd-spacing-*`) |
+| `themes.mdx` | Sistema temi (`data-theme`): light, dark, fantasy, cyberpunk, 90s-party, steampunk + 6 temi personaggio |
+| `tokens.mdx` | Panoramica design tokens: base → semantici, struttura directory, CSS output |
+| `typography.mdx` | Font stack (Inter, DM Sans, JetBrains Mono), scale tipografica, token `--sd-font-*` |
+
+**Concetti chiave estratti da foundations:**
+
+- **Token-first**: ogni decisione di design vive nei token, non nei componenti o stili locali
+- **Semantic over visual**: i consumer usano significati (`color.text.primary`), non valori (`#111827`)
+- **Single Source of Truth**: i token `--sd-*` sono l'unica fonte per colori, spacing, tipografia, temi
+- **Framework agnostic**: SoliDS non impone React o altri framework
+- **Progressive adoption**: adozione incrementale senza riscrittura
+- **Sistema temi**: `data-theme` attribute su qualsiasi elemento — 12 temi totali
+- **SolidsIcon**: wrapper SVG che applica `--sd-color-icon-*` automaticamente, 4 variant (default/muted/primary/on-primary), 5 size (sm/md/lg/xl/number)
+- **Icone tematiche**: 3 set da 3 icone ciascuno (Fantasy: Scroll/Sword/Gem; Cyberpunk: Chip/Eye/Signal; Party: Bolt/Diamond/Star) — ora correttamente esportate da `glyphs-themed.tsx`
+- **Bridge @/lib/icons**: pattern introdotto nella bonifica 2026-07-17 per compatibilità registry shadcn
+
+### 1.3 docs/brand-assets/ — Asset centralizzati
+
+**`docs/brand-assets/soli-icons/`** — Brand icon pack principale (16 file)
+
+Varianti: 4 formati di uscita (JPG, PNG, SVG, WebP) × 4 combinazioni (1x1/4x3 aspect ratio × symbol-only/with-text) × 2 colorazioni (gold/mono). Include anche versioni theme-aware (`soli-icon-*-theme`) che si adattano al `data-theme` attivo via token CSS. Esportate come componenti React da `@soli92/solids/icons`.
+
+**`docs/brand-assets/soli-category-icons/`** — Icone Storybook branding (11 file)
+
+5 categorie: `app-icon`, `apple-touch`, `favicon`, `logo`, `symbol`. Ogni categoria in SVG + PNG. Più `webmanifest` per la PWA di Storybook. Usate per favicon/branding del Storybook pubblicato su GitHub Pages.
+
+**`docs/brand-assets/workspace-icons/`** — Raw per-project (originali)
+
+Raccolta cross-repo degli icon pack originali, organizzati per progetto:
+- `Koollector/` — app mobile (Expo), 10 file (app-icon, favicon, android-icon-bg/fg/mono, splash, react-logo variants)
+- `bachelor-party-claudiano/` — 3 file (app-icon SVG, apple-touch PNG, favicon-32 PNG)
+- `pippify/` — 2 varianti logo SVG (frontend/public + frontend/src)
+- `soli-agent/` — favicon SVG
+- `soli-dm-fe/` — d20-icon SVG, apple-touch PNG, icon-192/512 PNG (PWA)
+- `soli-dome/` — icon-192/512 SVG (PWA)
+
+Manifest disponibile: `workspace-icons/manifest.json` — elenco completo dei file raw con metadati.
+
+**`docs/brand-assets/workspace-icons-normalized/`** — Normalizzati (export del package)
+
+18 file con prefisso uniforme `soli-icon-*`, rinominati dal formato raw. Include:
+- `manifest.json` — lookup file → categoria per i consumer
+- `index.json` — indice rapido per categoria
+- TypeScript autocomplete via import da `@soli92/solids/brand-assets/workspace-icons-normalized`
+
+Questa directory è ciò che viene effettivamente distribuito via npm ai consumer del package.
+
+### 1.4 docs/raw/ e docs/inbox/ — Pipeline factory
+
+**`docs/raw/`**: folder corretta per il pattern factory. I file qui dentro sono input immutabili per il wiki-keeper. Contiene attualmente:
+- `.gitkeep`
+- `bonifica-repo-2026-07-17.txt` (ingested in sessione 2026-07-17)
+- `analisi-repository-2026-07-17.txt` (questo file — ingested in sessione 2026-07-17)
+
+**`docs/inbox/`**: scratch zone umana corretta per il pattern factory. Vuota (solo `.gitkeep`). Il pattern prevede che l'utente possa depositare file qui temporaneamente prima di promuoverli a `docs/raw/`.
+
+### 1.5 Documenti root-level di docs/
+
+| File | Contenuto | Note |
+|------|-----------|------|
+| `getting-started.mdx` | Guida installazione npm, setup CSS, shadcn integration quickstart | Storybook docs page |
+| `index.mdx` | Pagina indice del sito Storybook | Entry point docs |
+| `principles.mdx` | 6 principi di design (Token-first, Semantic over visual, Framework agnostic, Single Source of Truth, Progressive adoption, Accessibilità) | Storybook docs page |
+| `roadmap.mdx` | Stato attuale (14 ✅) + prossimi step (3 punti) + visione | Storybook docs page |
+| `registry-model-1.md` | Architettura registry shadcn (Model 1): struttura blocchi, `registryDependencies`, naming convention | Doc tecnica |
+| `shadcn-integration.md` | Guida integrazione shadcn/ui: theming, token bridge, `shadcn.css` | Doc tecnica |
+
+**Concetti chiave estratti da `principles.mdx`:**
+- Token-first, Semantic over visual, Framework agnostic, SSOT, Progressive adoption, A11y by default
+
+**Concetti chiave estratti da `roadmap.mdx`:**
+- Completati: design tokens (12 temi), CSS variables, shadcn/Tailwind, Storybook, registry shadcn (Model 1)
+- Next: esempi a11y più estesi, adapter altri framework, evoluzione stories/registry
+- Visione: base solida, estendibile e manutenibile per prodotti reali
+
+---
+
+## Parte 2 — Concetti e conoscenza estratta
+
+### 2.1 Architettura tema
+
+SoliDS usa l'attributo HTML `data-theme` per il switching dei temi. L'approccio è:
+1. Definizione token base (valori assoluti, es. `color.gold.500 = #C9A227`)
+2. Definizione token semantici per ogni tema (es. `color.text.primary = {gold.500}` per tema fantasy)
+3. Generazione CSS variables `--sd-*` via build pipeline (Style Dictionary implicita)
+4. I consumer usano solo le CSS variables semantiche — mai valori hardcoded
+
+Temi supportati (12):
+- Light, Dark (default Material Design 3 oriented)
+- Fantasy, Cyberpunk, 90s-Party, Steampunk (temi creativi)
+- Captain America, Ichigo, Inuyasha, Sasuke, Vegeta, Zoro (temi personaggio)
+
+### 2.2 Sistema icone (post-bonifica)
+
+**Struttura sorgente:**
+- `src/icons/glyphs.tsx` — icone base universali (Home, Search, User, ecc.) — ~246 righe
+- `src/icons/glyphs-themed.tsx` — icone tematiche (Fantasy×3, Cyberpunk×3, Party×3) — source of truth post-bonifica
+- `src/icons/solids-icon.tsx` — wrapper `SolidsIcon` con token CSS
+- `src/icons/index.ts` — re-export di tutti e tre
+
+**Bridge registry:**
+- `src/lib/icons/index.ts` — re-export da `@/icons` — bridge per compatibilità path consumer registry
+
+**Export npm:**
+- `@soli92/solids/icons` — tutte le icone (SolidsIcon + base + tematiche + brand)
+
+### 2.3 Registry shadcn (Model 1)
+
+Il registry segue il Model 1: un kit `solids-ui` che aggrega tutti i componenti più una dipendenza `solids-icons` per le icone tematiche. File chiave:
+- `registry/r/registry.json` — indice completo
+- `registry/r/solids-ui.json` — kit componenti + `registryDependencies: ["solids-icons"]`
+- `registry/r/solids-icons.json` — kit icone tematiche (nuovo dalla bonifica)
+- `scripts/sync-registry.mjs` — script che rigenera i JSON — modifiche manuali a `registry.json` vengono sovrascritte ad ogni run
+
+### 2.4 Consumer integration
+
+SoliDS è consumato da (o intende essere consumato da):
+- **soli-dome** — app con icone PWA (SVG 192/512)
+- **soli-dm-fe** — app DM con icone PWA (PNG) + d20-icon
+- **soli-agent** — app agente con favicon SVG
+- **Koollector** — app mobile Expo con icone Android/iOS
+- **bachelor-party-claudiano** — web app con icone base
+- **pippify** — app con logo SVG
+
+Integrazione RAG: SoliDS è in `CORPUS_REPOS` di soli-prof. Webhook `push` → `https://soli-prof.vercel.app/api/webhooks/github` per re-ingest selettivo (HMAC).
+
+---
+
+## Parte 3 — Factory consistency check
+
+### 3.1 Verifica: struttura attesa vs trovata
+
+| Artefatto atteso (pattern v2.33) | Trovato | Stato |
+|----------------------------------|---------|-------|
+| `CLAUDE.md` root | ✅ Presente (v2.33, 2026-07-17) | OK |
+| `PATTERN.md` | ✅ Presente (v2.33 + §32) | OK |
+| `factory.config.yaml` | ✅ Presente | Problemi §3.3 |
+| `AGENTS.md` root | ✅ Presente (ma stale, §3.4) | Parziale |
+| `wiki/` con struttura factory | ✅ Presente (concepts/, entities/, runbooks/, decisions/, incidents/) | OK |
+| `docs/raw/` per ingest | ✅ Presente | OK |
+| `docs/inbox/` scratch zone | ✅ Presente | OK |
+| `.claude/agents/` (21 agenti) | ✅ Presente | OK |
+| `.claude/commands/` (31 comandi) | ✅ Presente | OK |
+| `.claude/skills/` (51 skill) | ✅ Presente | OK |
+| `.claude/settings.json` | ✅ Presente (hook analytics) | OK |
+| `.cursor/rules/` (adapter primario v2.32) | ✅ Presente | OK |
+
+### 3.2 FINDING CRITICO #1 — docs/wiki/ ghost schema con Cursor rule alwaysApply
+
+**Gravità: CRITICA — da eliminare**
+
+`docs/wiki/` è un residuo di un precedente approccio "Karpathy LLM Wiki" (pattern April 2026,
+bootstrappato 2026-05-06) che non è mai stato integrato nella factory multi-agente. Contiene:
+
+```
+docs/wiki/
+├── .cursor/rules/wiki.md       ← ⚠️ alwaysApply: true — INTERFERISCE con Cursor
+├── AGENTS.md                   ← schema LLM Wiki alternativo (non factory)
+├── CLAUDE.md                   ← pointer a docs/wiki/AGENTS.md
+├── prompts/
+│   ├── ingest.md
+│   ├── lint.md
+│   └── query.md
+├── variants/
+│   ├── research-project.md
+│   └── tech-project.md
+└── wiki/                       ← wiki dentro la wiki (wiki/wiki/)
+    ├── index.md                ← bootstrap-only (2026-05-06)
+    └── log.md                  ← 3 entry soltanto (2026-05-06)
+```
+
+**Il problema principale è `.cursor/rules/wiki.md` con `alwaysApply: true`.**
+
+Questo file inietta in ogni sessione Cursor la regola:
+> "All behavioral rules for this repository live in AGENTS.md. Read AGENTS.md before doing anything."
+
+Il puntamento è a `docs/wiki/AGENTS.md` (schema Karpathy), non a `AGENTS.md` root (factory).
+Il `docs/wiki/AGENTS.md` definisce:
+- Wiki root: `docs/wiki/` (conflitto con `wiki/` factory)
+- Raw folder: `docs/raw/` (coincide per caso, ma con schema diverso)
+- Struttura: sources/, concepts/, decisions/, runbooks/, incidents/, components/, syntheses/ dentro `docs/wiki/`
+- Regola agent: scrivere SOLO dentro `docs/wiki/` — conflitto diretto con factory
+
+**Il `docs/wiki/AGENTS.md` è incompatibile con il pattern factory** su questi punti:
+1. Definisce un'architettura a 3 layer diversa dalla factory
+2. Impone che il wiki sia dentro `docs/wiki/` invece di `wiki/` root
+3. Usa linking in stile Obsidian (`[[wikilinks]]`) vs frontmatter factory
+4. Non conosce il concetto di wiki-keeper, wiki-query, wiki-lint
+5. Ha un loop operazionale diverso (ingest/query/lint come comandi espliciti)
+
+**Artefatto fantasma**: `docs/wiki/wiki/` è una wiki dentro docs/wiki/ — evidenza che qualcuno ha eseguito un ingest parziale seguendo lo schema Karpathy prima di adottare la factory, producendo un'anomalia strutturale.
+
+**Azione raccomandata**: eliminare integralmente `docs/wiki/`.
+
+### 3.3 FINDING MAGGIORE #2 — factory.config.yaml: description stale + content_share incompleto
+
+**Gravità: MAGGIORE**
+
+**a) Description stale:**
+```yaml
+factory:
+  name: solids-design-system
+  description: "SoliDS — Design system EP-019 validation run v2.21.0"
+```
+Il `description` riflette la motivazione originale (EP-019 critic run v2.21), ma `pattern_version` è `"2.33"`.
+Il campo dovrebbe essere aggiornato a qualcosa di neutro e stabile, es.:
+```yaml
+description: "SoliDS — Design system React (@soli92/solids)"
+```
+
+**b) content_share con campi obbligatori vuoti:**
+```yaml
+content_share:
+  enabled: false
+  target_repo: "soli92/soli-frames"
+  source_repo_slug: ""       # ← OBBLIGATORIO se enabled: true
+  source_repo: ""            # ← OBBLIGATORIO se enabled: true
+```
+Il commento nel YAML dice "obbligatorio se enabled: true". Questi campi sono vuoti.
+Se qualcuno abilita `content_share.enabled: true` senza notare che mancano, il dispatch fallirà silenziosamente.
+Valori corretti da compilare (per il repo solids):
+```yaml
+source_repo_slug: "solids"
+source_repo: "soli92/solids"
+```
+
+### 3.4 FINDING MAGGIORE #3 — AGENTS.md root outdated
+
+**Gravità: MAGGIORE**
+
+`AGENTS.md` root (aggiornato 2026-04-29) predatescente la factory scaffold (2026-07-17).
+Non contiene alcun riferimento a:
+- Pattern factory v2.33
+- Adapter `.claude/` e `.cursor/`
+- Wiki in `wiki/` root
+- Slash commands (`/run`, `/query`, `/lint`, ecc.)
+- Il flusso wiki-keeper per ingest di `docs/raw/`
+
+È un documento operativo utile per il DS ma non per la factory. In un repo con topologia knowledge-only,
+il CLAUDE.md è il punto di ingresso principale — l'AGENTS.md root dovrebbe almeno referenziarlo o allinearsi.
+
+**Azione raccomandata**: aggiungere una sezione "Factory / Agent Context" all'AGENTS.md root
+che rimanda a CLAUDE.md e al wiki, oppure aggiungere una nota in cima.
+
+### 3.5 FINDING MODERATO #4 — design_&_architecture/ fuori dalla wiki tree
+
+**Gravità: MODERATA**
+
+La directory `design_&_architecture/` alla root contiene 4 file:
+- `a11y-token-audit.md`
+- `ep019-critic-report-solids.md`
+- `theme-spec-brutalist.md`
+- `token-naming-convention.md`
+
+Questi file sono referenziati da `wiki/index.md` con path relativi `../design_&_architecture/`.
+Il pattern factory prevede che tutti gli artefatti della knowledge base siano dentro `wiki/`.
+Avere documenti fuori dalla wiki tree ma linkati dall'indice wiki è non-standard e fragile:
+- Se la wiki viene mossa o riorganizzata, i link si rompono
+- Il wiki-lint non li conosce (sono fuori scope)
+- Il wiki-keeper non li aggiorna automaticamente
+
+**Azione raccomandata**: spostare i 4 file in `wiki/design/` o `wiki/concepts/` e aggiornare i link in `wiki/index.md`.
+
+### 3.6 FINDING MODERATO #5 — AI_LOG.md non ingested nella wiki
+
+**Gravità: MODERATA**
+
+`AI_LOG.md` contiene storico prezioso:
+- Storia dello sviluppo (58 commit dal 2026-02-16 al 2026-04-08)
+- Decisioni architetturali per fase (token, registry, brand assets, ecc.)
+- Integrazione soli-prof (webhook HMAC)
+- Pattern e lezioni apprese
+
+Questo documento non è mai stato ingested nella wiki factory. È referenziato solo da `AGENTS.md` root.
+
+**Azione raccomandata**: ingestare `AI_LOG.md` come raw source (copiarlo in `docs/raw/` o ingestarlo direttamente).
+
+### 3.7 FINDING MODERATO #6 — docs MDX non ingested
+
+**Gravità: MODERATA**
+
+I file MDX in `docs/foundations/` e i documenti `docs/principles.mdx`, `docs/roadmap.mdx` contengono
+conoscenza strutturata e aggiornata sul design system che non è presente nella wiki factory.
+La wiki ha `concepts/design-system-overview.md` ma manca:
+- Principi di design espliciti (6 principi da `principles.mdx`)
+- Stato roadmap (14 completati, 3 next)
+- Documentazione dei token di accessibilità e motion
+- Documentazione del sistema tipografico
+- Documentazione spacing e radius
+
+**Azione raccomandata**: ingestare `docs/principles.mdx` e `docs/roadmap.mdx` nella wiki,
+e creare/aggiornare pagine concepts per foundations (typography, spacing, accessibility).
+
+### 3.8 FINDING MINORE #7 — wiki/index.md path relativi inconsistenti
+
+**Gravità: MINORE**
+
+`wiki/index.md` usa path relativi `../design_&_architecture/` per i file di design.
+Le altre pagine usano path relativi dentro wiki/ (es. `concepts/design-system-overview.md`).
+Misto di path assoluti relativi (uscendo dalla wiki) e path relativi interni — inconsistente.
+
+### 3.9 FINDING MINORE #8 — docs/registry-model-1.md e docs/shadcn-integration.md
+
+**Gravità: MINORE**
+
+Due documenti tecnici di valore non ingested nella wiki:
+- `docs/registry-model-1.md` — architettura registry Model 1, naming convention, `registryDependencies`
+- `docs/shadcn-integration.md` — guida integrazione shadcn/ui completa
+
+**Azione raccomandata**: ingestare come raw sources in una sessione successiva.
+
+---
+
+## Parte 4 — Riepilogo azioni raccomandate
+
+### URGENTI (prima della prossima sessione Cursor/Claude)
+
+| Priorità | Azione | Motivo |
+|----------|--------|--------|
+| P0 | **Eliminare `docs/wiki/`** | `.cursor/rules/wiki.md` con `alwaysApply: true` inietta schema incompatibile in ogni sessione Cursor — rischio context corruption |
+| P1 | **Fix `factory.config.yaml`** — description + content_share slug | Description stale + campi obbligatori vuoti rischiano failures silenziosi |
+
+### IMPORTANTI (prossima sessione manutenzione)
+
+| Priorità | Azione | Motivo |
+|----------|--------|--------|
+| P2 | **Spostare `design_&_architecture/` → `wiki/design/`** | Path relativi fragili, fuori scope wiki-lint |
+| P2 | **Ingestare `AI_LOG.md`** | Storico sviluppo prezioso non accessibile via wiki |
+| P3 | **Aggiornare `AGENTS.md` root** con nota factory v2.33 | Manutenibilità e coerenza |
+
+### NICE TO HAVE (sessioni future)
+
+| Priorità | Azione | Motivo |
+|----------|--------|--------|
+| P4 | **Ingestare `docs/principles.mdx`, `docs/roadmap.mdx`** | Arricchimento wiki con principi e roadmap |
+| P4 | **Ingestare `docs/registry-model-1.md`, `docs/shadcn-integration.md`** | Documenti tecnici utili per wiki |
+| P5 | **Creare pagine wiki foundations** (typography, spacing, a11y) | Dalla documentazione MDX già analizzata |
+
+---
+
+## Parte 5 — Mappa della conoscenza emersa
+
+### Entità principali
+
+| Entità | Tipo | Note |
+|--------|------|------|
+| `@soli92/solids` | npm package | Design system root |
+| `SolidsIcon` | componente | Wrapper SVG con token CSS automatici |
+| `LogoLoader` / `LogoLoaderOverlay` | componente | Loader animato con brand icon |
+| `src/lib/icons/index.ts` | bridge | Compatibilità path per registry shadcn |
+| `scripts/sync-registry.mjs` | script | Build registry shadcn — sovrascrive ogni run |
+| `soli-prof` | consumer system | RAG con CORPUS_REPOS + webhook HMAC |
+| `soli-frames` | hosting | Piattaforma artefatti HTML (EP-048) |
+
+### Concetti chiave (non ancora in wiki come pagine dedicate)
+
+- **Design Principles SoliDS** (6 principi — da `principles.mdx`)
+- **Roadmap stato corrente** (14 done, 3 next — da `roadmap.mdx`)
+- **Bridge pattern @/lib/icons** (DA-002, documentato post-bonifica)
+- **Registry Model 1** (da `docs/registry-model-1.md`)
+- **shadcn integration pattern** (da `docs/shadcn-integration.md`)
+- **Brand asset normalization** (workspace-icons-normalized, soli-category-icons)
+- **soli-prof RAG webhook** (da `AI_LOG.md` + `AGENTS.md`)
+
+### Decisioni architetturali già documentate (wiki/decisions/)
+
+- DA-001: `glyphs-themed.tsx` come source of truth per icone tematiche
+- DA-002: Bridge `src/lib/icons/index.ts` per compatibilità registry
+- DA-003: Pattern `.gitignore` root-anchored `/solids/`
+- DA-004: `.claude/worktrees/` gitignored
+
+---
+
+## Appendice — Evidenza docs/wiki/ incompatibilità
+
+### Confronto schema Karpathy (docs/wiki/AGENTS.md) vs factory (wiki-keeper)
+
+| Dimensione | Schema Karpathy (ghost) | Factory pattern v2.33 |
+|------------|------------------------|----------------------|
+| Wiki root | `docs/wiki/` | `wiki/` (root) |
+| Raw folder | `docs/raw/` | `docs/raw/` |
+| Linking | `[[wikilinks]]` Obsidian | Path relativi markdown |
+| Frontmatter | `type/created/updated/sources/status/language` | `id/type/title/status/created/updated/sources` |
+| Agenti | Nessun agente dedicato | `wiki-keeper`, `wiki-query`, `wiki-lint` |
+| Ingest | Comando manuale `Ingest docs/raw/<file>` | Slash command `/sync-docs` + wiki-keeper agent |
+| Lint | Comando manuale `Lint the wiki` | `/lint` → wiki-lint agent |
+| Query | Prompt esplicito | `/query` → wiki-query agent |
+| Log | `docs/wiki/log.md` | `wiki/log.md` |
+| Sottocartelle | sources/, concepts/, decisions/, runbooks/, incidents/, components/, syntheses/ | concepts/, entities/, runbooks/, decisions/, incidents/ |
+
+### Attivazione Cursor rule (prova interferenza)
+
+Il file `docs/wiki/.cursor/rules/wiki.md` contiene:
+```yaml
+---
+description: LLM Wiki schema for this repository
+alwaysApply: true
+---
+All behavioral rules for this repository live in AGENTS.md at the repo root.
+Read AGENTS.md before doing anything else in this repo.
+```
+
+Con `alwaysApply: true`, Cursor inietta questa regola in ogni conversazione.
+"AGENTS.md" in questo contesto punta a `docs/wiki/AGENTS.md` (l'unico AGENTS.md
+visibile quando si naviga da `docs/wiki/`), che definisce un'architettura incompatibile.
+Questo può causare che il modello scriva nella wiki sbagliata (`docs/wiki/`) invece di `wiki/`.

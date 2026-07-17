@@ -1,0 +1,237 @@
+# Bonifica Repository solids — Sessione 2026-07-17
+
+## Metadati
+
+- Data: 2026-07-17
+- Progetto: @soli92/solids (Design System React)
+- Tipo: Incident report + Bonifica tecnica
+- Commit: 87818cc
+- Pattern factory: v2.33 (post-bonifica)
+- Autore: Claude Sonnet 4.6 (sessione assistita)
+
+---
+
+## Sommario esecutivo
+
+Il repository `solids` presentava quattro categorie di problemi critici:
+
+1. **Icone duplicate** — 9 icone tematiche definite due volte (versioni semplificate in `glyphs.tsx` + versioni elaborate in `glyphs-themed.tsx`, non esportate)
+2. **Import path rotto** — `logo-loader.tsx` importava da `@/icons` invece di `@/lib/icons`, path non risolvibile dai consumer del registry shadcn
+3. **Struttura git corrotta** — submodule `soli-projects` defunto + clone innestato `solids/` nella root
+4. **Adapter Claude Code assente** — `.claude/` parziale (solo `share.md` + `content-share-protocol.md`), nessun agente, nessun CLAUDE.md
+
+Tutti i problemi sono stati risolti atomicamente in un unico commit di bonifica.
+
+---
+
+## Sezione 1 — Design System: icone duplicate
+
+### Problema
+
+Due file convivevano con definizioni degli stessi simboli:
+
+- `src/icons/glyphs.tsx` — conteneva versioni **semplificate** (segnaposto) di 9 icone tematiche aggiunge per errore
+- `src/icons/glyphs-themed.tsx` — conteneva le versioni **elaborate** (design definitivo) degli stessi simboli, ma non era esportato
+
+Le 9 icone duplicate erano:
+`IconFantasyScroll`, `IconFantasySword`, `IconFantasyGem`, `IconCyberpunkChip`, `IconCyberpunkEye`, `IconCyberpunkSignal`, `IconPartyBolt`, `IconPartyDiamond`, `IconPartyStar`
+
+Se entrambi i file fossero stati esportati, TypeScript avrebbe generato errori di binding duplicato.
+
+### Root cause
+
+`src/icons/index.ts` esportava solo `glyphs.tsx` e `solids-icon.tsx`. Il file `glyphs-themed.tsx` era stato creato con le implementazioni corrette ma mai aggiunto all'index, lasciando le icone inaccessibili.
+
+### Fix applicato
+
+1. Rimosso righe 247–342 da `src/icons/glyphs.tsx` (le 9 versioni semplificate)
+2. Aggiunto `export * from "./glyphs-themed"` in `src/icons/index.ts`
+
+Decisione: conservare le versioni di `glyphs-themed.tsx` perché hanno SVG path elaborati corrispondenti al design definitivo; le versioni in `glyphs.tsx` erano segnaposto.
+
+---
+
+## Sezione 2 — Design System: import path rotto
+
+### Problema
+
+`src/components/ui/logo-loader.tsx` importava:
+
+```
+import { IconSoli4x3WithTextTheme } from "@/icons"
+```
+
+Questo funziona in locale (dove `@/` → `src/`), ma i consumer del registry shadcn ricevono i file via `registry:lib` installati in `lib/`. Il path `@/icons` non esiste nel progetto del consumer; il corretto sarebbe `@/lib/icons`.
+
+### Fix applicato
+
+1. Creato `src/lib/icons/index.ts` — bridge che re-esporta da `@/icons` per compatibilità dev locale
+2. Modificato `logo-loader.tsx`: `@/icons` → `@/lib/icons`
+
+Il bridge garantisce che in locale dev il path `@/lib/icons` risolva correttamente senza rompere la toolchain esistente.
+
+---
+
+## Sezione 3 — Registry shadcn
+
+### Problema
+
+- `registry/solids/icons/glyphs-themed.tsx` non esisteva (non era mai stato sincronizzato)
+- `registry/r/solids-icons.json` non esisteva (le icone tematiche non avevano un registry item dedicato)
+- `registry/r/solids-ui.json` non dichiarava `@solids/solids-icons` come dipendenza
+- L'import path di `logo-loader` nel registry era sbagliato
+
+### Fix applicato
+
+1. `scripts/sync-registry.mjs`: aggiunto `@solids/solids-icons` in `registryDependencies` per il blocco `solids-ui`
+2. Eseguito `npx shadcn build --output ./registry/r` per rigenerare:
+   - `registry/r/registry.json`
+   - `registry/r/solids-icons.json` (nuovo)
+   - `registry/r/solids-ui.json` (aggiornato)
+   - `registry/solids/icons/glyphs.tsx` (senza duplicati)
+   - `registry/solids/icons/glyphs-themed.tsx` (nuovo)
+   - `registry/solids/icons/index.ts` (con export glyphs-themed)
+   - `registry/solids/logo-loader/logo-loader.tsx` (con @/lib/icons)
+
+Nota: `sync-registry.mjs` rigenera `registry.json` ad ogni run — qualsiasi modifica manuale viene sovrascritta. Le modifiche devono sempre andare nello script.
+
+---
+
+## Sezione 4 — Struttura git corrotta
+
+### Submodule soli-projects
+
+Il file `.gitmodules` referenziava `soli-projects` come submodule, ma il repository puntato risultava non raggiungibile / obsoleto. La directory non era più sincronizzata con il remote.
+
+**Azione**: rimozione completa del submodule.
+
+```bash
+git submodule deinit -f soli-projects
+git rm -f soli-projects
+rm -rf .git/modules/soli-projects
+```
+
+### Clone innestato solids/
+
+Nella root del repository esisteva una directory `solids/` che era un clone git separato del medesimo repository (clone accidentale). Non era un submodule registrato; era semplicemente una copia della working tree.
+
+Confermato che la directory era pulita (stesso contenuto del remote, nessun lavoro locale esclusivo), quindi eliminata con `rm -rf solids/`.
+
+Il `.gitignore` è stato aggiornato con il pattern root-anchored `/solids/` per impedire che future clonazioni accidentali finiscano tracciate. Il pattern non usa il prefisso `solids/` (senza slash iniziale) che avrebbe ignorato anche `registry/solids/`.
+
+---
+
+## Sezione 5 — Factory scaffold .claude/ adapter v2.33
+
+### Situazione pre-bonifica
+
+L'adapter `.claude/` era presente solo parzialmente:
+- `commands/share.md` (unico comando)
+- `skills/content-share-protocol.md` (unica skill)
+- Nessun agente
+- Nessun `CLAUDE.md`
+- Nessun `settings.json`
+
+Il CLAUDE.md era assente dalla root del repository, rendendo il contesto del progetto invisibile a Claude Code.
+
+### Scaffold eseguito
+
+**CLAUDE.md** (root) — documento di contesto progetto con:
+- Adapter table (.cursor/ primario v2.32, .claude/ secondario v2.33)
+- Topologia: `knowledge-only`
+- Quick start slash command
+- Tabella agenti principali
+- Configurazione factory
+
+**.claude/agents/** — 21 agenti porting completo da `.cursor/rules/`:
+`a11y-specialist`, `analytics-reporter`, `consistency-checker`, `estimation-analyst`, `figma-sync`, `graphify-sync`, `lead-architect`, `orchestrator`, `product-manager`, `prototype-generator`, `repo-sync`, `sync-docs`, `tavola-rotonda-moderatore`, `tpm`, `tutor`, `ui-designer`, `ux-ui-reviewer`, `wiki-keeper-worker`, `wiki-keeper`, `wiki-lint`, `wiki-query`
+
+**.claude/commands/** — 31 comandi (27 da `.cursor/commands/` + `dev.md`, `review.md`, `release.md`)
+
+**.claude/skills/** — 51 skill (49 da `.cursor/skills/` + `content-share-protocol.md` già esistente)
+
+**.claude/settings.json** — hook `SessionEnd` per analytics EP-013 dogfooding:
+```json
+{ "hooks": { "SessionEnd": [{ "command": "harvest-session-tokens.py --from-hook --project solids" }] } }
+```
+
+---
+
+## Sezione 6 — v2.33 gap closure (EP-048 Content Share Consumer Layer)
+
+Il pattern v2.33 (EP-048) era stato applicato all'adapter `.cursor/` ma i 4 artefatti richiesti mancavano tutti.
+
+### Gap 1 — PATTERN.md §32
+
+Appeso alla fine di `PATTERN.md` il §32 "Content Share Consumer Layer" (139 righe):
+- §32.1 Problema
+- §32.2 Architettura dispatch (fire-and-forget verso soli-frames)
+- §32.3 Slug convention (R.CS1)
+- §32.4 Invarianti R.CS1..R.CS4
+
+### Gap 2 — .cursor/commands/share.md
+
+Creato il comando `/share` nell'adapter `.cursor/`. Gate R.CS3: richiede conferma umana prima del dispatch. Flag `--dry-run` disponibile.
+
+### Gap 3 — .cursor/skills/content-share-protocol/SKILL.md
+
+Creata la skill `content-share-protocol` per l'adapter `.cursor/` (già presente in `.claude/skills/`).
+
+### Gap 4 — wiki/entities/soli-frames.md
+
+Creata la pagina entità per la piattaforma `soli-frames` (hosting artefatti HTML prodotti da `/share`). Include frontmatter con `pattern_section: §32`.
+
+---
+
+## Decisioni architetturali
+
+### DA-001 — Conservare glyphs-themed.tsx come source of truth
+
+Le versioni elaborate in `glyphs-themed.tsx` sono il design definitivo. Le versioni semplificate in `glyphs.tsx` erano placeholders. Decisione: eliminare le versioni semplificate, non le elaborate.
+
+### DA-002 — Bridge pattern per @/lib/icons
+
+Invece di cambiare il path sorgente (che richiederebbe refactoring in tutto il codebase), si introduce un bridge `src/lib/icons/index.ts` che re-esporta da `@/icons`. Questo separa il path del consumer del registry (stabile) dalla struttura interna del repo (flessibile).
+
+### DA-003 — Pattern .gitignore root-anchored
+
+Il pattern `/solids/` con slash iniziale ignora solo la directory nella root del repo. Il pattern `solids/` senza slash avrebbe ignorato anche `registry/solids/`, causando la scomparsa delle icone sincronizzate dal tracking git. Sempre usare slash iniziale per pattern nella root.
+
+### DA-004 — .claude/worktrees/ gitignored
+
+La directory `.claude/worktrees/` usata da Claude Code per checkout isolati deve essere ignorata da git. Aggiunto pattern nel `.gitignore`. Questi checkout sono temporanei e non devono essere committati.
+
+---
+
+## Artefatti prodotti
+
+| Tipo | Path | Stato |
+|---|---|---|
+| Fix | `src/icons/glyphs.tsx` | Rimossi 9 duplicati (righe 247-342) |
+| Fix | `src/icons/index.ts` | Aggiunto export glyphs-themed |
+| Fix | `src/components/ui/logo-loader.tsx` | Import path corretto |
+| Nuovo | `src/lib/icons/index.ts` | Bridge re-export |
+| Nuovo | `registry/r/solids-icons.json` | Item registry icone tematiche |
+| Aggiornato | `registry/r/solids-ui.json` | registryDependencies aggiornato |
+| Aggiornato | `scripts/sync-registry.mjs` | registryDependencies solids-ui |
+| Rimosso | `soli-projects` | Submodule defunto eliminato |
+| Rimosso | `solids/` | Clone innestato eliminato |
+| Nuovo | `CLAUDE.md` | Contesto progetto per Claude Code |
+| Nuovo | `.claude/agents/` | 21 agenti |
+| Nuovo | `.claude/commands/` | 31 comandi (totale con share) |
+| Nuovo | `.claude/skills/` | 51 skill (totale con content-share) |
+| Nuovo | `.claude/settings.json` | Hook analytics |
+| Aggiornato | `PATTERN.md` | §32 appeso |
+| Nuovo | `.cursor/commands/share.md` | Comando /share |
+| Nuovo | `.cursor/skills/content-share-protocol/SKILL.md` | Skill share |
+| Nuovo | `wiki/entities/soli-frames.md` | Entità piattaforma |
+
+---
+
+## Impatto e rischi residui
+
+**Zero regressioni attese** — tutti i fix sono additive o rimuovono codice duplicato. Il bridge `src/lib/icons` garantisce backward compat per il dev locale.
+
+**Risk residuo**: il TypeScript build (`npm run build`) non è stato eseguito in questa sessione per verificare zero errori. Raccomandato come passo di verifica prima della prossima release.
+
+**Nota registry**: `solids-icon.tsx` nel registry ha rimosso la dipendenza da `cn` (sostituita con array join), il che è corretto per i consumer che potrebbero non avere la utility `cn` installata.

@@ -26,6 +26,15 @@ Pacchetto **`@soli92/solids`**, Node **22+**, build in `dist/`. Documentazione i
 
 Questo repository compare in **`CORPUS_REPOS`** su [soli-prof](https://github.com/soli92/soli-prof) (`lib/rag-service/config.ts`). Un webhook GitHub su **`push`** verso `https://soli-prof.vercel.app/api/webhooks/github` può attivare **re-ingest** selettivo lato Soli Prof (HMAC; segreto solo su Vercel e in GitHub). I test del design system **non** dipendono da quel flusso. Registrazione hook: **soli-prof** → `AGENTS.md`, `scripts/setup-webhooks.sh`.
 
+## Factory / Agent Context (v2.33)
+
+Da 2026-07-17 questo repo usa la **factory llm-wiki++ v2.33** con adapter Claude Code (`.claude/`) e Cursor (`.cursor/`).
+
+- **Punto di ingresso operativo**: `CLAUDE.md` — istruzioni aggiornate per agenti, slash commands, topologia
+- **Wiki knowledge base**: `wiki/` — slash commands: `/run`, `/query`, `/lint`, `/heal`, `/promote`
+- **Ingest documenti**: copiare in `docs/raw/` e invocare wiki-keeper (o `/sync-docs`)
+- **Topologia**: `knowledge-only` (no dev-agent attivi; routing `docs → agent`, `fe → agent`)
+
 ## Regole per l’agente
 
 - Non committare segreti; `.npmrc` in repo forza registry pubblico e `tag=latest`.
