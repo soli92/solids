@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/soli92/solids/compare/v1.15.0...v1.15.1) (2026-07-17)
+
+
+### Bug Fixes
+
+* **ds)+chore(factory:** bonifica repo + scaffold .claude/ adapter v2.33 ([87818cc](https://github.com/soli92/solids/commit/87818ccd33b6c6e9ca42abfca0d03e6f440a3e45))
+
 # [1.15.0](https://github.com/soli92/solids/compare/v1.14.1...v1.15.0) (2026-06-25)
 
 
