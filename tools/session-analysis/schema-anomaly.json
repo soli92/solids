@@ -1,0 +1,388 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soli-multi-agents-factory/schemas/session-analysis-anomaly-v1.json",
+  "title": "Session Analysis Anomaly v1",
+  "description": "Formalizza la struttura degli output di detect-anomalies.py (EP-061 v1). Fonte autoritativa: wiki/decisions/tavola-rotonda-c4e8f1b2-7a3d-4c96-b0e5-2d9f83a1c647-2026-09-08.md §'Criteri di successo verificati' TSK-F. Consumato da TSK-556 Report Generation e da fleet-doctor (campo fleet_recommendations, parsing diretto senza LLM intermediary). Versione schema: v1. Roadmap v2: aggiunta categoria GOVERNANCE (SAA-G) + tipi anomalia SAA-V/SAA-C/SAA-G/SAA-O/SAA-S — non implementati in v1 ma previsti nell'enum futuro.",
+  "$defs": {
+    "Provenance": {
+      "type": "object",
+      "description": "Anti-fabbricazione R-SAA-7: ogni Anomaly deve dichiarare il campo sorgente e il file di origine da cui è stata derivata la prova.",
+      "properties": {
+        "source_field": {
+          "type": "string",
+          "description": "Identificatore del campo sorgente. Es. 'session_totals.total_cost_approx: 5.998261 >= threshold 5.00'"
+        },
+        "source_file": {
+          "type": "string",
+          "enum": ["parsed", "metrics"],
+          "description": "'parsed' = dati da parse-transcript.py; 'metrics' = dati da fleet-metrics.py"
+        }
+      },
+      "required": ["source_field", "source_file"],
+      "additionalProperties": false
+    },
+    "Anomaly": {
+      "type": "object",
+      "description": "Una singola anomalia rilevata da detect-anomalies.py. I campi riflettono la shape reale prodotta dalla fixture cc-2.1.258-with-subagents (ispezione 2026-09-08). Nota roadmap v2: la categoria GOVERNANCE è prevista ma non abilitata in v1.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^ANO-[0-9]{3,}$",
+          "description": "Identificatore univoco dell'anomalia. Formato: ANO-NNN (minimo 3 cifre)."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["ERROR", "BUDGET", "DISPATCH", "LATENCY", "FLEET", "GOVERNANCE"],
+          "description": "Categoria dell'anomalia. ERROR/BUDGET/DISPATCH sono core (v1). LATENCY/FLEET sono opt-in (--enable-latency/--enable-fleet, roadmap v2: calibrazione signal). GOVERNANCE è prevista in roadmap v2 (SAA-G) ma non implementata in v1."
+        },
+        "subtype": {
+          "type": "string",
+          "enum": [
+            "ERROR_LOOP",
+            "BUDGET_OVERFLOW",
+            "TIER_MISMATCH",
+            "DISPATCH_REDUNDANT",
+            "SERIAL_WHEN_PARALLEL",
+            "STRAGGLER",
+            "SKILL_NOT_FOUND"
+          ],
+          "description": "Sottotipo specifico dell'anomalia. Disambigua le categorie larghe (es. BUDGET → BUDGET_OVERFLOW, DISPATCH → DISPATCH_REDUNDANT o SERIAL_WHEN_PARALLEL)."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "warning", "info"],
+          "description": "Gravità dell'anomalia. 'critical' richiede attenzione immediata; 'warning' segnala degradazione; 'info' è osservazionale."
+        },
+        "wave_id": {
+          "type": ["string", "null"],
+          "description": "Identificatore della wave di dispatch, se l'anomalia è riconducibile a una wave specifica. Null per anomalie session-level."
+        },
+        "agent_hash": {
+          "type": ["string", "null"],
+          "description": "Hash identificativo dell'agente, se l'anomalia è riconducibile a un singolo agente. Null per anomalie aggregate."
+        },
+        "attribution_agent": {
+          "type": ["string", "null"],
+          "description": "Slug o nome dell'agente responsabile dell'anomalia, se determinabile. Null se non attribuibile a un singolo agente."
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Descrizione human-readable dell'anomalia. Massimo 500 caratteri."
+        },
+        "evidence_excerpt": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Estratto di prova che motiva l'anomalia. Massimo 200 caratteri (R-SAA-3: redacted per privacy/lunghezza). Deve contenere i valori numerici o testuali chiave."
+        },
+        "evidence_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Numero di occorrenze della prova che supportano questa anomalia. Minimo 1."
+        },
+        "fix_suggestion": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Suggerimento di remediation: file da modificare, parametro da aggiustare, azione da intraprendere. Massimo 1000 caratteri."
+        },
+        "pattern_eligible": {
+          "type": "boolean",
+          "description": "True se l'anomalia è candidata a diventare un pattern ricorrente in memory/semantic/. Alimenta la KB evolutiva del code-reviewer."
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance",
+          "description": "Tracciabilità della prova (R-SAA-7 anti-fabbricazione). Obbligatorio."
+        }
+      },
+      "required": [
+        "id",
+        "category",
+        "subtype",
+        "severity",
+        "description",
+        "evidence_excerpt",
+        "evidence_count",
+        "fix_suggestion",
+        "pattern_eligible",
+        "provenance"
+      ],
+      "additionalProperties": false
+    },
+    "FleetRecommendation": {
+      "type": "object",
+      "description": "Raccomandazione strutturata per fleet-doctor. Tutti i campi sono typed per parsing diretto senza LLM intermediary: fleet-doctor legge anomaly_id e fleet_doctor_command direttamente dal JSON senza inferenza semantica.",
+      "properties": {
+        "anomaly_id": {
+          "type": "string",
+          "pattern": "^ANO-[0-9]{3,}$",
+          "description": "Riferimento all'anomalia sorgente (FK verso Anomaly.id)."
+        },
+        "skill_affected": {
+          "type": ["string", "null"],
+          "description": "Slug della skill coinvolta (es. 'dev-protocol', 'parallel-scheduling'). Null se l'anomalia non è riconducibile a una skill specifica."
+        },
+        "recommendation": {
+          "type": "string",
+          "description": "Testo della raccomandazione per fleet-doctor o per il maintainer."
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Priorità di intervento: 'high' entro il prossimo sprint, 'medium' entro il mese, 'low' backlog."
+        },
+        "fleet_doctor_command": {
+          "type": ["string", "null"],
+          "description": "Comando opzionale che fleet-doctor può eseguire direttamente (es. '/dev TSK-NNN' o path di script). Null se nessuna azione automatizzabile."
+        }
+      },
+      "required": ["anomaly_id", "recommendation", "priority"],
+      "additionalProperties": false
+    },
+    "AnomaliesMeta": {
+      "type": "object",
+      "description": "Metadati dell'esecuzione di detect-anomalies.py: parametri di configurazione e categorie abilitate.",
+      "properties": {
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp ISO 8601 UTC di generazione dell'output."
+        },
+        "source_parsed": {
+          "type": "string",
+          "description": "Path del file parsed (output di parse-transcript.py) usato come input."
+        },
+        "source_metrics": {
+          "type": "string",
+          "description": "Path del file metrics (output di fleet-metrics.py) usato come input."
+        },
+        "budget_max_usd": {
+          "type": ["number", "null"],
+          "description": "Soglia budget in USD letta da factory.config.yaml (budget.max_cost_usd). Null se non configurata."
+        },
+        "budget_source": {
+          "type": ["string", "null"],
+          "description": "Sorgente della soglia budget (es. 'factory.config.yaml (budget.max_cost_usd)'). Null se budget_max_usd è null."
+        },
+        "categories_enabled": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["ERROR", "BUDGET", "DISPATCH", "LATENCY", "FLEET", "GOVERNANCE"]
+          },
+          "description": "Categorie di anomalie abilitate in questa esecuzione."
+        },
+        "categories_disabled_reason": {
+          "type": "object",
+          "description": "Mappa categoria → motivazione di disabilitazione per le categorie non abilitate.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Warning non bloccanti emessi durante il rilevamento."
+        }
+      },
+      "required": ["generated_at", "source_parsed", "source_metrics", "categories_enabled"],
+      "additionalProperties": false
+    },
+    "AnomaliesSummary": {
+      "type": "object",
+      "description": "Riepilogo aggregato delle anomalie rilevate (conteggi per severity e categoria).",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Numero totale di anomalie rilevate."
+        },
+        "by_severity": {
+          "type": "object",
+          "description": "Conteggio anomalie per severity (es. {'critical': 1, 'warning': 2}).",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "by_category": {
+          "type": "object",
+          "description": "Conteggio anomalie per categoria (es. {'BUDGET': 1, 'ERROR': 2}).",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "required": ["total", "by_severity", "by_category"],
+      "additionalProperties": false
+    },
+    "AnomaliesEnvelope": {
+      "type": "object",
+      "description": "Output diretto di detect-anomalies.py. Struttura wrapper {meta, anomalies, summary} che riflette la shape prodotta dalla fixture cc-2.1.258-with-subagents (ispezione 2026-09-08).",
+      "properties": {
+        "meta": {
+          "$ref": "#/$defs/AnomaliesMeta"
+        },
+        "anomalies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Anomaly"
+          },
+          "description": "Lista delle anomalie rilevate. Può essere vuota se nessuna anomalia supera le soglie."
+        },
+        "summary": {
+          "$ref": "#/$defs/AnomaliesSummary"
+        }
+      },
+      "required": ["meta", "anomalies", "summary"],
+      "additionalProperties": false
+    },
+    "SessionMetrics": {
+      "type": "object",
+      "description": "Mirror semplificato dell'output di fleet-metrics.py. Include i campi chiave di session_totals e dispatch_efficiency rilevanti per il report finale (TSK-556). Non include per_agent/per_model/per_wave per dimensione: quelli rimangono nel file metrics separato.",
+      "properties": {
+        "total_token_in": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Token di input totali della sessione."
+        },
+        "total_token_out": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Token di output totali della sessione."
+        },
+        "total_cache_read": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Token letti dalla cache (cache_read_input_tokens)."
+        },
+        "total_cache_write": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Token scritti in cache (cache_creation_input_tokens)."
+        },
+        "total_cost_approx": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Costo approssimativo totale della sessione in USD."
+        },
+        "session_duration_ms": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Durata totale della sessione in millisecondi. Null se non determinabile."
+        },
+        "agent_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Numero di agenti distinti coinvolti nella sessione."
+        },
+        "wave_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Numero di wave di dispatch rilevate nella sessione."
+        },
+        "dispatch_efficiency_score": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Score di efficienza dispatch [0.0–1.0]. 1.0 = piena parallelizzazione; <1.0 = serializzazione parziale. Null se non calcolabile."
+        }
+      },
+      "required": ["total_cost_approx", "agent_count"],
+      "additionalProperties": false
+    },
+    "SessionAnalysisReport": {
+      "type": "object",
+      "description": "Root del JSON report generato da TSK-556 report generator. Aggrega anomalie, raccomandazioni fleet e metriche in un documento machine-readable e human-readable. Invariante R-SAA-5: ingest_eligible è sempre false (i report non vengono ingestiti nel wiki automaticamente). Politica wiki: incidents-only (solo anomalie critical o sessioni con anomaly_count > 0 vengono segnalate in wiki/incidents/).",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "session-analysis-report",
+          "description": "Discriminatore di tipo documento. Sempre 'session-analysis-report'."
+        },
+        "session_id": {
+          "type": "string",
+          "description": "Identificatore della sessione analizzata (es. slug del transcript o UUID)."
+        },
+        "depth": {
+          "type": "string",
+          "enum": ["quick", "full"],
+          "description": "'quick' = solo anomalie core (ERROR/BUDGET/DISPATCH); 'full' = incluse LATENCY/FLEET opt-in."
+        },
+        "span": {
+          "type": "string",
+          "description": "Intervallo temporale coperto dalla sessione analizzata (es. '2026-09-08T10:00Z/2026-09-08T10:30Z' o 'single-session')."
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp ISO 8601 UTC di generazione del report."
+        },
+        "factory_version": {
+          "type": "string",
+          "description": "Versione del pattern factory al momento della generazione (es. '2.41')."
+        },
+        "anomaly_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Numero totale di anomalie nel report."
+        },
+        "worst_severity": {
+          "type": "string",
+          "enum": ["critical", "warning", "info", "none"],
+          "description": "Severity massima tra le anomalie rilevate. 'none' se anomaly_count = 0."
+        },
+        "ingest_eligible": {
+          "type": "boolean",
+          "const": false,
+          "description": "Invariante R-SAA-5: sempre false. I report di sessione non vengono ingestiti automaticamente nel wiki (evita noise e loop di auto-analisi)."
+        },
+        "wiki_ingest_policy": {
+          "type": "string",
+          "const": "incidents-only",
+          "description": "Politica wiki: solo anomalie critical o sessioni rilevanti vengono segnalate in wiki/incidents/ (manualmente o via fleet-doctor su approvazione umana)."
+        },
+        "ttl_days": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 90,
+          "description": "Giorni di retention del report prima di archiviazione/eliminazione. Default 90."
+        },
+        "anomalies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Anomaly"
+          },
+          "description": "Lista completa delle anomalie rilevate per questa sessione."
+        },
+        "fleet_recommendations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FleetRecommendation"
+          },
+          "description": "Raccomandazioni strutturate per fleet-doctor derivate dalle anomalie. Parsabili direttamente senza LLM intermediary."
+        },
+        "session_metrics": {
+          "$ref": "#/$defs/SessionMetrics",
+          "description": "Metriche chiave della sessione analizzata (mirror semplificato di fleet-metrics.py)."
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "depth",
+        "generated_at",
+        "factory_version",
+        "anomaly_count",
+        "worst_severity",
+        "ingest_eligible",
+        "wiki_ingest_policy",
+        "anomalies",
+        "fleet_recommendations"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

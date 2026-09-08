@@ -1,0 +1,6 @@
+# adapters/mcp/requirements.txt — Factory-as-MCP-Server (EP-058, v2.39)
+# Invariante ADR-MCP-004: pin mcp==1.3.0 (spec 2025-03-26).
+# Upgrade: cambiare versione SOLO dopo gate umano + test MCP Inspector.
+# Vedere wiki/runbooks/mcp-server.md per la procedura completa.
+# Compatibilità: Python >= 3.11
+mcp==1.3.0

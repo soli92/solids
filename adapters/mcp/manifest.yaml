@@ -1,0 +1,31 @@
+# adapters/mcp/manifest.yaml — EP-058 Factory-as-MCP-Server (v2.39)
+# Adapter protocol-bridge: espone la factory come server MCP read-only via stdio.
+# Invariante R.MCP1 (ADR-MCP-002): nessun tool scrive su factory state.
+# Upgrade spec: cambia mcp_spec_version SOLO dopo gate umano + MCP Inspector test (ADR-MCP-004).
+name: mcp
+version: "0.1.0"
+maturity: partial
+adapter_type: protocol-bridge
+runtime: python
+transport: stdio
+entry_point: server.py
+requires_config: mcp_server
+
+mcp_spec_version: "2025-03-26"
+
+resources:
+  - wiki
+  - kanban
+  - config
+
+tools:
+  - query_wiki
+  - get_task
+  - lint_status
+
+description: >
+  Adapter protocol-bridge che espone la factory come server MCP (Model Context Protocol)
+  in sola lettura via stdio. Il server è avviato per-sessione dal client MCP (Cursor,
+  Claude Desktop) — nessun processo persistente, nessuna porta di rete. Invariante R.MCP1
+  non-bypassabile: nessun tool scrive su factory state. Spec lock: mcp==1.3.0 (2025-03-26).
+  [EP-058, v2.39, ADR-MCP-001..004]

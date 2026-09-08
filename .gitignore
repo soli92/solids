@@ -30,3 +30,8 @@ Thumbs.db
 
 # Claude Code worktrees (temporary isolated checkouts)
 .claude/worktrees/
+
+# Python bytecode caches (session-analysis, refactor, mcp adapter tools)
+__pycache__/
+*.pyc
+*.pyo

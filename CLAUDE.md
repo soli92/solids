@@ -1,6 +1,6 @@
 # CLAUDE.md — SoliDS Design System
 
-Questo repo segue il pattern definito in [`PATTERN.md`](PATTERN.md) (v2.33 = Content Share Consumer Layer EP-048 opt-in; backward compat totale v2.32).
+Questo repo segue il pattern definito in [`PATTERN.md`](PATTERN.md) (v2.42 = Session Observability EP-061 + EP-062 opt-in; backward compat totale v2.41).
 
 **Progetto**: `@soli92/solids` — Design System React (componenti, token, icone, Storybook, registry shadcn).
 
@@ -9,16 +9,23 @@ Questo repo segue il pattern definito in [`PATTERN.md`](PATTERN.md) (v2.33 = Con
 | Adapter | Versione | Cartella |
 |---|---|---|
 | `.cursor/` | v2.32 (primario) | `.cursor/rules/`, `.cursor/commands/`, `.cursor/skills/` |
-| `.claude/` | v2.33 (secondario) | `.claude/agents/`, `.claude/commands/`, `.claude/skills/` |
+| `.claude/` | v2.42 (secondario) | `.claude/agents/`, `.claude/commands/`, `.claude/skills/` |
 
-L'adapter primario è `.cursor/`. L'adapter `.claude/` è aggiunto a v2.33 con il Content Share Consumer Layer (EP-048) e porta in parità tutti gli agenti/comandi/skill con il pattern corrente.
+L'adapter primario è `.cursor/`. L'adapter `.claude/` è aggiornato a v2.42 con Session Observability opt-in e porta in parità tutti gli agenti/comandi/skill con il pattern corrente.
 
-## Pattern version: v2.33
+## Pattern version: v2.42
 
-- **v2.33**: Content Share Consumer Layer EP-048 opt-in — skill `content-share-protocol` + comando `/share` + invarianti R.CS1..R.CS4 + config `content_share:`; dispatch fire-and-forget verso soli-frames; gate umano R.CS3; backward compat totale v2.32
-- **v2.32**: Capability Formativa EP-045 + Voice Hardening EP-046 (agente tutor MVP + Student Model SM-2 + retrieval practice + curriculum YAML; 7 contratti FSM voice hardening C1..C7)
-- **v2.31**: Voice Handsfree Improvements EP-044 (debounce VAD, wake-word Levenshtein, FilePipeAdapter watchdog, PID lock)
-- Vedi `PATTERN.md` per la storia completa
+- **v2.42**: Session Observability EP-061 + EP-062 opt-in — `tools/session-analysis/`, skill `session-analysis-protocol`, comando `/session-analysis`, harvest-session-tokens fix
+- **v2.41**: Fleet Health EP-060 opt-in — skill `refactor-agent-skills` + agente `fleet-doctor` + Check 4ap WARNING-only + PATTERN §36
+- **v2.40**: Backport delta portale-servizi-factory EP-059 — release-manager + tpm-reconcile + deep-functional-probe + release-protocol + statusline-ledger.py
+- **v2.39**: Ponytail Decision Ladder EP-057 opt-in + MCP Server adapter EP-058 opt-in
+- **v2.38**: Semantic Purpose Layer EP-055 + Wiki Keeper 2.0 EP-056 opt-in — `wiki/purpose.md`, sweep-reviews-protocol, comando `/sweep-reviews`
+- **v2.37**: Code Intelligence Stack EP-054 opt-in — L1 ctags + L2 tree-sitter/nomic-embed/LanceDB + L3 graphify Fase 0.bis
+- **v2.36**: Backport portale-servizi-factory EP-053 — R.21 cooperative locking + skill `/onboarding` + vcs-preflight step 2-bis
+- **v2.35**: Bus Factor Mitigation EP-051 — soli-boy factory derivata pubblica + sunset policy
+- **v2.34**: Governance Enforcement EP-049 + Adoption Onboarding EP-050 + Tech Debt Cleanup EP-052
+- **v2.33**: Content Share Consumer Layer EP-048 opt-in (comando `/share`)
+- Vedi `PATTERN.md` per la storia completa (§28..§37)
 
 ## Topologia
 
@@ -72,13 +79,13 @@ Routing: `docs → agent`, `fe → agent`. No dev-agent attivi (topologia knowle
 
 ## Configurazione factory (`factory.config.yaml`)
 
-- **Pattern version**: `2.33`
+- **Pattern version**: `2.42`
 - **Topologia**: `knowledge-only`
 - **Scheduler**: `enabled: true`, `max_parallel: 20`
 - **Analytics dogfooding**: `enabled: true` (EP-013)
 - **Content Share** (v2.33): `content_share.enabled: false` (opt-in — configura per attivare `/share`)
 - **Modelli**: `tier_fast: claude-haiku-4-5-20251001`, `tier_default: claude-sonnet-4-6`, `tier_deep: claude-opus-4-8`
-- Tutte le capability opt-in (prototype, tavola-rotonda, wiki-search, temporal, tutor) sono `enabled: false` di default (R.P3)
+- Tutte le capability opt-in (prototype, tavola-rotonda, wiki-search, temporal, tutor, code-intelligence, wiki-purpose, wiki-sweep, ponytail, mcp-server, refactor-agent-skills, session-analysis, voice-channel) sono `enabled: false` di default (R.P3)
 
 ## Note progetto SoliDS
 
@@ -90,9 +97,11 @@ Routing: `docs → agent`, `fe → agent`. No dev-agent attivi (topologia knowle
 
 ## Cross-link
 
-- [`PATTERN.md`](PATTERN.md) — pattern completo v2.33 (§32 = Content Share Consumer Layer)
+- [`PATTERN.md`](PATTERN.md) — pattern completo v2.42 (§33 Code Intelligence, §34 Semantic Purpose, §35 Wiki Keeper 2.0, §36 Fleet Health, §37 Session Observability)
 - [`factory.config.yaml`](factory.config.yaml) — configurazione factory
 - [`.cursor/rules/orchestrator.mdc`](.cursor/rules/orchestrator.mdc) — contesto orchestrator
 - `wiki/` — knowledge base del progetto
 - `wiki/runbooks/content-share-setup.md` — setup prerequisiti `/share`
+- `wiki/runbooks/skill-hygiene.md` — runbook fleet-health / refactor-agent-skills (v2.41)
+- `wiki/runbooks/session-analysis-fleet-doctor-handoff.md` — session observability handoff (v2.42)
 - `wiki/entities/soli-frames.md` — piattaforma hosting artefatti

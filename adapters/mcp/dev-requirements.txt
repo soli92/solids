@@ -1,0 +1,2 @@
+# Dev/test dependencies — NON incluse in requirements.txt (production)
+pytest>=8.0

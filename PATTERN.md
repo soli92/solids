@@ -4202,3 +4202,562 @@ EP-048 si integra con il framework esistente senza modificarlo:
   `<a href="https://...">` navigazionali permessi; `src/poster/action` assoluti bloccati.
 
 Fonte: EP-048 | [[content-share-hub-pattern]] | `.claude/skills/content-share-protocol.md` | `wiki/runbooks/content-share-setup.md`
+
+## §33 — Code Intelligence Layer (EP-054, v2.37, opt-in)
+
+Stack a tre layer local-first per ottimizzare la navigazione del codice da parte
+degli agenti. Zero dipendenze esterne: tutto gira offline e in CI container.
+`code_intelligence.enabled: false` di default (backward compat totale v2.36).
+
+### §33.1 — Architettura
+
+```
+Query agente
+    │
+    ├─▶ [L1] ctags Symbol Index      ← "dove è definita X?" → file:line (ms, O(1))
+    ├─▶ [L2] Semantic Code Search     ← "dove viene gestita Y?" → chunk ranked (s)
+    └─▶ [L3] Impact Graph            ← "cosa si rompe se cambio Z?" → blast radius
+```
+
+I tre layer sono ortogonali: attivabili indipendentemente, non si bloccano a vicenda.
+Un layer non disponibile (prerequisito mancante, flag disabilitato) → SKIP + warning, mai STOP.
+
+### §33.2 — L1: Symbol Resolver (universal-ctags)
+
+**Scopo**: lookup esatto O(1) su simboli senza consumare token LLM.
+
+**Prerequisito**: `universal-ctags` installato (`brew install universal-ctags` su macOS,
+`apt-get install universal-ctags` su Linux). NON compatibile con Exuberant Ctags (built-in macOS).
+
+**Funzionamento**:
+1. `tools/code-intelligence/ctags-index.sh <repo_path> <slug>` genera l'indice
+2. Side-channel: `.ctags-state/<slug>/tags` + `meta.json` (gitignored)
+3. Query: `grep "^<symbol>\t" .ctags-state/<slug>/tags`
+4. Output: `{file, line, type, signature}` — milliseconds anche su 200k LOC
+
+**Aggiornamento**: automatico post `/repo-sync` se `l1_ctags.enabled: true`.
+Incrementale: `--update` rimuove entry obsolete e appende nuove.
+
+**Skill**: `.claude/skills/ctags-index-protocol.md`
+
+### §33.3 — L2: Semantic Code Search (tree-sitter + nomic-embed-code + LanceDB)
+
+**Scopo**: retrieval semantico su query in linguaggio naturale ("trova il codice che
+gestisce l'autenticazione JWT") con precisione symbol-level invece di file-level.
+
+**Prerequisiti**:
+```bash
+pip install tree-sitter>=0.21 sentence-transformers>=2.7 lancedb>=0.6 pyarrow
+pip install tree-sitter-python tree-sitter-typescript tree-sitter-javascript
+pip install tree-sitter-java tree-sitter-go tree-sitter-rust
+```
+
+**Pipeline**:
+1. `chunk-code.py` — tree-sitter estrae chunk symbol-level (function/class/interface)
+2. `index-code.py` — embedding con `nomic-embed-code` (Apache 2.0, 137M params, 768-dim) + upsert LanceDB
+3. Tabella LanceDB: `code_chunks` (distinta da `wiki_chunks` EP-042)
+4. Query: `/code-search <query>` → top-K chunk ranked per similarity score
+
+**Chunking**: nodi tree-sitter target per linguaggio (vedere `code-chunk-protocol.md`).
+Chunk max `chunk_max_lines` (default 150) — split con overlap 10 righe se superato.
+Stato incrementale: hash SHA256 per file, skip se invariato.
+
+**Embedding model default**: `nomic-ai/nomic-embed-text-v1` (nomic-embed-code variant).
+Override: `code_intelligence.l2_semantic.embedding_model` in factory.config.yaml.
+Caching locale HuggingFace (`~/.cache/huggingface/`), download solo al primo uso (~137MB).
+
+**Indice**: `.code-search/index.lance` (gitignored). Separato dall'indice wiki (EP-042).
+I vettori dei due indici NON sono cross-compatibili (modelli distinti).
+
+**Skill**: `.claude/skills/code-chunk-protocol.md`
+**Comando**: `/code-search <query> [--top=N] [--lang=<lang>] [--type=<type>]`
+**Reindex**: `/code-search reindex [--full] [--slug=<name>]`
+
+### §33.4 — L3: Impact Graph (graphify affected in dev-protocol)
+
+**Scopo**: pre-analysis automatica del blast radius prima di scrivere codice,
+integrata come Fase 0.bis nel `dev-protocol`.
+
+**Prerequisiti**: graphify installato + graph costruito per il code_path target (EP-052).
+
+**Funzionamento** (R.CI4 — analysis-only):
+1. Agente dev estrae simboli principali dal TSK
+2. Per ogni simbolo: `graphify affected "<symbol>" --format=json --depth=2`
+3. Output in memoria: `{symbol, affected_files, affected_symbols, depth, blast_radius}`
+4. Se blast_radius > 10 file → `[L3-WARN]` + richiesta conferma se scope fuori TSK
+
+**Attivazione**: `code_intelligence.l3_impact.enabled: true` + `auto_run_on_dev: true`
+per trigger automatico in Fase 0.bis. Default entrambi `false`.
+
+**Integrazione**: vedi `dev-protocol.md` Fase 0.bis.
+
+### §33.5 — Invarianti locali EP-054
+
+Queste invarianti sono contratti locali dell'EP, non invarianti §7 globali.
+
+| ID | Invariante | Violazione |
+|---|---|---|
+| R.CI1 | `code_intelligence.enabled: false` di default — backward compat totale v2.36 | STOP silenzioso |
+| R.CI2 | Ogni layer: prerequisito mancante → SKIP + warning, mai STOP | exit 0 con `[L1/L2/L3-SKIP]` |
+| R.CI3 | L1 e L2 sono read-only verso il repo sorgente (scrivono solo side-channel) | STOP se violato |
+| R.CI4 | L3 Fase 0.bis è analysis-only — nessuna modifica file in questo step | STOP se violato |
+| R.CI5 | Fallback garantito: indice assente/corrotto → lista vuota + `fallback:true`, mai crash | exit 0 |
+
+### §33.6 — Configurazione
+
+```yaml
+code_intelligence:
+  enabled: false                          # master switch (R.CI1)
+  l1_ctags:
+    enabled: false                        # R.CI2 per-layer
+    languages: [python, typescript, javascript, java, go, rust, c, cpp]
+    side_channel: .ctags-state           # gitignored
+    extra_flags: []
+  l2_semantic:
+    enabled: false                        # requires: tree-sitter + sentence-transformers + lancedb
+    embedding_model: nomic-embed-code    # local HF model, Apache 2.0, 137M params
+    chunk_max_lines: 150
+    lancedb_path: .code-search/index.lance  # gitignored
+    exclude_patterns: ["**/node_modules/**", "**/__pycache__/**", "**/vendor/**"]
+  l3_impact:
+    enabled: false                        # requires: graphify + graph built (EP-052)
+    auto_run_on_dev: false               # se true: Fase 0.bis si attiva automaticamente
+    min_symbol_confidence: 0.7
+```
+
+### §33.7 — Comandi
+
+```
+/code-search <query>               ricerca semantica L2 sul code index
+/code-search reindex [--full]      rebuild indice L2 (chunk + embed)
+/code-search status                stato indice (chunk count, timestamp, dimensione)
+```
+
+Per L1: `bash tools/code-intelligence/ctags-index.sh <path> <slug>` + grep diretto.
+Per L3: automatico in Fase 0.bis dev-protocol (se `auto_run_on_dev: true`) o manuale
+con `graphify affected "<symbol>"`.
+
+### §33.8 — Integrazione con capability esistenti
+
+- **EP-042 Hybrid Wiki Search**: L2 estende la `wiki-search-protocol` con source `code`.
+  Tabelle LanceDB separate (wiki_chunks vs code_chunks). `/code-search --all` mergia con RRF.
+- **EP-052 Graphify**: L3 usa il graph esistente senza ricostruirlo. Se graph non presente
+  per un code_path → `[L3-SKIP]`; agente può lanciare `/graphify-sync <target>` per costruirlo.
+- **EP-053 dev-protocol checkpoint**: Fase 0.bis L3 eredita il principio analysis-only
+  di TSK-451 (dev-protocol checkpoint). I due step coesistono in Fase 0.bis.
+- **repo-extraction-protocol**: post `/repo-sync`, se L1 enabled → `ctags-index.sh` aggiornato
+  automaticamente; se L2 enabled → `chunk-code.py` + `index-code.py` run incrementale.
+- **Backward compat totale v2.36**: blocco `code_intelligence:` con tutti default `false`
+  è l'unico delta a `factory.config.yaml`. Tutti gli altri file sono additive-only.
+- **Side-channel gitignored**: `.ctags-state/` e `.code-search/` aggiunti a `.gitignore`
+  (non committati, rigenerabili in qualsiasi momento — analogo a `.graphify-state/`).
+
+Fonte: EP-054 | [[code-intelligence-stack]] | `wiki/runbooks/code-intelligence.md`
+
+Fonte: EP-048 | [[content-share-hub-pattern]] | `.claude/skills/content-share-protocol.md` | `wiki/runbooks/content-share-setup.md`
+
+---
+
+## §34 — Semantic Purpose Layer — `wiki/purpose.md` (EP-055, v2.37, opt-in)
+
+Pattern-stealing concettuale da `llm_wiki` (GPL v3, reimplementato da zero — vedi §23.10).
+`factory.config.yaml` copre la configurazione **tecnica** della factory; `wiki/purpose.md`
+copre le **direttive semantiche di dominio** che orientano ingest e lint. Due file
+complementari, mai sovrapposti.
+
+### §34.1 — Scopo
+
+`wiki/purpose.md` è un file **maintainer-authored** (scritto a mano, non generato) che
+esprime i principi guida semantici del progetto: di cosa parla la wiki, quali tipi di entità
+sono prioritari, con che tono, e cosa è fuori scope. Colma il gap per cui `wiki-keeper` non
+sa, ad esempio, che in una factory i "pattern" contano più delle "entità organizzative", o
+che il tono deve essere tecnico-prescrittivo e non narrativo.
+
+### §34.2 — Formato (frontmatter YAML + corpo markdown)
+
+Deciso per consenso in TR-llmwiki-20260824 (D1): frontmatter YAML strutturato (parsabile
+deterministicamente da `wiki-lint`) + corpo markdown libero (espressività per gli agenti).
+JSON-LD escluso (over-engineered); markdown puro escluso (non parsabile).
+
+```yaml
+---
+type: purpose
+domain: <stringa — descrizione del dominio del progetto>
+priority_entity_types: [<lista — tipi di entità prioritari nell'ingest>]
+tone: technical-prescriptive         # | narrative | mixed
+exclusions: [<lista — argomenti/tipi fuori scope, può essere vuota>]
+---
+
+# Purpose
+
+<corpo markdown libero: descrizione estesa, esempi, note per gli agenti>
+```
+
+Campi obbligatori: `domain`, `priority_entity_types`, `tone`, `exclusions`.
+`tone` ∈ `{technical-prescriptive, narrative, mixed}`.
+
+### §34.3 — Comportamento
+
+- **`wiki-keeper`** (US-200): legge `wiki/purpose.md` se presente, all'inizio dell'ingest,
+  come **contesto** (non gate). Read-only: mai lo modifica (unico autore = maintainer).
+  Assente → ingest standard, comportamento invariato.
+- **`wiki-lint`** (US-201): assente → **WARNING** (non ERROR: la wiki resta valida);
+  presente con frontmatter incompleto o `tone` fuori enum → WARNING con dettaglio.
+  Non `heal-eligible` (giudizio semantico, non fix meccanico).
+
+### §34.4 — Invarianti
+
+- **Opt-in / additivo**: factory senza `wiki/purpose.md` sono identiche a prima. Nessun
+  config flag: il file è letto se presente, sempre.
+- **Maintainer-sovrano**: `purpose.md` è contesto d'ingest, non un vincolo hard. Il
+  maintainer resta l'unico autore; nessun agente lo genera o modifica.
+- **Non duplica `factory.config.yaml`**: tecnico (config) vs semantico-di-dominio (purpose).
+
+### §34.5 — File chiave
+
+- `.claude/skills/scrivi-purpose.md` — template + guida alla scrittura
+- `wiki/purpose.md` — reference implementation (questa factory)
+- `.claude/skills/lint-checks.md` — Check 4an (presenza + frontmatter + enum tone)
+
+Fonte: EP-055 | wiki/decisions/tavola-rotonda-TR-llmwiki-20260824-2026-08-24.md | §23.10
+
+---
+
+## §35 — Wiki Keeper 2.0 — CoT Handoff & Semantic Sweep (EP-056, v2.37, opt-in)
+
+Due ottimizzazioni della pipeline di ingest, pattern-stealing concettuale da `llm_wiki`
+(GPL v3, reimplementato da zero — §23.10). La deliberazione TR-llmwiki-20260824 ha
+riconosciuto che l'architettura `wiki-keeper` + `wiki-keeper-worker` implementa **già** il
+2-step CoT: qui si esplicita il CoT intermedio (§35.2) e si aggiunge un pass di qualità
+semantica assente nel framework (§35.3). Foundation **read-only** su EP-042/EP-054 (stability
+window): nessuna modifica ai layer esistenti.
+
+### §35.1 — Scopo
+
+- **CoT handoff** (US-202): un piano di pagine esplicito tra merge (Fase 1.bis) e generazione
+  (Fase 3) → generazione su input strutturato, meno allucinazione, wikilink più coerenti, gap
+  come artefatto esplicito.
+- **sweep-reviews** (US-203): ciclo di qualità **semantico** su `wiki/` che il lint meccanico e
+  `heal-protocol` non coprono (claim non supportati, wikilink dangling, deriva terminologica).
+
+### §35.2 — CoT handoff (Fase 1.ter)
+
+`wiki-keeper-worker` emette `plan_reasoning` per pagina; il `wiki-keeper` sintetizza in
+**Fase 1.ter "Piano di pagine (CoT esplicito)"** (nuova, tra 1.bis e Fase 2): ordine di
+scrittura topologico sui wikilink, grafo wikilink con dangling → candidati gap, coerenza
+terminologica contro `wiki/purpose.md` (§34), claim → citazione. Ramo seriale (N<3): piano
+inline equivalente. Nessun file persistito obbligatorio.
+
+### §35.3 — sweep-reviews (loop semantico bounded gated)
+
+Controparte **semantica** di Heal (§3), stessa struttura loop-bounded + gate bulk, natura
+opposta:
+
+| | Dominio | Natura | Inferenza | Applicazione | Gate | Attivazione |
+|---|---|---|---|---|---|---|
+| **Heal** (§3) | `wiki/` | meccanico (whitelist deterministica) | vietata | in-place puro | bulk | always-on |
+| **CQRL** (§19) | codice | idiomaticità/design/robustezza | — | task_package | severity-tiered | `code_quality.enabled` |
+| **sweep-reviews** (§35) | `wiki/` | semantico (claim/link/terminologia) | ammessa, gated | `## Aggiornamenti` (§7 r.7) | bulk stretto + confidence | `wiki_sweep.enabled` |
+
+Categorie: `unsupported-claim` (claim >20 parole senza `[^src:]` → fonte o gap),
+`dangling-concept` (`[[X]]` verso pagina inesistente non in gaps → stub o gap),
+`terminology-drift` (termini incoerenti giudicati contro `purpose.md`; skip se assente).
+Loop bounded (`max_iterations`), scarto sotto `confidence_min`, gate umano bulk PRIMA di
+applicare, terminazione `closed|stuck|regression|max-iterations|user-rejected|no-items|empty-diff`.
+
+### §35.4 — Invarianti
+
+- **Opt-in totale** (R.P3): `wiki_sweep.enabled: false` di default → factory identica a v2.37
+  pre-EP-056. CoT handoff è additivo e backward-compat (Fase 1.ter no-op sul comportamento se
+  non produce cambi).
+- **Single-committer preservato** (§7 r.12): sweep-reviews è capability del `wiki-keeper`, non
+  un nuovo agente (Accordo Round 2).
+- **No auto-apply**: ogni risoluzione semantica passa dal gate umano bulk.
+- **§7 r.7**: risoluzioni semantiche via `## Aggiornamenti (vYYYY-MM-DD)`, mai in-place (a
+  differenza di Heal, meccanico).
+- **§10 non-override**: `## Contradictions` mai risolte silenziosamente; `## Storie collegate`
+  (PM) mai toccate.
+- **Stability window**: EP-042/EP-054 usati read-only; retrieval 4-fase e KG 4-segnali restano
+  backlog (EP-042.1 / spike, D2/D3).
+
+### §35.5 — Config + file chiave
+
+```yaml
+wiki_sweep:
+  enabled: false                 # opt-in (R.P3)
+  max_iterations: 3
+  confidence_min: 0.7
+  categories: [unsupported-claim, dangling-concept, terminology-drift]
+  use_purpose_md: true           # terminology-drift usa wiki/purpose.md (§34)
+```
+
+- `.claude/skills/sweep-reviews-protocol.md` — detection + resolution loop
+- `.claude/skills/ingest-protocol.md` — Fase 1.ter (CoT)
+- `.claude/skills/wiki-keeper-worker-protocol.md` — `plan_reasoning`
+- `.claude/commands/sweep-reviews.md` — comando gated
+- `.claude/skills/wiki-log-entry.md` — template `sweep`
+
+Cross-ref: §34 (purpose.md), §23.10 (licenza pattern-stealing), §3 (Heal), §19 (CQRL), §16 (ingest).
+
+Fonte: EP-056 | wiki/decisions/tavola-rotonda-TR-llmwiki-20260824-2026-08-24.md (Accordi Round 2/4) | §34
+
+## §36 — Refactor Skill Layer / Fleet Health (EP-060, v2.41, opt-in)
+
+Introdotto in v2.41. Capability opt-in che rifattorizza le unità di contesto
+agentiche (SKILL.md, file di agenti, indici di flotta) in *divulgazione
+progressiva*: spina dorsale nel corpo (contesto garantito) + foglie in
+`references/` (contesto opzionale con trigger vincolanti).
+
+### Concetti fondanti
+
+Tre **specie** della stessa struttura:
+
+- **Skill** (`SKILL.md`) — trigger = `description`; corpo = istruzioni operative
+- **Agente / sotto-agente** — trigger = `description`; corpo = prompt di sistema
+- **Indice di flotta** (`AGENTS.md` o equivalente) — non triggerato; corpo = mappa
+  team/membership/handoff
+
+Le 3 specie condividono la disciplina di taglio (vedi
+`.claude/skills/references/refactor/criteri-di-taglio.md`).
+
+### Soglie
+
+| Righe corpo | Verdetto |
+|---|---|
+| `>500` | **REFACTOR raccomandato** |
+| `300–500` | **VALUTARE** |
+| `<300` | ok — non intervenire |
+
+Post-refactor: corpo ≤ 250 righe; foglie 50–250 righe.
+
+### 9 Vincoli non negoziabili (V-1..V-9)
+
+V-1 Spina dorsale inamovibile · V-2 Trigger vincolanti al punto d'uso ·
+V-3 Triggering e dispatch invariati · V-4 Una sola radice per unità ·
+V-5 Equivalenza prima della sostituzione · V-6 Snapshot prima di toccare ·
+V-7 Nessuna duplicazione · V-8 Integrità del grafo · **V-9 Sicurezza di dispatch**.
+
+V-9 è specifico di Claude Code: se un agente è dispatchato per iniezione del
+corpo, le foglie esterne sono pericolose. Vedi
+`.claude/skills/references/refactor/topologia-e-dispatch.md`. Questa factory
+usa **Pattern A** (`subagent_type`), quindi V-9 near-zero — vettore residuo:
+compression layer opt-in.
+
+### 11 Gate strutturali (G1..G11)
+
+G1 unica radice · G2 frontmatter valido · G3 frontmatter invariato ·
+G4 path esistenti · G5 no foglie orfane · G6 script eseguibili · G7 righe entro
+soglia · G8 ancore valide · G9 riferimenti risolti · G10 no orfani/irraggiungibili ·
+G11 dispatch-safe (V-9).
+
+G1–G8 in `tools/refactor/verifica_flotta.py`.
+G9–G11 in `tools/refactor/mappa_riferimenti.py --gate`.
+
+**Owner G1–G11**: agente `fleet-doctor` (`.claude/agents/fleet-doctor.md`).
+
+### Boundary con altre capability
+
+- **Ponytail (EP-057)**: valuta codice di prodotto (`.py/.ts`). Fleet-health
+  valuta markdown agentici (`.claude/{agents,skills}/*.md`). Scope disgiunto.
+- **code-review-protocol (v2.12)**: valuta output dei dev-agent nei code_path.
+  Fleet-health valuta file meta-framework. Scope disgiunto.
+- **complexity-budget-check**: valuta struttura di TSK (numero step, granularità).
+  Fleet-health valuta lunghezza di unità di contesto. Complementari.
+
+### Config e invarianti locali
+
+Config: `refactor_agent_skills:` in `factory.config.yaml`.
+
+- **R.FH1 (opt-in totale)**: `enabled: false` di default. A flag spento la
+  capability è invisibile ai dev-agent e la factory è identica a v2.40.
+- **R.FH2 (WARNING-only)**: Check 4ap emette WARNING, mai ERROR. Il refactor
+  non è mai imposto.
+- **R.FH3 (fail-open)**: se gli script mancano, il check skip silente. La
+  lint pipeline generale non fallisce.
+
+### Ambito d'uso
+
+- **Auto-mode** (default): rifattorizza unità della factory stessa (`code_path: "."`).
+- **external_target**: differito. Sblocco condizionato a: protocollo topologia
+  esterna ignota validato su ≥1 factory derivata reale.
+
+### Trigger
+
+- Comando esplicito: `/refactor <target>` (via agente `fleet-doctor`).
+- Lint check automatico: Check 4ap (WARNING-only) nel dominio lint.
+- Dispatch orchestrator: `layer: refactor` (opzionale, `scheduler.domains.refactor: false` default).
+
+### Risorse
+
+- `.claude/agents/fleet-doctor.md` — agente owner G1–G11
+- `.claude/skills/refactor-agent-skills.md` — skill operativa (spina dorsale + fasi 0–5)
+- `.claude/skills/references/refactor/` — foglie di riferimento:
+  - `topologia-e-dispatch.md` — specie, topologia, meccanica dispatch, V-9
+  - `criteri-di-taglio.md` — tassonomia contenuti, criteri di taglio, trigger, anti-pattern
+  - `integrita-riferimenti.md` — forme di riferimento, gate di grafo G9–G11
+  - `igiene-flotta.md` — ottimizzazioni di flotta oggettive
+  - `protocollo-test-equivalenza.md` — Fase 4 completa
+- `tools/refactor/analizza_target.py` — inventario, outline, verdetto soglie
+- `tools/refactor/mappa_riferimenti.py` — grafo riferimenti, gate G9–G11
+- `tools/refactor/verifica_flotta.py` — gate strutturali G1–G8
+- `.claude/skills/lint-checks-agent-fleet.md` — Check 4ap
+- `wiki/runbooks/skill-hygiene.md` — runbook narrativo, esempi d'uso
+
+Fonte: EP-060 | `raw/refactor-agent-skills/SKILL.md` (V-1..V-9, G1..G11)
+
+### Criteri di taglio applicati (empirical evidence 11 pilot)
+
+Sette criteri unici applicati durante i pilot EP-060, mai riusati:
+
+| # | Criterio | Pilot | Quando applicare |
+|---|---|---|---|
+| 1 | Per fase del flusso | #1 tavola-rotonda-protocol, #9 functional-oracle | Skill sequenziale con fasi distinte, ognuna con input/output dichiarato |
+| 2 | Per variante versione | #2 factory-bootstrap | Meta-comando dispatcher con case-per-version che cresce linearmente |
+| 3 | Per frequenza d'uso | #3 tavola-rotonda-moderatore, #10 parallel-scheduling, #11 dev-protocol | Corpo con zone always-on (Class A) + zone opt-in (Class B) chiaramente separate |
+| 4 | Per opt-in capability | #4 fe-dev | Corpo dominato da opt-in section per capability config (ognuna con flag distinto) |
+| 5 | Per fase pesante | #5 prototype-generation | Skill con fasi molto grandi + logica per-backend già delegata a skill secondarie |
+| 6 | Per destinazione contenuto | #6 commands/prototype | Command con 3 audience distinte (agent execution / user output / operator docs) |
+| 7 | Per famiglia (dedup) | #8 lint-checks | Skill con famiglie modulari già estratte ma spina non allineata (allineamento + dedup) |
+
+Casi speciali:
+- **Pilot #7 (prototype-generator)**: verdetto NO-REFACTOR motivato — dominanza Classe A + micro-foglie anti-pattern. Dimostra che la capability discrimina target cohesive da target misto.
+
+### Metriche empirical evidence (11 pilot Wave D)
+
+| Metrica | Valore |
+|---|---|
+| Pilot totali | 11 (10 ACCEPT + 1 NO-REFACTOR motivato) |
+| Righe corpo totali eliminate | ~6300 |
+| Foglie totali create | 27 |
+| Convenzioni directory validate | 3 (agents/skills/commands references) |
+| Test empirici TSK-546 AC2 consecutivi ACCEPT | 7 |
+| Riduzione min | -17.6% (pilot #3, VALUTARE cohesive borderline) |
+| Riduzione max | -94.6% (pilot #8 lint-checks, allineamento EP-052) |
+| Riduzione media (10 accept) | ~-58% |
+
+### Riferimenti ADR
+
+- **ADR-EP060-001**: boundary + Pattern A + PA-5 + owner G1-G11
+- **ADR-EP060-002**: pattern emergenti (trilogia directory + drift reconciliation + fix inline 2 famiglie + Class A anchor + T3 soft-fail)
+- **ADR-EP060-003**: external_target foundation (5 decisioni sblocco Decisione 5)
+
+## §37 — Session Observability (EP-061 + EP-062, v2.42, opt-in)
+
+Introdotto in v2.42. Pattern **agent-agnostic** per l'osservazione post-hoc
+dell'attività agentica di una sessione conclusa. Rileva anomalie via regole
+deterministiche su un fan-in di transcript strutturati (main + sub-agenti).
+Adapter-neutral: la sorgente dati è il transcript JSONL dell'adapter attivo
+(Claude Code, Cursor, Aider…); ogni adapter è responsabile di fornire un walker
+compatibile.
+
+Origine: Tavola Rotonda TR-c4e8f1b2 (2026-09-08, forced-synthesis Round 3).
+Blackboard: `wiki/decisions/tavola-rotonda-c4e8f1b2-...-2026-09-08.md`.
+
+### Principi fondanti
+
+1. **Determinism-first**: la rilevazione anomalie è 100% regole deterministiche
+   su campi strutturati (usage, stop_reason, timestamp, attribution). LLM
+   *advisory* ammesso solo in sezioni narrative del report (`## Punti Aperti`,
+   `## Provenienza & limiti`). Mai per detection.
+2. **Post-hoc only, mai in-sessione** (invariante R-SAA-8): l'analisi opera su
+   sessioni **chiuse** (heuristica mtime + env var CLAUDE_SESSION_ID). Motivo:
+   i file `<session-uuid>/subagents/*.jsonl` sono in append durante l'esecuzione
+   — letture in-sessione producono race condition (tail troncato, JSON parziale)
+   e circolarità (l'analizzatore si include nel campione).
+3. **Read-only + confinamento scrittura in `raw/`** (R-SAA-1, R-SAA-2): mai
+   scrittura in `~/.claude/`, `code_path`, `wiki/` (eccetto append `wiki/log.md`).
+   L'unico output è `raw/YYYY-MM-DD-session-analysis-<id-8char>.{md,json}`.
+4. **Redazione PII non negoziabile** (R-SAA-3): strip path assoluti utente,
+   email (tranne owner), credential shapes (regex `sk-*`, `Bearer *`, `.env`),
+   body di `tool_result`. `evidence_excerpt` cap 200 char con marker
+   `[TRUNCATED]`.
+5. **Nessun auto-fix, nessun ingest wiki automatico** (R-SAA-5, R-SAA-6): il
+   report ha frontmatter invariante `ingest_eligible: false`,
+   `wiki_ingest_policy: incidents-only`, `ttl_days: 90`. Ogni raccomandazione è
+   testuale — mai `auto_apply`. L'azione è sempre umana o delegata a
+   fleet-doctor (che ha propri gate G1-G11).
+6. **Anti-fabbricazione via provenance** (R-SAA-7): ogni anomalia DEVE avere
+   `provenance: {source_field, source_file}` valorizzato — traccia esatta al
+   campo del tool che l'ha prodotta. Se una regola non riesce a citare la
+   source → skip l'anomalia (fail-loud su stderr, mai emettere anomalia
+   fabbricata).
+7. **Schema-version guard** (R-SAA-9): il walker deve mantenere un
+   `SUPPORTED_CC_VERSIONS` esplicito. Versione ignota → modalità degradata con
+   WARNING fail-loud (mai parsing "best effort" silenzioso). Fixture di
+   transcript reale versionata in `tests/fixtures/transcripts/` + contract-test
+   che rompe se lo schema drifta.
+8. **Kill criterion §23.8 obbligatorio pre-codice** (R-SAA-10): la capability
+   dichiara `sunset_condition:` nel frontmatter TSK dell'EP prima
+   dell'implementazione. Soglie oggettive misurate ex-post: <N anomalie
+   azionabili per periodo → sunset automatico senza bypass.
+
+### Architettura di riferimento (thin-agent / fat-skill / deterministic-tools, §29)
+
+```
+Comando (/session-analysis)
+    → Skill (session-analysis-protocol.md, 5 fasi)
+        → Tool chain deterministica Python stdlib-only:
+            → parse-transcript.py    (fan-in main + subagents, normalize, redaction, R-SAA-8 gate)
+            → fleet-metrics.py       (rollup per-agente/modello/wave, pricing, dispatch_efficiency)
+            → detect-anomalies.py    (regole deterministiche → anomalie con provenance)
+            → generate-report.py     (dual md+JSON in raw/, frontmatter canonico, 7 sezioni obbligatorie)
+        → Handoff advisory verso fleet-doctor (§36) via campo fleet_recommendations
+```
+
+**Perché tool separati e non un unico script**: ogni tool è testabile in
+isolamento con fixture, riusabile in altre pipeline (es. debug ad-hoc), e
+sostituibile (chi vuole detector custom sostituisce solo `detect-anomalies.py`).
+
+### Tassonomia anomalie v1 (deterministica, adapter-agnostic)
+
+3 categorie **core** enabled by default:
+
+- **ERROR**: pattern testuali `(?i)error|failed|fatal` in `stop_reason` (NON il
+  flag `is_error` — invariante rilevato: sempre 0 su Claude Code 2.1.258).
+- **BUDGET**: `session_totals.cost_usd_approx ≥ budget.max_cost_usd`; tier
+  mismatch (opus per task con `token_out < 500`).
+- **DISPATCH**: stesso agent invocato >2 volte in stessa wave; wave con
+  `dispatch_efficiency.score < 0.5` (parallelismo non sfruttato).
+
+2 categorie **opt-in roadmap** (`--enable-latency`, `--enable-fleet`):
+
+- **LATENCY**: straggler (`p85_elapsed_ms > 2 × mediana per tipo agente`).
+- **FLEET**: skill citata in `Agent` tool_call ma non trovata in
+  `.claude/skills/`.
+
+Scope numerico e naming sono empirici (misura signal/noise su fixture reali;
+ferma tassonomia dove signal/noise ≥ soglia). Categorie escluse dalla v1
+(SAA-V/C/G/O/S, GOVERNANCE) restano roadmap fino a evidenza di segnale reale.
+
+### Boundary con altri layer
+
+| Layer | Ruolo | Confine con Session Observability |
+|---|---|---|
+| Token Ledger EP-022 (`show-session-tokens.py`) | Cattura cheap in-session/on-Stop | Session Observability legge ledger + arricchisce con analisi anomalie post-hoc |
+| Analytics EP-009/010 (`analytics-reporter`) | Aggregati economico-progettuali (per-TSK, per-wave, per-sprint) | analytics-reporter = **writer** di `analytics/events/`; session-analyst = **reader**. Ortogonali, due agenti, stessa fonte. |
+| Fleet Doctor EP-060 (§36) | Refactor statico skill/agenti | session-analyst produce `fleet_recommendations` advisory; fleet-doctor consuma opzionalmente. Flusso unidirezionale. Mai auto-invoke. |
+| Code Reviewer CQRL EP-002/012 (§19) | Qualità codice per-TSK | Confine netto: CQRL su diff codice; session-analyst su transcript agentico. |
+| Wiki Keeper (§35) | Ingest wiki | `ingest_eligible: false` invariante: report session-analysis MAI ingeriti in wiki (evita loop di auto-analisi). Pattern aggregabili in `wiki/patterns/` solo con gate umano esplicito. |
+
+### Prerequisito hard: telemetry integrity (EP-062)
+
+Il pattern §37 non è affidabile senza un walker che catturi correttamente
+l'attività dei sub-agenti dell'adapter attivo. Su Claude Code 2.1.258+ i
+sub-agenti vivono in `<session-uuid>/subagents/agent-*.jsonl` (directory
+separata), non nel JSONL principale. Il campo `isSidechain` è `false` ovunque
+nel main → attribuzione via `isSidechain` produce cecità sul 60%+ dell'attività.
+EP-062 Fleet Telemetry Hardening ripara il walker + aggiunge schema-guard +
+fixture + contract-test. Precondizione **hard** per EP-061.
+
+Adapter diversi (Cursor, Aider…) forniranno il proprio walker equivalente.
+Il pattern §37 è agent-agnostic: la skill invoca il walker come contratto
+di interfaccia (input: transcript path; output: JSON normalizzato con
+attribuzione main/subagent).
+
+### Riferimenti
+
+- **Blackboard TR-c4e8f1b2**: `wiki/decisions/tavola-rotonda-c4e8f1b2-...-2026-09-08.md`
+- **Wiki concept**: `wiki/concepts/session-agentic-analyser.md`
+- **Runbook handoff**: `wiki/runbooks/session-analysis-fleet-doctor-handoff.md`
+- **Precedente diagnosi**: `analytics/ANALYTICS-DIAGNOSIS.md` (TSK-407 EP-049, TSK-549 EP-062)
+- **Test contract**: `tests/test_harvest_contract.py` (7 test EP-062), `tests/test_session_analysis_e2e.py` (10 test EP-061)

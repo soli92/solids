@@ -13,6 +13,7 @@ updated: 2026-07-17
 
 ## Entries
 
+2026-09-08 | docs-dev | upgrade v2.33 → v2.42 | .claude/ + factory.config.yaml + PATTERN.md + CLAUDE.md | 9 delta cumulativi additivi (v2.34..v2.42): Code Intelligence Stack EP-054 (§33), Semantic Purpose Layer EP-055 (§34), Wiki Keeper 2.0 EP-056 (§35), Ponytail Decision Ladder EP-057, MCP Server EP-058, Backport portale-servizi EP-059 (release-manager + tpm-reconcile + deep-functional-probe + statusline-ledger), Fleet Health EP-060 (§36 fleet-doctor + refactor-agent-skills), Session Observability EP-061+EP-062 (§37). Tutti opt-in default off. Backward compat totale v2.33.
 2026-06-15 | docs-dev | bootstrap | solids | Factory minimale v2.21 scaffoldata per EP-019 design intelligence run v2.21.0.
 2026-06-15 | docs-dev | TSK-001 done | wiki/concepts/design-system-overview.md | Overview scopo + architettura token + theming + consumer.
 2026-06-15 | docs-dev | TSK-002 done | wiki/concepts/token-architecture.md | Struttura directory, naming base/semantici, come creare tema, CSS output.

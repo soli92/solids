@@ -2,7 +2,7 @@ factory:
   name: solids-design-system
   description: "SoliDS — Design system React (@soli92/solids)"
 
-pattern_version: "2.33"
+pattern_version: "2.42"
 topology: knowledge-only
 
 code_paths:
@@ -82,3 +82,52 @@ content_share:
     prototype: true
     analytics_report: true
     custom: true
+
+# === v2.34→v2.42 opt-in capability stubs (added by 2.33→2.42 upgrade) ============
+# Tutti gli stub sono default-OFF (R.P3 opt-in totale): a flag spento la factory
+# si comporta esattamente come a v2.33. Abilita esplicitamente ciò che ti serve.
+
+# Voice Channel Layer (v2.28, EP-041, PATTERN §30)
+voice_channel:
+  enabled: false                              # opt-in modulo voice/ esterno
+
+# Code Intelligence Stack (v2.37, EP-054, PATTERN §33)
+code_intelligence:
+  enabled: false                              # master switch L1+L2+L3
+  l1_ctags:
+    enabled: false                            # universal-ctags symbol resolver
+  l2_semantic:
+    enabled: false                            # tree-sitter + nomic-embed + LanceDB
+  l3_impact:
+    enabled: false                            # graphify blast radius Fase 0.bis dev-protocol
+
+# Semantic Purpose Layer (v2.38, EP-055, PATTERN §34)
+wiki_purpose:
+  enabled: false                              # opt-in wiki/purpose.md consumato da wiki-keeper
+
+# Wiki Sweep — semantic quality pass (v2.38, EP-056, PATTERN §35)
+wiki_sweep:
+  enabled: false                              # opt-in sweep-reviews-protocol + comando /sweep-reviews
+
+# Ponytail Decision Ladder (v2.39, EP-057)
+ponytail:
+  enabled: false                              # opt-in YAGNI ladder 7 livelli (Check 4ao + Pass 4 advisory)
+  passes:
+    yagni_ladder: false                       # HARD DEP: richiede code_quality.enabled: true
+  lint:
+    severity: warning                         # warning|info (forzato info se code_path: ".")
+  audit:
+    exclude_patterns: []                      # glob patterns esclusi da /ponytail-audit
+
+# MCP Server adapter (v2.39, EP-058)
+mcp_server:
+  enabled: false                              # opt-in adapter read-only MCP
+
+# Fleet Health — Refactor Agent Skills (v2.41, EP-060, PATTERN §36)
+refactor_agent_skills:
+  enabled: false                              # opt-in skill refactor-agent-skills + agente fleet-doctor
+                                              # Check 4ap WARNING-only
+
+# Session Observability (v2.42, EP-062)
+session_analysis:
+  enabled: false                              # opt-in tools/session-analysis + comando /session-analysis
