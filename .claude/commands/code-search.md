@@ -282,7 +282,7 @@ I sotto-comandi `status` e la ricerca diretta non producono entry in `wiki/log.m
 - `tools/code-intelligence/query-code.py` — script di query LanceDB (EP-054, TSK-461)
 - `tools/code-intelligence/chunk-code.py` — chunker tree-sitter (EP-054, TSK-458)
 - `tools/code-intelligence/index-code.py` — indexer LanceDB (EP-054, TSK-460)
-- `.claude/skills/code-search-protocol.md` — contratto thin-skill per agenti
+- `.claude/skills/wiki-search-protocol.md` §5 «Source: code» — contratto thin-skill per agenti
 - `factory.config.yaml` blocco `code_intelligence:` — configurazione del layer
 - `PATTERN.md §33` — Code Intelligence Stack (EP-054)
 - `wiki/runbooks/code-intelligence.md` — prerequisiti installazione
