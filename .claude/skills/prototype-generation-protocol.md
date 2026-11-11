@@ -141,7 +141,8 @@ esplicito) la Fase 1 chiude con N direzioni nominate su un asse, la Fase 2 gener
 varianti funzionanti dietro un selettore neutro (html: un solo file, INV-6) e la scelta
 resta umana o di un reviewer separato (INV-4). Prima di procedere leggi obbligatoriamente
 `.claude/skills/references/prototype-generation-protocol/varianti.md`; STOP se manca.
-Con `variants: 1` la foglia non si legge e nulla cambia.
+Con `backend: auto` la catena si restringe a `html` (unico backend con selettore) prima della
+Fase 0. Con `variants: 1` la foglia non si legge e nulla cambia.
 
 ---
 

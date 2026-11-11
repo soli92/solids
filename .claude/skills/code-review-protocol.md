@@ -94,7 +94,7 @@ Output: `### Pass 4 — YAGNI Ladder (advisory)` nel report.
 
 **Pre-condizione**: `ui_craft.enabled: true` e `ui_craft.motion_review: true`, **e** il diff tocca motion
 (grep: `transition`, `animation`, `@keyframes`, `motion.`, `animate=`, `useSpring`, `ease-`,
-`transform-origin`, `prefers-reduced-motion`); altrimenti **SKIP**. Advisory: **nessun verdict**, i
+`transform-origin`, `prefers-reduced-motion`; nelle codebase Tailwind anche le classi `animate-`, `duration-`, `ease-`, `origin-`, `transition-`, `delay-` e `keyframes` nei file di config/preset); altrimenti **SKIP**. Advisory: **nessun verdict**, i
 finding vanno in una sezione `### Pass 7 — Motion (advisory)` del report e non entrano nell'aggregatore (Fase 3), come la Passata 5.
 
 > **[TRIGGER VINCOLANTE]** Leggi `.claude/skills/references/code-review-protocol/passata-7-motion.md`;

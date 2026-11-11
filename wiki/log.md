@@ -72,3 +72,11 @@ updated: 2026-07-17
 - **sources**: `tools/factory-upgrade-apply.py --meta-source <master>` (COPY 793, REPLACE 5, CONFLICT 148); backup `.factory-upgrade-backup/2.42-to-2.45-20261111-1511/`
 - **files touched**: `.claude/`, `tools/`, `schemas/`, `adapters/cursor/templates/`, `PATTERN*.md`, `factory.config.yaml`
 - **note**: i 150 conflitti NON erano personalizzazioni: 76 versioni upstream vecchie (blob presenti nella storia del master) e 74 conversioni Cursor dello scaffold v2.33 (`mdc:.cursor/...` dentro `.claude/`). Sostituiti dal master, originali in `conflitti/` del backup. Righe locali del PATTERN (40): testo upstream v2.27-v2.37, nessuna nota propria. Re-dry-run: COPY 0 REPLACE 0 CONFLICT 0. Accese: `topology: custom`, `ui_craft.*`, `code_quality.enabled`, `fe_correctness.functional_oracle.enabled`, `prototyping.enabled` + `variants: 3`. 6 ERROR di lint preesistenti (wiki content-share, EP-001).
+
+## [2026-11-11] review | test delle capability EP-090 su soli-ds
+
+- **entry_type**: review
+- **trigger**: test delle capability di EP-090 del master sul design system
+- **sources**: `code_quality/reports/motion-review-2026-11-11.md`, `code_quality/worst-case/2026-11-11-lista-membri/`, `output/prototypes/toast-notifica/index.html`
+- **files touched**: `src/stories/lista-membri.{stories.tsx,fixtures.ts}`, report e screenshot in `code_quality/`, prototipo in `output/`, `vendor/`, correzioni del master alle skill EP-090
+- **note**: proposte non applicate, sono decisioni di design. Motion: 23 finding (focus animato su ogni Tab, reduced-motion che azzera tutto, `origin-top-center` e `animate-caret-blink` senza CSS, `animate-in` con `ease` di default). Caso peggiore: 9 rotture (AvatarImage senza `object-cover`, email che esce a zoom 200%, troncamento silenzioso, badge a capo, nome mancante, iniziali con emoji, BiDi, 1284 righe senza virtualizzazione, plurale). Varianti del toast: Quieta / Pila / Banner, la scelta e' umana.

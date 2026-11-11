@@ -94,7 +94,12 @@ def main():
     if a.all:
         if a.clone:
             ap.error("--clone non si combina con --all")
+        if not VENDOR_DIR.is_dir():
+            print(f"verify_vendor: cartella {VENDOR_DIR.name}/ assente, nessuna copia da verificare")
+            return 1
         dirs = sorted(d for d in VENDOR_DIR.iterdir() if (d / "MANIFEST.sha1").is_file())
+        if not dirs:
+            print(f"verify_vendor: nessuna cartella con MANIFEST.sha1 in {VENDOR_DIR.name}/")
         return 1 if [d for d in dirs if verify(d)] or not dirs else 0
     return verify(resolve(a.vendor), a.clone)
 

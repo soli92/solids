@@ -81,6 +81,10 @@ route di prototipo che renderizza il componente con ciascuna fixture; la scelta 
 un singolo HTML con componente e dataset inline. Il controllo è cromo neutro, fisso in basso al centro, fuori dal
 disegno in prova; il cambio è istantaneo, senza animazione sul contenuto.
 
+Se il progetto ha già un canale dev nativo per scegliere i dati, si usa quello invece di inventarne uno: in
+Storybook un arg o un global (`&args=dati:peggiore` nell'URL dell'iframe) con i Controls come toggle; il segmento
+fisso serve solo dove quel canale non c'è.
+
 ### 4 — Rompere
 
 Si osserva il caso peggiore cercando le firme di rottura (cause ricorrenti: flex child che si restringe, `min-width: auto`, stringhe senza punti di a-capo, segnaposto per campo mancante,
@@ -115,8 +119,13 @@ Una riga per rottura, la peggiore per prima. Gravità: **Rotto** (contenuto ille
 sbagliato), **Brutto** (leggibile ma visibilmente sbagliato), **Fragile** (ok ora, a un passo dal rompersi: nessun
 limite, nessun fallback).
 
-| # | Gravità | Campo | Valore | Cosa si rompe | Fix proposto (`file:riga`) | Decisione richiesta (sì/no) |
-|---|---|---|---|---|---|---|
+| # | Gravità | Campo | Valore | Cosa si rompe | Dove (componente / composizione) | Fix proposto (`file:riga`) | Decisione richiesta (sì/no) |
+|---|---|---|---|---|---|---|---|
+
+**Dove** separa due proprietari: *componente* (il difetto è nel codice in prova, es. un `object-cover` mancante) e
+*composizione* (è nell'harness o nel codice del consumatore, es. un helper delle iniziali scritto nella story, il
+plurale). Una rottura di composizione che il componente potrebbe prevenire (un fallback, un'utilità esportata) si
+segnala anche come proposta al componente, dichiarandolo.
 
 «Decisione richiesta: sì» per le rotture con più risposte giuste (troncare o capo, cosa mostra un ruolo vuoto,
 paginare o virtualizzare); in quel caso si scrive la raccomandazione e il motivo. Si chiude il report con ciò che ha

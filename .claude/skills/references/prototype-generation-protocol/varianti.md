@@ -23,8 +23,14 @@ convergenza: le varianti devono sembrare native del prodotto.
 - `N > 5` → **rifiuto esplicito** (non troncamento silenzioso):
   `[prototype] --variants <N> non ammesso: massimo 5 (oltre, il confronto si diluisce). Usa un valore 2..5.`
 - `N < 1` o non intero → rifiuto esplicito con lo stesso formato.
-- Il backend deve supportare la modalita': oggi **`html`** (specificato qui sotto). Per
-  `react | figma | penpot` il protocollo emette
+- Il backend deve supportare la modalita': oggi **`html`** (specificato qui sotto).
+- **Con `backend: auto`** e `variants` > 1, la Fase 0 restringe la catena a `html` *prima* di
+  risolvere, ed emette `[Fase 0] variants <N>: catena ristretta a html (unico backend con
+  selettore)`. Senza questa regola, su ogni progetto React la catena sceglie `react` e la
+  modalita' non parte mai, proprio dove serve (misurato su soli-ds, 2026-11-11). Le varianti
+  html usano comunque i token del progetto (Scelta delle direzioni).
+- **Con backend esplicito** (`--backend` o `prototyping.backend`) `react | figma | penpot`: vince
+  la scelta esplicita. Il protocollo emette
   `[Fase 2] variants > 1 non supportato dal backend <b>: genero 1 variante` e prosegue con
   `variants: 1` (degrado dichiarato, mai silenzioso).
 

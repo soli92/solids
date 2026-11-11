@@ -20,7 +20,7 @@ IF il diff (files_in_scope della Fase 0) non contiene motion:
 
 Euristica per «il diff tocca motion»: nelle righe aggiunte o modificate del diff, grep di
 `transition`, `animation`, `@keyframes`, `motion.`, `animate=`, `useSpring`, `ease-`,
-`transform-origin`, `prefers-reduced-motion`. Basta una corrispondenza. È un'euristica di
+`transform-origin`, `prefers-reduced-motion`; nelle codebase Tailwind anche le classi `animate-`, `duration-`, `ease-`, `origin-`, `transition-`, `delay-` e `keyframes` nei file di config/preset. Basta una corrispondenza. È un'euristica di
 attivazione, non di giudizio: un falso positivo costa una passata a vuoto.
 
 ## Procedura
@@ -29,6 +29,13 @@ La esegue il code-reviewer stesso, con la skill [`kowalski-motion-review`](../..
 dieci standard, segnali d'allarme, ordine delle correzioni. Valori citati da
 [`../kowalski-motion-review/standard.md`](../kowalski-motion-review/standard.md). **Non rilancia
 `/review` e non avvia altri agenti.** Si esaminano solo le righe di motion del diff.
+
+Quando la correzione vive in un file di config o preset (es. l'easing di default di un plugin di
+animazione usato in N componenti), il finding è **uno**, ancorato al file di config, con l'elenco dei
+punti d'uso: non N finding. Quando il rimedio della skill non è applicabile al vincolo della libreria
+(es. altezza di un accordion che deve spingere il contenuto, uscita rilevata con `animationend`), la
+colonna `Dopo` lo dice («nessuna correzione equivalente: …») invece di proporre un rimedio che rompe il
+componente.
 
 Ciò che non si giudica dal codice (sensazione di una spring o di un crossfade, gesti, reduced-motion
 a runtime) non diventa finding: va nell'elenco «da verificare a vista» con il passo concreto.

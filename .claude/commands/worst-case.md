@@ -25,7 +25,7 @@ Sintassi:
 ## Vincoli
 
 - **Report prima della correzione**: i fix si applicano solo su richiesta; le decisioni di design si chiedono.
-- Il toggle è solo dev (parametro URL o route di prototipo), mai in produzione.
+- Il toggle è solo dev (canale nativo del progetto, es. args di Storybook; altrimenti parametro URL o route di prototipo), mai in produzione.
 - I valori sono plausibili o dallo schema, mai casuali; cambiano al confine della fixture, mai nel markup.
 
 ## Cross-link

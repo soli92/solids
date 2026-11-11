@@ -19,13 +19,18 @@ Serve a una cosa: capire se le righe e gli estratti citati sono ancora quelli ch
    git -C <code_path> cat-file -e <base_commit>^{commit}
    git -C <code_path> diff --name-only <base_commit>..HEAD -- <file target...>
    ```
-2. **SHA inesistente** (il primo comando fallisce): dichiaralo come tale, non come deriva. E' un'
+2. **SHA non risolvibile** (il primo comando esce diverso da 0: SHA inesistente, corto e ambiguo, o
+   repo non valido): **non** eseguire il secondo comando e non chiamarla deriva. Nell'handoff riporta
+   il messaggio di git **verbatim**, perche' distingue le cause. E' un'
    **ipotesi** finche' non cita comando ed esito (protocollo di chiusura di `dev-handoff`). Ti fermi
    con `status: blocked` e un handoff «base_commit non risolvibile nel repo <code_path>»: comando,
    esito, e cosa serve (SHA corretto o clone completo). Non procedere «a occhio».
 3. **Nessun file cambiato** (output vuoto): il codice citato e' quello visto dall'autore. Procedi.
 4. **File cambiati**: non e' ancora un blocco. Confronta, per ogni estratto o riga citata, quanto il
    TSK dichiara con il file attuale.
+   Il confronto e' sul **contenuto** dell'estratto, non sul numero di riga: un estratto identico
+   spostato di qualche riga corrisponde (annota la riga nuova); un estratto modificato, anche di un
+   solo carattere, no. Una modifica vicina ma fuori dall'estratto non conta.
    - Corrispondono (le modifiche hanno toccato altre parti del file): procedi e annota nell'handoff
      quali file erano cambiati e che gli estratti sono stati verificati.
    - **Non corrispondono**: FERMATI. Non adattare il passo, non indovinare l'intento. Edit
@@ -34,6 +39,9 @@ Serve a una cosa: capire se le righe e gli estratti citati sono ancora quelli ch
      comando che lo prova. Il TPM riscrive il passo e aggiorna `base_commit`.
 
 ## Limiti
+
+- Un `target:` che e' una directory si controlla con lo stesso `diff --name-only`; il confronto degli
+  estratti resta sui soli file citati con `file:riga`.
 
 - Il controllo e' sui file e sugli estratti citati: non garantisce che altro codice, non citato, non
   sia cambiato.
