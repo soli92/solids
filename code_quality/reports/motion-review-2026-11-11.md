@@ -106,3 +106,61 @@ Impatto = peso sulla sensazione/prestazioni, non gravita (advisory). Alto 3 · M
 ## Riepilogo (nessuna decisione)
 
 Rotture della sensazione 7 · Semplificazioni 1 · Prestazioni 8 · Interrompibilita e tempi 3 · Origine/coesione 3 · Accessibilita 1. Totale 23 (Alto 3, Medio 8, Basso 12). Nessun Block/Approve; non altera alcun verdict.
+
+## Applicazione (2026-11-11)
+
+Applicato dopo la migrazione a Tailwind v4 (HEAD 2ddd9b7). Righe rilocalizzate sul codice attuale. Evidenza: build/test verdi, oracolo visivo (124 scatti, animazioni spente) e `getComputedStyle` con Playwright su storybook-static (con/senza `prefers-reduced-motion`).
+
+| ID | Esito | Dove (nuovo) | Evidenza |
+|---|---|---|---|
+| R1 | fatto | `src/css/base.css:60-64` (transition tolta da `:focus-visible`) | CSS compilato: `:focus-visible{outline:2px solid ...;outline-offset:2px}` senza transition |
+| R2 | fatto | `src/css/tailwind.css:165-185` (`--tw-ease` in `@layer base`) | `animate-in` v4 e `animation: enter dur var(--tw-ease,ease)...`: la curva si imposta via `--tw-ease`, non con `animation-timing-function` (la shorthand di un utility la azzererebbe). Computed: dialog `cubic-bezier(0.23, 1, 0.32, 1)`, tooltip e popover idem; un `ease-*` sul componente resta piu forte (layer utilities) |
+| R2 (uscita piu rapida) | fatto | `tailwind.css:181-184` | `[data-state=closed][class*=animate-out]` imposta `--tw-animation-duration: var(--tw-duration,125ms)`. Popover in uscita: 0.125s contro 0.15s di ingresso; dialog/sheet seguono la durata dichiarata dal componente |
+| R3 | fatto | `sidebar.tsx:235,245,311,450` | `ease-linear` sostituito da `ease-[cubic-bezier(0.77,0,0.175,1)]`; grep `ease-linear` in ui/: zero |
+| R4 | fatto | `sheet.tsx:34` | `ease-[cubic-bezier(0.32,0.72,0,1)]`, apertura 300ms, chiusura 200ms. Computed: open 0.3s / close 0.2s con quella curva |
+| R5 | non fatto (decisione 9) | `sidebar.tsx:31` | Cmd/Ctrl+B lasciata com'e: quanto sia frequente il toggle da tastiera non si legge dal codice; lo standard e in conflitto con se stesso («tastiera: mai» vs «occasionale: animazione standard»). Resta in «da verificare a vista». Mitigazione gia attiva: con reduce lo spaziatore scatta senza transizione |
+| R6 | fatto | `tooltip.tsx:21` | `data-[state=instant-open]:animate-none`; presente nel CSS compilato. Non misurato a runtime lo stato `instant-open` (richiede due tooltip ravvicinati) |
+| R7 | fatto | `dropdown-menu.tsx:87,103,127` | `transition-none` sulle voci |
+| S1 | fatto | `navigation-menu.tsx:72` | `slide-*-52` (13rem) ridotti a `-4` (1rem), fade invariato |
+| P1 | fatto (parziale per scelta) | `tailwind.css:112-113`; `accordion.tsx:47` | altezza mantenuta; curva `cubic-bezier(0.23,1,0.32,1)`, 0.2s. Computed accordion: `accordion-down 0.2s cubic-bezier(0.23, 1, 0.32, 1)`. Poiche l'ordine d'import del consumatore fa vincere la definizione di tw-animate-css, la curva e imposta anche via `--tw-ease` (`tailwind.css:174-176`) |
+| P2 | fatto | `sidebar.tsx:245,247-248` | pannello fisso: `left/right` -> `translate-x-full` (offcanvas) e `transition-[translate,width]`; il `width` resta per la modalita icona; spaziatore `:235` resta su `width`. Oracolo: sidebar chiara identica a pixel, scura solo bordo |
+| P3 | fatto | `accordion.tsx:29` | `transition-colors` |
+| P4 | fatto | `tabs.tsx:30` | `transition-[color,background-color,box-shadow]` |
+| P5 | fatto | `input-otp.tsx:42` | `transition-[border-color,box-shadow]` (con la cella attiva cambia il ring) |
+| P6 | fatto | `progress.tsx:21` | `transition-transform` |
+| P7 | fatto | `toast.tsx:26` | `transition-[transform,opacity]` |
+| P8 | fatto (variante) | `sidebar.tsx:311` | non `transition-colors`: il rail cambia anche `translate` (`offcanvas:translate-x-0`), quindi `transition-[translate,background-color] duration-200` per non far scattare lo spostamento che prima animava |
+| I1 | non fatto | `toast.tsx:26` | decisione 6: il toast resta a keyframe, Radix rileva l'uscita con `animationend` |
+| I2 | fatto | `navigation-menu.tsx:58` | `duration-200` |
+| I3 | fatto (dichiarato) | `src/css/utilities.css:238-239` | 350ms mantenuto con commento: solo motion esplicativo/marketing, nessun consumatore nei componenti |
+| O1 | fatto | `navigation-menu.tsx:89` | `origin-top`. Nessuna differenza visiva negli scatti statici; l'origine incide solo durante lo zoom |
+| O2 | non fatto | `src/tokens/base.json:176` | fuori perimetro (token sorgente); da portare alla sessione principale |
+| O3 | fatto | `menubar.tsx:118` | aggiunto `data-[state=closed]:animate-out` |
+| A1 | fatto | `base.css:72-114` | vedi misure sotto. Niente azzeramento globale: variabili `--tw-enter-*`/`--tw-exit-*` forzate (`!important`, valgono anche per tailwindcss-animate v3), durata 100ms, `transition-property` ristretta a colore/opacita/ombra, accordion/collapsible senza animazione (e altezza), `animate-spin` rallentato a 3s, `animate-pulse` (solo opacita) invariato |
+| Caret OTP | fatto | `tailwind.css:114-126`; `input-otp.tsx:51` | `--animate-caret-blink` + keyframe `caret-blink` esplicitati; CSS compilato: `.animate-caret-blink{animation:1.25s ease-out infinite caret-blink}`. Nota: tw-animate-css la definisce gia, quindi il «caret inerte» era vero solo per i consumatori v3 / senza il plugin |
+| Bordo di default | fatto (decisione 8) | `tailwind.css:158` | `border-color: var(--border, currentColor)`. Oracolo: unica differenza e nei temi scuri (e nel toast chiaro, bordo ora token) |
+
+Fuori da questo elenco: il preset v3 (`src/tailwind/preset.cjs`) non e stato toccato: easing e caret sono in `tailwind.css` (solo v4, il preset e legacy senza nuove feature); focus e reduced-motion stanno in `base.css` e raggiungono anche i v3.
+
+### Misure `getComputedStyle` (storybook-static, Chromium)
+
+| Elemento | senza reduce | con reduce |
+|---|---|---|
+| dialog, apertura | enter 0.2s `cubic-bezier(0.23,1,0.32,1)`; y -48%, x -50%, scale .95, opacity 0 | enter 0.1s stessa curva; y 0, x 0, scale 1, opacity 0 (resta la dissolvenza) |
+| dialog, chiusura | exit 0.2s stessa curva; scale .95 | exit 0.1s; scale 1, x 0 |
+| sheet, apertura / chiusura | 0.3s / 0.2s, `cubic-bezier(0.32,0.72,0,1)`; x 100% | 0.1s / 0.1s; x 0 |
+| tooltip, apertura | 0.15s `cubic-bezier(0.23,1,0.32,1)`; y 0.5rem, scale .95 | 0.1s; y 0, scale 1, opacity 0 |
+| popover, chiusura | exit 0.125s `cubic-bezier(0.23,1,0.32,1)`, origine `128px 0px` (misura senza reduce) | non misurata |
+| accordion, apertura | `accordion-down` 0.2s `cubic-bezier(0.23,1,0.32,1)` | `animation-name: none` |
+| spinner | `spin` 1s linear | `spin` 3s linear |
+| transition-property | (default dei componenti) | `color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow` a 0.1s |
+
+Nota: nei componenti con `duration-*` (dialog, sheet) il computed mostra `transition: all <durata>`: e il `transition-property` di default di v4 per la sola utility di durata, non una `transition-all` dichiarata, e non c'e nulla che transiti.
+
+### Oracolo visivo
+
+124 scatti (m1) contro a5: 107 identici, 17 diversi. 32 scatti con overlay aperto (m1o) contro a5o: 18 identici, 14 diversi. Tutte le differenze sono il bordo (`--border` al posto del grigio fisso): 16 dark piu `toast--statico__light` (bordo del toast); 800-3100 px per scatto, linee sottili. Nessun diverso nei temi chiari tranne il toast. Nessuna regressione di layout (sidebar chiaro e aperto identici).
+
+### Da verificare a vista (non sono fix)
+
+R5 (scorciatoia sidebar), I1 (toast in sequenza), R6 a runtime (`instant-open`), R4 (drawer su dispositivo), P1/P2 (frame persi con CPU 4x), O1 (origine viewport a 10%), S1 (stanchezza del movimento ridotto), hover su touch.

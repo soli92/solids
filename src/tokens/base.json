@@ -173,7 +173,7 @@
     "linear":    "linear",
     "ease":      "ease",
     "ease-in":   "cubic-bezier(0.4, 0, 1, 1)",
-    "ease-out":  "cubic-bezier(0, 0, 0.2, 1)",
+    "ease-out":  "cubic-bezier(0.23, 1, 0.32, 1)",
     "ease-inout":"cubic-bezier(0.4, 0, 0.2, 1)",
     "standard":  "cubic-bezier(0.2, 0, 0, 1)",
     "emphasized-decelerate": "cubic-bezier(0, 0, 0, 1)",

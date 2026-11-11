@@ -109,8 +109,21 @@
   --font-mono: var(--sd-font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, "Liberation Mono", "Courier New", monospace;
 
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-accordion-down: accordion-down 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-accordion-up: accordion-up 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
+
+  @keyframes caret-blink {
+    0%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    50% {
+      opacity: 0;
+    }
+  }
 
   @keyframes accordion-down {
     from {
@@ -142,11 +155,31 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    border-color: var(--border, currentColor);
   }
 
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+/* ─── Overlay motion ───────────────────────────────────────
+ * tw-animate-css builds `animate-in` / `animate-out` as an `animation`
+ * shorthand whose timing function is `var(--tw-ease, ease)`: the built-in
+ * `ease` is weak. Setting --tw-ease here gives every overlay one strong
+ * ease-out on entry and a quicker exit, in one place. An `ease-*` utility on
+ * a component still overrides it (utilities layer wins over base).
+ */
+@layer base {
+  [class*="animate-in"],
+  [class*="animate-accordion"],
+  [class*="animate-collapsible"] {
+    --tw-ease: var(--sd-easing-ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+
+  [data-state="closed"][class*="animate-out"],
+  [data-swipe="end"][class*="animate-out"] {
+    --tw-animation-duration: var(--tw-duration, 125ms);
   }
 }

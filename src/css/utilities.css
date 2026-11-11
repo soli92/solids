@@ -234,6 +234,8 @@
   transition-timing-function: var(--sd-easing-standard, var(--sd-easing-ease-inout));
 }
 
+/* Emphasized: deliberately longer than the 300ms UI ceiling, for
+   explanatory or marketing motion only. Not used by the components. */
 @media (prefers-reduced-motion: no-preference) {
   .sd-transition-emphasized {
     transition-property: color, background-color, border-color, box-shadow, opacity, transform;
