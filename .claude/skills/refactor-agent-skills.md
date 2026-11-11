@@ -1,6 +1,6 @@
 ---
 name: refactor-agent-skills
-description: Rifattorizza in divulgazione progressiva le unità di contesto agentiche troppo grandi — SKILL.md di skill, file di agenti e sotto-agenti, indice di flotta (AGENTS.md o equivalente) — tenendo snella la spina dorsale (frontmatter, vincoli, fasi, gate) e migrando il dettaglio in references/ con trigger di lettura vincolanti. Su una unità o un'intera flotta: quando splitta il markdown censisce e preserva il grafo dei riferimenti tra file (nomi-agente, handoff, path, ancore, skill) e applica igiene di flotta (registrati vs specialisti, collisioni di description, agenti orfani, deduplica). Usare quando una SKILL.md o un agente supera ~500 righe, o l'utente segnala agenti o skill troppo lunghi, allucinazioni, perdita di aderenza, token, riferimenti rotti, o chiede di spezzare, snellire od ottimizzare una skill, un agente, un AGENTS.md o una flotta. Rileva la topologia senza assumere cartelle fisse. NON per README/doc (usare refactoring-docs) né per creare skill/agenti da zero (usare skill-creator).
+description: Rifattorizza skill, agenti o flotte troppo grandi spostando il dettaglio in references/. Preserva il grafo riferimenti e applica igiene di flotta. Usare quando skill/agente supera ~500 righe, si segnalano allucinazioni, token, o riferimenti rotti. NON per README/doc ne' per creare skill da zero.
 ---
 
 # Refactoring di skill e flotte di agenti sovradimensionate
@@ -38,15 +38,12 @@ della sostituzione.
 
 ## Soglie di intervento (per unità)
 
-| Righe corpo | Verdetto |
-|---|---|
-| oltre 500 | refactor raccomandato |
-| 300–500 con contenuto misto | valutare: procedure operative mescolate a dettaglio consultivo |
-| fino a 300 | non intervenire: riferisci il verdetto e fermati, salvo richiesta esplicita |
-
-Su una flotta la soglia si applica **file per file**: rifattorizza le unità
-sopra soglia, lascia stare le altre. Obiettivo post-refactor: corpo entro 250
-righe; foglie da 50 a 250 righe ciascuna.
+Le soglie **aprono un'istruttoria**; l'autorizzazione al taglio è **V-10**, non
+la dimensione. Oltre 500 righe di corpo, o 300–500 con contenuto misto:
+istruttoria aperta, esito non scontato. Fino a 300: non intervenire — riferisci
+il verdetto e fermati, salvo richiesta esplicita. Su una flotta la soglia si
+applica **file per file**. Obiettivo post-refactor: corpo entro 250 righe, foglie
+da 50 a 250 righe ciascuna.
 
 ## Vincoli non negoziabili
 
@@ -62,15 +59,17 @@ righe; foglie da 50 a 250 righe ciascuna.
   (`name`, `description`, `tools`, `model`, `maxTurns`, tutto) non cambia
   durante un refactor conservativo: `description` è il meccanismo di attivazione
   e di routing, `name` è il contratto con cui gli altri file la citano.
-  Ottimizzarli è un passo separato, dopo, con il loop di skill-creator.
+  Ottimizzarli è un passo separato, fuori dall'ambito di questa skill.
 - **V-4 Una sola radice per unità.** Una skill ha una sola `SKILL.md`; un agente
   un solo file di definizione. Le foglie vivono in `references/`, mai come
   radici annidate.
 - **V-5 Equivalenza prima della sostituzione.** L'originale non viene sostituito
-  finché Fase 3 e Fase 4 non risultano PASS. In difetto: iterare o rollback.
-- **V-6 Snapshot prima di toccare.** Copia integrale dell'originale — dell'intera
-  flotta se si tocca la flotta — prima di qualunque modifica. È la baseline dei
-  test e la via di rollback.
+  finché Fase 3 non esce 0 e Fase 4 non è in `accept`. `reject` o `non
+  valutabile`: iterare o rollback — non sostituire.
+- **V-6 Albero pulito, baseline in git.** Il refactor **non parte** se
+  `git status --porcelain <target>` non è vuoto; il `baseline_commit` registrato
+  è `HEAD`. È tutta la precondizione: baseline e rollback vivono in git, non in
+  una copia. Nessuno snapshot da creare, nessun ramo «snapshot fallito ⇒ STOP».
 - **V-7 Nessuna duplicazione.** Ogni contenuto vive in un solo posto. Se una
   regola vincolante migra in una foglia, nel corpo resta il suo enunciato
   (massimo 2 righe) più il trigger — mai la copia: due copie divergono.
@@ -84,6 +83,19 @@ righe; foglie da 50 a 250 righe ciascuna.
   corpo**: il contenuto vincolante resta nel corpo o viaggia nel prompt — mai in
   una foglia che il subagent non leggerà. Violare V-9 è il modo più insidioso di
   degradare la modalità operativa.
+- **V-10 Precondizione di ramificazione.** **Sostituisce** il criterio
+  dimensionale come autorizzazione al taglio:
+  > *Non si estrae una foglia da un documento le cui sezioni si attraversano in
+  > ordine: senza rami nessuna foglia è saltabile e la sessione piena paga corpo
+  > + foglie sempre, non nel caso peggiore. Si taglia solo dove esiste un ramo che
+  > l'esecuzione può non prendere; la soglia dimensionale apre un'istruttoria,
+  > non autorizza un taglio.*
+
+  Provenienza dichiarata: **converge** con la letteratura sulla scrittura per
+  agenti, **non ne deriva** — misurata sugli otto commit di EP-060 (una skill a
+  fasi sequenziali: 799 → 220 di corpo + 717 di foglie = 937). Misura: **A-23(i)**
+  `righe(corpo) + righe(foglie) <= righe(baseline)`, **nominata qui, implementata
+  dall'osservatore**, non duplicata.
 
 ## Fase 0.0 — Detection topologia (se mode external, ADR-EP060-003)
 
@@ -114,9 +126,9 @@ passa `mode: external`.
    (es. mancare `agents/references/`, avere `specialists/`). Documenta nel
    report.
 
-5. **Snapshot path**:
-   `<external_path>/.fleet-health/workspace/<target-slug>-<timestamp>/skill-snapshot/`
-   (Decisione 3). NON in factory master (isolamento).
+5. **Baseline**: `baseline_commit = HEAD` del repo target
+   (`git -C <external_path> rev-parse HEAD`); V-6 si valuta su quel repo. La parte
+   «snapshot» di Decisione 3 è superata da US-269 AC9: la baseline è in git.
 
 6. **Reporting differenziato** (Decisione 5):
    Payload output includerà `mode: external` + `external_factory` (slug basename) +
@@ -126,9 +138,9 @@ Terminata Fase 0.0, procedi con Fase 0 standard (Ricognizione).
 
 ## Fase 0 — Ricognizione e topologia (sola lettura)
 
-1. **Snapshot** (V-6): crea `<nome>-workspace/` accanto al target e copia
-   l'originale in `skill-snapshot/`. Se il target è in sola lettura, copia prima
-   in area scrivibile e lavora lì. Su una flotta, copia l'intero albero.
+1. **Precondizione V-6**: `git status --porcelain <target>` deve essere vuoto —
+   altrimenti fermati, senza eccezioni. Registra `baseline_commit` =
+   `git rev-parse HEAD`: è la baseline dei confronti e la via di rollback.
 2. **Rilevamento topologia e dispatch**: prima di classificare qualunque cosa,
    leggi obbligatoriamente `.claude/skills/references/refactor/topologia-e-dispatch.md`; se il file
    manca, fermati e segnala. Stabilisce di che **specie** è il target (unità
@@ -144,10 +156,11 @@ Terminata Fase 0.0, procedi con Fase 0 standard (Ricognizione).
 5. **Censimento dei contenuti**: leggi obbligatoriamente
    `.claude/skills/references/refactor/criteri-di-taglio.md`; se manca, fermati e segnala. Classifica
    ogni sezione: spina dorsale, migrabile in foglia, candidata a script, asset.
-6. **Precondizioni di test**: individua l'installazione di skill-creator e gli
-   eventuali `evals/evals.json`. Registra l'esito: determina la Fase 4.
+6. **Precondizioni di test**: censisci gli esecutori di Fase 4 **nominati,
+   esistenti nel repo, con exit code**, e gli eventuali `evals/evals.json`.
+   Registra l'esito: determina se la Fase 4 è eseguibile o `non valutabile`.
 7. **Condizioni di arresto**: tutto sotto soglia → riferisci il verdetto e
-   fermati. Snapshot non riuscito → fermati: senza baseline non c'è rollback.
+   fermati. Albero non pulito → fermati (V-6).
 
 ## Fase 1 — Piano dichiarato (gate di approvazione)
 
@@ -194,61 +207,82 @@ Prima di toccare qualunque file, produci il piano e sottoponilo all'utente:
 Esegui, in quest'ordine:
 
 ```bash
-tools/refactor/verifica_flotta.py <path> --snapshot <workspace>/skill-snapshot
+git worktree add <workspace>/baseline <baseline_commit>   # baseline a zero byte (V-6)
+tools/refactor/verifica_flotta.py <path> --snapshot <workspace>/baseline
 tools/refactor/mappa_riferimenti.py <root> --gate
 ```
 
 Exit code diverso da 0 = STOP: correggi e rilancia finché non passa. Gate
 strutturali per unità: G1 una sola radice; G2 frontmatter valido; G3 frontmatter
-identico allo snapshot; G4 ogni path citato esiste; G5 nessuna foglia orfana;
+identico alla baseline; G4 ogni path citato esiste; G5 nessuna foglia o unita' top-level orfana (zero archi entranti nel tier dispatch: scope esteso da foglia a unita' top-level, TSK-652/US-277);
 G6 script citati ed eseguibili; G7 righe entro soglia; G8 ancore valide. Gate di
 grafo sulla flotta: G9 ogni nome-agente/handoff citato risolve a un file
-esistente; G10 nessun agente orfano o irraggiungibile; G11 nessuna foglia
+esistente; G10 nessun agente o unita' top-level orfana o irraggiungibile (scope esteso da foglia a unita' top-level, TSK-652/US-277); G11 nessuna foglia
 irraggiungibile citata da un corpo dispatchato per iniezione (path non
-`.claude/`-ancorato) — violazione di V-9. Se skill-creator
-è disponibile, esegui in aggiunta `skill-creator/scripts/quick_validate.py` su
-ogni skill/agente come gate di validità per l'upload.
+`.claude/`-ancorato) — violazione di V-9. Nel repo non esiste un validatore
+aggiuntivo: G1–G11 sono l'intera validità strutturale verificabile.
 
 ## Fase 4 — Verifica comportamentale mirata (equivalenza)
 
 Prima di iniziare leggi obbligatoriamente
 `.claude/skills/references/refactor/protocollo-test-equivalenza.md`; se manca, fermati e segnala. In
-sintesi: stessi prompt eseguiti sullo snapshot (baseline) e sulla versione
+sintesi: stessi prompt sulla baseline (`baseline_commit`, V-6) e sulla versione
 rifattorizzata, **limitatamente alle unità toccate** e ai flussi che le
-attraversano; grading con `skill-creator/agents/grader.md`; accettazione solo
-se il pass-rate funzionale è ≥ baseline, l'aderenza ai trigger è al 100% sui casi
-applicabili, e — su flotta — le decisioni di routing e il grafo degli handoff
-restano invariati. In difetto: itera (`iteration-N`) o rollback.
+attraversano; i cinque criteri di accettazione vivono nella foglia e valgono
+tutti, nessuna eccezione — qui resta il verdetto.
+
+Verdetto, vocabolario chiuso a **tre** valori: `accept` | `reject` | `non
+valutabile`. Il terzo **non è degradabile** verso gli altri due: senza un
+esecutore **nominato, esistente nel repo, con exit code** la Fase 4 **è** `non
+valutabile`, e nessuna verifica «analitica» o manuale la sostituisce. Chi ha
+eseguito il refactor **non può emetterne il verdetto**: autocertificarsi vale
+`non valutabile`. Oggi nel repo **non esiste** un esecutore comportamentale: la
+Fase 4 di un refactor eseguito ora è `non valutabile`, la Fase 5 non parte. In
+difetto di `accept`: itera (`iteration-N`) o rollback.
 
 ## Fase 5 — Consegna
 
-1. Reimpacchetta con `package_skill.py` di skill-creator (o zip manuale se
-   assente, escludendo workspace ed evals).
+0. **Precondizione hard**: Fase 4 in `accept` con payload di evidenza. Verdetto
+   `reject` o `non valutabile` ⇒ la Fase 5 non si esegue.
+1. La consegna **è il commit** che muta l'albero, con i trailer qui sotto: nel
+   repo non esiste un impacchettatore e nessun fallback è nominato.
 2. Riepilogo all'utente: righe prima/dopo per unità, stima dei token risparmiati
    al caricamento, esito dei gate di grafo, esito dei test di equivalenza,
    elenco di foglie/trigger creati e ottimizzazioni di flotta applicate.
-3. Conserva lo snapshot finché l'utente non conferma l'adozione.
+3. Il rollback resta `git checkout <baseline_commit> -- <target>`: niente da
+   conservare fuori da git.
+
+## Record di esecuzione — trailer di commit
+
+Il record di un refactor **è il commit che muta l'albero**: nessun file di log,
+nessuna riga in prosa. Forma unica, nel messaggio del commit che lo applica:
+
+```
+Refactor-baseline: <sha>
+Refactor-gate: <check>=<exit>[,…]
+Refactor-evidence: <path>|non-valutabile
+```
+
+`Refactor-baseline` è l'`HEAD` di V-6; `Refactor-gate` elenca i gate eseguiti con
+il loro exit code (es. `verifica_flotta=0,mappa_riferimenti=0`);
+`Refactor-evidence` è il path del payload di Fase 4 oppure la stringa
+`non-valutabile`. Interrogabile con
+`git log --format='%(trailers:key=Refactor-gate)'`; zero byte se nessun refactor
+gira.
 
 ## Risorse
 
-- `design_&_architecture/decisions/ADR-EP060-003-external-target-foundation.md` — 5 decisioni sblocco external_target. Lettura obbligatoria in Fase 0.0 se mode external.
-- `tools/refactor/analizza_target.py` — inventario, outline, verdetto soglie per unità
-  o flotta. Fase 0.3.
-- `tools/refactor/mappa_riferimenti.py` — grafo dei riferimenti tra file, agenti orfani,
-  collisioni di description, gate G9–G11. Fase 0.4 e Fase 3.
-- `tools/refactor/verifica_flotta.py` — gate strutturali G1–G8. Fase 3.
-- `.claude/skills/references/refactor/topologia-e-dispatch.md` — rilevamento di specie, topologia e
-  meccanica di dispatch; la regola di sicurezza V-9. Lettura obbligatoria in
-  Fase 0.2.
-- `.claude/skills/references/refactor/integrita-riferimenti.md` — tassonomia delle forme di riferimento,
-  come censirle e preservarle, i gate di grafo. Lettura obbligatoria in Fase 0.4.
-- `.claude/skills/references/refactor/criteri-di-taglio.md` — tassonomia dei contenuti, criteri di taglio,
-  anatomia dei trigger, anti-pattern. Lettura obbligatoria in Fase 0.5.
-- `.claude/skills/references/refactor/igiene-flotta.md` — ottimizzazioni di flotta oggettive. Lettura
-  obbligatoria in Fase 1.4 (solo se il target è una flotta).
-- `.claude/skills/references/refactor/protocollo-test-equivalenza.md` — protocollo completo della Fase 4:
-  riuso di skill-creator, asserzioni di aderenza e di routing, criteri di
-  accettazione. Lettura obbligatoria in Fase 4.
+Indice dei path citati: il trigger vincolante di ogni foglia vive al punto d'uso (V-2).
+
+- `design_&_architecture/decisions/ADR-EP060-003-external-target-foundation.md` — sblocco external_target (Fase 0.0).
+- `tools/refactor/analizza_target.py` — inventario, outline, verdetto soglie (Fase 0.3).
+- `tools/refactor/mappa_riferimenti.py` — grafo dei riferimenti, agenti orfani, gate G9–G11 (Fase 0.4, Fase 3).
+- `tools/refactor/verifica_flotta.py` — gate strutturali G1–G8 (Fase 3).
+- `.claude/skills/references/refactor/topologia-e-dispatch.md` — specie, topologia, dispatch; V-9 (Fase 0.2).
+- `.claude/skills/references/refactor/integrita-riferimenti.md` — forme di riferimento, gate di grafo (Fase 0.4).
+- `.claude/skills/references/refactor/criteri-di-taglio.md` — tassonomia dei contenuti, anatomia dei trigger, anti-pattern (Fase 0.5).
+- `.claude/skills/references/refactor/igiene-flotta.md` — ottimizzazioni di flotta oggettive (Fase 1.4, solo flotta).
+- `.claude/skills/references/refactor/protocollo-test-equivalenza.md` — tre verdetti, asserzioni, criteri di accettazione (Fase 4).
 
 ## Owner
 

@@ -6,7 +6,7 @@ allowed-tools: Read, Write, Edit, Glob, Bash
 
 Comando della capability [[task-analytics-cost-estimation-capability]] (faccia **Misurazione**,
 EP-009). Delega l'analisi end-to-end (lettura eventi → calcolo costi → metriche temporali →
-bottleneck → report per audience) all'agente [analytics-reporter](mdc:.cursor/rules/analytics-reporter.mdc). **Misura il passato, NON
+bottleneck → report per audience) all'agente `analytics-reporter`. **Misura il passato, NON
 stima il futuro**: per forecast usa `/estimate` (`estimation-analyst`, EP-010).
 
 ## Sintassi
@@ -44,11 +44,12 @@ stima il futuro**: per forecast usa `/estimate` (`estimation-analyst`, EP-010).
 2. Risolvi `<scope>` nelle 4 forme sopra. Se `TSK-id`, `Glob management/kanban/**/TSK-<id>.md`
    e deriva `project_id` + `period`; se non trovato → ABORT «TSK non esiste».
 3. **Invocazione** (con fallback):
-   - Se [analytics-reporter](mdc:.cursor/rules/analytics-reporter.mdc) è scaffoldato **e**
-     `analytics.measurement.agent: true` → invoca l'agente `analytics-reporter` passando
-     `scope`, `audience`, `format`, `ephemeral`, `compression_savings`.
+   - Se `.claude/agents/analytics-reporter.md` è scaffoldato **e**
+     `analytics.measurement.agent: true` → invoca l'agente `analytics-reporter` (Claude Code
+     `Agent` con `subagent_type: analytics-reporter`) passando `scope`, `audience`, `format`,
+     `ephemeral`, `compression_savings`.
    - **Fallback**: se l'agente non è scaffoldato (file assente) o `agent: false`, ma la skill
-     [cost-and-time-analytics](mdc:.cursor/skills/cost-and-time-analytics/SKILL.md) (US-036/TSK-064) è presente → esegui la skill direttamente via
+     `cost-and-time-analytics` (US-036/TSK-064) è presente → esegui la skill direttamente via
      orchestrator/tpm/qa-dev (chi è attivo nella topologia). La capability di misurazione resta
      disponibile come skill anche senza agente dedicato (PATTERN §3, albero Tool/Skill/Agente).
    - Se né agente né skill esistono → ABORT «Capability analytics non scaffoldata».
@@ -56,6 +57,11 @@ stima il futuro**: per forecast usa `/estimate` (`estimation-analyst`, EP-010).
    cost_time_report`) rispettando le 4 invarianti (split umano/agentico, `rate_basis` esplicito,
    percentili non medie, drift prezzi notato).
 5. Mostra in chat il verdict/summary (cost_total, split, p50/p85/p95, bottleneck).
+6. **Soglie di costo** (skill `cost-alert-protocol`, solo lettura): se
+   `analytics.cost_alert.enabled: true`, aggiungi in coda una sezione «Soglie di costo» con
+   l'output integrale di `python3 tools/analytics/cost_alert.py check --period all`. È il
+   costo dell'operatore su questa macchina, dai transcript: può differire dal `cost_total`
+   del report, che legge l'event store. Errore o flag spento → sezione omessa, mai ABORT.
 
 ## Storage
 
@@ -76,8 +82,8 @@ canonico, analogo alle entry `review`/`a11y`:
 ## Prerequisiti
 
 - `factory.config.yaml.analytics.measurement.enabled: true` (eventi disponibili).
-- Per la via agente: `analytics.measurement.agent: true` + [analytics-reporter](mdc:.cursor/rules/analytics-reporter.mdc).
-- Per la via fallback: skill [cost-and-time-analytics](mdc:.cursor/skills/cost-and-time-analytics/SKILL.md) (US-036) presente + topology con
+- Per la via agente: `analytics.measurement.agent: true` + `.claude/agents/analytics-reporter.md`.
+- Per la via fallback: skill `cost-and-time-analytics` (US-036) presente + topology con
   orchestrator/tpm/qa-dev attivo.
 - `analytics/pricing.yaml` / `analytics/rates.yaml` presenti (tariffe mai hardcoded).
 
@@ -90,5 +96,5 @@ canonico, analogo alle entry `review`/`a11y`:
 - L'agente non modifica il corpo dei TSK: al massimo il campo frontmatter `cost_event_log:`
   del TSK target (+ `updated:`), single-writer (US-039 / ADR-023 §G).
 
-Vedi [analytics-reporter](mdc:.cursor/rules/analytics-reporter.mdc), skill [cost-and-time-analytics](mdc:.cursor/skills/cost-and-time-analytics/SKILL.md), EP-009, e
+Vedi `.claude/agents/analytics-reporter.md`, skill `cost-and-time-analytics`, EP-009, e
 [[task-analytics-cost-estimation-capability]] per il contratto completo.

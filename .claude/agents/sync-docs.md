@@ -1,7 +1,7 @@
 ---
 name: sync-docs
 description: Sub-agent Sync per la sorgente PDF (PATTERN §2 + §16). Estrae testo + immagini dai PDF in raw/.
-model: claude-haiku-4-5-20251001
+model: claude-haiku-5-5
 tools: [Read, Write, Edit, Glob, Bash]
 capabilities:
   - raw-sync               # scrive in raw/ (scope esclusivo)

@@ -1,18 +1,20 @@
 """
 student_model.py — StudentModel (TSK-357, TSK-358, TSK-359, EP-045 US-162)
 
-Gestisce il ciclo di vita del modello dello studente:
-  - caricamento e salvataggio su JSON (persistenza cross-sessione, AC1)
-  - lettura e aggiornamento dei nodi di competenza
-  - ordinamento topologico del DAG dei prerequisiti con Kahn's algorithm (AC4)
-  - spaced repetition SM-2 semplificato: schedule_next_review() (TSK-358, AC6)
-  - provenance e staleness: update_provenance(), check_staleness(),
+Manages the student model lifecycle:
+  - loading and saving to JSON (cross-session persistence, AC1)
+  - reading and updating the competence nodes
+  - topological ordering of the prerequisite DAG with Kahn's algorithm (AC4)
+  - spaced repetition SM-2 simplified: schedule_next_review() (TSK-358, AC6)
+  - provenance and staleness: update_provenance(), check_staleness(),
     compute_content_hash() (TSK-359, AC3)
 
-Dipendenze: solo stdlib Python 3.10+ (json, pathlib, datetime, collections, hashlib).
-Scrittura atomica: write su file temporaneo (.tmp), poi rename — evita corruzione.
+Dependencies: Python 3.10+ stdlib only (json, pathlib, datetime, collections, hashlib).
+Atomic writing: write to temporary file (.tmp), then rename — avoid corruption.
 
-Schema JSON: conforme a wiki/concepts/student-model-schema.md (TSK-356).
+JSON Schema: Complies with wiki/concepts/student-model-schema.md (TSK-356).
+
+
 """
 
 from __future__ import annotations
@@ -27,11 +29,12 @@ from typing import Any
 
 SCHEMA_VERSION = "1.0"
 
-# Spaced repetition — SM-2 semplificato (TSK-358)
+# Spaced repetition — simplified SM-2 (TSK-358)
 MAX_INTERVAL_DAYS = 30   # cap superiore all'intervallo di ripasso (SR-2)
 RESET_INTERVAL_DAYS = 1  # intervallo di reset su risposta errata (SR-3)
 
-# Default nodo conforme allo schema TSK-356
+# Default node compliant with TSK-356 scheme
+
 DEFAULT_NODE: dict[str, Any] = {
     "mastery": 0.0,
     "confidence": 0.0,
@@ -74,7 +77,8 @@ class StudentModel:
         self.load(self._path)
 
     # ------------------------------------------------------------------
-    # Persistenza (AC1)
+    # Persistence (AC1)
+
     # ------------------------------------------------------------------
 
     def load(self, path: str) -> None:
@@ -88,7 +92,8 @@ class StudentModel:
         """
         p = Path(path)
         if not p.exists():
-            # File assente: inizializza struttura vuota
+            # Missing file: initialize empty structure
+
             self._data = {
                 "schema_version": SCHEMA_VERSION,
                 "student_id": self._student_id,
@@ -99,7 +104,7 @@ class StudentModel:
         with p.open("r", encoding="utf-8") as fh:
             raw = json.load(fh)
 
-        # Validazione schema_version
+        # Validate schema_version
         found_version = raw.get("schema_version", "")
         if found_version != SCHEMA_VERSION:
             import sys
@@ -123,7 +128,8 @@ class StudentModel:
         """
         target = Path(path if path is not None else self._path)
 
-        # Crea directory se assente
+        # Create directory if absent
+
         target.parent.mkdir(parents=True, exist_ok=True)
 
         # Scrittura atomica: tmp → rename (os.replace e' atomico su POSIX e Win)
@@ -131,10 +137,11 @@ class StudentModel:
         try:
             with tmp_path.open("w", encoding="utf-8") as fh:
                 json.dump(self._data, fh, indent=2, ensure_ascii=False)
-                fh.write("\n")  # newline finale per compatibilita' POSIX
+                fh.write("\n")  # trailing newline for POSIX compatibility
             os.replace(tmp_path, target)
         except Exception:
-            # Pulizia del file temporaneo in caso di errore
+            # Cleaning the temporary file in case of error
+
             if tmp_path.exists():
                 tmp_path.unlink(missing_ok=True)
             raise
@@ -166,13 +173,15 @@ class StudentModel:
         """
         nodes: dict = self._data["nodes"]
         if node_id not in nodes:
-            # Crea nodo nuovo da DEFAULT_NODE (copia profonda per evitare alias)
+            # Create new node from DEFAULT_NODE (deep copy to avoid aliases)
+
             import copy
             node = copy.deepcopy(DEFAULT_NODE)
             node["id"] = node_id
             nodes[node_id] = node
 
-        # Aggiorna solo i campi forniti
+        # Update only the fields provided
+
         nodes[node_id].update(fields)
 
     def update_mastery(self, node_id: str, delta: float) -> float:
@@ -198,7 +207,7 @@ class StudentModel:
         return new_mastery
 
     # ------------------------------------------------------------------
-    # Grafo dei prerequisiti — Kahn's algorithm (AC4)
+    # Prerequisite graph — Kahn's algorithm (AC4)
     # ------------------------------------------------------------------
 
     def get_prerequisites(self, node_id: str) -> list[str]:
@@ -217,11 +226,14 @@ class StudentModel:
         Raises:
             ValueError: se il grafo contiene cicli.
         """
-        # Raccoglie tutti i nodi nel sottoDAG (prerequisiti transitivi)
-        # escludendo node_id dal risultato finale.
+        # Collects all nodes in the subDAG (transitive prerequisites)
+
+        # excluding node_id from the final result.
+
         nodes = self._data["nodes"]
 
-        # BFS per raccogliere tutti i nodi del sottoDAG
+        # BFS to collect all the nodes of the subDAG
+
         visited: set[str] = set()
         queue: deque[str] = deque()
 
@@ -239,19 +251,22 @@ class StudentModel:
                     subdag_nodes.add(pid)
                     queue.append(pid)
 
-        # Kahn's algorithm sul sottoDAG
-        # Costruisce: in-degree e adj-list solo per i nodi nel sottoDAG
+        # Kahn's algorithm on the sub-DAG
+        # Constructs: in-degree and adj-list only for nodes in the subDAG
+
         in_degree: dict[str, int] = {n: 0 for n in subdag_nodes}
         adj: dict[str, list[str]] = {n: [] for n in subdag_nodes}
 
         for n in subdag_nodes:
             for prereq in nodes.get(n, {}).get("prerequisite_ids", []):
                 if prereq in subdag_nodes:
-                    # prereq → n (prereq deve venire prima di n)
+                    # prereq → n (prereq must come before n)
+
                     adj[prereq].append(n)
                     in_degree[n] += 1
 
-        # Inizializza la coda con i nodi a in-degree 0 (radici)
+        # Initialize the queue with nodes at in-degree 0 (roots)
+
         kahn_queue: deque[str] = deque(
             sorted(n for n, deg in in_degree.items() if deg == 0)
         )
@@ -288,7 +303,7 @@ class StudentModel:
         return prereqs + [start_node_id]
 
     # ------------------------------------------------------------------
-    # Spaced Repetition — SM-2 semplificato (TSK-358, AC6)
+    # Spaced Repetition — simplified SM-2 (TSK-358, AC6)
     # ------------------------------------------------------------------
 
     def schedule_next_review(
@@ -462,36 +477,42 @@ if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as tmp_dir:
         json_path = str(Path(tmp_dir) / "student-model.json")
 
-        # ---- Sessione 1: crea nodi e aggiorna mastery ----
+        # ---- Session 1: create nodes and update mastery ----
+
         sm1 = StudentModel(path=json_path, student_id="demo-student")
 
-        # Nodo radice (nessun prerequisito)
+        # Root node (no prerequisites)
+
         sm1.upsert_node(
             "wiki-structure",
             source_ref={"path": "wiki/concepts/wiki-structure.md", "version_hash": "abc123"},
         )
-        # Nodo intermedio che richiede wiki-structure
+        # Intermediate node requiring wiki-structure
+
         sm1.upsert_node(
             "dev-protocol-flow",
             prerequisite_ids=["wiki-structure"],
             source_ref={"path": "wiki/concepts/dev-protocol.md", "version_hash": "def456"},
         )
-        # Nodo foglia che richiede dev-protocol-flow
+        # Leaf node requiring dev-protocol-flow
+
         sm1.upsert_node(
             "dev-handoff-pattern",
             prerequisite_ids=["dev-protocol-flow"],
             source_ref={"path": "wiki/concepts/dev-handoff.md", "version_hash": "ghi789"},
         )
 
-        # Aggiorna mastery
+        # Update mastery
+
         new_m = sm1.update_mastery("wiki-structure", 0.8)
         print(f"[sessione 1] wiki-structure mastery dopo update: {new_m}")
 
-        # Salva
+        # Save
+
         sm1.save()
         print(f"[sessione 1] modello salvato in {json_path}")
 
-        # ---- Sessione 2: ricarica e verifica persistenza (AC1 + AC5) ----
+        # ---- Session 2: recharge and test persistence (AC1 + AC5) ----
         sm2 = StudentModel(path=json_path)
         node = sm2.get_node("wiki-structure")
         assert node is not None, "nodo wiki-structure non trovato dopo reload"

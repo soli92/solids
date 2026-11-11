@@ -1,0 +1,34 @@
+---
+description: >-
+  Skill procedurale Task Analytics — 5 step (Scope → Lettura Eventi + resolution model_id →
+  Calcolo Costi + Metriche Temporali → Colli di Bottiglia + Trend → Report Standard). Orchestra i
+  tool analytics deterministici (no MCP). Capability…
+globs: "analytics/**"
+alwaysApply: false
+---
+# Skill: cost-and-time-analytics
+
+> Adapter Cursor della skill `cost-and-time-analytics`, definita in `.claude/skills/cost-and-time-analytics.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.analytics.measurement.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Step 1 — Scope
+2. Step 2 — Lettura Eventi + Resolution `model_id`
+3. Step 3 — Calcolo Costi + Metriche Temporali
+4. Step 4 — Colli di Bottiglia + Trend
+5. Step 5 — Report Standard
+6. Vincoli della skill (enforced)
+7. Auto-detection chiusura progetto (ADR-027 §C)
+8. Pattern
+9. Step 6 — Baseline report generation (opt-in v2.19+)
+
+Il dettaglio di ogni passo sta in `.claude/skills/cost-and-time-analytics.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.
+- Le 5 fasi sono sequenziali anche nella fonte: nessuna perdita.
+- `analytics/events/*.jsonl` e' letto, mai riscritto: l'unico scrittore resta `tools/analytics/record-event.py`.

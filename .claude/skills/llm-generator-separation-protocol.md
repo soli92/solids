@@ -1,7 +1,8 @@
-# Skill: Llm Generator Separation Protocol
-
-> Adapter Cursor della skill `llm-generator-separation-protocol` definita in PATTERN.md. Riferimenti agent → `.cursor/rules/<name>.mdc`; skill → `.cursor/skills/<name>/SKILL.md`.
-
+---
+name: llm-generator-separation-protocol
+description: >-
+  Skill 5-fasi per LLM-Generator Separation. Riceve spec parametrica (name/type/props/variants/theme_tokens), risolve il generatore deterministico (plop|yeoman), invoca run-generator.sh, raccoglie output. Fuori-template → spec custom. No-op se design_intelligence.generator_tool: none.
+---
 # Protocollo LLM-Generator Separation — spec parametrica → generatore deterministico
 
 Skill procedurale a 5 fasi per il pattern [[llm-generator-separation]] (EP-019): il fe-dev

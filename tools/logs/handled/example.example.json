@@ -1,0 +1,12 @@
+{
+  "_doc": "ESEMPIO di profilo di errori gestiti (copiare in tools/logs/handled/<profilo>.json). Errori ATTESI, usati dall'applicazione di proposito: non compaiono nell'elenco di search/count, l'intestazione ne riassume nome, conteggio, primo e ultimo orario; --show-handled li include. Nuovi: `handled-add` con anteprima e conferma dell'utente.",
+  "rules": [
+    {
+      "name": "conflict-choose-tenant",
+      "container": "gateway",
+      "message": "AmbiguousTenant",
+      "reason": "il frontend usa il 409 per mostrare la scelta del tenant",
+      "added": "2026-01-01"
+    }
+  ]
+}

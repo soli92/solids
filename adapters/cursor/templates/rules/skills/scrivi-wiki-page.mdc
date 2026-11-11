@@ -1,0 +1,78 @@
+---
+description: >-
+  Scrivi Wiki Page — template karpathy-style per una pagina wiki. Struttura: frontmatter +
+  Descrizione + Come funziona + Motivazione + Limitazioni + Fonti. Status sempre draft all'inizio.
+globs: "wiki/**"
+alwaysApply: false
+---
+# Skill: scrivi-wiki-page (PATTERN §6)
+
+> Adapter Cursor della skill `scrivi-wiki-page` definita in `.claude/skills/scrivi-wiki-page.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/scrivi-wiki-page.md`.
+
+Template per scrivere una pagina wiki. Stile "karpathy": denso, no fluff, tecnicamente preciso.
+
+## Path
+
+```
+wiki/concepts/<slug>.md       — concetti, definizioni
+wiki/runbooks/<slug>.md       — procedure operative
+wiki/syntheses/<slug>.md      — sintesi di documenti sorgente
+wiki/decisions/<slug>.md      — decisioni non-ADR (es. blackboard tavola rotonda)
+wiki/query/<slug>.md          — risposte a query (/query)
+```
+
+## Frontmatter
+
+```yaml
+---
+title: <Titolo Conciso>
+status: draft          # sempre draft alla creazione
+source: raw/<file>.md  # se derivata da ingest; ometti se creata direttamente
+updated: YYYY-MM-DD
+tags: [<tag1>, <tag2>]  # opzionale
+---
+```
+
+## Struttura corpo
+
+```markdown
+# <Titolo>
+
+## Descrizione
+<Cosa è. Max 3 frasi. No "questa pagina spiega...".>
+
+## Come funziona
+<Meccanismo concreto. Liste, tabelle, snippet dove utile.>
+
+## Motivazione
+<Perché esiste. Problema che risolve. Alternativa scartata e perché.>
+[^src: raw/<file>.md §<sezione>]
+
+## Limitazioni e trade-off
+<Cosa non fa. Dove fallisce. Costo nascosto.>
+
+## Fonti
+[^src: raw/<file>.md §<sezione>]
+[^src: wiki/<altra-pagina>.md §<sezione>]
+```
+
+## Regole
+
+- **No placeholders residui**: consegna solo pagine complete. `TODO`, `<...>`, `...` → ERROR.
+- **Densità**: preferisci liste a paragrafi. Max 2 livelli di heading (## e ###).
+- **Citation obbligatoria**: ogni affermazione fattuale cita `[^src: ...]`.
+- **Status draft**: una nuova pagina è sempre `draft`. Usa `[promote-status](mdc:.cursor/rules/skills/promote-status.mdc)` per avanzare.
+- **Slug**: kebab-case, descrittivo, max 5 parole. Es. `auth-flow-oauth2`, `db-migration-strategy`.
+- **No invention**: se il sorgente non copre un aspetto, scrivi "Non documentato" + apri gap.
+
+## Varianti per tipo
+
+**Runbook**: aggiungi sezione `## Steps` con lista numerata + `## Prerequisiti`.
+**Sintesi**: aggiungi sezione `## Sommario esecutivo` (max 5 bullet) prima di `## Come funziona`.
+**Decision**: aggiungi sezione `## Contesto`, `## Decisione`, `## Conseguenze`.
+
+## Limitazioni Cursor
+
+- **Glob**: usa `@wiki/` mention per caricare il contesto esistente prima di creare.
+- **Link interni**: usa path relativi (`[page](../concepts/other.md)`) nei corpi, non `mdc:`.

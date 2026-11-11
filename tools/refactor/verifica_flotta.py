@@ -5,7 +5,10 @@ Target: singolo file .md, dir-skill (SKILL.md), o flotta (dir di unita').
 Uso: verifica_flotta.py <path> [--snapshot DIR] [--consenti-modifica-triggering]
 Exit 0 = PASS (gli avvisi non bloccano); exit 1 = FAIL (>=1 errore).
 
-I gate di grafo G9-G11 stanno in mappa_riferimenti.py --gate: eseguilo dopo.
+I gate di grafo G9-G11 stanno in mappa_riferimenti.py --gate: eseguilo dopo,
+e passagli `.claude` NON `.claude/skills`. G9 risolve i riferimenti contro i nodi
+effettivamente scansionati: restringendo lo scope alle sole skill, ogni `agents/x.md`
+citato risulta non risolto (22 falsi positivi misurati su una derivata il 2026-09-25).
 Singola passata in-process (scala a flotte grandi). Robusto a CRLF e non-UTF8.
 Nota G8: slug ancore stile GitHub (minuscole, punteggiatura via, spazi->trattini).
 """
@@ -125,6 +128,26 @@ def cited_paths(lines: list[str]) -> set[str]:
     return out
 
 
+def _basi_di_risoluzione(file: Path) -> list[Path]:
+    """Basi contro cui risolvere un path citato, in ordine di specificita'.
+
+    Un path come `scripts/sm_commit.py` o `agents/fe-dev.md` e' scritto rispetto
+    alla root della factory o alla root dell'adapter `.claude/`, non rispetto alla
+    directory passata sulla riga di comando. Risolvere solo su quest'ultima
+    produce «file assente» su file che esistono: 8 falsi positivi G4 e 22 G9
+    misurati su una derivata il 2026-09-25.
+    """
+    basi: list[Path] = [file.parent]
+    p = file.resolve()
+    for anc in [p, *p.parents]:
+        if (anc / "factory.config.yaml").is_file():
+            basi.append(anc)                 # root factory -> scripts/, tools/, management/
+            if (anc / ".claude").is_dir():
+                basi.append(anc / ".claude")  # root adapter -> agents/, skills/, commands/
+            break
+    return basi
+
+
 def verify_unit(file: Path, root: Path, snap: Path | None) -> None:
     lines = lines_of(file)
     rel = file.relative_to(root) if root in file.parents or root == file.parent else file.name
@@ -155,7 +178,8 @@ def verify_unit(file: Path, root: Path, snap: Path | None) -> None:
     g4 = True
     for p in cited_paths(lines):
         pf = p.split("#")[0]
-        if not ((file.parent / pf).exists() or (root / pf).exists()):
+        basi = _basi_di_risoluzione(file) + [root]
+        if not any((b / pf).exists() for b in basi):
             err(f"G4 {rel}: path citato assente: {pf}"); g4 = False
     if g4:
         ok(f"G4 {rel}: path interni citati esistono.")
@@ -284,10 +308,10 @@ def main() -> int:
     print("-" * 64)
     if ERRORI:
         print(f"ESITO: FAIL ({ERRORI} errori, {AVVISI} avvisi) — correggere e rilanciare.")
-        print(f"Ricorda i gate di grafo: scripts/mappa_riferimenti.py {target} --gate")
+        print("Ricorda i gate di grafo: tools/refactor/mappa_riferimenti.py .claude --gate")
         return 1
     print(f"ESITO: PASS ({AVVISI} avvisi).")
-    print(f"Prossimo: gate di grafo -> scripts/mappa_riferimenti.py {target} --gate")
+    print("Prossimo: gate di grafo -> tools/refactor/mappa_riferimenti.py .claude --gate")
     return 0
 
 

@@ -1,0 +1,97 @@
+# ESEMPIO del registro dei cluster di log e delle app interrogabili dalla capability log_access (/log, log-operator).
+#
+# Copia questo file in tools/logs/log-targets.yaml (percorso di `log_access.registry`) e sostituisci i valori:
+# gli host qui sono FITTIZI. Solo dati NON segreti: URL, index, namespace, NOMI delle variabili d'ambiente.
+# I valori delle credenziali vivono solo nel file indicato da `env_file` (gitignored).
+#
+# Struttura:
+#   defaults                         -> valori comuni a tutti i target (opzionale)
+#   clusters.<id>                    -> come si raggiunge un cluster OpenSearch (uno o piu')
+#   environments.<env>.apps.<app>    -> cosa si legge: cluster + index + namespace + profilo di rumore
+#
+# Chiavi risolte per target con precedenza app > cluster > defaults > log_access (factory.config.yaml):
+#   env_file      file delle credenziali (default di log_access: .env; nessun default di cliente)
+#   app_package   prefisso dei frame applicativi tenuti negli stack trace accorciati (es. com.example.shop)
+#   fields        mappa dei campi dell'index (vedi sotto); si fonde chiave per chiave
+#
+# fields: DEFAULT documentati (log di pod Kubernetes con logback/pino); sovrascrivi solo i campi diversi.
+#   timestamp: "@timestamp"
+#   namespace: kubernetes.namespace_name
+#   container: kubernetes.container_name
+#   pod:       kubernetes.pod_name
+#   level:     logLevel                 # ERROR, WARN, INFO, DEBUG
+#   logger:    loggerName
+#   trace:     dt.trace_id              # id di correlazione tra servizi (qualunque APM)
+#   message:   message
+#   stack:     [stack_trace, err.stack] # campi dello stack trace (lista)
+#   raw_suffix: ".raw"                  # variante aggregabile dei campi testuali (".keyword" in molti index)
+#
+# clusters.<id>:
+#   base_url             URL del cluster (o di OpenSearch Dashboards)
+#   auth                 dashboards-login (default: login su Dashboards, chiamate dal proxy della console)
+#                        | basic (REST diretto sul cluster con Basic auth)
+#   cert_file            certificato del server usato come ancora di fiducia (opzionale: senza, si usa il
+#                        bundle di sistema). Hostname e scadenza restano verificati; la verifica non si disattiva
+#   credentials          coppie ordinate [VAR_UTENTE, VAR_PASSWORD]; vince la prima completa nel file env,
+#                        poi le stesse nell'ambiente del processo
+#   username_strip_from  (opzionale) suffisso da togliere allo username prima del login
+#                        (".corp" taglia "nome.corp@example.com" in "nome")
+#   env_file, fields     come sopra, per tutti i target del cluster
+#
+# environments.<env>.apps.<app>:
+#   cluster, index, namespace   dove stanno le righe dell'app (index senza virgole o slash)
+#   noise                       profilo: tools/logs/noise/<profilo>.json e tools/logs/handled/<profilo>.json
+#   data_from                   da quando ci sono log: prima di quella data non c'e' nulla da trovare
+#   unverified + note           target dichiarato ma non ancora confermato su un cluster reale;
+#                               confermarlo con `log_access.py namespaces <env>` e `check <env> <app>`
+#
+# Per aggiungere un cluster o un ambiente: una voce in clusters, una in environments.<env>.apps; nessun codice da toccare.
+# Poi `targets`, `check`, `namespaces`. Gli ambienti protetti si dichiarano in factory.config.yaml (log_access.protected_envs).
+
+version: 1
+
+defaults:
+  env_file: .env.log-access           # credenziali per tutti i cluster, salvo override
+  # app_package: com.example.shop
+
+x-credentials: &shared
+  - [LOGS_USER, LOGS_PASSWORD]                 # coppie ordinate: vince la prima completa
+
+clusters:
+  main:
+    label: "OpenSearch Dashboards - produzione e preproduzione"
+    base_url: https://logs.example.internal
+    auth: dashboards-login
+    cert_file: tools/logs/certs/logs-main.pem          # opzionale; PEM esportato dal browser, NON versionato
+    credentials: *shared
+  staging:
+    label: "OpenSearch - staging (REST diretto)"
+    base_url: https://logs-staging.example.internal:9200
+    auth: basic
+    credentials:
+      - [LOGS_STAGING_USER, LOGS_STAGING_PASSWORD]
+    env_file: .env.log-access-staging                  # file diverso per questo cluster
+    fields:
+      raw_suffix: ".keyword"                           # in questo cluster gli aggregabili sono .keyword
+
+environments:
+  prod:
+    label: "Produzione"
+    apps:
+      checkout: {cluster: main, index: "app-logs-*", namespace: checkout-prod, noise: example, data_from: "2026-01-01"}
+      billing: {cluster: main, index: "app-logs-*", namespace: billing-prod, noise: example,
+                app_package: com.example.billing}
+  staging:
+    label: "Staging"
+    apps:
+      checkout:
+        cluster: staging
+        index: "k8s-*"
+        namespace: checkout-staging
+        noise: example
+        fields:                                        # mappa dei campi diversa per questa app
+          level: level
+          trace: trace_id
+          container: kubernetes.container_name
+      reports: {cluster: staging, index: "k8s-*", namespace: reports-staging, unverified: true,
+                note: "namespace dedotto dal pattern <app>-staging: da confermare con `namespaces staging`"}

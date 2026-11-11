@@ -1,7 +1,7 @@
-# Skill: Design Tokens Extraction
-
-> Adapter Cursor della skill `design-tokens-extraction` definita in PATTERN.md. Riferimenti agent → `.cursor/rules/<name>.mdc`; skill → `.cursor/skills/<name>/SKILL.md`.
-
+---
+name: design-tokens-extraction
+description: Skill deterministica per estrazione token design system. Cascata 4 step (DS path → CSS → figma → defaults). Output sempre annotato con source tag (ADR-018).
+---
 # Protocollo Design Tokens Extraction — `extract_design_tokens` cascata deterministica 4 step
 
 Skill **interna deterministica, no LLM judgment** per risolvere il design system di riferimento

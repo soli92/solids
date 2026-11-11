@@ -1,7 +1,7 @@
-# Skill: Wiki Log Entry
-
-> Adapter Cursor della skill `wiki-log-entry` definita in PATTERN.md.
-
+---
+name: wiki-log-entry
+description: Template canonici per gli append a wiki/log.md. Riferimento unico per ogni agente che logga operazioni.
+---
 # Template di log entry (canonici)
 
 `wiki/log.md` è **append-only** (vedi `PATTERN.md §7 r.5`). Questa skill è la
@@ -87,7 +87,7 @@ Per il citation audit periodico:
 
 ### `reconcile-needed` (wiki-keeper via `propagate-resolution`, v2.6)
 
-Marker emesso dalla skill [propagate-resolution](mdc:.cursor/skills/propagate-resolution/SKILL.md) quando il keeper chiude un
+Marker emesso dalla skill `propagate-resolution` quando il keeper chiude un
 gap che cita una `Q_NNN` risolta contestualmente, ma una o più US dipendenti
 hanno ancora `Q_NNN` in `blocked_by` o `pending_clarification`. Una riga
 per US stale:
@@ -98,10 +98,10 @@ per US stale:
 
 `files touched: 0` perché il keeper non scrive sul kanban (proprietà PM,
 §2). Il marker è surfaced dall'orchestrator in `/run` come "🔁 N reconcile-needed
-pendenti" (vedi [state-scan](mdc:.cursor/skills/state-scan/SKILL.md)).
+pendenti" (vedi `state-scan`).
 
 Chiusura del marker: implicita. Quando il PM (o l'umano) riconcilia la US,
-non si appende nulla — la prossima esecuzione di [state-scan](mdc:.cursor/skills/state-scan/SKILL.md) ricalcola da
+non si appende nulla — la prossima esecuzione di `state-scan` ricalcola da
 filesystem e il conteggio scende.
 
 ### `develop` (dev-agent, v2.7)
@@ -138,8 +138,27 @@ Una entry per wave (non per agente nella wave).
 ```
 
 `WAVE_ID` — identificatore univoco per wave nel formato `W-<sprint>-<level>-<YYYYMMDD-HHMMSS>`.
-Propagato nel campo `wave_id` degli eventi analytics (`record-event.sh`) per ogni TSK consumato
+Propagato nel campo `wave_id` degli eventi analytics (`record-event.py`) per ogni TSK consumato
 nella wave, consentendo correlazione retrospettiva costo/tempo per wave.
+
+### `sweep` (wiki-keeper, EP-056 US-203)
+
+Emessa dal `wiki-keeper` al termine di un ciclo sweep-reviews. Una sola entry per ciclo
+(non per iterazione), analoga al template `heal`.
+
+```
+## [YYYY-MM-DD] sweep | esito=<closed|stuck|regression|max-iterations|user-rejected|no-items|empty-diff>
+Categorie: unsupported-claim=<N>, dangling-concept=<N>, terminology-drift=<N>
+Iter <k>: applied=<A>, residual=<R> | Files touched: <M>
+```
+
+### `tavola-rotonda` (tavola-rotonda-moderatore, EP-039)
+
+Emessa dal moderatore alla chiusura di una sessione. Registro completo in `wiki/decisions/`.
+
+```
+[YYYY-MM-DD tavola-rotonda] <session-id> chiusa — <motivo> | <topic> | files touched: <N>
+```
 
 ### `migration` / `policy` / `docs` (eventi meta)
 
@@ -153,6 +172,35 @@ Esempi reali in `wiki/log.md`:
 - `[2026-05-18 13:30] migration — v2.x → v2.2 ...`
 - `[2026-05-18 15:30] policy — model tuning per agente ...`
 
+## Formato parseable canonico (EP-056 US-204)
+
+Per consentire il consumo deterministico da `tools/analytics/sprint-progress.py` e dagli
+analytics, le entry a riga singola seguono una **grammatica canonica**:
+
+```
+[YYYY-MM-DD HH:MM] <operation> — <summary> — files touched: <N>
+```
+
+Regex di parsing (riga singola):
+
+```
+^\[(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})\] ([\w-]+) — (.+?) — files touched: (\d+)
+```
+
+**Elenco chiuso delle `operation` canoniche**:
+`ingest`, `query`, `lint`, `promote`, `plan`, `design`, `execute`, `bootstrap`, `develop`,
+`wave`, `heal`, `sweep`, `gap-closed`, `synthesis-promoted`, `citation-audit`,
+`reconcile-needed`, `tavola-rotonda`, `migration`, `policy`, `docs`.
+
+**Forma header multilinea** (usata da `ingest`/`query`/`lint`/`wave`/`heal`/`sweep`):
+`## [YYYY-MM-DD] <operation> | <titolo>` seguita da righe di dettaglio. Il parser tollera
+**entrambe** le forme (riga singola e header multilinea): per l'header multilinea usa
+`^## \[(\d{4}-\d{2}-\d{2})\] ([\w-]+) \| (.+)`.
+
+**Append-only, nessuna migrazione** (§7 r.5): le entry storiche antecedenti a questa
+convenzione restano valide e **non vengono riscritte**. La grammatica vincola solo le nuove
+entry; il parser degrada con grazia sulle righe che non matchano (le ignora, non fallisce).
+
 ## Regole
 
 - **Mai overwrite**: append-only è inviolabile (`PATTERN.md §7 r.5`).
@@ -161,9 +209,48 @@ Esempi reali in `wiki/log.md`:
 - **Timestamp obbligatorio**: `YYYY-MM-DD HH:MM` in italiano (Europe/Rome).
 - **One-line summary < 120 caratteri**: se serve dettaglio, va nella pagina dedicata
   (synthesis, runbook, incident), non nel log.
+- **Append senza leggere il file intero**: per appendere una entry a `wiki/log.md`
+  non è necessario leggere l'intero file (può pesare centinaia di KB). Usa una di
+  queste strategie:
+  - Con **Bash**: `cat >> wiki/log.md <<'EOF'\n<entry>\nEOF` — nessuna lettura.
+  - Con **Read + Edit**: leggi solo la coda (`Read` con `offset` sulle ultime ~40
+    righe) e usa l'ultima entry visibile come ancora per l'Edit. Non leggere mai il
+    file intero solo per appendere.
+  Questa regola non contraddice l'invariante «entry sempre in coda»: l'ancora
+  sull'ultima riga garantisce la posizione corretta senza caricare il file.
+
+## Rotazione a soglia
+
+`wiki/log.md` si ruota **quando raggiunge 180.000 byte**, non a scadenza di calendario. Misura su
+una derivata: con la cadenza trimestrale, poi mensile, il file tornava sopra i 100 KB in pochi
+giorni (49 entry in 7 giorni) e gli append con Edit fallivano gia' intorno ai 200 KB.
+
+**Procedura** (mai durante una sessione che sta appendendo):
+
+1. **Segnale.** Lo state-scan di `/run` lo ricorda (l'orchestrator non ha Bash e non misura): il
+   coordinatore verifica con `wc -c wiki/log.md`. Sotto soglia non si fa nulla.
+2. **Claim** su `wiki/log.md`, se la factory usa i claim, con la CLI:
+   `python3 tools/session/active_sessions.py conflicts --domain wiki/log.md`, poi `claim`. Con
+   claim attive di altri, aspetta; a fine rotazione `release`.
+3. **Dry-run**: `python3 tools/wiki/rotate_log.py` — dimensione, soglia, righe, byte ed entry da
+   spostare; sotto soglia «niente da fare».
+4. **Esecuzione**: `python3 tools/wiki/rotate_log.py --apply` — sposta il prefisso di entry datate
+   fino a oggi in `wiki/log-AAAA-MM-GG.md` (data della rotazione), verbatim, solo dopo aver
+   verificato che archivio + log ricompongano lo sha256 dell'originale; aggiunge il link in
+   `> **Archivi:**` in testa al log. Controlla la riga «ricomposizione verificata».
+5. **Commit dedicato**, poi entry `migration` in `wiki/log.md`.
+
+**Un archivio per rotazione**, con la data nel nome: le rotazioni a soglia cadono a meta' mese e
+possono ripetersi nello stesso mese. Due rotazioni nello stesso giorno: lo script rifiuta (exit 1).
+`--forza` ruota anche sotto soglia; `--soglia N` cambia la soglia per una esecuzione.
+
+Lo esegue il coordinatore: il wiki-keeper (R.12) non ha Bash e con Write rischierebbe di
+alterare il file. Il path di scrittura resta `wiki/log.md`; gli archivi sono read-only. Le entry
+datate dopo il giorno di rotazione, e quelle scritte dopo di esse, restano nel log nell'ordine di
+scrittura.
 
 ## Verifica
 
-Il [wiki-lint](mdc:.cursor/rules/wiki-lint.mdc) non controlla `log.md` perché append-only (controllo strutturale
+Il `wiki-lint` non controlla `log.md` perché append-only (controllo strutturale
 sarebbe rumore). Eventuali entry malformate emergono manualmente al review
 periodico.

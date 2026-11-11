@@ -1,10 +1,8 @@
-# Skill: Accessibility Testing Protocol
-
-> Adapter Cursor della skill `accessibility-testing-protocol` definita in PATTERN.md.
->
-> Metadata originale — name: accessibility-testing-protocol. Descrizione: skill procedurale a11y — 5 step (Adapter Detect → run_a11y_scan → Severity+WCAG mapping → Manual Checks → Report Standard). Capability opt-in v2.18, PATTERN §3 Accessibility Scan.
-
-**Protocollo Accessibility Testing — scan WCAG 2.2 AA in 5 step**
+---
+name: accessibility-testing-protocol
+description: Skill procedurale a11y — 5 step (Adapter Detect → run_a11y_scan → Severity+WCAG mapping → Manual Checks → Report Standard). Capability opt-in v2.18, PATTERN §3 Accessibility Scan.
+---
+# Protocollo Accessibility Testing — scan WCAG 2.2 AA in 5 step
 
 Skill procedurale fondante della capability Accessibility Testing (EP-007): incapsula la
 conoscenza operativa per eseguire uno scan WCAG 2.2 AA tramite il tool `run_a11y_scan`

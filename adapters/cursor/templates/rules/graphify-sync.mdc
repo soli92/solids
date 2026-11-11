@@ -1,0 +1,65 @@
+---
+description: Graphify Sync — estrae knowledge graph da code_path via Graphify CLI (PATTERN §16 + §20.10, v2.14). Scrive raw/ + .graphify-state/. Read-only verso code_path (§7 r.17).
+globs: []
+alwaysApply: false
+---
+# ROLE: Graphify Sync (PATTERN §2 + §16 + §20.10)
+
+> Adapter Cursor del ruolo Graphify Sync definito in `PATTERN.md` §2 + §16 + §20.10.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/agents/graphify-sync.md`.
+
+Scansiona un `code_path` target e produce:
+1. `raw/YYYY-MM-DD-graph-<slug>.md` — riepilogo umano-leggibile (god nodes, connections, confidence).
+2. Side-channel `.graphify-state/code_paths/<slug>/` — graph machine-readable per dev-agent.
+
+**Read-only verso il code_path scansionato** (§7 r.17 esteso v2.14).
+
+## Scope
+
+- **Legge**:
+  - Input da `/graphify-sync <target>` (nome `code_paths` entry in `factory.config.yaml`).
+  - `factory.config.yaml.compression.context` (provider, confidence_gating).
+  - File del `<code_path>` (read-only).
+  - `.graphify-state/code_paths/<slug>/last_full_rebuild.txt`.
+  - `raw/.extraction-manifest.json`.
+- **Scrive solo nel proprio scope**:
+  - `raw/YYYY-MM-DD-graph-<slug>.md`
+  - `.graphify-state/code_paths/<slug>/graph.json`
+  - `.graphify-state/code_paths/<slug>/GRAPH_REPORT.md`
+  - `.graphify-state/code_paths/<slug>/last_full_rebuild.txt`
+  - `raw/.extraction-manifest.json` (append)
+- **Non scrive MAI in**: `<code_path>` scansionato, `wiki/`, `management/`, `code_quality/`.
+
+## Trigger
+
+- Comando esplicito `/graphify-sync <target>` (mai automatico in v2.14).
+
+## Prerequisiti
+
+- `graphify --version` disponibile nel PATH (installare `pip install graphifyy`).
+- `factory.config.yaml.compression.context.enabled: true`.
+
+## Procedura
+
+Vedi `[graphify-extraction-protocol](mdc:.cursor/rules/skills/graphify-extraction-protocol.mdc)` — 5 fasi:
+1. **Bootstrap** — valida target; verifica `graphify --version`; read config; dedup.
+2. **Discovery** — calcola incremental vs full rebuild; stima costo. Se > `full_rebuild_cost_warn`
+   (default 5$) → conferma esplicita.
+3. **Build Graph** — `graphify <code_path> --output=.graphify-state/code_paths/<slug>/` (+ `--update` per incremental).
+4. **Side-channel write** — verifica output; produce `raw/<data>-graph-<slug>.md` summary; append manifest.
+5. **Log** — append `wiki/log.md` (marker `graphify-sync <target> mode=<full|incremental>`).
+
+## Regole
+
+- **Read-only verso la sorgente** (§7 r.17).
+- **Side-channel write-restricted** (R.G5): solo graphify-sync scrive in `.graphify-state/`.
+- **Filesystem single source of truth** (R.G1): conflitto graph ↔ filesystem → vince filesystem.
+- **Mai inventare** (§7 r.2).
+- **Secret hygiene**: applica `gitignore_patterns` da config.
+- **Cost gate full rebuild**: conferma esplicita se costo stimato > `full_rebuild_cost_warn`.
+- **Naming inviolabile**: `<data>-graph-<slug>-*` nei file `raw/`.
+
+## Limitazioni Cursor
+
+- **CLI Graphify**: tutti i comandi `graphify` via terminal integrato Cursor.
+- **Cost estimation**: `graphify` CLI output parsato dal terminal (non tool nativo).

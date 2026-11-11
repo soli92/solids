@@ -1,7 +1,7 @@
 ---
 name: prototype
-description: "Genera un prototipo grafico a partire da US-id, TSK-id o intent libero (EP-035, PATTERN §26 candidato). Lancia prototype-generator con il target validato. Gated su prototyping.enabled. Supporta --dry-run (backend-resolver Fase 0 senza generazione), --backend esplicito e --fidelity override."
-argument-hint: "<US-id|TSK-id|\"intent libero\"> [--backend=html|react|figma|penpot] [--fidelity=static|interactive|animated] [--dry-run]"
+description: "Genera un prototipo grafico a partire da US-id, TSK-id o intent libero (EP-035, PATTERN §26 candidato). Lancia prototype-generator con il target validato. Gated su prototyping.enabled. Supporta --variants N (2..5, varianti divergenti), --dry-run (backend-resolver Fase 0 senza generazione), --backend esplicito e --fidelity override."
+argument-hint: "<US-id|TSK-id|\"intent libero\"> [--backend=html|react|figma|penpot] [--fidelity=static|interactive|animated] [--variants=N] [--dry-run]"
 allowed-tools: Read, Write, Edit, Glob, Bash
 ---
 
@@ -15,15 +15,15 @@ Genera un prototipo grafico o funzionale a partire da uno dei seguenti input:
 - **TSK-id** (`TSK-NNN`) — task kanban come sorgente di intent (risale alla US per contesto)
 - **stringa libera** (es. `"form di login con stato errore e loading"`) — intent diretto
 
-Il comando valida l'input, applica i flag opzionali e lancia l'agente [prototype-generator](mdc:.cursor/rules/prototype-generator.mdc)
-che esegue la skill [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) (5 fasi).
+Il comando valida l'input, applica i flag opzionali e lancia l'agente `prototype-generator`
+che esegue il `prototype-generation-protocol` (5 fasi).
 
 ---
 
 ## Sintassi
 
 ```
-/prototype <US-id|TSK-id|"intent"> [--backend=html|react|figma|penpot] [--fidelity=static|interactive|animated] [--dry-run]
+/prototype <US-id|TSK-id|"intent"> [--backend=html|react|figma|penpot] [--fidelity=static|interactive|animated] [--variants=N] [--dry-run]
 ```
 
 | Argomento / Flag | Tipo | Default | Descrizione |
@@ -31,6 +31,7 @@ che esegue la skill [prototype-generation-protocol](mdc:.cursor/skills/prototype
 | `<input>` | obbligatorio | — | US-id, TSK-id o stringa libera di intent |
 | `--backend=<b>` | opzionale | `auto` (da config) | Forza un backend specifico per questa invocazione (override one-shot) |
 | `--fidelity=<f>` | opzionale | `auto` (da config) | Forza un livello di fedelta' per questa invocazione (override one-shot) |
+| `--variants=N` | opzionale | `1` (da config `prototyping.variants`) | N direzioni divergenti (2..5) dietro un selettore neutro; oltre 5 rifiuto esplicito; `1` = comportamento invariato (override one-shot) |
 | `--dry-run` | flag | off | Invoca solo la Fase 0 (backend-resolver) senza generare artefatti |
 
 ---
@@ -68,6 +69,7 @@ Dall'input `$ARGUMENTS` estrai:
 - `raw_input` — la stringa grezza (primo argomento non-flag)
 - `override_backend` — valore di `--backend` se presente, altrimenti `null`
 - `override_fidelity` — valore di `--fidelity` se presente, altrimenti `null`
+- `override_variants` — intero di `--variants` se presente, altrimenti `null`
 - `dry_run` — `true` se `--dry-run` e' presente, altrimenti `false`
 
 Validazione flag:
@@ -77,12 +79,16 @@ Validazione flag:
 - `--fidelity` deve essere uno tra `static | interactive | animated`. Se il valore non e'
   riconosciuto: STOP — «Valore --fidelity non valido: <v>. Valori ammessi: static, interactive, animated.»
 
+- `--variants` (anche `--variants N`) deve essere un intero. Se `N > 5`: STOP —
+  «Valore --variants non ammesso: <N>. Massimo 5 (oltre, il confronto si diluisce). Usa un valore 2..5.»
+  Se non intero o `< 1`: STOP — «Valore --variants non valido: <v>. Valori ammessi: interi 2..5 (1 = modalita' spenta).»
+
 Se nessun argomento e' stato fornito (stringa vuota):
 
 ```
 [/prototype] Input mancante.
 
-Utilizzo: /prototype <US-id|TSK-id|"intent"> [--backend=html|react|figma|penpot] [--fidelity=static|interactive|animated] [--dry-run]
+Utilizzo: /prototype <US-id|TSK-id|"intent"> [--backend=html|react|figma|penpot] [--fidelity=static|interactive|animated] [--variants=N] [--dry-run]
 
 Esempi:
   /prototype US-122
@@ -125,18 +131,20 @@ Determina il tipo di input e valida:
 
 ### Step 3 — Applicazione override one-shot
 
-Se `override_backend` o `override_fidelity` sono valorizzati, costruisci il blocco
+Se `override_backend`, `override_fidelity` o `override_variants` sono valorizzati, costruisci il blocco
 `prototyping_override` da passare all'agente:
 
 ```yaml
 prototyping_override:
   backend: <override_backend | null>    # null = usa config factory
   fidelity: <override_fidelity | null>  # null = usa config factory
+  variants: <override_variants | null>  # null = usa config factory (default 1)
 ```
 
 Gli override sono **one-shot per questa invocazione**: non modificano
 `factory.config.yaml`. Segnala in chat:
-`[/prototype] Override one-shot: backend=<b> fidelity=<f>`.
+`[/prototype] Override one-shot: backend=<b> fidelity=<f> variants=<n>`.
+Con `variants` > 1 il protocollo legge `varianti.md` e si ferma alla scelta (INV-4).
 
 ### Step 4 — Modalita' `--dry-run`
 
@@ -146,32 +154,18 @@ Se `dry_run: true`:
    e `degrade_policy`).
 2. Se `override_backend` e' valorizzato, considera quel backend come preferito
    (ASSE 1 del resolver).
-3. Invoca la skill [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md) in modalita' dry-run:
+3. Invoca la skill `backend-resolver` in modalita' dry-run:
    - `intent` — derivato da `input_ref` (per US/TSK: usa il titolo; per intent libero:
      usa la stringa direttamente)
    - `prototyping_config` — blocco `prototyping:` di config + eventuale override backend
-4. Mostra il risultato del resolver **senza generare artefatti**:
-
-```
-[/prototype --dry-run] Risoluzione backend per: <input_ref>
-============================================================
-Backend configurato: <prototyping.backend>
-Fallback chain:      <fallback_chain>
-Degrade policy:      <degrade_policy>
-
-RISOLUZIONE DRY-RUN (nessun artefatto generato)
-<BACKEND_RESOLVED | BACKEND_DEGRADED | BACKEND_UNAVAILABLE_STRICT>: <dettaglio>
-Backend che verrebbe selezionato: <selected_backend>
-
-Per generare il prototipo: /prototype <input_ref> [stessi flag senza --dry-run]
-Per lo snapshot globale del layer: /prototype-status
-```
-
+4. Prima di comporre il display dry-run, leggi obbligatoriamente
+   `.claude/commands/references/prototype/output-formats.md` §Dry-run display.
+   Se il file manca, STOP e segnala.
 5. Termina — nessuna invocazione dell'agente, nessun side-effect.
 
 ### Step 5 — Invocazione `prototype-generator`
 
-Se non e' dry-run, lancia l'agente [prototype-generator](mdc:.cursor/rules/prototype-generator.mdc) passando:
+Se non e' dry-run, lancia l'agente `prototype-generator` passando:
 
 ```yaml
 input_ref: <input_ref>          # US-NNN | TSK-NNN | "stringa libera"
@@ -179,6 +173,7 @@ input_type: <us_id|tsk_id|free_intent>
 prototyping_override:           # null se nessun override one-shot
   backend: <override_backend | null>
   fidelity: <override_fidelity | null>
+  variants: <override_variants | null>
 ```
 
 L'agente legge autonomamente da `factory.config.yaml` i blocchi `prototyping:` e
@@ -194,78 +189,9 @@ L'agente legge autonomamente da `factory.config.yaml` i blocchi `prototyping:` e
 
 ### Step 6 — Output finale
 
-Dopo il completamento dell'agente, riporta in chat:
-
-**Esito positivo**:
-
-```
-/prototype <input_ref> — completato
-=====================================
-Fase 0 — Backend:    <BACKEND_RESOLVED | BACKEND_DEGRADED>: <selected_backend>
-Fase 1 — Source:     <spec_source | "intent only"> / art-director: <on|off>
-Fase 2 — Generate:   <backend>-mapping invocata → <marker-mapping>
-Fase 3 — Check:      PROTOTYPE_GENERATED: <output_ref>
-Fase 4 — Handoff:    log entry scritto · suggerimenti: <N>
-
-Artefatto: <output_ref>
-```
-
-**Esito con degrado backend** (marker `BACKEND_DEGRADED`):
-
-Include il riepilogo positivo + nota di degrado:
-
-```
-Nota: backend degradato <preferito>→<selezionato> (<motivo>).
-      Per ripristinare <preferito>: <remediation da backend-resolver>.
-```
-
-**Esito con STOP** (gate umano o errore):
-
-```
-/prototype <input_ref> — STOP
-==============================
-Fase <N> — <motivo del blocco>
-Azione richiesta: <descrizione azione umana>
-```
-
----
-
-## Suggerimenti handoff (post-generazione)
-
-I suggerimenti downstream sono emessi dall'agente in Fase 4 e dipendono dal backend
-risolto e dai flag abilitati in `factory.config.yaml`. Vengono soppresso silenziosamente
-se il comando corrispondente non e' installato o il flag e' `false`:
-
-| Backend | Suggerimenti candidati |
-|---|---|
-| `html` | `/visual-oracle` · `/functional-oracle` (se stati interattivi) · `/ux-ui-review` · `/a11y` |
-| `react` | `/visual-oracle` · `/functional-oracle` · `/review` (CQRL se abilitato) · `/a11y` |
-| `figma` | `/ux-ui-review` · round-trip `/figma-sync` · revisione manuale nel file Figma |
-| `penpot` | `/ux-ui-review` · revisione manuale nel file Penpot |
-
----
-
-## Esempi d'uso
-
-```bash
-# Genera un prototipo dalla storia US-122 (backend auto, fidelity da config)
-/prototype US-122
-
-# Genera da un TSK specifico con backend HTML esplicito
-/prototype TSK-235 --backend=html
-
-# Genera da intent libero (stringa descrittiva diretta)
-/prototype "dashboard widget con grafici e stato empty/loading/error"
-
-# Genera con fidelity statica (solo screenshot/wireframe senza interazione JS)
-/prototype US-122 --fidelity=static
-
-# Dry-run: mostra quale backend verrebbe selezionato per US-122, senza generare
-/prototype US-122 --dry-run
-
-# Dry-run con override backend esplicito: controlla se figma e' disponibile
-/prototype "form di checkout" --backend=figma --dry-run
-```
+Prima di emettere l'output finale (positivo/degrado/STOP), leggi obbligatoriamente
+`.claude/commands/references/prototype/output-formats.md` §Output finale + §Suggerimenti handoff.
+Se il file manca, STOP e segnala.
 
 ---
 
@@ -274,9 +200,11 @@ se il comando corrispondente non e' installato o il flag e' `false`:
 - **Gate `prototyping.enabled`** (Step 0): il comando non procede e non e' silenzioso
   a flag spento — emette un errore esplicito con le istruzioni di attivazione (mai STOP
   silenzioso, INV-5 + R.P3).
-- **Override one-shot** (Step 3): `--backend` e `--fidelity` non modificano
+- **Override one-shot** (Step 3): `--backend`, `--fidelity` e `--variants` non modificano
   `factory.config.yaml`. Per cambiare la config in modo persistente, edita direttamente
   il file.
+- **Varianti** (`--variants`): massimo 5, rifiuto esplicito oltre; la scelta fra le varianti
+  non e' mai del comando ne' dell'agente (INV-4).
 - **Read-only verso spec sorgente** (INV-3): il comando e l'agente invocato non
   modificano `design-spec.md`, file TSK, file US.
 - **No auto-eval** (INV-4): il comando non esprime giudizi qualitativi sull'artefatto
@@ -288,38 +216,6 @@ se il comando corrispondente non e' installato o il flag e' `false`:
 
 ---
 
-## Prerequisiti
-
-- `factory.config.yaml.prototyping.enabled: true` (gate principale, Step 0).
-- Blocco `prototyping:` completo in `factory.config.yaml` (schema nell'agente
-  [prototype-generator](mdc:.cursor/rules/prototype-generator.mdc) §Input attesi).
-- Agente [prototype-generator](mdc:.cursor/rules/prototype-generator.mdc) presente (l'agente viene invocato in Step 5).
-- Skill [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) presente (eseguita dall'agente).
-- Per backend `html`: nessun prerequisito aggiuntivo (sempre disponibile, INV-1).
-- Per backend `react`: stack FE rilevato da `stack-detector` in almeno un `code_path`.
-- Per backend `figma`/`penpot`: MCP server corrispondente autenticato e raggiungibile.
-
-Usa `/prototype-status` per verificare la disponibilita' dei backend prima di lanciare
-la generazione.
-
----
-
-## Cross-link
-
-- **Agente invocato**: [prototype-generator](mdc:.cursor/rules/prototype-generator.mdc) (US-122, TSK-234)
-- **Skill eseguita**: [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) (US-122, TSK-233)
-- **Skill Fase 0**: [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md) (US-120, TSK-229)
-- **Skill Fase 2 (html)**: [html-prototype-mapping](mdc:.cursor/skills/html-prototype-mapping/SKILL.md) (US-121, TSK-231)
-- **Snapshot layer**: `/prototype-status` (TSK-230) — dry-run globale, nessun input
-- **Config gate**: `factory.config.yaml` blocco `prototyping:` (INV-5, R.P3)
-- **PATTERN §26** (candidato) — Prototype Generation Layer (EP-035)
-- **Analogia strutturale**:
-  - `/dev` (v2.7) — input identificativo → esecuzione protocollo → output artefatto
-  - `/review` (v2.12) — gate config + invocazione agente + report finale
-  - `/kanban-publish` (v2.10) — gated, provider-agnostic, one-shot override
-
-[^src: management/kanban/EP-035-prototype-generation-layer/US-122-prototype-generation-protocol-agente-comando/US-122.md §Business Rules §Acceptance Criteria]
-[^src: .claude/skills/prototype-generation-protocol.md §Precondizione §Invarianti §Cross-link]
-[^src: .claude/agents/prototype-generator.md §Gate §Input attesi §Output]
-[^src: .claude/skills/backend-resolver.md §Output §Step 5 — Emissione marker]
-[^src: wiki/concepts/prototype-generation-capability.md §Artefatti della capability]
+Contenuti consultivi non vincolanti: esempi d'uso, prerequisiti operatore e cross-link
+informativi sono in `.claude/commands/references/prototype/appendice.md`.
+Se il file manca: segnala con WARNING e prosegui — il flusso non dipende da questa foglia.

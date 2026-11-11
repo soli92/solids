@@ -1,0 +1,80 @@
+---
+description: Heal Protocol — risolve automaticamente gli ERROR meccanici da lint report (categoria whitelist). Loop evaluator-optimizer max 3 iterazioni. Non tocca WARNING né logica di business.
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: heal-protocol (PATTERN §7)
+
+> Adapter Cursor della skill `heal-protocol` definita in `.claude/skills/heal-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/heal-protocol.md`.
+
+Procedura di auto-healing degli ERROR meccanici segnalati da `lint-checks`.
+
+## Input
+
+```
+heal-protocol(report_path, dry_run=false, max_iterations=3)
+```
+
+Argomento `report_path`: path del lint report (es. `wiki/lint-report-YYYY-MM-DD.md`).
+Se omesso, usa il report più recente in `wiki/`.
+
+## Whitelist — categorie riparabili automaticamente
+
+Solo questi tipi di ERROR sono in scope:
+
+1. **Frontmatter campo mancante con valore default univoco**
+   - Es. `depends_on:` assente → aggiungi `depends_on: []`
+   - Es. `blocked_by:` assente → aggiungi `blocked_by: []`
+   - Es. `code_path:` assente → aggiungi `code_path: []`
+
+2. **Status value non valido con mappatura univoca**
+   - Es. `status: completed` → `status: done` (TSK)
+   - Es. `status: wip` → `status: in-progress` (TSK)
+   - Solo se esiste una sola mappatura sensata; altrimenti SKIP.
+
+3. **Dangling `depends_on` verso TSK `status: done` già rimosso**
+   - Verifica che il TSK referenziato esista e sia `done`.
+   - Se sì: rimuovi dalla lista `depends_on:` del TSK corrente.
+
+## STOP — casi esclusi
+
+- ERROR di logica di business (es. US `wiki_page:` punta a file che non esiste → non crea la pagina)
+- WARNING di qualunque tipo (heal non tocca WARNING)
+- ERROR con ambiguità di mapping (non guess)
+- Qualunque modifica al body del TSK/US/EP (solo frontmatter YAML)
+- `management/questions.md` (mai toccato in heal)
+
+## Loop evaluator-optimizer
+
+```
+Iterazione 1:
+  a) Leggi report input
+  b) Filtra ERROR in whitelist
+  c) Applica fix (dry_run=false) o simula (dry_run=true)
+  d) Ri-esegui lint-checks → nuovo report
+  e) Conta ERROR residui
+
+Iterazione 2+:
+  Se ERROR_residui < ERROR_precedenti → continua
+  Se ERROR_residui == ERROR_precedenti → STOP (convergenza raggiunta)
+  Se iterazione == max_iterations → STOP
+
+Output: heal summary con:
+  - fixed: N
+  - skipped: M (fuori whitelist o ambigui)
+  - residual_errors: K
+```
+
+## Output
+
+Append `wiki/log.md`:
+```
+[YYYY-MM-DD HH:MM] heal — iter=N fixed=N_fixed residual_errors=K
+```
+
+## Limitazioni Cursor
+
+- **Glob scan**: usa `@management/kanban/**` per leggere i file da healer.
+- **Dry-run**: mostra le modifiche in formato diff prima di applicarle.
+- **Iterazioni**: esegui manualmente ogni iterazione se il terminal non supporta loop.

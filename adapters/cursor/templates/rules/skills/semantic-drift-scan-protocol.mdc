@@ -1,0 +1,76 @@
+---
+description: Semantic Drift Scan Protocol — scansione sperimentale di drift semantico su wiki (Check 4af, EP-031, v2.23). Opt-in. Solo trigger manuale. Emette solo INFO nel log, mai WARNING/ERROR. Non è un gate di pipeline.
+globs: "wiki/**"
+alwaysApply: false
+---
+# Skill: semantic-drift-scan-protocol (EP-031, v2.23)
+
+> Adapter Cursor della skill `semantic-drift-scan-protocol` definita in `.claude/skills/semantic-drift-scan-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/semantic-drift-scan-protocol.md`.
+
+Procedura sperimentale per il semantic drift scan. **Solo trigger manuale** via `/semantic-drift-scan`.
+Emette solo INFO nel log; mai WARNING o ERROR. Non è un gate di pipeline.
+
+> **Gate**: `wiki_lint.semantic_check.enabled: true`.
+
+## Step 1 — Bootstrap check
+
+1. Verifica `wiki_lint.semantic_check.enabled: true`. Se `false` → STOP.
+2. Leggi `wiki_lint.semantic_check.embedding_model` (default `voyage-3`).
+3. Ping API embedding: se irraggiungibile → WARNING in chat + STOP (graceful degradation).
+4. Leggi: `similarity_threshold` (default 0.75), `cost_warn_usd` (default 1.0), `output_report_path`.
+
+## Step 2 — Discovery pagine candidate
+
+1. Scansiona `wiki/**/*.md` (escludi: `wiki/log.md`, `wiki/index.md`, `wiki/query/`, `wiki/lint/`).
+2. Filtra pagine con `pattern_section: "§N"` nel frontmatter → candidati.
+3. Stima costo: `N_candidate × cost_per_call(embedding_model)`.
+4. Se costo > `cost_warn_usd` → mostra in chat "Costo stimato: ~$X" e chiedi conferma.
+
+## Step 3 — Embedding + Similarity
+
+Per ogni pagina candidata:
+1. Chiama embedding API con testo della pagina.
+2. Chiama embedding API con sezione `pattern_section` corrispondente di `PATTERN.md`.
+3. Calcola cosine similarity.
+4. Se similarity < `similarity_threshold` → segna come `drift_detected: true`.
+
+## Step 4 — Report
+
+Scrive report in `output_report_path/semantic-drift-<YYYY-MM-DD>.md`:
+
+```markdown
+# Semantic Drift Report — YYYY-MM-DD
+
+## Summary
+- Pagine scansionate: N
+- Drift rilevato: M
+- Similarity media: X.XX
+
+## Pagine con drift
+| Pagina | Sezione PATTERN | Similarity |
+|---|---|---|
+| wiki/concepts/foo.md | §3 | 0.62 |
+
+## Pagine non scansionate (no pattern_section)
+- wiki/concepts/bar.md
+```
+
+## Step 5 — Log
+
+Append `wiki/log.md`:
+```
+[YYYY-MM-DD HH:MM] semantic-drift-scan — pages: N | stale: M | embedding_drift: K
+```
+
+## Livelli piramide
+
+- **L1 (always-on)**: Check 4ag staleness (basata su `updated:` + 90 giorni) — nel lint-checks normale.
+- **L2 (LLM-judge)**: `wiki_lint.semantic_check.enabled: true` ma senza embedding API.
+- **L3 (embedding)**: questo protocollo, richiede `embedding_enabled: true`.
+
+## Limitazioni Cursor
+
+- **Embedding API**: richiede Python + `voyage` o `openai` SDK. Esegui da terminal.
+- **Sperimentale**: i risultati sono indicativi. Non agire automaticamente su drift rilevato.
+- **Costo**: con Voyage-3 ~$0.00003/pagina; 100 pagine ≈ $0.003.

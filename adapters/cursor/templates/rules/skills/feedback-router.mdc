@@ -1,0 +1,93 @@
+---
+description: Feedback Router — handoff Reviewer→dev-agent (PATTERN §19.4). Produce task_package machine-readable, applica batching severity-tiered, gestisce loop control (max_iterations/no-progress/regression). Mai modifica codice.
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: feedback-router (PATTERN §19.4, v2.12)
+
+> Adapter Cursor della skill `feedback-router` definita in `.claude/skills/feedback-router.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/feedback-router.md`.
+
+Skill di handoff Reviewer → dev-agent. Invocata dall'ultima fase di `code-review-protocol`.
+
+## Input
+
+```python
+{"report": <report json>, "tsk": <frontmatter TSK>, "config": <code_quality.router>}
+```
+
+## Decisione per verdict
+
+### `verdict: pass` → `action: close`
+
+- Aggiorna frontmatter TSK: `review_status: passed`, `review_iter: <N>`, `review_report: <path>`.
+- Append `wiki/log.md` con verdict `pass`.
+- Suggerisci in chat: `/promote <wiki-page> approved` se wiki in `review`; chiusura sprint se ultimo TSK.
+
+### `verdict: conditional` → `action: dispatch_dev`
+
+- Determina `target_agent` da `tsk.layer` (be→be-dev, fe→fe-dev, db→db-dev, qa→qa-dev).
+- Costruisce `task_package`:
+```json
+{
+  "tsk_id": "<tsk.id>",
+  "iter": N,
+  "constraint": {"scope": "fix only the findings below; no opportunistic refactor", "max_diff_lines": <config>},
+  "actions": [{"rule_id", "rule_ref", "file", "lines", "current_snippet", "expected_fix", "acceptance_criteria"}],
+  "report_ref": "code_quality/reports/<tsk_id>-iter-<N>.md",
+  "previous_files_modified": [...]
+}
+```
+
+- **Strategie di batching** (`config.router.strategy`):
+  - `all-in-one`: un solo task_package se `len(findings) ≤ batching_split (7)`.
+  - `severity-tiered`: split in 3 sub-package (high+critical → medium → low); consegna solo il primo tier.
+  - `split-by-area`: N task_package paralleli per modulo (code_path disgiunto).
+
+- Gate umano:
+```
+REVIEW CONDITIONAL — TSK-XXX iter N
+Verdict: conditional (M finding)
+Strategy: <strategy>
+Target: <target_agent>
+Prossima review: iter N+1 / max_iterations
+Procedo con dispatch? [y/N]
+```
+
+- Aggiorna frontmatter: `review_status: conditional`, `review_iter: N`.
+- Append `wiki/log.md` verdict `conditional`.
+
+### `verdict: reject` → `action: escalate_human` (PATTERN §7 r.16)
+
+- Aggiorna frontmatter: `review_status: rejected`, `review_iter: N`.
+- Append `wiki/log.md` + marker (`loop_exhausted | no_progress | regression`).
+- Mai invocare dev-agent. Mai auto-revert.
+- Blocco escalation in chat con next step: re-develop manuale, accept-as-is, rollback.
+
+## QA Failure Routing (EP-029, opt-in `qa_layer.failure_taxonomy.enabled: true`)
+
+Per TSK `layer: qa`, `status: failed`, `failure_classification:` valorizzato:
+
+| `failure_classification` | Destinatario |
+|---|---|
+| `APPLICATION_BUG` + `tag: be` | `be-dev` |
+| `APPLICATION_BUG` + `tag: fe` | `fe-dev` |
+| `APPLICATION_BUG` ambiguo | human gate |
+| `SSR_BUG` | `fe-dev` + context `"ssr"` |
+| `TEST_BUG` | `qa-dev` |
+| `INFRASTRUCTURE` | human gate |
+| `FLAKY` | quarantena EP-027 (se abilitato) o human gate |
+
+Idempotenza: se `assigned_to:` già valorizzato → skip dispatch.
+Audit: record JSONL in `analytics/events/qa-events.jsonl`.
+
+## Regole
+
+- **Mai modificare codice** (R.Q2).
+- **Mai decidere il verdict** (scope aggregator di code-review-protocol Fase 3).
+- **task_package > 20 actions**: forza `severity-tiered` anche se config dice `all-in-one`.
+
+## Limitazioni Cursor
+
+- **Dispatch**: in Cursor il dev-agent va invocato manualmente dopo aver ricevuto il task_package dal router.
+- **Weekly digest**: esegui lunedì mattina aggiornando i file digest manualmente.

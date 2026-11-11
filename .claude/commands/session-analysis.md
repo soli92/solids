@@ -1,4 +1,5 @@
 ---
+description: "Analisi post-hoc di una sessione Claude Code chiusa: anomalie ERROR/BUDGET/DISPATCH con raccomandazioni, mai auto-fix. Opt-in session_analysis.enabled."
 command: /session-analysis
 skill: session-analysis-protocol
 opt_in: session_analysis.enabled
@@ -24,6 +25,7 @@ Fase 4 (depth=full). Solo out-of-band su sessioni gia' chiuse (R-SAA-8).
                   [--depth=quick|full]
                   [--json]
                   [--save]
+                  [--retro]
 ```
 
 | Flag | Tipo | Default | Semantica |
@@ -35,6 +37,7 @@ Fase 4 (depth=full). Solo out-of-band su sessioni gia' chiuse (R-SAA-8).
 | `--depth=quick\|full` | enum | config `depth_default` | `quick` = solo Fasi 1-3 (deterministico); `full` = anche Fase 4 (LLM advisory, budget bounded) |
 | `--json` | flag | assente | Emette il report JSON su stdout invece della sintesi human-readable |
 | `--save` | flag | assente | Salva il report in `raw/` (dual md+json); stampa il path generato |
+| `--retro` | flag | assente | Retrospettiva sull'ambiente degli agenti (Step 3-ter); richiede `engineering_practices.enabled: true` |
 
 ---
 
@@ -50,7 +53,7 @@ SE factory.config.yaml.session_analysis.enabled == false (default opt-in):
   Emetti in chat:
     "EP-061 Session Agentic Analyser non abilitato.
      Aggiungi `session_analysis.enabled: true` in factory.config.yaml per attivare.
-     Leggi CLAUDE.md §session_analysis e PATTERN §37 per prerequisiti e kill criterion."
+     Leggi CAPABILITIES.md §session_analysis e PATTERN §37 per prerequisiti e kill criterion."
 ```
 
 Se `session_analysis.enabled: true`, prosegui.
@@ -124,6 +127,37 @@ La skill esegue:
 | 3 | Detect Anomalies | Tool deterministici (`fleet-metrics.py`, `detect-anomalies.py`) |
 | 4 | Report Generation | Sintesi (quick: skip LLM; full: LLM advisory bounded) |
 
+### Step 3-bis — LLM advisory (solo `depth=full`)
+
+Con `depth=quick` nessuna chiamata LLM: si salta allo Step 4. Con `depth=full`, dopo le
+Fasi 0-3 (file intermedi in una directory temporanea `<tmp>`, mai in `raw/`):
+
+```bash
+python3 tools/session-analysis/generate-report.py <anomalies> <metrics> <parsed> \
+  --depth full --output-dir <tmp>/base                       # report base deterministico
+python3 tools/session-analysis/llm-advisory.py <tmp>/base/<report>.json \
+  --depth full --output <tmp>/advisory.json                  # claude -p, budget bounded
+python3 tools/session-analysis/generate-report.py <anomalies> <metrics> <parsed> \
+  --depth full --advisory <tmp>/advisory.json [--output-dir raw/ | --dry-run]
+```
+
+Esito di `llm-advisory.py`: `0` -> terzo passo con `--advisory`; `3` (gate: depth,
+`enabled`, report base mancante) o `4` (SKIP con WARNING: budget insufficiente, nessuna
+anomalia, CLI assente o in errore) -> terzo passo **senza** `--advisory`, report identico al
+deterministico, e il motivo va riportato in chat; `2` (STOP R-SAA-3: pattern sensibili
+nell'input o nell'output) -> nessuna chiamata, segnala in chat i tipi di pattern e non
+salvare in `raw/` senza conferma dell'operatore. Il modello e' `session_analysis.advisory_model`
+o, se vuoto, `models.routing.tier_fast`. Dettagli: skill, Fase 4 «LLM advisory».
+
+### Step 3-ter — Retrospettiva (solo `--retro`)
+
+Gate: `engineering_practices.enabled: true` in `factory.config.yaml`; a flag spento o assente
+`--retro` e' un no-op dichiarato in chat (WARNING, il resto del comando prosegue). Con il gate
+aperto la sessione principale applica `.claude/skills/pocock-retro.md` al report: solo
+proposte, in chat e, con `--save`, nella sezione `## Retrospettiva` del report markdown. La
+retrospettiva e' lavoro della sessione, non dell'advisory LLM: non entra in `anomalies` ne' in
+`fleet_recommendations`.
+
 ### Step 4 — Output
 
 **Se `--json`**: emetti il JSON del report su stdout (il campo `ingest_eligible` e' sempre `false`, R-SAA-5).
@@ -161,6 +195,18 @@ Se `anomaly_count == 0`:
 Nessuna anomalia rilevata (depth=<depth>).
 Sessione <session-id-slug> analizzata — <N> eventi, <M> wave.
 ```
+
+### Step 5 — Entry in `wiki/log.md` (solo dopo la scrittura in `raw/`)
+
+Solo se lo Step 4 ha scritto davvero i due file in `raw/` (`--save` riuscito); in-chat, `--json`
+o errore di salvataggio: nulla in `wiki/log.md` (un'entry verso un file inesistente e' una
+citazione rotta). Claim su `wiki/log.md` se la factory li usa (`tools/session/active_sessions.py
+conflicts|claim --domain wiki/log.md`; con un claim di altri l'entry si aggiunge dopo), append in
+coda (R.5) con l'header di `wiki-log-entry` e il `.md` stampato allo Step 4, poi `release` anche se
+l'append fallisce:
+`## [YYYY-MM-DD] develop | session-analysis done — raw/<filename>.md`
+
+[^src: portale-servizi-factory .claude/commands/session-analysis.md §Step 5 — backport 2026-10-08]
 
 ---
 

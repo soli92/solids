@@ -1,18 +1,16 @@
-# Skill: Wiki Keeper Worker Protocol
+# Skill: wiki-keeper-worker-protocol
 
-> Adapter Cursor della skill `wiki-keeper-worker-protocol` definita in PATTERN.md.
-
-**Versione:** v2.27 | **Invocata da:** [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) (sub-agent parallelo)
+**Versione:** v2.37 (EP-056: `plan_reasoning` CoT) | **Invocata da:** wiki-keeper (sub-agent parallelo)
 **Scope:** read-only — questa skill non scrive su disco (invariante del worker)
 
 Protocollo operativo del `wiki-keeper-worker`. Descrive input, output, vincoli e
 gestione degli errori per l'analisi di un singolo raw file nell'ambito dell'ingest
-parallelo ([ingest-protocol](mdc:.cursor/skills/ingest-protocol/SKILL.md) Fase 1, ramo N ≥ 3 file).
+parallelo (`ingest-protocol` Fase 1, ramo N ≥ 3 file).
 
 Analogia strutturale con le skill di altri sync sub-agent:
-- [repo-extraction-protocol](mdc:.cursor/skills/repo-extraction-protocol/SKILL.md) — parser di repo locale
-- [figma-extraction-protocol](mdc:.cursor/skills/figma-extraction-protocol/SKILL.md) — parser di file Figma
-- [graphify-extraction-protocol](mdc:.cursor/skills/graphify-extraction-protocol/SKILL.md) — parser di knowledge graph
+- `repo-extraction-protocol.md` — parser di repo locale
+- `figma-extraction-protocol.md` — parser di file Figma
+- `graphify-extraction-protocol.md` — parser di knowledge graph
 
 ---
 
@@ -65,7 +63,8 @@ Produrre **un solo blocco JSON** conforme allo schema `ingest-protocol` Fase 1:
       "cite": ["<txt_path>#<sezione>"],
       "low_relevance": false,
       "action": "create|update",
-      "target_path": "wiki/<namespace>/<slug>.md"
+      "target_path": "wiki/<namespace>/<slug>.md",
+      "plan_reasoning": "<rationale conciso (CoT, EP-056 US-202): perché la pagina, entità/concetti chiave, relazioni con altre pagine proposte/esistenti>"
     }
   ],
   "gaps_opened": [
@@ -88,6 +87,12 @@ Produrre **un solo blocco JSON** conforme allo schema `ingest-protocol` Fase 1:
 **Nessun testo libero fuori dal JSON.** L'output è consumato machine-readable dal
 `wiki-keeper` nell'aggregazione parallela.
 
+**`plan_reasoning` (EP-056 US-202)**: ogni `proposed_pages[i]` DEVE includere un
+`plan_reasoning` conciso (1-2 frasi) che espone il ragionamento CoT dietro la pagina —
+non è testo di riempimento ma l'input strutturato che il `wiki-keeper` usa nella Fase 1.ter
+per costruire il piano di scrittura coerente (ordine, wikilink, terminologia). Riduce
+allucinazione e incoerenza dei wikilink nella generazione (Fase 3).
+
 ---
 
 ## Fase 4 — Vincoli di qualità
@@ -97,8 +102,8 @@ Produrre **un solo blocco JSON** conforme allo schema `ingest-protocol` Fase 1:
 - **Naming slug**: snake_case, unico per namespace, ≤ 60 caratteri. Verificare
   contro `existing_slugs` per evitare collisioni.
 - **Frontmatter karpathy-style**: `title`, `status: draft`, `sources: [<cite>]`.
-  Vedi [scrivi-wiki-page](mdc:.cursor/skills/scrivi-wiki-page/SKILL.md) per il template completo.
-- **Citazioni**: seguire [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md) per il formato `[fonte](#sezione)`.
+  Vedi `scrivi-wiki-page` per il template completo.
+- **Citazioni**: seguire `citation-rules` per il formato `[fonte](#sezione)`.
 - **Namespace assignment**:
   - `sources/` — un documento per raw elaborato (sempre 1:1 con `txt_path`)
   - `concepts/` — concetti astratti e pattern
@@ -122,8 +127,8 @@ Produrre **un solo blocco JSON** conforme allo schema `ingest-protocol` Fase 1:
 
 ## Cross-link
 
-- [ingest-protocol](mdc:.cursor/skills/ingest-protocol/SKILL.md) — protocollo del `wiki-keeper` che invoca questo worker
-- [wiki-keeper-worker](mdc:.cursor/rules/wiki-keeper-worker.mdc) — agente che esegue questa skill
-- [scrivi-wiki-page](mdc:.cursor/skills/scrivi-wiki-page/SKILL.md) — template frontmatter per le pagine proposte
-- [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md) — grammatica citazioni e wikilink
-- `wiki-gap-protocol` — procedura per i gap segnalati
+- `ingest-protocol.md` — protocollo del `wiki-keeper` che invoca questo worker
+- `wiki-keeper-worker.md` — agente che esegue questa skill
+- `scrivi-wiki-page.md` — template frontmatter per le pagine proposte
+- `citation-rules.md` — grammatica citazioni e wikilink
+- `wiki-gap-protocol.md` — procedura per i gap segnalati

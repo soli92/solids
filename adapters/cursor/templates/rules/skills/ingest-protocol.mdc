@@ -1,0 +1,88 @@
+---
+description: Protocollo di ingest L1 → L2 (raw → wiki). 5 fasi (Setup → Discovery → Proposta → Scrittura → Suggest). Single-committer per wiki/.
+globs: "raw/**, wiki/gaps.md"
+alwaysApply: false
+---
+# Skill — Ingest Protocol (PATTERN §3, riusabile da wiki-keeper)
+
+> Adapter Cursor del protocollo definito in `PATTERN.md` §3 Ingest.
+> File equivalente Claude Code: `.claude/skills/ingest-protocol.md`.
+
+Procedura per trasformare artefatti L1 (`raw/`) in pagine L2 (`wiki/`) preservando
+il single-committer (§7 r.12) e zero-invention (§7 r.2).
+
+## Fase 0 — Setup
+
+1. Read `raw/.extraction-manifest.json` per la lista delle estrazioni.
+2. Read `wiki/log.md` (ultime entry `ingest`) per evitare duplicati.
+3. Read `wiki/gaps.md` per pickup di gap aperti (potenziale obiettivo di questo ingest).
+4. Determina lo scope: nuovi raw, re-ingest, o ingest mirato per gap?
+
+## Fase 1 — Discovery
+
+Per ciascun raw da ingerire:
+- Read del file primario (`.txt` PDF, `.kb.json` Figma, `.md` repo).
+- Read companion files (immagini stub, frame stub, tree).
+- Identifica i concetti, entità, processi, riferimenti normativi.
+- Cross-reference con `wiki/concepts/`, `wiki/entities/` esistenti per evitare duplicati.
+
+## Fase 2 — Proposta (STOP — §7 r.6)
+
+Prima di scrivere, mostra in chat:
+```
+INGEST PLAN
+===========
+Sorgente:      <file raw>
+Pagine wiki da creare:
+  - concepts/<slug>.md
+  - entities/<slug>.md
+  - ... (5-15 piccole, principio "touch many small files")
+Pagine wiki da aggiornare:
+  - concepts/<esistente>.md ← `## Aggiornamenti (v<data>)`
+Gap aperti da chiudere:
+  - <gap-slug> → risolto da [[nuova-pagina]]
+Procedo? [y/N]
+```
+
+Attendi conferma esplicita.
+
+## Fase 3 — Scrittura (single-committer)
+
+Per ciascuna pagina:
+- Frontmatter minimo (`type`, `sources`, `status: draft`).
+- Body markdown karpathy-style: claim ≥ 20 parole hanno citazione `[^src: raw/<file> §<sezione>]`.
+- Wikilink `[[nome-pagina]]` per cross-reference. Mai path relativi (§7 r.4).
+- Sezioni canoniche: `## Definizione | ## Contesto | ## Esempi | ## Concetti correlati | ## Storie collegate` (gestita da PM).
+- Update non distruttivo per pagine `review|approved` (§7 r.7): `## Aggiornamenti (v<data>)`.
+
+Update `wiki/index.md` con i nuovi wikilink nelle sezioni appropriate.
+
+## Fase 4 — Chiusura gap (se applicabile)
+
+Per ogni gap chiuso:
+- Append `**Risolto:** <YYYY-MM-DD> — [[nuova-pagina]]` nella entry del gap in `wiki/gaps.md`.
+- Append entry `ingest` in `wiki/log.md` con marker `closes-gap: <slug>`.
+- Se il gap cita una `Q_NNN` → invoca `[propagate-resolution](mdc:.cursor/rules/skills/propagate-resolution.mdc)`.
+
+## Fase 5 — Suggest next
+
+Mostra in chat:
+- Numero pagine create/aggiornate.
+- Gap chiusi.
+- Suggeriti prossimi step (es. invocare `product-manager` se le pagine impattano EP/US).
+
+## Fan-out parallelo (batch ≥ 3 raw)
+
+In Claude Code: invoca N `wiki-keeper-worker` in parallelo per Discovery (Fase 1).
+In Cursor: sequential o via Compose. La scrittura (Fase 3) resta serializzata
+sul wiki-keeper principale.
+
+## Regole
+
+- **§7 r.1** — `raw/` read-only (Sync agents only).
+- **§7 r.2** — Zero invenzione: gap → `wiki/gaps.md`, mai sintesi.
+- **§7 r.3** — Citazione obbligatoria.
+- **§7 r.5** — `wiki/log.md` append-only.
+- **§7 r.6** — Report preliminare STOP prima di batch.
+- **§7 r.7** — Update non distruttivo su `review|approved`.
+- **§7 r.12** — wiki/ single-committer.

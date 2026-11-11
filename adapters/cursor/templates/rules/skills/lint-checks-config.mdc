@@ -1,0 +1,26 @@
+---
+description: >-
+  Check lint su factory.config.yaml, topology, routing, VCS, publisher, manifest — check-family
+  config
+globs: "wiki/**,management/**"
+alwaysApply: false
+---
+# Skill: lint-checks-config
+
+> Adapter Cursor della skill `lint-checks-config`, definita in `.claude/skills/lint-checks-config.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. Check 4ah — Branch Awareness config coherence (WARNING, opt-in — EP-034)
+2. Check 4ak — content_share config integrity (WARNING, opt-in — EP-048)
+3. WARNING (igiene, mai heal-eligible)
+4. Check 4aq — Path portabili cross-platform (ERROR, mai heal-eligible)
+5. ERROR
+
+Il dettaglio di ogni passo sta in `.claude/skills/lint-checks-config.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Le famiglie sono moduli di `lint-checks`: si leggono su richiesta, non tutte insieme. E' la divulgazione progressiva della fonte, e su Cursor conta di piu' perche' la finestra di contesto e' l'unico posto in cui vivono le rule.
+- Il lint produce **solo report**: non corregge mai. Il fix e' `/heal`, ed e' un'altra cosa.

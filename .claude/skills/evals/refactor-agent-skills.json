@@ -1,0 +1,23 @@
+{
+  "skill_name": "refactor-agent-skills",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Nella cartella di agenti che ti do, il file specialists/issue-tracker.md è enorme (752 righe) e difficile da mantenere. Rifattorizzalo in divulgazione progressiva senza rompere i riferimenti tra file né la modalità con cui l'agente viene invocato.",
+      "expected_output": "issue-tracker.md ridotto a spina dorsale + foglie in references/; frontmatter invariato; nessun riferimento rotto; rispetto di V-9 (dispatch per iniezione).",
+      "files": ["una flotta .claude/ con AGENTS.md, agents/, specialists/"]
+    },
+    {
+      "id": 1,
+      "prompt": "Ho questa cartella di agenti (AGENTS.md + agents/ + specialists/). È cresciuta troppo nel tempo e sospetto ci siano riferimenti rotti, agenti dimenticati e descrizioni che si sovrappongono. Analizzala e proponimi il piano di refactoring e ottimizzazione della flotta, senza applicare ancora le modifiche.",
+      "expected_output": "Piano di Fase 0-1: agenti sopra soglia, riferimenti rotti/mismatch, orfani, collisioni di description, criterio di taglio dichiarato, igiene di flotta; fermata al gate.",
+      "files": ["una flotta .claude/ con AGENTS.md, agents/, specialists/"]
+    },
+    {
+      "id": 2,
+      "prompt": "Questa skill ha una SKILL.md di circa 485 righe che mescola procedura operativa e molto dettaglio consultivo, ed è diventata difficile da mantenere. Rifattorizzala in divulgazione progressiva: spina dorsale snella nella SKILL.md, dettaglio nelle references/ con trigger di lettura.",
+      "expected_output": "SKILL.md ridotta a spina dorsale + foglie in references/; frontmatter invariato; verifica strutturale PASS (retro-compatibilità con la vecchia refactoring-skill).",
+      "files": ["una skill con SKILL.md lunga + references/scripts"]
+    }
+  ]
+}

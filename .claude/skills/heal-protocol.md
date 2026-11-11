@@ -1,16 +1,16 @@
-# Skill: Heal Protocol
-
-> Adapter Cursor della skill `heal-protocol` definita in PATTERN.md.
-
+---
+name: heal-protocol
+description: Loop evaluator-optimizer vincolato. Corregge SOLO una whitelist chiusa di ERROR meccanici flaggati `heal-eligible` dal wiki-lint, con gate umano bulk e max 3 iterazioni. Skill del wiki-keeper.
+---
 # Protocollo Heal (canonico)
 
-Riferimenti: [lint-checks](mdc:.cursor/skills/lint-checks/SKILL.md) (input), [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md), [wiki-log-entry](mdc:.cursor/skills/wiki-log-entry/SKILL.md),
+Riferimenti: `lint-checks` (input), `citation-rules`, `wiki-log-entry`,
 `PATTERN.md §3` (operazione `Heal`) + `§7 r.6` (gate STOP) + `§7 r.12`
 (single-committer).
 
 ## Chi può eseguirla
 
-**Solo il [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc)**, su invocazione esplicita dell'umano via `/heal`.
+**Solo il `wiki-keeper`**, su invocazione esplicita dell'umano via `/heal`.
 Single-committer preservato: nessun altro agente acquisisce write access su `wiki/`.
 
 ## Whitelist (chiusa e immutabile)
@@ -89,7 +89,7 @@ meccanica, non semantica (eccezione locale a §7 r.7).
 
 **D. Re-evaluator**
 
-Invoca [wiki-lint](mdc:.cursor/rules/wiki-lint.mdc) sugli stessi file impattati (lint scoped).
+Invoca `wiki-lint` (via Agent) sugli stessi file impattati (lint scoped).
 Attendi nuovo report.
 
 **E. Condizioni di terminazione**

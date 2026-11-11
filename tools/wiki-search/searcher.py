@@ -1,12 +1,12 @@
 """
-Hybrid semantic + full-text search su indice LanceDB (EP-042, US-149).
+Hybrid semantic + full-text search on LanceDB index (EP-042, US-149).
 
-Invarianti:
-    R.WS1 — Fallback garantito: index assente / disabled / import fail →
-             {"results": [], "fallback": True}  (mai eccezione verso l'utente)
-    R.WS2 — Import lazy: lancedb e sentence_transformers mai importati a
-             livello di modulo; il modulo è importabile senza le dipendenze.
-    R.WS3 — Read-only: nessun write sull'indice durante search().
+Invariants:
+    R.WS1 — Guaranteed fallback: missing index / disabled / import fail →
+             {"results": [], "fallback": True}  (never exception to user)
+    R.WS2 — Lazy import: lancedb and sentence_transformers never imported at
+             module level; the module is importable without dependencies.
+    R.WS3 — Read-only: no index writes during search().
 
 Public API:
     SearchResult (dataclass)
@@ -18,15 +18,20 @@ from __future__ import annotations
 
 import logging
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
 log = logging.getLogger(__name__)
 
+_HERE = str(Path(__file__).resolve().parent)
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+
 # ---------------------------------------------------------------------------
-# Default config values — usati se il blocco wiki_search: manca in
-# factory.config.yaml (o se il file non esiste).
+# Default config values — used if wiki_search: block is missing in
+# factory.config.yaml (or if the file does not exist).
 # ---------------------------------------------------------------------------
 
 DEFAULT_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
@@ -39,18 +44,51 @@ SNIPPET_LEN = 200
 
 
 # ---------------------------------------------------------------------------
+# Selezione del backend
+# ---------------------------------------------------------------------------
+
+def _hybrid_deps_importable() -> bool:
+    """True se lancedb e sentence_transformers sono installati (senza importarli)."""
+    import importlib.util
+
+    try:
+        return all(
+            importlib.util.find_spec(m) is not None
+            for m in ("lancedb", "sentence_transformers")
+        )
+    except Exception:
+        return False
+
+
+def resolve_backend(configured: str = "auto") -> str:
+    """auto → hybrid se le dipendenze ci sono, altrimenti fts5. Valore sconosciuto → auto."""
+    configured = (configured or "auto").strip().lower()
+    if configured in ("fts5", "hybrid"):
+        return configured
+    return "hybrid" if _hybrid_deps_importable() else "fts5"
+
+
+def _fts_find_root() -> Path:
+    here = Path(__file__).resolve()
+    for p in [here, *here.parents]:
+        if (p / "factory.config.yaml").is_file():
+            return p
+    return Path.cwd()
+
+
+# ---------------------------------------------------------------------------
 # Dataclass
 # ---------------------------------------------------------------------------
 
 @dataclass
 class SearchResult:
-    """Un singolo risultato di ricerca restituito da HybridSearcher."""
+    """A single search result returned by HybridSearcher."""
 
     path: str
     title: str
     section: str
     score: float
-    snippet: str    # ~200 char attorno al miglior match FTS in content
+    snippet: str    # ~200 chars around best FTS match in content
     type: str
     status: str
 
@@ -61,26 +99,28 @@ class SearchResult:
 
 class HybridSearcher:
     """
-    Hybrid semantic + full-text search su indice LanceDB.
+    Hybrid semantic + full-text search on LanceDB index.
 
-    Invariante R.WS1: se l'indice non esiste → ritorna lista vuota
-    (fallback graceful).
-    Invariante R.WS3: nessuna modifica all'indice durante la ricerca.
+    Invariant R.WS1: if index does not exist → returns empty list
+    (graceful fallback).
+    Invariant R.WS3: no index modification during search.
     """
 
     def __init__(self, config_path: str = None):
         """
-        Legge il blocco wiki_search: da factory.config.yaml.
-        Se config_path=None, risale da cwd finché trova il file.
-        Valori di default hard-coded se il blocco manca.
-        Apre la tabella LanceDB 'pages' in read-only (R.WS3).
-        Carica lazy il modello embedding (no import a livello di classe).
-        In caso di errore (index assente, lancedb non installato,
-        load modello fallito): imposta self._fallback = True, nessuna eccezione.
+        Read wiki_search: block from factory.config.yaml.
+        If config_path=None, walk up from cwd until file is found.
+        Hard-coded defaults if block is missing.
+        Opens LanceDB 'pages' table read-only (R.WS3).
+        Lazily loads embedding model (no import at class level).
+        On error (missing index, lancedb not installed,
+        model load failed): sets self._fallback = True, no exception.
         """
         self._fallback: bool = False
         self._table = None
         self._model = None
+        self._root: Optional[Path] = None
+        self._backend: str = "hybrid"
 
         # Load wiki_search config block
         cfg = self._load_config(config_path)
@@ -91,13 +131,34 @@ class HybridSearcher:
         self._rrf_k: int = int(cfg.get("rrf_k", DEFAULT_RRF_K))
         self._candidate_k: int = int(cfg.get("candidate_k", DEFAULT_CANDIDATE_K))
         self._default_mode: str = str(cfg.get("mode", "hybrid"))
+        # ADR-C (TSK-504): chunking strategy — read from config, passed to WikiIndexer
+        # at index-build time (R.WS2: default h2_section for backward compat)
+        self._chunking_strategy: str = str(cfg.get("chunking", "h2_section"))
+
+        self._fts_db: str = str(cfg.get("fts_db", ".wiki-search/fts.sqlite"))
 
         if not self._enabled:
-            # enabled: false → fallback immediato (R.WS1, R.WS2: no import)
+            # enabled: false → immediate fallback (R.WS1, R.WS2: no import)
             self._fallback = True
             return
 
-        self._init_table()
+        configured = str(cfg.get("backend", "auto")).strip().lower()
+        self._backend = resolve_backend(configured)
+        if self._backend == "hybrid" and configured not in ("hybrid", "fts5"):
+            # backend auto: le librerie ci sono ma l'indice .lance potrebbe mancare
+            self._init_table()
+            if self._fallback or self._table is None:
+                self._fallback = False
+                self._table = None
+                self._backend = "fts5"
+        if self._backend == "fts5":
+            # nessuna dipendenza: l'indice SQLite si costruisce alla prima ricerca
+            if self._root is None:
+                self._root = _fts_find_root()
+            return
+
+        if self._table is None and not self._fallback:
+            self._init_table()
 
     # ------------------------------------------------------------------
     # Config loading
@@ -105,12 +166,12 @@ class HybridSearcher:
 
     def _load_config(self, config_path: Optional[str]) -> dict:
         """
-        Carica il blocco wiki_search: da factory.config.yaml.
-        Risale da cwd se config_path=None.
-        Ritorna {} in caso di errore (mai eccezione).
+        Load wiki_search: block from factory.config.yaml.
+        Walk up from cwd if config_path=None.
+        Returns {} on error (never raises).
         """
         if config_path is not None:
-            # config_path può essere il file YAML o la sua directory
+            # config_path may be the YAML file or its directory
             p = Path(config_path)
             if p.is_dir():
                 candidates = [p / "factory.config.yaml"]
@@ -132,9 +193,10 @@ class HybridSearcher:
         if config_file is None:
             log.debug("factory.config.yaml non trovato; uso valori di default")
             return {}
+        self._root = config_file.resolve().parent
 
         try:
-            import yaml  # pyyaml — disponibile nella maggior parte degli env
+            import yaml  # pyyaml — available in most environments
 
             raw = config_file.read_text(encoding="utf-8")
             full_cfg = yaml.safe_load(raw) or {}
@@ -151,8 +213,8 @@ class HybridSearcher:
 
     def _init_table(self) -> None:
         """
-        Apre la tabella LanceDB in read-only.
-        Imposta _fallback=True su qualsiasi errore (R.WS1).
+        Open LanceDB table read-only.
+        Sets _fallback=True on any error (R.WS1).
         """
         try:
             import lancedb  # lazy import — R.WS2
@@ -179,7 +241,7 @@ class HybridSearcher:
                 )
                 self._fallback = True
                 return
-            # R.WS3: apre in sola lettura (nessuna chiamata di scrittura successiva)
+            # R.WS3: open read-only (no subsequent write calls)
             self._table = db.open_table(self._table_name)
         except Exception as exc:
             log.debug("Impossibile aprire tabella LanceDB: %s", exc)
@@ -191,8 +253,8 @@ class HybridSearcher:
 
     def _ensure_model(self) -> bool:
         """
-        Carica il modello sentence-transformers in modo lazy.
-        Ritorna False (e imposta _fallback) in caso di errore.
+        Load sentence-transformers model lazily.
+        Returns False (and sets _fallback) on error.
         """
         if self._model is not None:
             return True
@@ -215,8 +277,46 @@ class HybridSearcher:
     # ------------------------------------------------------------------
 
     def is_available(self) -> bool:
-        """Controlla se l'indice esiste ed è leggibile."""
+        """Check if index exists and is readable."""
+        if self._backend == "fts5" and self._enabled:
+            try:
+                import fts_index  # type: ignore
+
+                return fts_index.fts5_available()
+            except Exception:
+                return False
         return not self._fallback and self._table is not None
+
+    def _search_fts5(self, query: str, top_k: int, filters: Optional[dict]) -> dict:
+        """Backend SQLite FTS5. Costruisce l'indice se manca. Mai eccezioni verso il chiamante."""
+        try:
+            import fts_index  # type: ignore
+
+            filters = filters or {}
+            out = fts_index.search(
+                self._root or fts_index.find_root(),
+                query,
+                top=top_k,
+                section=filters.get("section"),
+                status=filters.get("status"),
+                db=None,
+            )
+            results = [
+                {
+                    "path": r["path"],
+                    "title": r["title"],
+                    "section": r["section"],
+                    "score": r["score"],
+                    "snippet": r["snippet"],
+                    "type": "",
+                    "status": r["status"],
+                }
+                for r in out["results"]
+            ]
+            return {"results": results, "fallback": False}
+        except Exception as exc:
+            log.warning("Errore backend fts5: %s", exc)
+            return {"results": [], "fallback": True}
 
     def search(
         self,
@@ -226,16 +326,16 @@ class HybridSearcher:
         filters: Optional[dict] = None,
     ) -> dict:
         """
-        Hybrid search: vector + full-text con RRF (k=60).
-        Se indice non disponibile → ritorna {"results": [], "fallback": True}
+        Hybrid search: vector + full-text with RRF (k=60).
+        If index unavailable → returns {"results": [], "fallback": True}
         (R.WS1).
 
         Args:
-            query:   testo della query
-            top_k:   numero di risultati da restituire (default 5)
+            query:   query text
+            top_k:   number of results to return (default 5)
             mode:    "hybrid" (default) | "vector" | "fts"
-            filters: dict di filtri su metadati, applicati pre-rerank su
-                     entrambi i rami (push-down). Es. {"type": "concept"}.
+            filters: metadata filter dict, applied pre-rerank on
+                     both branches (push-down). E.g. {"type": "concept"}.
 
         Returns:
             {
@@ -246,7 +346,11 @@ class HybridSearcher:
               "fallback": bool
             }
         """
-        if self._fallback or not self._enabled:
+        if not self._enabled:
+            return {"results": [], "fallback": True}
+        if self._backend == "fts5":
+            return self._search_fts5(query, top_k, filters)
+        if self._fallback:
             return {"results": [], "fallback": True}
 
         where_clause = self._build_where(filters)
@@ -309,8 +413,8 @@ class HybridSearcher:
 
     def _build_where(self, filters: Optional[dict]) -> Optional[str]:
         """
-        Traduce un dict di filtri in una clausola WHERE LanceDB.
-        Ritorna None se filters è vuoto o None.
+        Translate a filter dict into a LanceDB WHERE clause.
+        Returns None if filters is empty or None.
         """
         if not filters:
             return None
@@ -334,8 +438,8 @@ class HybridSearcher:
         where_clause: Optional[str] = None,
     ) -> list[dict]:
         """
-        Ricerca vettoriale su LanceDB (similarità coseno).
-        Ritorna lista vuota in caso di errore.
+        Vector search on LanceDB (cosine similarity).
+        Returns empty list on error.
         """
         try:
             q = (
@@ -357,10 +461,10 @@ class HybridSearcher:
         where_clause: Optional[str] = None,
     ) -> list[dict]:
         """
-        Full-text search su LanceDB (usa tantivy se disponibile).
-        Fallback: scan con term-frequency se tantivy non è indicizzato.
+        Full-text search on LanceDB (uses tantivy if available).
+        Fallback: term-frequency scan if tantivy is not indexed.
         """
-        # Tentativo 1: FTS nativo (tantivy index, query_type="fts")
+        # Attempt 1: native FTS (tantivy index, query_type="fts")
         try:
             q = self._table.search(query, query_type="fts").limit(top_k)
             if where_clause:
@@ -372,7 +476,7 @@ class HybridSearcher:
                 fts_exc,
             )
 
-        # Fallback: scan term-frequency (nessun indice tantivy richiesto)
+        # Fallback: term-frequency scan (no tantivy index required)
         try:
             return self._fts_scan_fallback(query, top_k, where_clause)
         except Exception as scan_exc:
@@ -386,8 +490,8 @@ class HybridSearcher:
         where_clause: Optional[str],
     ) -> list[dict]:
         """
-        Fallback FTS via scansione con term-frequency quando tantivy non è
-        disponibile. Non richiede indici aggiuntivi su LanceDB.
+        FTS fallback via term-frequency scan when tantivy is not
+        available. Does not require additional LanceDB indexes.
         """
         terms = query.lower().split()
         if not terms:
@@ -417,13 +521,13 @@ class HybridSearcher:
         k: int = DEFAULT_RRF_K,
     ) -> list[dict]:
         """
-        Reciprocal Rank Fusion: combina due ranked lists.
+        Reciprocal Rank Fusion: combine two ranked lists.
 
         score_rrf(doc) = sum(1 / (k + rank_i(doc)))
 
-        dove rank_i è la posizione 1-based del documento nella lista i-esima
-        (0-based nell'array → rank+1).  Solo i rami in cui il documento
-        compare contribuiscono al punteggio.
+        where rank_i is the 1-based position of the document in the i-th list
+        (0-based in array → rank+1). Only branches where the document
+        appears contribute to the score.
         """
         scores: dict[str, float] = {}
         docs: dict[str, dict] = {}
@@ -451,9 +555,9 @@ class HybridSearcher:
         self, content: str, query: str, length: int = SNIPPET_LEN
     ) -> str:
         """
-        Estrai ~200 char attorno al miglior match FTS in content.
-        Fallback: testa di content per hit solo-vettoriali (nessun termine
-        trovato nel content).
+        Extract ~200 chars around best FTS match in content.
+        Fallback: head of content for vector-only hits (no term
+        found in content).
         """
         if not content:
             return ""
@@ -467,15 +571,15 @@ class HybridSearcher:
                 break
 
         if best_pos < 0:
-            # Hit solo-vettoriale: restituisce testa del content
+            # Vector-only hit: return head of content
             snippet = content[:length]
         else:
-            # Centra la finestra attorno al match
+            # Center window around match
             start = max(0, best_pos - length // 3)
             end = min(len(content), start + length)
             snippet = content[start:end]
 
-        # Normalizza whitespace
+        # Normalize whitespace
         return re.sub(r"\s+", " ", snippet).strip()
 
 
@@ -489,26 +593,26 @@ def search_wiki(
     top_k: int = DEFAULT_TOP_K,
 ) -> list[SearchResult]:
     """
-    Entry point semplice per uso da wiki-query agent.
+    Simple entry point for use from wiki-query agent.
 
-    Crea un HybridSearcher leggendo factory.config.yaml dalla cwd (walk-up).
-    Se l'indice non è disponibile tramite config ma index_path è esplicitamente
-    fornito, tenta di usarlo come override diretto.
-    Ritorna [] senza eccezioni se l'indice non è disponibile (R.WS1).
+    Creates a HybridSearcher reading factory.config.yaml from cwd (walk-up).
+    If index is unavailable via config but index_path is explicitly
+    provided, attempts to use it as direct override.
+    Returns [] without exceptions if index is unavailable (R.WS1).
 
     Args:
-        query:      testo della query
-        index_path: path alla directory LanceDB (default ".wiki-search");
-                    ignorato se factory.config.yaml contiene wiki_search.index_path
-        top_k:      numero di risultati (default 5)
+        query:      query text
+        index_path: path to LanceDB directory (default ".wiki-search");
+                    ignored if factory.config.yaml contains wiki_search.index_path
+        top_k:      number of results (default 5)
 
     Returns:
-        list[SearchResult]  — lista vuota se fallback attivo
+        list[SearchResult]  — empty list if fallback active
     """
     searcher = HybridSearcher()
 
-    # Se la config-driven init è in fallback ma l'utente ha fornito un
-    # index_path esplicito non-default, tenta un override diretto.
+    # If config-driven init is in fallback but user provided an
+    # explicit non-default index_path, attempt direct override.
     if searcher._fallback and index_path != ".wiki-search":
         lance_path = (
             index_path

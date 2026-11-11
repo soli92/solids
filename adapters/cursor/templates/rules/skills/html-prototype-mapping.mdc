@@ -1,0 +1,83 @@
+---
+description: >-
+  HTML Prototype Mapping — genera prototipo HTML self-contained single-file (EP-035, backend T0).
+  INV-6: nessun asset esterno. css_strategy tailwind-cdn (unico URL esterno ammesso) | inline |
+  vanilla. Invocata da prototype-generation-protocol Fase 2.
+globs: []
+alwaysApply: false
+---
+# Skill: html-prototype-mapping (EP-035, backend html T0)
+
+> Adapter Cursor della skill `html-prototype-mapping` definita in `.claude/skills/html-prototype-mapping.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/html-prototype-mapping.md`.
+
+Mapping provider-specific per il backend `html`. Fallback terminale garantito (INV-1).
+
+> **INV-6 (NON OVERRIDABILE)**: output = un solo file `index.html` self-contained. Nessun asset esterno.
+
+## INV-6 in dettaglio
+
+- Un solo file `index.html`
+- Nessun CSS separato, nessun JS separato, nessuna immagine remota
+- Apribile offline in qualsiasi browser standard
+
+**Unica eccezione**: `css_strategy: tailwind-cdn` → `<script src="https://cdn.tailwindcss.com">` inline nel `<head>` + fallback `<style>` base per offline.
+
+## Input (da prototype-generation-protocol Fase 2)
+
+```yaml
+spec_source: <path al design-spec.md> | null
+intent_text: <stringa libera dell'utente>
+us_id: <US-NNN> | null
+tsk_id: <TSK-NNN> | null
+prototyping_config:
+  backends:
+    html:
+      css_strategy: tailwind-cdn | inline | vanilla
+      single_file: true  # sempre true (INV-6)
+  fidelity: interactive | static | animated
+  output_path: output/prototypes
+```
+
+## Procedura di generazione
+
+### Step 1 — Lettura spec
+
+Se `spec_source` → leggi `design-spec.md` (read-only).
+Altrimenti usa `intent_text` + US/TSK come brief.
+
+### Step 2 — Struttura HTML
+
+Genera `index.html` con:
+1. `<!DOCTYPE html>` + `<meta charset="UTF-8">` + viewport
+2. CSS strategy header (Tailwind CDN / `<style>` inline / vanilla minimal)
+3. **Multi-stato JavaScript**: ogni stato UI (loading, empty, error, success, ...) accessibile via `data-state` attribute + toggle buttons
+4. Responsive: mobile (`max-width: 768px`) + desktop (`min-width: 1280px`)
+5. Dark mode: `@media (prefers-color-scheme: dark)` + toggle manuale
+
+### Step 3 — Self-contain check (INV-6)
+
+Prima di emettere il file, verifica:
+- Nessun `<link href="http...">` (eccetto Tailwind CDN se abilitato)
+- Nessun `<script src="http...">` (eccetto Tailwind CDN)
+- Nessun `<img src="http...">` (usa placeholder SVG inline)
+- Il file esiste come singolo file → `PROTOTYPE_GENERATED: <output_path>/index.html`
+
+Se check fallisce → non emettere `PROTOTYPE_GENERATED`. Segnala violazione INV-6.
+
+## Output
+
+```
+<output_path>/index.html
+```
+
+Append `wiki/log.md`:
+```
+[YYYY-MM-DD HH:MM] prototype — <input_ref> → backend: html | output: <path>/index.html
+```
+
+## Limitazioni Cursor
+
+- **Write file**: usa Write tool per creare `<output_path>/index.html`.
+- **Preview**: apri il file con terminal `open <path>/index.html` (macOS) per anteprima.
+- **INV-6**: mai creare file CSS/JS separati. Tutto inline nel singolo `index.html`.

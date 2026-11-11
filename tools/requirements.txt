@@ -1,0 +1,6 @@
+# tools/analytics deps
+pyyaml>=6.0
+# tools/analytics/run-monte-carlo.py
+numpy>=1.24
+# harvest-session-tokens.py
+jsonlines>=3.1

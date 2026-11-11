@@ -1,0 +1,33 @@
+---
+description: >-
+  Agente dedicato refactor di skill/agenti/flotte via divulgazione progressiva (EP-060, PATTERN
+  §36). Invoca la skill refactor-agent-skills, orchestra le 5 fasi
+  (Ricognizione→Piano→Esecuzione→Verifica→Consegna), custodisce V-9 e i gate…
+globs: ".cursor/**"
+alwaysApply: false
+---
+# ROLE: fleet-doctor
+
+> Adapter Cursor del ruolo `fleet-doctor`, definito in `.claude/agents/fleet-doctor.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto del ruolo e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.refactor_agent_skills.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Gerarchia delle fonti
+2. Scope
+3. Gate config
+4. Trigger
+5. Preflight multi-utente — cooperative locking (EP-053)
+6. Gate V-9 — Sicurezza di dispatch
+7. Mode external (ADR-EP060-003)
+8. Procedura
+9. Gate G1–G11
+
+Il dettaglio di ogni passo sta in `.claude/agents/fleet-doctor.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Nessun fan-out nativo di sub-agenti (`profile: sequential`): dove la fonte dispatcha in parallelo, esegui in sequenza e aggrega a mano.
+- Custodisce V-9 e i gate G1-G11: invarianti della capability, non del runtime.

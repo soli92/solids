@@ -1,0 +1,79 @@
+---
+description: >-
+  Retrieval Protocol — retrieval vivo e citato del tutor EP-045. 4 fasi: classificazione query →
+  ricerca wiki → ricerca codebase → consolidamento + gap. Schemi wiki_citation e code_citation.
+  Mai cache di sessione precedente.
+globs: "wiki/**"
+alwaysApply: false
+---
+# Skill: retrieval-protocol (EP-045)
+
+> Adapter Cursor della skill `retrieval-protocol` definita in `.claude/skills/retrieval-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/retrieval-protocol.md`.
+
+Retrieval vivo e citato. Ogni affermazione L2 deve essere ancorata a un artefatto reale recuperato al momento della risposta. **Mai cache di sessione precedente**.
+
+## Fase 1 — Classificazione query
+
+| Segnale | Classificazione |
+|---|---|
+| Termini concettuali, pattern, principi, ADR | `topic wiki` |
+| Nomi file, funzioni, classi, moduli, comandi | `componente codebase` |
+| Ambigua / cross-dominio | `ambigua` (esegui Fase 2 + Fase 3) |
+
+## Fase 2 — Ricerca wiki (per `topic wiki` e `ambigua`)
+
+1. Estrai 3-5 termini chiave dalla query.
+2. Se `wiki_search.enabled: true` → usa `[wiki-search-protocol](mdc:.cursor/rules/skills/wiki-search-protocol.mdc)`.
+3. Se `wiki_search.enabled: false` → scansione lineare `wiki/concepts/`, `wiki/syntheses/`, `wiki/runbooks/`.
+4. Per ogni hit: estrai sezione rilevante (heading H2/H3 più vicino al match).
+
+**Schema `wiki_citation`**:
+```json
+{"source": "wiki/<path-relativo>", "section": "<heading>", "snippet": "<~200 chars>"}
+```
+
+Esito `RETRIEVAL_NOT_FOUND` se nessun hit con similarity ≥ threshold → Guard INV-T2.
+
+## Fase 3 — Ricerca codebase (per `componente codebase` e `ambigua`)
+
+1. Usa glob o `grep` per trovare il file/funzione/classe.
+2. Leggi il file identificato (max 50 righe attorno al punto rilevante).
+3. Estrai firma + docstring (se presente).
+
+**Schema `code_citation`**:
+```json
+{"file": "<path>", "class": "<class | null>", "function": "<func | null>", "lines": [start, end]}
+```
+
+Esito `RETRIEVAL_NOT_FOUND` se nessun file/funzione trovato → Guard INV-T2.
+
+## Fase 4 — Consolidamento + Gap
+
+1. Se hit trovati → ritorna `{wiki_citation | code_citation}` al chiamante.
+2. Se `RETRIEVAL_NOT_FOUND` → emetti gap-record su `wiki/gaps.md` (append-only):
+```yaml
+concept: "<concetto estratto dalla query>"
+original_query: "<testo originale>"
+timestamp: "<ISO-8601 UTC Z>"
+```
+3. Ritorna esito al `epistemic-tag-protocol`.
+
+## Schemi di citazione (formato output tag)
+
+- `[L2:fonte — wiki/<path> §<section>]` (da wiki_citation)
+- `[L2:fonte — <file>::<class>.<function>]` (da code_citation con entrambi)
+- `[L2:fonte — <file>::<function>]` (solo function)
+- `[L2:fonte — <file>]` (solo file)
+
+## Vincoli
+
+- **Mai cache di sessione**: ogni retrieval opera sulla versione corrente degli artefatti.
+- **Gap-record append-only**: non modificare entry esistenti.
+- **Scope**: solo wiki di progetto e codebase factory. Non retrieval web generale.
+
+## Limitazioni Cursor
+
+- **wiki-search**: usa `@wiki/` mention per scansione lineare se `wiki_search.enabled: false`.
+- **codebase search**: usa `@<file>` mention o terminal `grep -r "<pattern>" <code_path>`.
+- **Gap-record**: append manuale a `wiki/gaps.md` se tool non disponibile.

@@ -1,0 +1,57 @@
+---
+description: Scaffolding Protocol — scala di scaffolding adattivo del tutor EP-045 (3 livelli basati su mastery). L1 worked example (mastery<0.4), L2 esempio con buchi (0.4-0.7), L3 problema autonomo (≥0.7). Zona di sviluppo prossimale.
+globs: []
+alwaysApply: false
+---
+# Skill: scaffolding-protocol (EP-045)
+
+> Adapter Cursor della skill `scaffolding-protocol` definita in `.claude/skills/scaffolding-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/scaffolding-protocol.md`.
+
+Scala di scaffolding adattivo basata sulla mastery del nodo di competenza corrente.
+Invocata da `tutor.md` dopo `student_model_read`.
+
+## Scala di scaffolding
+
+### Livello 1 — Worked Example (mastery < 0.4)
+
+Il tutor fornisce la risposta **completa** passo per passo:
+- Testo esplicativo + esempio integrale funzionante + snippet con commenti.
+- Nessuna lacuna da colmare: lo studente osserva il modello completo.
+
+**Domanda di richiamo** (modalità Apprendimento):
+- Primo ciclo sullo stesso nodo → nessuna domanda (non abbastanza progressi).
+- Cicli successivi → domanda chiusa (riconoscimento) calibrata sull'esempio appena visto.
+
+### Livello 2 — Esempio con buchi (mastery 0.4–0.7)
+
+Il tutor fornisce un esempio **parzialmente completato**:
+- Struttura base visible + 1-3 lacune (`___`) da completare.
+- Hint contestuale: perché quella lacuna è rilevante.
+
+**Domanda di richiamo**: domanda aperta su cosa andrebbe nella lacuna e perché.
+
+### Livello 3 — Problema autonomo (mastery ≥ 0.7)
+
+Il tutor **non fornisce** l'esempio: pone un problema inedito da risolvere autonomamente.
+- Contesto minimo necessario.
+- Nessun hint proattivo (disponibile solo se richiesto esplicitamente).
+
+**Domanda di richiamo**: problema applicativo completo da risolvere.
+
+## Default per nodi assenti nello Student Model
+
+Se `student_model_read` restituisce nodo non presente → mastery = 0.3 (default conservativo).
+→ Applica Livello 1 (worked example) per il primo incontro con il nodo.
+
+## Integrazione con Student Model
+
+Dopo ogni ciclo Apprendimento con risposta studente valutata (`[VALIDATOR:verifica]`):
+- Se risposta corretta → `student_model_write(node_id, delta: +0.1)`
+- Se risposta parziale → `student_model_write(node_id, delta: +0.05)`
+- Se risposta errata → `student_model_write(node_id, delta: -0.05)` (floor 0.0)
+
+## Limitazioni Cursor
+
+- **student_model_read/write**: richiede `tools/tutor/student_model.py`. Se assente → procedi con mastery = 0.3 (Livello 1 come default).
+- **Cicli successivi**: traccia manualmente il numero di cicli per lo stesso nodo se il Student Model non è disponibile.

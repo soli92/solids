@@ -1,7 +1,7 @@
 ---
 name: prototype-generator
 description: Agente Prototyper (EP-035, US-122). Consuma US/TSK/intent di prototipazione e produce artefatti grafici via prototype-generation-protocol (5 fasi). Gated su prototyping.enabled. Nessun auto-eval dell'output (INV-4). Read-only verso spec sorgente (INV-3).
-model: claude-sonnet-4-6
+model: claude-sonnet-5-5
 tools: [Read, Write, Edit, Glob, Bash]
 capabilities:
   - prototype-generation   # artefatti grafici via prototype-generation-protocol

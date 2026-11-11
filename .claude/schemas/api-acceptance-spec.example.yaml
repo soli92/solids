@@ -1,0 +1,42 @@
+# api-acceptance-spec.example.yaml
+# version: 1.0
+# Esempio VALIDO di caso di acceptance API. Posizione tipica nel progetto:
+# code_quality/acceptance/<servizio>/list-news.api-acceptance.yaml
+# Verdetto: pass se tutte le blocking passano; conditional se fallisce l'unica advisory (advisory_max: 1).
+id: news-service/list-news
+service: news-service
+target:
+  mode: http
+  base_url: http://localhost:3000
+  startup:
+    command: npm run start
+    ready_path: /health
+    ready_timeout_ms: 30000
+fixtures:
+  db:
+    - id: news-seed
+      path: code_quality/acceptance/news-service/fixtures/news-seed.sql
+  stubs:
+    - id: auth-stub
+      path: code_quality/acceptance/news-service/fixtures/auth-stub.json
+scenario:
+  - id: list
+    uses_fixtures: [news-seed, auth-stub]
+    request:
+      method: GET
+      path: /v1/public/news
+      query: {limit: 10}
+      headers: {Accept: application/json}
+assertions:
+  - {id: status-ok, step: list, severity: blocking, kind: status_equals, status: 200}
+  - id: response-matches-openapi
+    step: list
+    severity: blocking
+    kind: openapi_response_valid
+    openapi_spec: code_quality/acceptance/news-service/openapi.yaml
+    operation: GET /v1/public/news
+  - {id: content-type-json, step: list, severity: blocking, kind: header_matches, header: Content-Type, pattern: "^application/json"}
+  - {id: first-item-present, step: list, severity: blocking, kind: body_path_present, path: "$.items[0].id"}
+  - {id: cache-control-set, step: list, severity: advisory, kind: header_present, header: Cache-Control}
+thresholds:
+  advisory_max: 1

@@ -1,10 +1,11 @@
-# Skill: Epistemic Tag Protocol
-
-> Adapter Cursor della skill `epistemic-tag-protocol` definita in PATTERN.md.
->
-> Metadata originale — id: epistemic-tag-protocol; version: 1.0; scope: tutor EP-045 — modello epistemico safety layer; invoked_by: `tutor` (agente tutor). Descrizione: modello epistemico del tutor EP-045. Classifica ogni affermazione in L1 (eseguibile), L2 (documentato) o L3 (giudizio-team); applica i guard INV-T1/T2/T3 che impediscono affermazioni non ancorate; definisce il formato dei tag di output e la separazione Generator/Validator (principio P5). Questo e' il safety layer del tutor: senza di esso le invarianti INV-T1/T2 non sono applicabili.
-
-**Protocollo Epistemico del Tutor (EP-045)**
+---
+id: epistemic-tag-protocol
+version: "1.0"
+scope: tutor EP-045 — modello epistemico safety layer
+invoked_by: tutor.md
+description: Safety layer del tutor. Classifica affermazioni in L1 (eseguibile), L2 (documentato) o L3 (giudizio-team); applica guard contro affermazioni non ancorate; definisce tag di output e separazione Generator/Validator. Invocata da tutor.md.
+---
+# Protocollo Epistemico del Tutor (EP-045)
 
 Skill fondante del tutor EP-045. Prima di formattare qualsiasi risposta il tutor
 invoca questa skill per classificare le proprie affermazioni, applicare i guard e
@@ -13,8 +14,8 @@ navigazione o meta-query (es. "come posso cercare X?"); si applica a tutte le
 affermazioni di merito su comportamento del codice, concetti documentati o
 convenzioni di progetto.
 
-Riferimenti: [retrieval-protocol](mdc:.cursor/skills/retrieval-protocol/SKILL.md) (schemi `wiki_citation`/`code_citation`, EP-042),
-[session-mode-protocol](mdc:.cursor/skills/session-mode-protocol/SKILL.md) (BR P5 modalita' Apprendimento), PATTERN §6 (citazione).
+Riferimenti: `retrieval-protocol` (schemi `wiki_citation`/`code_citation`, EP-042),
+`session-mode-protocol` (BR P5 modalita' Apprendimento), PATTERN §6 (citazione).
 
 ---
 
@@ -52,7 +53,7 @@ vedi §Guard.
 (architettura, API, pattern, decisioni documentate in ADR, struttura di file).
 
 **Prerequisito**: il tutor ha recuperato una `wiki_citation` o una `code_citation`
-tramite [retrieval-protocol](mdc:.cursor/skills/retrieval-protocol/SKILL.md) (schema §Schemi di citazione in [retrieval-protocol](mdc:.cursor/skills/retrieval-protocol/SKILL.md)).
+tramite `retrieval-protocol` (schema §Schemi di citazione in `retrieval-protocol.md`).
 Il retrieval deve essere fresco — nessuna cache di sessione precedente.
 
 Esempi di trigger L2:
@@ -116,7 +117,7 @@ e propone allo studente di eseguire il codice localmente.
 ### INV-T2 — L2 senza citazione
 
 **Condizione**: il tutor classifica l'affermazione come L2 (query su concetti
-documentati o componenti del codebase) MA il retrieval su [retrieval-protocol](mdc:.cursor/skills/retrieval-protocol/SKILL.md)
+documentati o componenti del codebase) MA il retrieval su `retrieval-protocol`
 non ha prodotto alcun hit (`RETRIEVAL_NOT_FOUND`).
 
 **Esito**: REJECT + emissione gap-record.
@@ -128,7 +129,7 @@ analizzato. Non posso emettere un'affermazione L2 senza citazione.
 ```
 
 Dopo il REJECT il tutor emette un gap-record su `wiki/gaps.md` (schema
-`gap-record` da [retrieval-protocol](mdc:.cursor/skills/retrieval-protocol/SKILL.md) §Formati):
+`gap-record` da `retrieval-protocol` §Formati):
 
 ```yaml
 concept: "<concetto estratto dalla query>"
@@ -187,7 +188,7 @@ Regole:
 ### Formato L2
 
 Il formato L2 dipende dalla sorgente della citazione (wiki o codebase), in coerenza
-con gli schemi `wiki_citation` e `code_citation` di [retrieval-protocol](mdc:.cursor/skills/retrieval-protocol/SKILL.md).
+con gli schemi `wiki_citation` e `code_citation` di `retrieval-protocol`.
 
 **Da sorgente wiki** (`wiki_citation`):
 
@@ -273,7 +274,7 @@ gli oggetti di configurazione interni, anche se non c'e' un ADR esplicito su que
 
 ## Separazione Generator/Validator (P5)
 
-Principio P5 della modalita' Apprendimento (US-161 BR, [session-mode-protocol](mdc:.cursor/skills/session-mode-protocol/SKILL.md)).
+Principio P5 della modalita' Apprendimento (US-161 BR, `session-mode-protocol`).
 Garantisce che la valutazione della risposta dello studente avvenga in una fase
 genuinamente separata dalla generazione della domanda, senza accesso al proprio
 output precedente.
@@ -378,7 +379,7 @@ per quella affermazione; il tutor non genera contenuto alternativo.
 
 ### Ordine rispetto ad altri step
 
-1. [retrieval-protocol](mdc:.cursor/skills/retrieval-protocol/SKILL.md) (se L2) — recupera le citazioni
+1. `retrieval-protocol` (se L2) — recupera le citazioni
 2. **`epistemic-tag-protocol`** (questa skill) — classifica e determina il tag
 3. Formattazione finale della risposta con il tag in coda
 4. (Modalita' Apprendimento) Fase Generator o Fase Validator secondo P5

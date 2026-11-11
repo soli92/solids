@@ -1,0 +1,202 @@
+/* Plancia — foglio di stile unico (EP-067).
+   Accessibilità per progetto, non per revisione:
+   - contrasto AAA sul testo normale in entrambi i temi;
+   - nessuna informazione veicolata dal solo colore: ogni stato porta un testo;
+   - bersagli di attivazione ≥ 44px (WCAG 2.5.8);
+   - reflow fino a 320px senza scorrimento orizzontale (1.4.10);
+   - rem ovunque: la spaziatura del testo imposta dall'utente non tronca nulla (1.4.12). */
+
+:root {
+  color-scheme: light dark;
+  --fondo: #ffffff;
+  --pannello: #f5f6f8;
+  --testo: #16181d;
+  --tenue: #454a54;
+  --bordo: #cdd1d8;
+  --bordo-forte: #767b85;
+  --ok: #10562b;
+  --assente: #7a2016;
+  --stantio: #6a4a05;
+  --focus: #0a4ea8;
+  --accento: #16181d;
+  --su-accento: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #101216;
+    --pannello: #1a1d23;
+    --testo: #f2f3f5;
+    --tenue: #c3c8d2;
+    --bordo: #333842;
+    --bordo-forte: #6d737e;
+    --ok: #74dd9c;
+    --assente: #ff9f92;
+    --stantio: #f2c55c;
+    --focus: #8ab6ff;
+    --accento: #f2f3f5;
+    --su-accento: #101216;
+  }
+}
+
+/* `[hidden]` del browser vale `display: none`, ma qualunque regola d'autore che imposti
+   `display` la sostituisce: `.risposta { display: flex }` teneva visibile il modulo di
+   risposta al gate ANCHE con l'attributo messo, e la pagina chiedeva una risposta a una
+   domanda mai fatta. Vale per ogni elemento nascosto, non solo per quello. */
+[hidden] { display: none !important; }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0 auto; padding: 1.25rem;
+  max-width: 64rem;
+  font: 1rem/1.6 system-ui, -apple-system, sans-serif;
+  background: var(--fondo); color: var(--testo);
+}
+
+h1 { font-size: 1.75rem; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: 1.2rem; margin: 0; }
+h3 { font-size: .95rem; margin: 0 0 .5rem; }
+h3.sotto { margin-top: 1.5rem; color: var(--tenue); font-weight: 600;
+           text-transform: uppercase; letter-spacing: .06em; font-size: .78rem; }
+p { margin: .35rem 0; }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+.salta { position: absolute; left: -9999px; background: var(--fondo); color: var(--testo);
+         padding: .75rem 1rem; border: 2px solid var(--focus); z-index: 10; }
+.salta:focus { left: 1rem; top: 1rem; }
+
+.solo-lettori { position: absolute; width: 1px; height: 1px; overflow: hidden;
+                clip-path: inset(50%); white-space: nowrap; }
+
+/* ── Testata ──────────────────────────────────────────────────────────── */
+
+.testata { padding-bottom: 1.25rem; border-bottom: 1px solid var(--bordo); }
+.testata-riga { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.testata-testo { min-width: 0; }
+.occhiello { color: var(--tenue); font-size: .85rem; }
+.stato-frase { font-size: 1.05rem; font-weight: 600; margin-top: .3rem; }
+
+/* `color: inherit` sulla mascotte: e' disegnata con `currentColor`, quindi eredita il
+   contrasto gia' verificato del testo invece di introdurne uno nuovo da verificare. */
+.mascotte { display: block; width: 64px; height: 64px; flex-shrink: 0; color: var(--testo); }
+
+.identita { display: flex; flex-wrap: wrap; gap: .3rem 1.5rem; margin: 1rem 0 0; font-size: .82rem; }
+.identita div { display: flex; gap: .4rem; }
+.identita dt { color: var(--tenue); }
+.identita dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+/* ── Sezioni ──────────────────────────────────────────────────────────── */
+
+.sezione { margin-top: 2.25rem; }
+.sezione-testa { margin-bottom: .75rem; }
+.sezione-nota { color: var(--tenue); font-size: .85rem; max-width: 60ch; }
+
+.scheda { border: 1px solid var(--bordo); border-radius: .5rem; padding: 1rem;
+          background: var(--pannello); }
+.attesa { color: var(--tenue); font-style: italic; }
+
+/* ── Comandi ──────────────────────────────────────────────────────────── */
+
+.pulsantiera { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* ≥ 44×44 (WCAG 2.5.8) */
+button {
+  min-height: 2.75rem; padding: .55rem 1rem; font: inherit; font-weight: 500;
+  background: var(--fondo); color: var(--testo);
+  border: 1px solid var(--bordo-forte); border-radius: .4rem; cursor: pointer;
+  display: inline-flex; align-items: center; gap: .45rem;
+}
+button:hover:not([disabled]) { border-color: var(--focus); }
+button[disabled] { opacity: .5; cursor: not-allowed; }
+button.primario { background: var(--accento); color: var(--su-accento); border-color: var(--accento); }
+button[aria-pressed="true"] { background: var(--accento); color: var(--su-accento);
+                              border-color: var(--accento); }
+
+/* Il marcatore porta la parola «conferma»: senza percepire il colore l'informazione resta. */
+.pastiglia { font-size: .7rem; font-weight: 700; letter-spacing: .04em;
+             border: 1px solid currentColor; border-radius: .25rem; padding: .05rem .35rem;
+             color: var(--stantio); }
+button[aria-pressed="true"] .pastiglia { color: inherit; }
+
+.conferma { margin-top: 1rem; border: 2px solid var(--assente); border-radius: .5rem;
+            padding: 1rem; background: var(--pannello); }
+.conferma h3 { color: var(--assente); text-transform: none; letter-spacing: 0; font-size: 1rem; }
+.conferma .pulsantiera { margin-top: .75rem; }
+
+.avvertenza { margin-top: 1rem; border-inline-start: 4px solid var(--stantio);
+              padding: .6rem .85rem; background: var(--pannello); }
+
+.risposta { margin-top: 1rem; }
+.risposta label { display: block; font-weight: 600; margin-bottom: .4rem; }
+.risposta-riga { display: flex; flex-wrap: wrap; gap: .5rem; }
+.risposta input { flex: 1 1 16rem; min-height: 2.75rem; padding: .5rem .75rem; font: inherit;
+                  color: var(--testo); background: var(--fondo);
+                  border: 1px solid var(--bordo-forte); border-radius: .4rem; }
+
+/* ── Fonti ────────────────────────────────────────────────────────────── */
+
+/* `min(20rem, 100%)` e non `20rem`: sotto i 320px una traccia fissa non si comprime e
+   spinge la pagina oltre il bordo (1.4.10, misurato a 421px contro 320). */
+/* `align-items: start`: senza, una traccia alta stira i riquadri vicini in colonne
+   quasi vuote, e la pagina sembra piena di spazio morto. */
+.griglia { display: grid; gap: 1rem; align-items: start; grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); }
+
+.riquadro { border: 1px solid var(--bordo); border-radius: .5rem; padding: 1rem;
+            background: var(--pannello); }
+.riquadro-testa { display: flex; align-items: baseline; justify-content: space-between;
+                  gap: .5rem .75rem; flex-wrap: wrap; }
+.riquadro-testa h3 { flex: 1 1 auto; }
+.riquadro-testa .eta { flex-basis: 100%; }
+.riquadro h3 { font-size: 1rem; margin: 0; }
+.riquadro-nota { color: var(--tenue); font-size: .8rem; margin: .2rem 0 .75rem; }
+.fonte { font-size: .75rem; color: var(--tenue); overflow-wrap: anywhere;
+         margin-top: .85rem; padding-top: .6rem; border-top: 1px solid var(--bordo); }
+
+.marcatore { font-size: .72rem; font-weight: 700; letter-spacing: .03em;
+             padding: .12rem .45rem; border: 1px solid currentColor; border-radius: .25rem; }
+.marcatore.ok { color: var(--ok); }
+.marcatore.assente { color: var(--assente); }
+.marcatore.stantio { color: var(--stantio); }
+
+.lettura { padding: .6rem 0; border-top: 1px solid var(--bordo); }
+.lettura:first-of-type { border-top: 0; padding-top: 0; }
+.etichetta { color: var(--tenue); font-size: .8rem; overflow-wrap: anywhere; }
+.valore { font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums;
+          overflow-wrap: anywhere; margin: .1rem 0; }
+.eta { font-size: .75rem; color: var(--tenue); }
+.ragione { color: var(--assente); font-size: .85rem; }
+
+/* Coppie chiave/valore rese come elenco invece che su una riga sola: «finished: 43 ·
+   started: 24» si legge male e peggio ancora ad alto ingrandimento. */
+.coppie { display: flex; flex-wrap: wrap; gap: .3rem .9rem; margin: .2rem 0 0; }
+.coppie div { display: flex; gap: .35rem; align-items: baseline; }
+.coppie dt { color: var(--tenue); font-size: .85rem; }
+.coppie dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* WCAG 1.4.10 esenta le tabelle dal reflow (richiedono due dimensioni). Le si da' uno
+   scorrimento PROPRIO, cosi' scorre la tabella e non la pagina. */
+.scorrevole { overflow-x: auto; max-width: 100%; margin-top: .5rem; }
+/* Tabella letta per intero: scorre in verticale dentro il riquadro, intestazione ferma. */
+.scorrevole.lunga { max-height: 32rem; overflow-y: auto; }
+.scorrevole.lunga thead th { position: sticky; top: 0; background: var(--pannello); }
+table { border-collapse: collapse; width: 100%; font-size: .8rem; }
+th, td { text-align: left; padding: .3rem .5rem; border-bottom: 1px solid var(--bordo);
+         vertical-align: top; }
+th { color: var(--tenue); font-weight: 600; white-space: nowrap; }
+
+progress { width: 100%; height: 1rem; margin-top: .4rem; }
+
+/* ── Piede ────────────────────────────────────────────────────────────── */
+
+.pie { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--bordo);
+       display: flex; align-items: center; justify-content: space-between;
+       gap: 1rem; flex-wrap: wrap; color: var(--tenue); font-size: .85rem; }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Azioni della sessione che esegue la direttiva (dettaglio del turno). Numerate: la
+   sequenza e' informazione, non decoro — dice in che ordine sta procedendo. */
+.azioni-turno { margin: .4rem 0 0; padding-left: 1.4rem; font-size: .88rem; }
+.azioni-turno li { padding: .15rem 0; }
+.azioni-turno .strumento { font-weight: 700; margin-inline-end: .5rem; }

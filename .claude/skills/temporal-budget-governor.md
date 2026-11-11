@@ -1,23 +1,24 @@
-# Skill: Temporal Budget Governor
-
-> Adapter Cursor della skill `temporal-budget-governor` definita in PATTERN.md.
-
-Metadata skill (originale):
-```yaml
+---
 id: temporal-budget-governor
 version: v2.19
 capability: EP-014
 opt_in: temporal.budget.enabled
 depends_on_skill: parallel-scheduling
 pattern_refs: [circuit-breaker, evaluator-optimizer, fail-closed]
-```
+description: >-
+  Secondo asse di terminazione del loop evaluator-optimizer (EP-014): monitora il budget temporale
+  ed economico durante wave dispatch e iteration e comunica un verdict senza eseguirlo, per
+  limitare i costi di loop non convergenti.
+---
+
+# Skill: temporal-budget-governor
 
 > **2° asse di terminazione del loop evaluator-optimizer** — bound economico complementare a `max_iterations` strutturale. Invocata inline dall'orchestrator a ogni step decisionale (review iteration, dev-agent retry, premortem deep-dive, wave dispatch). Comunica un verdict, **non lo esegue** (separation of concerns — pattern parallelo a `code-reviewer` CQRL R.Q2). [[circuit-breaker]] applicato al costo.
 
 Riferimenti: ADR-043 (5 soglie + verdict separato dall'esecuzione), ADR-045
 (bootstrap N=0, cascata 4-livelli + degraded mode), ADR-044 (granularità
 multi-livello), ADR-046 (operazione canonica PATTERN §3 + dominio scheduler
-`budget` §18.7), ADR-049 (EP-015 R.C7), [parallel-scheduling](mdc:.cursor/skills/parallel-scheduling/SKILL.md) §Temporal Budget Hook
+`budget` §18.7), ADR-049 (EP-015 R.C7), `parallel-scheduling` §Temporal Budget Hook
 (produce il wave plan §18.6, TSK-110), [[circuit-breaker]], [[evaluator-optimizer]],
 [[fail-closed]].
 
@@ -127,10 +128,10 @@ governor_decision:
 ```
 
 **Separation of concerns esplicita** (ADR-043 §C): il governor è observer + decisore, **mai writer/executor**. I chiamanti che eseguono il verdict:
-- **[orchestrator](mdc:.cursor/rules/orchestrator.mdc)** (scheduler dispatch): decide se proseguire la wave o aprire gate umano.
+- **Orchestrator** (scheduler dispatch): decide se proseguire la wave o aprire gate umano.
 - **`code-review-protocol`** (loop iterazione): decide se proseguire l'iterazione o terminare il loop.
-- **[premortem-protocol](mdc:.cursor/skills/premortem-protocol/SKILL.md)** (deep-dive): decide se proseguire il deep-dive o concludere.
-- **[parallel-scheduling](mdc:.cursor/skills/parallel-scheduling/SKILL.md)** (durante wave): decide se dispatch del sub-agent successivo o join wave.
+- **`premortem-protocol`** (deep-dive): decide se proseguire il deep-dive o concludere.
+- **`parallel-scheduling`** (durante wave): decide se dispatch del sub-agent successivo o join wave.
 
 **Semantica dettagliata per verdict** (ADR-043 §D):
 

@@ -1,0 +1,126 @@
+---
+description: Lint Checks — procedura di health-check del kanban (1808 righe di check). Usata da wiki-lint agent. Controlla integrità strutturale, frontmatter, link, ADR, scheduler, CQRL e capability opt-in.
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: lint-checks (PATTERN §7)
+
+> Adapter Cursor della skill `lint-checks` definita in `.claude/skills/lint-checks.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/lint-checks.md`.
+
+Procedura di health-check del kanban. Consumata da `wiki-lint` e da `orchestrator` in fase di gate.
+
+## Categorie principali di check
+
+### Check 1 — Struttura directory
+- `EP-*` folder presenti, nominate `EP-XXX-<slug>/`
+- Ogni EP contiene almeno una US
+- Ogni US contiene almeno un TSK
+
+### Check 2 — Frontmatter obbligatorio
+
+**Epica**: `id`, `title`, `status`, `depends_on`
+**US**: `id`, `title`, `role`, `priority`, `status`, `wiki_page`, `blocked_by`
+**TSK**: `id`, `sprint`, `layer`, `consumer`, `priority`, `estimate`, `status`, `depends_on`, `blocked_by`, `code_path`
+
+Campi opzionali (assenza = 0 ERROR): `functional_status`, `functional_acceptance_spec`, `failure_classification`, `risk_classification`, `ui_design_spec`.
+
+### Check 3 — Status values
+
+| Artefatto | Valori ammessi |
+|---|---|
+| EP | `draft \| active \| done \| archived` |
+| US | `ready \| blocked \| done` |
+| TSK | `todo \| in-progress \| done` |
+
+### Check 4 — Regole derivate (lista estesa)
+
+**4a** — TSK `consumer: agent` senza dev-agent nel routing → ERROR
+**4b** — TSK `status: in-progress` più di 5 giorni senza `updated:` → WARNING
+**4c** — US `blocked_by: []` ma nessun Q aperta → check coerenza
+**4d** — TSK `depends_on: [TSK-X]` dove TSK-X è `done` ma rimosso dalla lista → WARNING (staleness)
+**4e** — Epica `status: done` con US non `done` → ERROR
+**4f** — TSK `layer: fe` con `estimate: L` senza State Matrix → WARNING (opt-in)
+**4g** — Q hard aperta in `management/questions.md` senza US in `blocked` → WARNING
+**4h** — ADR `status: accepted` senza `## Decisione` → ERROR
+**4i** — ADR con `decided_by:` assente → WARNING
+**4j** — US `wiki_page:` punta a file inesistente → ERROR
+**4k** — Frontmatter `sprint:` non numerico → ERROR
+**4l** — TSK `depends_on: [TSK-Y]` dove TSK-Y non esiste → ERROR (dangling ref)
+**4m — Scheduler checks (v2.11)**:
+  - `4m.1` — `depends_on` frontmatter vs sezione `## Dependencies` body drift → WARNING
+  - `4m.2` — `code_path: []` (empty) su TSK `consumer: agent` → WARNING (serializzante conservativo)
+  - `4m.3` — glob overlap tra TSK nello stesso DAG level → WARNING (race potenziale)
+  - `4m.4` — DAG cycle in `depends_on` → ERROR
+
+**4n — CQRL (v2.12, opt-in)**:
+  - `4n.1` — TSK `status: done` senza `review_status:` quando `code_quality.enabled: true` → WARNING
+  - `4n.2` — `review_status: conditional` senza iterazione successiva → WARNING
+  - `4n.3` — `review_status: reject` → ERROR (blocca il done)
+
+**4o — VCS Branch Awareness (v2.25, opt-in)**:
+  - `4o.1` — TSK mancante di `target:` quando multi-repo e ambiguità → WARNING
+
+**4p — Functional Oracle (v2.20, opt-in, solo se `fe_correctness.functional_oracle.enabled: true`)**:
+  - `4p.1` — `functional_acceptance_spec:` path referenziato non esiste → ERROR
+  - `4p.2` — `functional_status: reject` non risolto → ERROR
+
+**4q — Semantic staleness (v2.23, Check 4ag)**:
+  - `4q.1` — wiki page `updated:` > 90 giorni + TSK attivi che la citano → WARNING (staleness)
+
+**4r — Prototype (v2.26, opt-in)**:
+  - `4r.1` — TSK con `prototype_ref:` che punta a file inesistente → ERROR
+
+**4s** — Capability Formativa (v2.32, opt-in): TSK `layer: docs` con `consumer: agent` senza `tutor_session_id` campo OK (additivo, nessun check obbligatorio).
+
+**4t** — Voice Hardening (v2.32, opt-in): TSK `layer: infra` con contratti C1-C7 → check che `code_path` includa `voice/state_machine.py` per C1.
+
+**4u — A11y (v2.18, opt-in)**:
+  - Quando `a11y.enabled: true`: TSK FE senza `a11y_status:` dopo review → WARNING
+
+**4v — UX/UI (v2.18, opt-in)**:
+  - Quando `ux_ui.enabled: true`: TSK FE senza `ux_ui_status:` dopo review → WARNING
+
+**4aa — Token Ledger (v2.21, opt-in)**:
+  - Quando `token_ledger.enabled: true`: `analytics/token-ledger.md` assente → WARNING
+
+**4ab — Kanban Publish (v2.10)**:
+  - TSK `status: done` non pubblicato su provider esterno quando `kanban_publish.mode: push-only` → WARNING
+
+**4ac — Wiki gaps**:
+  - `wiki/gaps.md` con gap `status: open` > 30 giorni → WARNING (staleness)
+
+**4ad — Questions staleness**:
+  - Q hard aperta > 14 giorni senza `updated:` → WARNING
+
+**4ae — Graphify (v2.14 Fase 2, opt-in)**:
+  - Quando `compression.context.enabled: true`: `.graphify-state/` assente → WARNING (indice non costruito)
+
+**4af — Semantic embedding (v2.23, L3, opt-in)**:
+  - Quando `wiki_lint.semantic_check.embedding_enabled: true`: drift embedding > threshold → WARNING
+
+## Output format
+
+```markdown
+## Lint Report — YYYY-MM-DD HH:MM
+
+### Summary
+- ERROR: N
+- WARNING: M
+- INFO: K
+
+### Errors
+- [ERROR][4l] TSK-042 depends_on: [TSK-010] — TSK-010 non trovato (dangling ref)
+  → File: management/kanban/EP-001-auth/US-003-login/TSK-042.md
+
+### Warnings
+- [WARNING][4b] TSK-017 status: in-progress da 8 giorni senza updated:
+  → File: management/kanban/EP-002-signup/US-005-email/TSK-017.md
+```
+
+## Limitazioni Cursor
+
+- **Glob scan**: usa `@management/kanban/**` per caricare il contesto kanban.
+- **Date check (4b, 4ad, 4q)**: calcola la data corrente dal sistema; in Cursor
+  può richiedere un tool bash `date +%Y-%m-%d`.
+- **Embedding (4af)**: richiede `wiki_search.enabled: true` e Python installato.

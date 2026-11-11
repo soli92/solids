@@ -67,7 +67,7 @@ Se nessun candidato: `> Nessun candidato alla semplificazione identificato.`
 
 ### Step 4 — Output
 Findings mostrati in chat. Con `--save`, scrivi anche in
-`code_quality/reports/ponytail-review-<target-slug>-<YYYY-MM-DD>.md` (alimenta `/ponytail-gain`).
+`code_quality/reports/ponytail-review-<target-slug>-<YYYY-MM-DD>.md` (alimenta la riga `ponytail-gain` del token ledger).
 
 ## Invariante R.PY1
 

@@ -1,8 +1,8 @@
 ---
 name: tavola-rotonda
-description: "Avvia una sessione Tavola Rotonda multi-agente (EP-039, PATTERN §28). Parsa topic e flag, verifica la config, e dispatcha all'agente tavola-rotonda-moderatore. Gated su tavola_rotonda.enabled (R.P3-TR opt-in totale)."
+description: "Avvia una sessione Tavola Rotonda multi-agente (EP-039, PATTERN §28, ADR-EP073-001). Parsa topic e flag, verifica la config; la sessione principale lancia i partecipanti e il moderatore cura setup, convergenza e sintesi. Verifica dei lanci a fine sessione. Gated su tavola_rotonda.enabled (R.P3-TR opt-in totale)."
 argument-hint: "<topic> [--partecipanti=<agent1>,<agent2>,...] [--max-round=<N>] [--budget=<USD>]"
-allowed-tools: Read, Glob
+allowed-tools: Read, Glob, Write, Edit, Bash, Agent
 ---
 
 # /tavola-rotonda
@@ -10,27 +10,18 @@ allowed-tools: Read, Glob
 Argomenti utente: `$ARGUMENTS`
 
 Avvia una sessione di deliberazione strutturata multi-agente sul topic indicato.
-Il comando valida la config, applica i flag opzionali e lancia l'agente
-[tavola-rotonda-moderatore](mdc:.cursor/rules/tavola-rotonda-moderatore.mdc) che esegue le 5 fasi del protocollo (Setup →
-Posizioni → Confronto → Convergenza → Sintesi).
+Il comando valida la config, applica i flag opzionali ed esegue le 5 fasi del protocollo
+(Setup → Posizioni → Confronto → Convergenza → Sintesi) **nella sessione principale**: è
+la sessione principale a lanciare i partecipanti, perché da Claude Code 2.1.289 un subagente
+non lancia altri agenti (misurato su una factory derivata, ADR-EP073-001). Il subagente `tavola-rotonda-moderatore`
+viene invocato solo per le parti di giudizio: setup, convergenza a ogni round, sintesi.
 
 ---
 
-## Sintassi
-
-```
-/tavola-rotonda <topic>
-/tavola-rotonda <topic> --partecipanti=<agent1>,<agent2>,...
-/tavola-rotonda <topic> --max-round=<N>
-/tavola-rotonda <topic> --partecipanti=<a>,<b> --max-round=<N> --budget=<USD>
-```
-
-| Flag | Tipo | Default | Descrizione |
-|---|---|---|---|
-| `<topic>` | obbligatorio | — | Questione o decisione da deliberare (max 120 caratteri) |
-| `--partecipanti=<lista>` | opzionale | da config | Lista slug agenti separati da virgola (es. `be-dev,lead-architect`) |
-| `--max-round=<N>` | opzionale | `4` (hardcoded) | Numero massimo di round di convergenza |
-| `--budget=<USD>` | opzionale | da config | Tetto di costo USD per la sessione (es. `2.00`) |
+Per la tavola dei flag, gli esempi d'uso, i prerequisiti di configurazione e i cross-link
+alle risorse correlate, leggi obbligatoriamente
+`.claude/skills/references/tavola-rotonda/esempi-e-prerequisiti.md`;
+se il file manca, fermati e segnala prima di procedere.
 
 ---
 
@@ -135,20 +126,44 @@ Segnala in chat i valori risolti:
   topologia:    <lavagna|grafo_completo>
 ```
 
+### Step 2-bis — Costi in token (advisory)
+
+`dispatch-policy` §13: `python3 tools/analytics/cost_alert.py check --gate`. Con una riga `⚠`
+mostrala accanto ai parametri risolti e chiedi conferma prima della Fase 0: una tavola lancia
+decine di subagenti. Output vuoto → prosegui.
+
 ### Step 3 — Validazione agenti partecipanti
 
 Per ogni slug in `partecipanti`, verifica che il file agente esista:
-`Glob .cursor/rules/<slug>.mdc`.
+`Glob .claude/agents/<slug>.md`.
 
 Se uno slug non ha un file corrispondente: STOP —
-«Agente non trovato: <slug>. Verifica che `.cursor/rules/<slug>.mdc` esista
+«Agente non trovato: <slug>. Verifica che `.claude/agents/<slug>.md` esista
 prima di procedere.»
 
-### Step 4 — Invocazione `tavola-rotonda-moderatore`
+### Step 4 — Esecuzione delle fasi (ADR-EP073-001)
 
-Lancia l'agente [tavola-rotonda-moderatore](mdc:.cursor/rules/tavola-rotonda-moderatore.mdc) passando:
+Annota l'id di questa sessione (`CLAUDE_CODE_SESSION_ID`, o l'UUID della cartella di
+scratchpad): serve alla verifica dello Step 5. Ogni lancio di sub-agente restituisce un
+agent id: conservali tutti.
+
+**4.0 — Costo di partenza (sessione principale).** Prima della Fase 0 misura quanto è già
+costata la chat:
+
+```bash
+python3 tools/analytics/cost_alert.py breakdown --period session --json   # campo cost_usd
+```
+
+È la base da cui si conta la tavola: il budget vale per la tavola, non per la chat intera.
+Dopo il setup scrivila nel frontmatter del registro come `costo_base_usd`. Se il tool non
+risponde, scrivi `costo_base_usd: null`: la tavola procede con la stima (4.4), dichiarata come
+tale.
+
+**4.1 — Fase 0, setup (moderatore, modalità `setup`).** Lancia `tavola-rotonda-moderatore`
+con:
 
 ```yaml
+modalita: setup
 topic: <topic>
 partecipanti: [<slug-1>, <slug-2>, ...]
 critico: <true|false>
@@ -156,21 +171,87 @@ max_round: <N>
 budget:
   max_cost_usd: <USD>
 topologia: <lavagna|grafo_completo>
+ora_utc: <date -u +%Y-%m-%dT%H:%M:%SZ>   # il moderatore non ha Bash: passagli l'ora
 ```
 
-L'agente esegue le 5 fasi del protocollo:
+Restituisce: path del registro creato, partecipanti verificati, Critico, un prompt di Fase 1
+per ciascun partecipante. Se restituisce uno STOP (budget, Critico, partecipanti < 2),
+fermati e riportalo.
 
-| Fase | Nome | Azione |
-|---|---|---|
-| 0 | Setup | Valida parametri, crea blackboard in `wiki/decisions/`, assegna Critico |
-| 1 | Posizioni | Lancia partecipanti in isolamento, trascrive posizioni iniziali |
-| 2 | Confronto | Rende visibili le posizioni, round di critiche e integrazioni |
-| 3 | Convergenza | Loop: estrae accordi, aggiorna Punti Aperti, verifica stop |
-| 4 | Sintesi | Produce registro decisioni, aggiorna blackboard, log entry |
+**4.2 — Fase 1, posizioni isolate (sessione principale).** Lancia **in parallelo** ogni
+partecipante con il tool Agent (`subagent_type` = slug) e il suo prompt di Fase 1, che
+contiene solo problema riformulato, criteri di successo e ruolo (R.TR1: niente registro,
+niente posizioni altrui). Quando hanno risposto **tutti**, trascrivi ogni risposta verbatim in
+`## Posizioni Fase 1`:
 
-### Step 5 — Output post-sessione
+```markdown
+### <slug> — <ISO8601> — agent_id <id>
 
-Dopo il completamento dell'agente, riporta in chat:
+<risposta integrale>
+```
+
+Aggiorna il frontmatter: una voce in `lanci` per partecipante
+(`{agente: <slug>, fase: 1, round: 0, agent_id: <id>}`), `partecipanti_lanciati`,
+`stato: fase2`, `round_corrente: 1`. Se un lancio fallisce, scrivi il partecipante come
+assente: non ricostruire la sua posizione (INV-TR-6).
+
+**4.3 — Round di confronto (sessione principale).** Per il round corrente lancia **prima il
+Critico** con il registro corrente e il mandato del Critico
+(`.claude/agents/tavola-rotonda-moderatore.md` §Ruolo Critico, prompt Fase 2); poi gli altri
+in parallelo con registro e intervento del Critico. Mandato del round 1: critiche e
+integrazioni (`.claude/skills/references/tavola-rotonda/fasi-1-2.md` §Fase 2); dal round 2:
+posizione su ciascun Punto Aperto (`.claude/agents/tavola-rotonda-moderatore.md` §Fase 3
+Passo 1). Trascrivi verbatim sotto
+`## Punti Aperti` come `- [Round <N> — <slug> — agent_id <id>] <intervento>`, aggiungi le voci
+in `lanci` (`fase: 2, round: <N>`), `stato: fase3`. In Fasi 1-2 la sessione principale non
+esprime giudizi di merito, non riassume e non filtra (R.TR5).
+
+**4.4 — Fase 3, convergenza (moderatore, modalità `convergenza`).** Lancia il moderatore con
+`modalita: convergenza`, path del registro e `ora_utc`. Aggiorna Accordi e Punti Aperti,
+valuta le condizioni di stop e restituisce `stop: sì|no` con il motivo. Con `stop: no` torna
+a 4.3 per il round successivo; con `stop: sì` vai a 4.5.
+
+Il costo va **misurato**, non stimato. Prima di ogni lancio del moderatore in `convergenza`
+rimisura (`cost_alert.py breakdown --period session --json`) e passagli:
+
+```yaml
+costo_misurato_usd: <cost_usd attuale − costo_base_usd>          # principale + subagenti
+costo_round_medio_usd: <costo_misurato_usd / round completati>   # proiezione del prossimo round
+fonte_costo: cost_alert.py                                       # oppure: stima (tool assente)
+```
+
+Senza `costo_base_usd` (tool assente o in errore) passa la tua stima con
+`fonte_costo: stima`. Il moderatore non decide mai sul budget a numeri inventati.
+
+**4.5 — Fase 4, sintesi (moderatore, modalità `sintesi`).** Lancia il moderatore con
+`modalita: sintesi`, path del registro e `ora_utc`: scrive sintesi e registro decisioni,
+appende la voce in `wiki/log.md` e imposta `stato: terminata`.
+
+In nessuna modalità il moderatore lancia altri agenti. Il registro ha un solo scrittore per
+volta: la sessione principale (lanci, posizioni, interventi) o il moderatore (setup, accordi,
+sintesi), mai in parallelo; i partecipanti non lo scrivono (R.TR2, ADR-EP073-001 D3).
+
+### Step 5 — Verifica dei lanci e output post-sessione
+
+**Prima di riportare l'esito**, verifica dal registro che ogni intervento venga da un
+partecipante lanciato davvero (R.TR9 / INV-TR-6, ADR-EP073-001 D5):
+
+```bash
+python3 tools/tavola-rotonda/verifica-lanci.py --registro <path del registro> --sessione <id di questa sessione>
+```
+
+- codice 0 → `verdetto: multi-agente`: tutti gli agent id dichiarati hanno una trascrizione in
+  questa sessione con il tipo di agente atteso, almeno due agenti distinti;
+- codice 1 → `verdetto: non valido` (lanci mancanti, tipo diverso o meno di due agenti):
+  l'esito è **NON VALIDO**. Riportalo così, non presentare consenso né accordi come delibera,
+  e proponi all'utente di annotarlo nel registro;
+- codice 2 → registro o trascrizioni non leggibili: dichiara che la verifica non è stata
+  possibile.
+
+Per i registri prodotti prima di ADR-EP073-001 (moderatore che lanciava da solo) resta la modalità
+`--agent-id <id del moderatore> --sessione <id>`.
+
+Poi riporta in chat:
 
 **Esito positivo (sessione completata)**:
 
@@ -180,8 +261,10 @@ Dopo il completamento dell'agente, riporta in chat:
 Topic:        <topic>
 Sessione:     <session-id>
 Partecipanti: <lista>
+Lanci verificati: <N> su <dichiarati> (verifica-lanci.py: multi-agente | non valido | non verificabile)
+Costo:        <costo_misurato_usd> USD su <budget_usd> (fonte: cost_alert.py | stima)
 Round:        <N completati> / <max_round>
-Motivo stop:  consenso | max_round | budget_esaurito | stallo
+Motivo stop:  consenso | max_round | budget_esaurito | stallo | nessun_lancio
 
 Registro decisioni: wiki/decisions/tavola-rotonda-<session-id>-<YYYY-MM-DD>.md
 Log entry:          wiki/log.md (entry develop aggiunta)
@@ -208,24 +291,6 @@ Azione richiesta: <descrizione azione>
 
 ---
 
-## Esempi d'uso
-
-```bash
-# Delibera su un tema architetturale con config defaults
-/tavola-rotonda "Quale pattern di caching adottare per l'API?"
-
-# Specifica i partecipanti inline (override one-shot della config)
-/tavola-rotonda "Architettura auth" --partecipanti=be-dev,lead-architect,qa-dev
-
-# Limita i round e imposta il budget esplicitamente
-/tavola-rotonda "DB sharding strategy" --max-round=3 --budget=3.00
-
-# Sessione completa con tutti i flag
-/tavola-rotonda "Adottare GraphQL o REST?" --partecipanti=be-dev,fe-dev,lead-architect --max-round=5 --budget=5.00
-```
-
----
-
 ## Vincoli
 
 - **Gate `tavola_rotonda.enabled`** (Step 0): il comando non procede e non e' silenzioso
@@ -243,41 +308,6 @@ Azione richiesta: <descrizione azione>
   (ADR-EP039-001 §Frontmatter obbligatorio).
 
 ---
-
-## Prerequisiti
-
-- `factory.config.yaml.tavola_rotonda.enabled: true` (gate principale, Step 0).
-- `factory.config.yaml.tavola_rotonda.budget.max_cost_usd` valorizzato (INV-TR-3),
-  oppure flag `--budget=<USD>` passato inline.
-- Almeno 2 agenti nella lista `partecipanti` (config o `--partecipanti`).
-- [tavola-rotonda-moderatore](mdc:.cursor/rules/tavola-rotonda-moderatore.mdc) presente.
-- I file agente per ogni partecipante esistenti in `.cursor/rules/`.
-
-Sezione `tavola_rotonda:` minima in `factory.config.yaml`:
-
-```yaml
-tavola_rotonda:
-  enabled: true
-  partecipanti: [be-dev, lead-architect]   # oppure specifica con --partecipanti
-  max_round: 4
-  budget:
-    max_cost_usd: 2.00
-```
-
----
-
-## Cross-link
-
-- **Agente invocato**: [tavola-rotonda-moderatore](mdc:.cursor/rules/tavola-rotonda-moderatore.mdc) (EP-039 TSK-287)
-- **Skill eseguita**: [tavola-rotonda-protocol](mdc:.cursor/skills/tavola-rotonda-protocol/SKILL.md) (EP-039 US-139)
-- **ADR normativo blackboard**: `design_&_architecture/decisions/ADR-EP039-001-blackboard-format.md`
-- **Config gate**: `factory.config.yaml` blocco `tavola_rotonda:` (R.P3-TR)
-- **PATTERN §28** — Tavola Rotonda multi-agente (EP-039)
-- **Concept**: `wiki/concepts/tavola-rotonda.md`
-- **Analogia strutturale**:
-  - `/prototype` (EP-035) — gate config + parse flag + dispatch agente + output artefatto
-  - `/review` (v2.12) — gate config + invocazione agente + report finale
-  - `/dev` (v2.7) — input identificativo → esecuzione protocollo → output artefatto
 
 [^src: management/kanban/EP-039-tavola-rotonda/US-142-comando-runbook-benchmark/TSK-292.md §Deliverable §Vincoli]
 [^src: .claude/agents/tavola-rotonda-moderatore.md §Trigger §Invarianti §Procedura Fase 0]

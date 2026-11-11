@@ -32,22 +32,27 @@ import datetime
 import re
 
 # ── Hardcoded pricing fallback ─────────────────────────────────────────────────
-# Fallback prices as of 2026-09; update via analytics/pricing.yaml
+# Fallback prices as of 2026-10; update via analytics/pricing.yaml
 # Units: USD per 1M tokens.
-# Source: Anthropic public pricing page 2026-09.
+# Source: Anthropic public pricing page 2026-10.
 
 _FALLBACK_EXACT = {
-    # model_id (or alias) → (input_per_1m, output_per_1m, cache_read_per_1m)
-    "claude-sonnet-4-6":         (3.0,  15.0,  0.30),
-    "claude-haiku-4-5":          (0.80,  4.0,  0.08),
-    "claude-haiku-4-5-20251001": (0.80,  4.0,  0.08),
+    # model_id (or alias) → (input, output, cache_read, cache_write 5m, cache_write 1h) per 1M
+    "claude-sonnet-4-6":         (3.0,  15.0,  0.30,  3.75,  6.0),
+    "claude-opus-5-5":           (4.0,  20.0,  0.20,  5.0,   8.0),
+    "claude-sonnet-5-5":         (2.0,  10.0,  0.10,  2.5,   4.0),
+    "claude-haiku-5-5":          (0.10,  0.50, 0.01,  0.125, 0.2),   # fascia fino a 100K token di prompt
+    "claude-haiku-4-5":          (1.0,   5.0,  0.10,  1.25,  2.0),
+    "claude-haiku-4-5-20251001": (1.0,   5.0,  0.10,  1.25,  2.0),
 }
 
 _FALLBACK_PREFIX = [
     # Prefix matching (longest-first order matters for specificity):
-    ("claude-opus",   (15.0, 75.0, 1.50)),
-    ("claude-sonnet", (3.0,  15.0, 0.30)),
-    ("claude-haiku",  (0.80,  4.0, 0.08)),
+    ("claude-opus",   (5.0,  25.0, 0.50,  6.25, 10.0)),
+    ("claude-sonnet", (3.0,  15.0, 0.30,  3.75,  6.0)),
+    ("claude-haiku",  (1.0,   5.0, 0.10,  1.25,  2.0)),
+    ("claude-fable",  (10.0, 50.0, 1.00, 12.5,  20.0)),
+    ("claude-mythos", (10.0, 50.0, 1.00, 12.5,  20.0)),
 ]
 
 
@@ -84,7 +89,8 @@ def _parse_pricing_yaml_regex(path):
               output_per_1m_tokens: F
               cache_read_per_1m_tokens: F
 
-    Returns dict: (model_id or alias) → (input_per_1m, output_per_1m, cache_read_per_1m).
+    Returns dict: (model_id or alias) → (input, output, cache_read, cache_write 5m,
+    cache_write 1h) per 1M.
     Raises on IO errors; returns empty dict if structure not recognized.
     """
     text = pathlib.Path(path).read_text(encoding="utf-8")
@@ -125,13 +131,18 @@ def _parse_pricing_yaml_regex(path):
         inp_vals = re.findall(r"input_per_1m_tokens:\s*([\d.]+)", block_text)
         out_vals = re.findall(r"output_per_1m_tokens:\s*([\d.]+)", block_text)
         cr_vals  = re.findall(r"cache_read_per_1m_tokens:\s*([\d.]+)", block_text)
+        cw_vals  = re.findall(r"cache_write_per_1m_tokens:\s*([\d.]+)", block_text)
+        cw1h_vals = re.findall(r"cache_write_1h_per_1m_tokens:\s*([\d.]+)", block_text)
 
         inp = float(inp_vals[-1]) if inp_vals else 0.0
         out = float(out_vals[-1]) if out_vals else 0.0
         cr  = float(cr_vals[-1])  if cr_vals  else 0.0
+        cw  = float(cw_vals[-1])  if cw_vals  else 0.0
+        # senza prezzo a TTL 1h la scrittura a 1h si paga come quella a 5m
+        cw1h = float(cw1h_vals[-1]) if cw1h_vals else cw
 
         for key in [mid_raw] + aliases:
-            pricing[key] = (inp, out, cr)
+            pricing[key] = (inp, out, cr, cw, cw1h)
 
     return pricing
 
@@ -185,7 +196,7 @@ def _normalize_model_id(model_id):
 
 def _get_prices(model_id, pricing_dict):
     """
-    Return (input_per_1m, output_per_1m, cache_read_per_1m) for model_id.
+    Return (input, output, cache_read, cache_write 5m, cache_write 1h) per 1M for model_id.
     Returns None if model is unknown (both from pricing_dict and fallback).
     """
     if not model_id:
@@ -221,11 +232,16 @@ def _cost_usd(usage, model_id, pricing_dict):
     prices = _get_prices(model_id, pricing_dict)
     if prices is None:
         return None
-    inp_rate, out_rate, cr_rate = prices
+    inp_rate, out_rate, cr_rate, cw_rate, cw1h_rate = prices
+    # cache_write e' il totale scritto in cache, cache_write_1h la parte a TTL 1h
+    cw_all = usage.get("cache_write", 0) or 0
+    cw_1h = min(usage.get("cache_write_1h", 0) or 0, cw_all)
     cost = (
         (usage.get("input",       0) or 0) * inp_rate / 1_000_000
         + (usage.get("output",    0) or 0) * out_rate / 1_000_000
         + (usage.get("cache_read",0) or 0) * cr_rate  / 1_000_000
+        + (cw_all - cw_1h) * cw_rate / 1_000_000
+        + cw_1h * cw1h_rate / 1_000_000
     )
     return cost
 

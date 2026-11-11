@@ -1,6 +1,6 @@
 ---
 name: sprint-progress
-description: Segnale burndown del sprint corrente — TSK done/in-progress/todo, velocita', proiezione (EP-043 US-153, opt-in analytics.sprint_progress.enabled)
+description: Segnale burndown del sprint corrente — TSK done/in_progress/todo, velocita', proiezione (EP-043 US-153, opt-in analytics.sprint_progress.enabled)
 domain: analytics
 ---
 
@@ -53,7 +53,7 @@ In questo caso velocita' e proiezione sono omesse dall'output.
 ### TSK XL outlier
 
 Se `temporal.estimate_protocol.enabled: true` in `factory.config.yaml`, l'output include
-una sezione aggiuntiva con i TSK di stima XL in-progress che superano il tempo atteso,
+una sezione aggiuntiva con i TSK di stima XL in_progress che superano il tempo atteso,
 la raccomandazione e il `time_ratio`. La sezione e' omessa senza errori se il flag e' `false`
 o se non ci sono outlier.
 

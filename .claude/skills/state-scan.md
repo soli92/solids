@@ -1,11 +1,11 @@
-# Skill: State Scan
-
-> Adapter Cursor della skill `state-scan` definita in PATTERN.md.
-
+---
+name: state-scan
+description: Scan dei 4 layer + memoria episodica per produrre la dashboard di stato. Riferimento dell'orchestrator.
+---
 # State scan (canonico)
 
 Riferimenti: `PATTERN.md §8` (state derivation: filesystem + log + episodic),
-[wiki-log-entry](mdc:.cursor/skills/wiki-log-entry/SKILL.md) (per i tipi di operazione loggate).
+`wiki-log-entry` (per i tipi di operazione loggate).
 
 ## Output atteso
 
@@ -119,7 +119,7 @@ Read factory.config.yaml  (sezione scheduler:)
 - Se `scheduler.enabled: false` o assente → skip questo step (modalità seriale legacy).
 - Se `scheduler.enabled: true` (default in nuovi progetti):
   - `Glob management/kanban/**/TSK-*.md` filtrato per `status: todo` + `consumer: agent`
-  - Se conteggio ≥ 2 → segnala in dashboard una nota "⚡ N TSK candidate per wave dispatch — invoca [parallel-scheduling](mdc:.cursor/skills/parallel-scheduling/SKILL.md)".
+  - Se conteggio ≥ 2 → segnala in dashboard una nota "⚡ N TSK candidate per wave dispatch — invoca `parallel-scheduling`".
   - Se conteggio < 2 → nessun parallelismo da proporre, fallback alla heuristica next-step single-step (regole 1–9 sotto).
 
 ### 9. Continuità (episodic memory)
@@ -131,32 +131,42 @@ Read memory/episodic/<ultimo>.md
 - Confronta lo stato osservato con la decisione precedente.
 - Se è cambiato qualcosa di significativo, evidenzialo.
 
+### 10. Promemoria rotazione di `wiki/log.md`
+
+L'orchestrator non ha Bash e non misura il file: aggiunge sempre una riga di promemoria in fondo
+alla dashboard, senza stimare la dimensione.
+
+```
+🗂  wiki/log.md: rotazione a soglia 180.000 byte — il coordinatore verifica con `wc -c wiki/log.md`
+    e, se la soglia e' raggiunta, ruota con `python3 tools/wiki/rotate_log.py` (wiki-log-entry §Rotazione a soglia)
+```
+
 ## Suggerimento next-step
 
 Heuristica (in ordine di priorità — v2.11):
 
 0. **⚡ Wave dispatch (v2.11)** → se `scheduler.enabled: true` e ci sono ≥ 2 TSK
    candidati (`status: todo`, `consumer: agent`, dipendenze risolte), invoca
-   [parallel-scheduling](mdc:.cursor/skills/parallel-scheduling/SKILL.md) per costruire il DAG e mostrare il wave plan in chat,
+   `parallel-scheduling` per costruire il DAG e mostrare il wave plan in chat,
    **prima** delle heuristiche single-step sotto. Se il piano contiene > 1
    group parallelo, applica gate §18.4 R.S4 (default ≥ 3 sub-agent).
 
 Heuristiche single-step (fallback se nessun wave dispatch possibile, v2.6):
 
-1. **🔁 Reconcile-needed pendenti > 0** → "Invoca [product-manager](mdc:.cursor/rules/product-manager.mdc) per
+1. **🔁 Reconcile-needed pendenti > 0** → "Invoca `product-manager` per
    riconciliare le US elencate (Q risolte ma `blocked_by` stale), oppure
    correggi a mano."
 2. Gate `hard` aperto → "Rispondi alle Q hard in `management/questions.md`
    (L4 bloccato sulle US dipendenti)."
-3. Gap pendenti > 0 → "Invoca [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) per affrontare i gap aperti."
+3. Gap pendenti > 0 → "Invoca `wiki-keeper` per affrontare i gap aperti."
 4. L1 ha PDF non estratti → "Invoca `/sync-docs`."
-5. L2 stale rispetto a L1 → "Invoca [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) per ingest."
+5. L2 stale rispetto a L1 → "Invoca `wiki-keeper` per ingest."
 6. **Auto-promotion candidates > 0** → "Considera `/promote <path> review`
    per le pagine citate da ≥ 2 US (lista mostrata sopra)."
-7. L3 vuoto → "Invoca [product-manager](mdc:.cursor/rules/product-manager.mdc)."
-8. L4 vuoto e L3 OK + nessuna Q hard sulle US target → "Invoca [lead-architect](mdc:.cursor/rules/lead-architect.mdc)
+7. L3 vuoto → "Invoca `product-manager`."
+8. L4 vuoto e L3 OK + nessuna Q hard sulle US target → "Invoca `lead-architect`
    sulle US sbloccate (eventuali Q soft → `pending_clarification` nell'ADR)."
-9. L4 ha architettura ma no task → "Invoca [tpm](mdc:.cursor/rules/tpm.mdc) sulle US sbloccate."
+9. L4 ha architettura ma no task → "Invoca `tpm` sulle US sbloccate."
 
 **Mai delegare automaticamente.** Solo suggerire — l'umano decide. In particolare,
 auto-promotion (regola 6) è **solo suggerimento**, mai esecuzione: l'orchestrator

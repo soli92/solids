@@ -7,14 +7,24 @@ Public API (TSK-308 DoD):
     embed_batch(texts: list[str], model_name: str) -> list[list[float]]
     upsert_table(db_path: str, rows: list[dict]) -> None
 
+Additional exports added in TSK-504 (ADR-C, EP-042 Phase 2):
+    chunk_ast_aware(page: dict) -> list[dict]
+    chunk_document(page: dict, strategy: str) -> list[dict]
+
 Additional exports (convenience):
     WikiChunk (dataclass)
     WikiIndexer (class wrapper: crawl_and_chunk, embed_chunks, upsert, build)
 
-Import contract (R.WS2): lancedb and sentence_transformers are imported ONLY
-inside the functions that use them — never at module level.  The module is
-importable on environments that have neither package installed; the functions
-fail with ImportError only when actually called.
+Import contract (R.WS2): lancedb, sentence_transformers, and tree_sitter are
+imported ONLY inside the functions that use them — never at module level.  The
+module is importable on environments that have none of these packages installed;
+the functions fail with ImportError only when actually called.
+
+Chunking strategies (config: wiki_search.chunking):
+    h2_section  — default; backward-compat regex split on H2 headings (original)
+    ast_aware   — ADR-C (TSK-504): respects code-fence boundaries for .md;
+                  uses tree-sitter for .py/.ts/.go/.rs (fallback → h2_section,
+                  R.WS1: never raises to the caller)
 """
 
 from __future__ import annotations
@@ -100,6 +110,23 @@ def _parse_frontmatter(text: str) -> tuple[dict, str]:
 # Public function: crawl_wiki
 # ---------------------------------------------------------------------------
 
+def _jsonabile(valori: list) -> list[str]:
+    """Ogni voce come stringa, perche' PyYAML NON restituisce sempre stringhe.
+
+    `tags: [2026-09-02]` non e' una lista di stringhe: PyYAML riconosce la forma
+    ISO-8601 e costruisce un `datetime.date`, che `json.dumps` non sa serializzare.
+    Il crawl dell'intero indice moriva su una sola pagina del wiki con una data fra i
+    tag (BUG-TSK-505-001), e il benchmark TSK-505 aveva aggirato il problema con una
+    copia locale della funzione invece di ripararla qui.
+
+    La conversione e' su TUTTI i tipi non-stringa e non solo sulle date: `int`, `float`
+    e `bool` hanno la stessa forma di difetto — `version: 2` in un campo lista e'
+    un intero, e il giorno in cui qualcuno lo scrive il crawl tornerebbe a morire per
+    la stessa ragione con un altro nome.
+    """
+    return [v if isinstance(v, str) else str(v) for v in valori]
+
+
 def crawl_wiki(wiki_root: str) -> list[dict]:
     """
     Glob <wiki_root>/**/*.md, parse frontmatter YAML, return one dict per page.
@@ -139,7 +166,7 @@ def crawl_wiki(wiki_root: str) -> list[dict]:
         title = str(fm.get("title", md_path.stem.replace("-", " ").title()))
         status = str(fm.get("status", "unknown"))
         raw_tags = fm.get("tags", [])
-        tags_json = json.dumps(raw_tags if isinstance(raw_tags, list) else [])
+        tags_json = json.dumps(_jsonabile(raw_tags) if isinstance(raw_tags, list) else [])
 
         pages.append({
             "path": rel,
@@ -219,6 +246,329 @@ def chunk_h2(page: dict) -> list[dict]:
         })
 
     return chunks
+
+
+# ---------------------------------------------------------------------------
+# Private helpers for chunk_ast_aware
+# ---------------------------------------------------------------------------
+
+def _count_fence_chars(line: str) -> tuple[str, int]:
+    """
+    Return (fence_char, fence_length) for a potential code-fence opening line.
+    fence_char is '`' or '~'. fence_length is the number of consecutive chars.
+    Returns ("", 0) if the line does not start a fence.
+    """
+    stripped = line.strip()
+    if not stripped:
+        return ("", 0)
+    fc = stripped[0]
+    if fc not in ("`", "~"):
+        return ("", 0)
+    fl = 0
+    for ch in stripped:
+        if ch == fc:
+            fl += 1
+        else:
+            break
+    if fl < 3:
+        return ("", 0)
+    return (fc, fl)
+
+
+def _chunk_md_fence_aware(page: dict) -> list[dict]:
+    """
+    H2 chunker that respects code-fence boundaries (ADR-C).
+
+    Identical output schema to chunk_h2. The difference: H2 headings that
+    appear inside a ``` or ~~~ fence are ignored as split points — so a
+    code block is never split into a separate section mid-fence.
+    """
+    path: str = page["path"]
+    raw_body: str = page.get("raw_body", "")
+    title: str = page["title"]
+    doc_type: str = page["type"]
+    status: str = page["status"]
+    tags_json: str = page["tags_json"]
+
+    lines = raw_body.splitlines(keepends=True)
+    in_fence = False
+    fence_char = ""
+    fence_len = 0
+
+    sections: list[tuple[str, list[str]]] = []
+    current_heading = "_root"
+    current_lines: list[str] = []
+
+    for line in lines:
+        stripped_line = line.rstrip("\r\n")
+
+        if not in_fence:
+            # Detect fence open (must be at column 0 or indented ≤ 3 spaces per CM)
+            fc, fl = _count_fence_chars(stripped_line)
+            if fc:
+                in_fence = True
+                fence_char = fc
+                fence_len = fl
+                current_lines.append(line)
+                continue
+
+            # H2 heading detection — only valid outside fences
+            m = re.match(r"^## (.+)$", stripped_line)
+            if m:
+                sections.append((current_heading, current_lines))
+                current_heading = m.group(1).strip()
+                current_lines = []
+                continue
+        else:
+            # Detect fence close: same char, length ≥ fence_len, no other chars
+            stripped = stripped_line.strip()
+            if stripped and stripped[0] == fence_char:
+                fl_close = 0
+                for ch in stripped:
+                    if ch == fence_char:
+                        fl_close += 1
+                    else:
+                        break
+                # Close fence: all chars are the fence char and length ≥ fence_len
+                if fl_close >= fence_len and stripped == fence_char * fl_close:
+                    in_fence = False
+                    fence_char = ""
+                    fence_len = 0
+
+        current_lines.append(line)
+
+    # Flush last section
+    sections.append((current_heading, current_lines))
+
+    # Build chunk dicts
+    chunks: list[dict] = []
+    for heading, body_lines in sections:
+        content = "".join(body_lines).strip()
+        if not content:
+            continue
+        if heading == "_root":
+            section_id = f"{path}#_root"
+        else:
+            slug = _slugify(heading) or "section"
+            section_id = f"{path}#{slug}"
+        chunks.append({
+            "id": section_id,
+            "path": path,
+            "title": title,
+            "section": heading,
+            "content": content[:CONTENT_CAP],
+            "type": doc_type,
+            "status": status,
+            "tags_json": tags_json,
+        })
+
+    return chunks
+
+
+def _chunk_code_treesitter(page: dict) -> list[dict]:
+    """
+    Tree-sitter chunker for code files (.py, .ts, .go, .rs).
+
+    Extracts function/class top-level definitions as chunking breakpoints.
+    Raises ImportError if tree_sitter_languages (EP-054) is not installed —
+    the caller (chunk_ast_aware) catches this and falls back to chunk_h2.
+    Raises ValueError for unsupported file extensions.
+    """
+    path: str = page["path"]
+    raw_body: str = page.get("raw_body", "")
+    title: str = page["title"]
+    doc_type: str = page["type"]
+    status: str = page["status"]
+    tags_json: str = page["tags_json"]
+
+    ext = Path(path).suffix.lower()
+
+    _LANG_MAP: dict[str, str] = {
+        ".py": "python",
+        ".ts": "typescript",
+        ".go": "go",
+        ".rs": "rust",
+    }
+    lang_name = _LANG_MAP.get(ext)
+    if not lang_name:
+        raise ValueError(f"Unsupported extension for tree-sitter chunking: {ext!r}")
+
+    # Lazy import — R.WS2 (same contract as lancedb / sentence_transformers)
+    try:
+        import tree_sitter_languages  # installed via EP-054 L2
+        from tree_sitter import Parser  # type: ignore[import]
+    except ImportError as exc:
+        raise ImportError(
+            f"tree-sitter dependencies not installed (EP-054 required): {exc}"
+        ) from exc
+
+    lang = tree_sitter_languages.get_language(lang_name)
+    parser = Parser()
+    parser.set_language(lang)
+
+    # Node types considered as top-level symbol boundaries per language
+    _NODE_TYPES: dict[str, set[str]] = {
+        "python": {"function_definition", "class_definition"},
+        "typescript": {
+            "function_declaration",
+            "class_declaration",
+            "method_definition",
+        },
+        "go": {
+            "function_declaration",
+            "method_declaration",
+            "type_declaration",
+        },
+        "rust": {"function_item", "impl_item", "struct_item", "enum_item"},
+    }
+    target_types = _NODE_TYPES.get(lang_name, set())
+
+    tree = parser.parse(raw_body.encode("utf-8"))
+    lines = raw_body.splitlines()
+
+    # Collect (start_line, end_line, label) for each top-level symbol
+    breakpoints: list[tuple[int, int, str]] = []
+
+    def _collect(node) -> None:  # type: ignore[no-untyped-def]
+        if node.type in target_types:
+            label_prefix = (
+                node.type
+                .replace("_definition", "")
+                .replace("_declaration", "")
+                .replace("_item", "")
+            )
+            # Try to get the symbol name from first identifier child
+            name = ""
+            for child in node.children:
+                if child.type in ("identifier", "name", "type_identifier"):
+                    try:
+                        name = child.text.decode("utf-8", errors="replace")
+                    except Exception:
+                        pass
+                    break
+            label = f"{label_prefix} {name}".strip() if name else label_prefix
+            breakpoints.append((node.start_point[0], node.end_point[0], label))
+        # Recurse only into direct children (not grandchildren — top-level only)
+        for child in node.children:
+            _collect(child)
+
+    _collect(tree.root_node)
+    breakpoints.sort(key=lambda x: x[0])
+
+    chunks: list[dict] = []
+
+    if not breakpoints:
+        # No symbols found: single chunk
+        content = raw_body.strip()
+        if content:
+            chunks.append({
+                "id": f"{path}#_root",
+                "path": path,
+                "title": title,
+                "section": "_root",
+                "content": content[:CONTENT_CAP],
+                "type": doc_type,
+                "status": status,
+                "tags_json": tags_json,
+            })
+        return chunks
+
+    # Pre-symbol intro block
+    first_start = breakpoints[0][0]
+    if first_start > 0:
+        intro = "\n".join(lines[:first_start]).strip()
+        if intro:
+            chunks.append({
+                "id": f"{path}#_root",
+                "path": path,
+                "title": title,
+                "section": "_root",
+                "content": intro[:CONTENT_CAP],
+                "type": doc_type,
+                "status": status,
+                "tags_json": tags_json,
+            })
+
+    # One chunk per symbol
+    for start_line, end_line, label in breakpoints:
+        content = "\n".join(lines[start_line : end_line + 1]).strip()
+        if not content:
+            continue
+        slug = _slugify(label) or "symbol"
+        chunks.append({
+            "id": f"{path}#{slug}",
+            "path": path,
+            "title": title,
+            "section": label,
+            "content": content[:CONTENT_CAP],
+            "type": doc_type,
+            "status": status,
+            "tags_json": tags_json,
+        })
+
+    return chunks
+
+
+# ---------------------------------------------------------------------------
+# Public function: chunk_ast_aware (ADR-C, TSK-504)
+# ---------------------------------------------------------------------------
+
+def chunk_ast_aware(page: dict) -> list[dict]:
+    """
+    AST-aware chunking strategy (ADR-C, EP-042 Phase 2, TSK-504).
+
+    Dispatch rules:
+    - .md  → _chunk_md_fence_aware: H2 split that never breaks inside a fence
+    - .py / .ts / .go / .rs → _chunk_code_treesitter: tree-sitter symbol boundaries
+    - anything else → chunk_h2 (safe default)
+
+    Invariant R.WS1: if tree-sitter is not installed or parsing fails for a code
+    file, silently falls back to chunk_h2(page). The caller never receives an
+    exception from this function.
+
+    Output schema identical to chunk_h2 (backward compatible).
+    """
+    ext = Path(page["path"]).suffix.lower()
+
+    if ext == ".md":
+        # Fence-aware MD chunker: pure stdlib, no tree-sitter dep
+        return _chunk_md_fence_aware(page)
+
+    if ext in (".py", ".ts", ".go", ".rs"):
+        try:
+            return _chunk_code_treesitter(page)
+        except Exception as exc:  # ImportError, ValueError, ParseError, …
+            log.debug(
+                "AST chunking failed for %s (%s); fallback → H2-section",
+                page.get("path", "?"),
+                exc,
+            )
+            return chunk_h2(page)  # R.WS1: silent fallback
+
+    # Unknown file type: H2 fallback
+    return chunk_h2(page)
+
+
+# ---------------------------------------------------------------------------
+# Public function: chunk_document (strategy dispatcher)
+# ---------------------------------------------------------------------------
+
+def chunk_document(page: dict, strategy: str = "h2_section") -> list[dict]:
+    """
+    Dispatch chunking strategy.
+
+    Args:
+        page:     page dict — same schema as chunk_h2 input
+        strategy: "h2_section" (default, backward compat) | "ast_aware" (ADR-C)
+
+    Returns:
+        list of chunk dicts — same schema as chunk_h2 output
+
+    Unknown strategy values are treated as "h2_section" (fail-open).
+    """
+    if strategy == "ast_aware":
+        return chunk_ast_aware(page)
+    return chunk_h2(page)
 
 
 # ---------------------------------------------------------------------------
@@ -324,10 +674,12 @@ class WikiIndexer:
         wiki_root: Path,
         index_path: Path,
         model_name: str = DEFAULT_MODEL,
+        chunking_strategy: str = "h2_section",
     ) -> None:
         self.wiki_root = wiki_root
         self.index_path = index_path
         self.model_name = model_name
+        self.chunking_strategy = chunking_strategy  # "h2_section" | "ast_aware"
 
     # ------------------------------------------------------------------
     # crawl_and_chunk — returns list[WikiChunk]
@@ -335,11 +687,18 @@ class WikiIndexer:
 
     def crawl_and_chunk(self, paths: Optional[list[Path]] = None) -> list[WikiChunk]:
         """
-        Crawl wiki_root (or the provided path list) and chunk by H2.
+        Crawl wiki_root (or the provided path list) and chunk pages.
+
+        Uses self.chunking_strategy to select the chunking algorithm:
+        - "h2_section" (default): original H2 regex split (chunk_h2)
+        - "ast_aware" (ADR-C, TSK-504): fence-aware for .md, tree-sitter for code
+
         Returns a list of WikiChunk dataclass instances.
         """
+        strategy = self.chunking_strategy
+
         if paths is not None:
-            # Convert explicit path list → per-page dicts via chunk_h2
+            # Convert explicit path list → per-page dicts → chunks
             all_chunks: list[WikiChunk] = []
             root = self.wiki_root
             for md_path in paths:
@@ -375,14 +734,14 @@ class WikiIndexer:
                     "tags_json": tags_json,
                     "raw_body": body,
                 }
-                for chunk_dict in chunk_h2(page):
+                for chunk_dict in chunk_document(page, strategy):
                     all_chunks.append(WikiChunk(**chunk_dict))
             return all_chunks
 
         pages = crawl_wiki(str(self.wiki_root))
         result: list[WikiChunk] = []
         for page in pages:
-            for chunk_dict in chunk_h2(page):
+            for chunk_dict in chunk_document(page, strategy):
                 result.append(WikiChunk(**chunk_dict))
         return result
 

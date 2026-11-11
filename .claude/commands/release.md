@@ -63,7 +63,7 @@ Argomenti utente: `$ARGUMENTS`
    da eseguire manualmente (mai esegue `git tag` direttamente — R.P1).
 4. Produce sempre:
    - `validation/release-gates/<version>/GATE-REPORT.md`
-   - `validation/release-gates/<version>/<timestamp>-<verdict>.log` (audit)
+   - `validation/release-gates/<version>/<timestamp>-<verdict>.log` (audit) — `<timestamp>` in forma ISO-8601 **basic** `YYYY-MM-DDTHHMMSSZ`: i due punti sono vietati nei nomi file su Windows e romperebbero il `git pull` di tutto il repo
    - (se bypass) `validation/release-gates/<version>/BYPASS.md`
 
 ## Quando invocare
@@ -80,6 +80,18 @@ Argomenti utente: `$ARGUMENTS`
   crea factory nuove; `/release` valida pre-tag del meta-framework. Triade coerente (ADR-033 §A).
 - **Mai auto-tag** (R.P1 + R.P3): la skill produce GATE-REPORT + verdict; il maintainer
   esegue `git tag` a mano dopo aver letto il report.
+
+## Skill invocate
+
+| Skill | Quando | Ruolo |
+|---|---|---|
+| [`release-validation-gate`](../skills/release-validation-gate.md) | Ogni invocazione `/release` | Gate battle-test: verifica ≥N RUN-REPORT validi prima del tag |
+| [`release-protocol`](../skills/release-protocol.md) | Su delega `release-manager` (dominio `release`, EP-059) | Orchestrazione release a 4 fasi: **preparazione** (changelog, versione) → **validazione** (gate battle-test) → **tag** (proposta git commands, mai auto-tag R.P1) → **post-release** (announce, cleanup) |
+
+La skill `release-protocol` è complementare a `release-validation-gate`: quest'ultima
+verifica il gate pre-tag in isolamento (questo comando); `release-protocol` orchestra
+l'intero ciclo end-to-end ed è invocata dall'agente `release-manager` sui TSK
+`layer: release` (dispatch-policy §9).
 
 ## Relazione con altri comandi
 

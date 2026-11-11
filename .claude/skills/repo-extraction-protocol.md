@@ -1,22 +1,18 @@
-# Skill: Repo Extraction Protocol
-
-> Adapter Cursor della skill `repo-extraction-protocol` definita in PATTERN.md.
-
-Metadata skill (originale):
-```yaml
+---
 name: repo-extraction-protocol
 description: Protocollo di estrazione di un documento di specifiche markdown da un repository locale (PATTERN §16, v2.12). 5 fasi (Bootstrap → Discovery → Sampling → Proposta → Scrittura). Invocata da repo-sync; sub-skill stack-detector.
-```
+---
+# Protocollo di Repo Extraction
 
 Riferimenti: PATTERN §16 (sync adapters), §7 r.1 (L1 read-only), §7 r.17 (sync
 read-only verso la sorgente, generalizzata in v2.12), §19.2 (Stack Detector riusato),
-[citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md), `wiki-log-entry`. Sub-skill: [stack-detector](mdc:.cursor/skills/stack-detector/SKILL.md).
+`citation-rules`, `wiki-log-entry`. Sub-skill: [`stack-detector`](./stack-detector.md).
 
 ## Quando viene invocata
 
 | Caller | Trigger | Output |
 |---|---|---|
-| [repo-sync](mdc:.cursor/rules/repo-sync.mdc) agent | comando `/repo-sync <path>` | `raw/YYYY-MM-DD-repo-<slug>.md` + manifest entry |
+| `repo-sync` agent | comando `/repo-sync <path>` | `raw/YYYY-MM-DD-repo-<slug>.md` + manifest entry |
 | `factory-bootstrap` (skill) | utente sceglie `wiki_feed_source: existing-repo` | come sopra, eseguito al termine del bootstrap |
 
 ## Prerequisiti
@@ -87,7 +83,7 @@ Salva in struct `git_metadata`.
 
 ### Step 2.b — Stack detection
 
-Invoca [stack-detector](mdc:.cursor/skills/stack-detector/SKILL.md) con `<path>` come root. Output:
+Invoca [`stack-detector`](./stack-detector.md) con `<path>` come root. Output:
 `stack_descriptor` (schema §19.2). Per repo multi-stack (monorepo
 multi-language), `stack-detector` ritorna `stack_descriptor[]` — preserva tutti.
 
@@ -195,7 +191,7 @@ troppe/troppo poche, sampling diverso), torna a Fase 3 con i nuovi parametri.
 ### Step 5.a — Documento primario
 
 **Write** `raw/<YYYY-MM-DD>-repo-<slug>.md` con sezioni canoniche
-(vedi [repo-sync](mdc:.cursor/rules/repo-sync.mdc) per la lista). Template:
+(vedi [`repo-sync.md`](../agents/repo-sync.md) per la lista). Template:
 
 ```markdown
 ---
@@ -350,7 +346,7 @@ Prossimo step:
 - Dopo l'ingest: invoca product-manager per il planning iniziale (US/EP da `wiki/`).
 ```
 
-Mai chiamare [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) automaticamente: l'orchestrazione cross-ruolo è
+Mai chiamare `wiki-keeper` automaticamente: l'orchestrazione cross-ruolo è
 responsabilità dell'utente o dell'orchestrator (§7 r.12).
 
 ## Regole anti-corner-case
@@ -380,4 +376,3 @@ responsabilità dell'utente o dell'orchestrator (§7 r.12).
 - **Aprire gap o storie** — lo fa `wiki-keeper` durante l'ingest.
 - **Chiamate API GitHub/GitLab** — questa skill è offline (no network); per estrarre
   metadati di repo remoti, sarà un futuro `git-remote-sync` adapter (out-of-scope v2.12).
-```

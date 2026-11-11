@@ -1,10 +1,10 @@
-# Skill: Scrivi User Story
-
-> Adapter Cursor della skill `scrivi-user-story` definita in PATTERN.md.
-
+---
+name: scrivi-user-story
+description: Template per una User Story atomica e contractuale.
+---
 # Procedura per scrivere una User Story
 
-Riferimenti: [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md) (cascade: la US cita la wiki), [wiki-gap-protocol](mdc:.cursor/skills/wiki-gap-protocol/SKILL.md)
+Riferimenti: `citation-rules` (cascade: la US cita la wiki), `wiki-gap-protocol`
 (dettaglio mancante → gap o question).
 
 ## Path
@@ -82,7 +82,7 @@ Come <ruolo>, voglio <azione>, affinché <valore di business>.
 - Tecnologia-agnostico: nessun framework/linguaggio.
 - AC verificabili oggettivamente (no "deve essere veloce" → "risposta < 200ms").
 - Dettaglio mancante in wiki/ → NON inventare:
-  - Non-bloccante → [wiki-gap-protocol](mdc:.cursor/skills/wiki-gap-protocol/SKILL.md) (append a `wiki/gaps.md`)
-  - Bloccante hard → [apri-question](mdc:.cursor/skills/apri-question/SKILL.md) con `**Bloccante:** hard`; la storia va in `status: blocked` con `blocked_by: [Q_NNN]`
-  - Bloccante soft → [apri-question](mdc:.cursor/skills/apri-question/SKILL.md) con `**Bloccante:** soft`; la storia resta `ready` con `pending_clarification: [Q_NNN]`
-- Citazioni: vedi [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md).
+  - Non-bloccante → `wiki-gap-protocol` (append a `wiki/gaps.md`)
+  - Bloccante hard → `apri-question` con `**Bloccante:** hard`; la storia va in `status: blocked` con `blocked_by: [Q_NNN]`
+  - Bloccante soft → `apri-question` con `**Bloccante:** soft`; la storia resta `ready` con `pending_clarification: [Q_NNN]`
+- Citazioni: vedi `citation-rules`.

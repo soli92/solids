@@ -1,20 +1,21 @@
-# Skill: React Mapping
+---
+name: react-mapping
+description: Mapping provider-specific per il backend react del Prototype Generation Layer. Genera componenti React (.tsx/.jsx), storie Storybook e fixture dato uno spec/intent. Invocata da prototype-generation-protocol Fase 2 quando selected_backend == react.
+epic_id: EP-035
+us_id: US-124
+pattern_version: "2.25"
+---
+# Mapping React (provider-specific per backend react T1)
 
-> Adapter Cursor della skill `react-mapping` definita in PATTERN.md.
->
-> Metadata originale — name: react-mapping; epic_id: EP-035; us_id: US-124; pattern_version: 2.25. Descrizione: mapping provider-specific per il backend react (T1) del Prototype Generation Layer (EP-035, PATTERN §26 candidato). Definisce come generare componenti React (.tsx/.jsx), storie Storybook e fixture dati dato uno spec/intent in input. Invocata da prototype-generation-protocol Fase 2 quando selected_backend == react. Produce artefatti production-ready handoff-ready per fe-dev.
-
-**Mapping React (provider-specific per backend react T1)**
-
-Riferimenti: [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md) (probe ASSE 2 per `react` usa `stack-detector`),
-[prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) (Fase 2 invoca questa skill), PATTERN §26 candidato
-(Prototype Generation Layer), [html-prototype-mapping](mdc:.cursor/skills/html-prototype-mapping/SKILL.md) (analogia strutturale — stesso
+Riferimenti: `backend-resolver` (probe ASSE 2 per `react` usa `stack-detector`),
+`prototype-generation-protocol` (Fase 2 invoca questa skill), PATTERN §26 candidato
+(Prototype Generation Layer), `html-prototype-mapping` (analogia strutturale — stesso
 pattern provider-specific), `stack-detector` (v2.12, condivisa con code-reviewer).
 
 Questa skill e' **provider-specific per il backend `react`**: definisce come trasformare
 uno spec/intent in un componente React (`.tsx`/`.jsx`) con sistema di design, storie
 Storybook e fixture dati per ogni stato UI dichiarato nella spec. Il
-[prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) non conosce i dettagli di questa skill — la invoca
+`prototype-generation-protocol` non conosce i dettagli di questa skill — la invoca
 passando input strutturato e riceve in output i path dei file generati.
 
 ---
@@ -22,7 +23,7 @@ passando input strutturato e riceve in output i path dei file generati.
 ## Nota meta-framework — Questo repo (code_paths: [])
 
 In questo repository la lista `code_paths` e' vuota (configurazione reflexive
-meta-framework senza target FE). Il probe ASSE 2 del [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md) per il backend
+meta-framework senza target FE). Il probe ASSE 2 del `backend-resolver` per il backend
 `react` invoca `stack-detector` su tutti i `code_path` configurati: con lista vuota,
 `stack-detector` non trova nessun framework FE — il probe ritorna `false`.
 
@@ -34,14 +35,14 @@ BACKEND_DEGRADED: react→html (stack-detector non trova framework FE in nessun 
 
 e degrada al backend `html`. **Questa skill non viene mai eseguita in questo repo.**
 E' un template per factory derivate che configurano uno o piu' `code_path` con stack FE
-React/Next.js/Remix/ecc. Il [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md) la selezionera' automaticamente quando
+React/Next.js/Remix/ecc. Il `backend-resolver` la selezionera' automaticamente quando
 `stack-detector` trovera' un framework FE compatibile.
 
 ---
 
 ## Input
 
-Ricevuto da [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) Fase 2 (come brief completo del Step 1.4):
+Ricevuto da `prototype-generation-protocol` Fase 2 (come brief completo del Step 1.4):
 
 ```yaml
 spec_source: <path>              # path al design-spec.md dell'ui-designer, oppure null
@@ -121,7 +122,7 @@ emettere il marker.
 ## Fase B — Selezione component library
 
 Scegli la component library in base a `component_lib` ricevuto in input. Il valore e'
-gia' stato risolto dal caller ([prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) + [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md)):
+gia' stato risolto dal caller (`prototype-generation-protocol` + `backend-resolver`):
 riflette `prototyping.backends.react.component_lib` dalla config o il valore rilevato
 da `stack-detector` nel `code_path` target se diverso.
 
@@ -365,7 +366,7 @@ Se una o piu' verifiche falliscono:
 
 - Logga il check fallito in chat con il dettaglio specifico.
 - **Non emettere** `REACT_GENERATED`.
-- Il caller ([prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) Fase 2) gestisce l'errore come
+- Il caller (`prototype-generation-protocol` Fase 2) gestisce l'errore come
   generazione fallita e non procede a Fase 3.
 
 Se tutti i check passano:
@@ -395,7 +396,7 @@ Esempio con `output_path: "output/prototypes"`, `slug: "login-form"`, `Component
 - **INV-4 (no self-eval)**: i file generati non includono commenti valutativi sulla
   qualita', il design o l'implementazione. Solo placeholder tecnici `// PROTOTYPE:`.
 - **INV-5 (default off)**: la skill non viene invocata se `prototyping.enabled: false`.
-  Il guard e' nel [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) prima della Fase 0 — la skill non
+  Il guard e' nel `prototype-generation-protocol` prima della Fase 0 — la skill non
   duplica il check.
 - **No import da URL**: nessun import da `https://`. Tutti i riferimenti sono a package
   npm o path relativi.
@@ -404,8 +405,8 @@ Esempio con `output_path: "output/prototypes"`, `slug: "login-form"`, `Component
   `target_code_path` e' sempre dedicata ai prototipi — non mista al codice di produzione
   (nessun file scritto direttamente in `src/components/` o radice del code_path).
 - **Nessun cross-write**: questa skill non conosce la logica di risoluzione backend —
-  quella vive in [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md). Riceve solo input gia' risolto dal
-  [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) Fase 2. Non modifica `factory.config.yaml` ne'
+  quella vive in `backend-resolver`. Riceve solo input gia' risolto dal
+  `prototype-generation-protocol` Fase 2. Non modifica `factory.config.yaml` ne'
   altri file di configurazione.
 - **Placeholder espliciti**: i commenti `// PROTOTYPE:` sono il contratto di
   estensibilita' del componente generato. Vanno sostituiti dal `fe-dev` (handoff) con
@@ -417,15 +418,15 @@ Esempio con `output_path: "output/prototypes"`, `slug: "login-form"`, `Component
 
 ## Cross-link
 
-- [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md) — probe ASSE 2 per `react` usa `stack-detector`. Se
+- `backend-resolver` — probe ASSE 2 per `react` usa `stack-detector`. Se
   `stack-detector` non trova framework FE in nessun `code_path`, il resolver emette
   `BACKEND_DEGRADED: react→html` e questa skill non viene invocata.
-- [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) — Fase 2: invoca direttamente questa skill con
+- `prototype-generation-protocol` — Fase 2: invoca direttamente questa skill con
   il brief completo (Step 1.4). Fase 3 verifica le condizioni minime sull'output
   della skill (file/directory esistente, `states_covered` non vuoto).
-- [html-prototype-mapping](mdc:.cursor/skills/html-prototype-mapping/SKILL.md) — analogia strutturale. Stesso pattern provider-specific,
+- `html-prototype-mapping` — analogia strutturale. Stesso pattern provider-specific,
   stesse sezioni (Input/Output/Fasi A-F/Vincoli/Cross-link), stesso contratto con
-  [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md). Il backend `html` e' il fallback terminale quando
+  `prototype-generation-protocol`. Il backend `html` e' il fallback terminale quando
   questa skill non e' disponibile (no FE stack in `code_path`).
 - `stack-detector` (v2.12) — skill condivisa con `code-reviewer`. Rilevazione
   framework FE nel `code_path` target. Determina `tsx` (TypeScript rilevato),
@@ -436,9 +437,9 @@ Esempio con `output_path: "output/prototypes"`, `slug: "login-form"`, `Component
   provider-agnostic + skill provider-specific. EP-035 replica il pattern publisher
   (ADR-EP035-003 GO).
 
-**Nota sul path dichiarato in [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) Fase 2**: la tabella in
-quel file cita `react-prototype-mapping` (convenzione alternativa).
-Questa skill vive in `.cursor/skills/react-mapping/SKILL.md` (path canonico dichiarato in
+**Nota sul path dichiarato in `prototype-generation-protocol` Fase 2**: la tabella in
+quel file cita `.claude/skills/react-prototype-mapping.md` (convenzione alternativa).
+Questa skill vive in `.claude/skills/react-mapping.md` (path canonico dichiarato in
 TSK-238 `code_path`). In caso di disambiguazione, questo file e' quello corretto.
 
 [^src: wiki/concepts/backend-adaptive-prototyping.md §I quattro tier di backend]

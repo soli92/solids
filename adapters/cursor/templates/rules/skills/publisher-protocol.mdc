@@ -1,0 +1,88 @@
+---
+description: >-
+  Publisher Protocol — protocollo provider-agnostic per pubblicare il kanban su tool esterno
+  (PATTERN §17, v2.10). 5 fasi: Bootstrap → Discovery → Plan+Gate → Publish → Log. Invoca
+  <provider>-mapping per la traduzione concreta.
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: publisher-protocol (PATTERN §17, v2.10)
+
+> Adapter Cursor della skill `publisher-protocol` definita in `.claude/skills/publisher-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/publisher-protocol.md`.
+
+Protocollo provider-agnostic per la pubblicazione del kanban su tool esterno.
+La traduzione concreta vive in `[github-mapping](mdc:.cursor/rules/skills/github-mapping.mdc)` (o altra skill provider-specific).
+
+## Prerequisiti
+
+- `kanban_publish.provider` ≠ `none`
+- `target`, `auth_env`, `mapping`, `labels`, `filter` valorizzati
+- Variabile d'ambiente `<auth_env>` settata
+
+## Fase 1 — Bootstrap
+
+1. Read `factory.config.yaml.kanban_publish`.
+2. Verifica: `provider ≠ none`; `target` non vuoto; `auth_env` presente.
+3. Invoca `<provider>-mapping §Auth check` (es. `gh auth status`). ABORT se fallisce.
+4. Read memoria episodica per continuità con run precedente.
+
+## Fase 2 — Discovery
+
+1. Glob EP, US, TSK da `management/kanban/**`.
+2. Applica filtri (`only_consumer`, `only_status`).
+3. Per ogni artefatto: determina azione:
+   - `external_id:` assente → **CREATE**
+   - `external_id: <provider>:<id>` → **UPDATE**
+   - `external_id: <altro-provider>:<id>` → **SKIP** (conflitto cross-provider)
+
+## Fase 3 — Plan & Gate (STOP, PATTERN §7 r.15)
+
+Mostra piano in chat:
+```
+PIANO PUBBLICAZIONE (provider: <name>, target: <target>)
+CREATE: EP×N1, US×N2, TSK×N3
+UPDATE: EP×M1, US×M2, TSK×M3
+SKIP (cross-provider): N4
+SKIP (filter): N5
+Totale operazioni: <tot>
+Procedo? [y/N]
+```
+
+Se `totale > batch_limit`: conferma secondaria «digita "publish <X>" per procedere».
+
+## Fase 4 — Publish
+
+Per ogni artefatto nel piano confermato:
+1. Invoca `<provider>-mapping §Build payload`
+2. Invoca `<provider>-mapping §Execute` (CREATE/UPDATE)
+3. Cattura identifier ritornato
+4. Edit frontmatter locale: `external_id: <provider>:<id>` + `updated:` (mai altri campi)
+5. Log per artefatto: `[HH:MM:SS] CREATE EP-001 → github:147`
+
+Errori transitori: retry max 2 con backoff 1500ms. Errore non recuperabile → skip, continua.
+
+## Fase 5 — Log (obbligatoria)
+
+Append `wiki/log.md`:
+```markdown
+## YYYY-MM-DD HH:MM — publish github (created=5, updated=12)
+**Provider:** github @ <target>
+**Operazioni:** CREATE: [...], UPDATE: [...], SKIP: [...], ERROR: [...]
+**Link:** https://github.com/...
+```
+
+## Regole anti-corner-case
+
+- File kanban senza frontmatter completo → SKIP con WARNING.
+- Provider 5xx persistente → ABORT dopo 3 retry.
+- Token scaduto → ABORT Fase 1 (rinnova token).
+- Target 404 → ABORT Fase 1 (verifica `kanban_publish.target`).
+- Body > limite provider (65k per GitHub) → troncamento con marker `[Body troncato]`.
+- Issue esterna cancellata → rileva 404 su UPDATE, cancella `external_id:`, ricade in CREATE.
+
+## Limitazioni Cursor
+
+- **Auth check**: usa terminal integrato (`gh auth status`, `gh repo view <target> --json viewerPermission`).
+- **CLI commands**: usa terminal per tutti i comandi `gh api/issue/milestone`.
+- **Rate limit**: GitHub 5000 req/h; sleep 1s tra operazioni via bash `sleep 1`.

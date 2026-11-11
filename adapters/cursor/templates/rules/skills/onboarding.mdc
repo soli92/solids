@@ -1,0 +1,88 @@
+---
+description: Report di onboarding in-chat per un nuovo contributor — 4 sezioni (factory corrente, task onboarding-friendly, 5 invarianti da PATTERN §7, passo successivo). Nessun file scritto.
+globs: []
+alwaysApply: false
+---
+# SKILL: onboarding
+
+> Adapter Cursor della skill invocata dal comando `/onboarding`.
+> File equivalente Claude Code: `.claude/skills/onboarding.md`.
+> Output **esclusivamente in-chat**: nessun file scritto, in nessuna directory.
+
+Sorgenti dichiarate: `factory.config.yaml`, `management/kanban/sprint.md`, `PATTERN.md`,
+`.cursor/rules/` (equivalente Cursor di `.claude/agents/`).
+
+## Passo 1 — `factory.config.yaml` → Sezione 1 «Factory corrente»
+
+1. **Versione** → `pattern_version` (o `project.pattern_version`).
+2. **Capability attive** → tutte le chiavi (o sottochiavi) con `enabled: true`.
+   Non elencare quelle a `false` o assenti.
+3. **Ruoli installati** → conta i file `*.mdc` in `.cursor/rules/` (escluso `skills/`).
+
+```
+## Sezione 1 — Factory corrente
+
+| Campo | Valore |
+|---|---|
+| Pattern version | <pattern_version> |
+| Ruoli installati | <N> file in .cursor/rules/ |
+
+### Capability attive (enabled: true)
+- <capability-1>
+- ...
+```
+
+## Passo 2 — `management/kanban/sprint.md` → Sezione 2 «Task onboarding-friendly»
+
+- **Caso A**: esistono task `status: todo` con tag `onboarding-friendly` → mostrali tutti
+  con ID, titolo e file sprint.
+- **Caso B**: nessun tag → mostra i **3 task `todo` a minor effort** (campo `effort:` /
+  `estimate:`; in assenza, i piu' brevi) e dichiara esplicitamente: «Nessun tag
+  onboarding-friendly trovato — mostro i 3 task a minor effort».
+
+Includi sempre `→ Sprint file: management/kanban/sprint.md`.
+
+## Passo 3 — `PATTERN.md §7` (lettura live) → Sezione 3 «5 invarianti critiche»
+
+Leggi `PATTERN.md`, individua `§7` ed estrai **R.1, R.2, R.5, R.12, R.14**, una riga
+ciascuna.
+
+> **Il testo delle invarianti va letto da `PATTERN.md` al momento dell'invocazione:
+> non va hardcodato in questa rule.** Se `PATTERN.md` cambia, il report si aggiorna da se'.
+
+## Passo 4 — Sezione 4 statica «Passo successivo»
+
+Appendi **sempre**, senza modifiche:
+
+```
+## Sezione 4 — Passo successivo
+
+→ Quick start: QUICKSTART.md
+→ Pattern in una pagina: wiki/getting-started/pattern-in-one-page.md
+→ Installer / bootstrap: wiki/getting-started/factory-installer-quickstart.md
+→ Capability router: /help <domanda> (fonte: CAPABILITIES.md)
+```
+
+## Vincoli
+
+| Vincolo | Dettaglio |
+|---|---|
+| Nessun file scritto | Output solo in chat: niente file in `wiki/`, `management/` o altrove |
+| No invenzione (§7 r.2) | Ogni dato viene da una sorgente dichiarata; campo assente → dillo |
+| Lettura live di `PATTERN.md` | §7 letto all'invocazione, mai hardcodato |
+| Tecnologia-agnostica | Solo lettura di file locali: nessun tool esterno, nessuna rete |
+| Self-documenting | Ogni sezione dichiara la propria sorgente |
+
+## Gestione errori
+
+- `factory.config.yaml` assente → «non trovato: verifica di essere nella root della
+  factory»; continua con le altre sezioni.
+- `sprint.md` assente → «non trovato: consulta `management/kanban/`»; mostra Sezioni 3 e 4.
+- `PATTERN.md` assente o §7 non localizzabile → dillo e rimanda alla lettura manuale;
+  **non** hardcodare il testo.
+- `.cursor/rules/` assente → conteggio 0, segnalalo.
+
+## Limitazioni Cursor
+
+Il conteggio dei ruoli usa `.cursor/rules/*.mdc` invece di `.claude/agents/*.md`. In una
+factory con entrambi gli adapter i due conteggi possono differire: dichiara quale hai letto.

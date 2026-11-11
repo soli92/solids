@@ -1,0 +1,28 @@
+---
+description: >-
+  Skill deterministica per estrazione token design system. Cascata 4 step (DS path → CSS → figma →
+  defaults). Output sempre annotato con source tag (ADR-018).
+globs: "**"
+alwaysApply: false
+---
+# Skill: design-tokens-extraction
+
+> Adapter Cursor della skill `design-tokens-extraction`, definita in `.claude/skills/design-tokens-extraction.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.design_intelligence.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Contratto di invocazione
+2. Cascata di risoluzione a 4 step (ADR-018, deterministica)
+3. Default 5 famiglie (Tailwind-inspired neutrali, ADR-018)
+4. Invariante `source` tag + regola `open_questions` (ADR-018)
+5. Fail-loud — solo su sorgente dichiarata ma irraggiungibile
+6. Pattern
+
+Il dettaglio di ogni passo sta in `.claude/skills/design-tokens-extraction.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.

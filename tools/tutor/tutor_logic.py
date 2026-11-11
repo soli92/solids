@@ -1,22 +1,22 @@
 """
-tutor_logic.py — Logica core del tutor (TSK-362, EP-045 US-161)
+tutor_logic.py — Tutor core logic (TSK-362, EP-045 US-161)
 
-Espone le funzioni helper che implementano le regole di comportamento del tutor:
-  - select_scaffold_level(): seleziona il livello di scaffolding in base alla mastery
-    del nodo nel StudentModel (AC4 US-161)
-  - should_ask_recall(): determina se la sessione richiede una domanda di richiamo
-    in base alla modalita' (AC5 US-161)
+Exposes the helper functions that implement the tutor's behavior rules:
+  - select_scaffold_level(): select the scaffolding level based on mastery
+    of the node in the StudentModel (AC4 US-161)
+  - should_ask_recall(): Determines whether the session requires a recall question
+    based on modality (AC5 US-161)
 
-Dipendenze: solo stdlib Python 3.10+.
-Type hint su StudentModel usa `from __future__ import annotations` per evitare
-l'import obbligatorio a runtime (forward reference).
+Dependencies: stdlib Python 3.10+ only.
+Type hint on StudentModel use `from __future__ import annotations` to avoid
+the mandatory import at runtime (forward reference).
 
-Soglie di scaffolding (da scaffolding-protocol.md, TSK-352):
-  mastery < 0.4  → livello 1 (worked example)
-  mastery 0.4..0.7 → livello 2 (esempio con buchi)
-  mastery >= 0.7 → livello 3 (problema autonomo)
+Scaffolding Thresholds (from scaffolding-protocol.md, TSK-352):
+  mastery < 0.4 → level 1 (worked example)
+  mastery 0.4..0.7 → level 2 (example with holes)
+  mastery >= 0.7 → level 3 (autonomous problem)
 
-[^src: management/kanban/EP-045-capability-formativa/US-161-tutor-modello-epistemico/TSK-362-test-integrazione-tutor-student-model.md]
+[^src: management/kanban/EP-045-capability-formativa/US-161-tutor-modello-epistemico/TSK-362-test-integration-tutor-student-model.md]
 """
 
 from __future__ import annotations
@@ -24,8 +24,8 @@ from __future__ import annotations
 __all__ = ["select_scaffold_level", "should_ask_recall"]
 
 # Soglie di scaffolding — allineate a scaffolding-protocol.md (TSK-352)
-_THRESHOLD_LOW = 0.4    # sotto questa soglia → livello 1
-_THRESHOLD_HIGH = 0.7   # da qui in su → livello 3
+_THRESHOLD_LOW = 0.4    # below this threshold → level 1
+_THRESHOLD_HIGH = 0.7   # from here up → level 3
 
 
 def select_scaffold_level(student_model: StudentModel, node_id: str) -> int:  # type: ignore[name-defined]

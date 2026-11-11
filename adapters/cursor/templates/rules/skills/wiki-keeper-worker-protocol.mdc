@@ -1,0 +1,101 @@
+---
+description: Wiki Keeper Worker Protocol — protocollo sub-agent ingest parallelo (v2.4). Input/output/vincoli/errori per ogni worker che processa un chunk di raw/ document.
+globs: "raw/**"
+alwaysApply: false
+---
+# Skill: wiki-keeper-worker-protocol (PATTERN §4, v2.4)
+
+> Adapter Cursor della skill `wiki-keeper-worker-protocol` definita in `.claude/skills/wiki-keeper-worker-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/wiki-keeper-worker-protocol.md`.
+
+Protocollo per il sub-agent `wiki-keeper-worker` che processa un singolo chunk del documento
+raw in ingestion parallela.
+
+## Contesto architetturale
+
+Il `wiki-keeper` principale fa il dispatch parallelo dividendo il documento in chunk H2/H3.
+Ogni `wiki-keeper-worker` (sub-agent) riceve **un chunk** e produce i file wiki corrispondenti.
+
+## Input del worker
+
+```yaml
+chunk_id: <N>        # indice del chunk (0-based)
+chunk_text: <testo>  # testo del chunk H2/H3
+source_slug: <slug>  # slug del documento sorgente (es. "2024-01-15-api-spec")
+source_path: raw/<file>.md
+total_chunks: <N>    # totale chunk in questo job
+existing_pages: [wiki/<path1>.md, ...]  # pagine esistenti (per upsert)
+```
+
+## Procedura del worker
+
+### Step 1 — Classify chunk
+
+Determina il tipo di pagina wiki da produrre:
+- Concetto → `wiki/concepts/<slug>.md`
+- Runbook/procedura → `wiki/runbooks/<slug>.md`
+- Decisione/ADR → `design_&_architecture/decisions/ADR-XXX.md`
+- Sintesi/riassunto → `wiki/syntheses/<slug>.md`
+
+### Step 2 — Upsert check
+
+1. Verifica se una pagina con lo stesso slug esiste già in `existing_pages`.
+2. Se esiste: leggi il file e identifica le sezioni da aggiornare.
+3. Se non esiste: crea nuovo file con frontmatter standard.
+
+### Step 3 — Produce page
+
+Applica `[scrivi-wiki-page](mdc:.cursor/rules/skills/scrivi-wiki-page.mdc)` per la struttura.
+
+Frontmatter obbligatorio:
+```yaml
+---
+title: <titolo>
+status: draft
+source: raw/<file>.md
+chunk_id: <N>
+updated: YYYY-MM-DD
+---
+```
+
+### Step 4 — Citation
+
+Ogni affermazione fattuale deve citare la fonte:
+```
+[^src: raw/<file>.md §<chunk-title>]
+```
+
+### Step 5 — Output
+
+Emetti:
+```yaml
+worker_result:
+  chunk_id: <N>
+  pages_created: [wiki/<path1>.md]
+  pages_updated: [wiki/<path2>.md]
+  gaps_found: ["<gap description>"]
+  status: done | error
+  error_message: <se status=error>
+```
+
+## Vincoli (invarianti worker)
+
+- **Single-writer**: ogni worker scrive SOLO i file assegnati al suo chunk. Non scrive file di altri chunk.
+- **No coordination**: il worker non legge l'output di altri worker durante l'esecuzione.
+- **Atomic**: o produce il file completo, o segnala errore. No file parziali.
+- **Gap protocol**: gap trovati → appendati a `wiki/gaps.md` (append-only, non lettura).
+
+## Errori e fallback
+
+| Errore | Azione |
+|---|---|
+| Chunk troppo breve (<100 parole) | `status: skipped` — nessuna pagina prodotta |
+| Slug già usato da un altro chunk | Aggiungi suffisso `-N` al slug |
+| Tipo non classificabile | Default a `wiki/concepts/` con `WARNING: tipo incerto` |
+
+## Limitazioni Cursor
+
+- **Parallelo**: Cursor non ha tool `Task` per fan-out. Il wiki-keeper-worker processa
+  i chunk sequenzialmente, simulando il parallelo con ordinamento per rilevanza.
+- **Context window**: per documenti lunghi, processa i chunk in sessioni Cursor separate
+  (apri N tab).

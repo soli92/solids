@@ -1,6 +1,6 @@
 ---
 name: tpm-reconcile
-description: Riconciliazione periodica tra stato dichiarato nel kanban e stato reale dell'esecuzione. 5 passi — Bootstrap, Discovery, Riconciliazione, Report, Vincolo sola-lettura. Produce conteggio TSK per stato, lista anomalie (dipendenze insoddisfatte, drift temporale, blocco silenzioso) e raccomandazione per ciascuna. Non scrive in management/kanban/ — gli aggiornamenti sono demandati al TPM o all'orchestrator dopo conferma umana.
+description: Riconciliazione periodica tra stato dichiarato nel kanban e stato reale dell'esecuzione. 5 passi — Bootstrap, Discovery, Riconciliazione, Report, Vincolo sola-lettura. Produce conteggio TSK per stato, lista anomalie (dipendenze insoddisfatte, drift temporale, blocco silenzioso, assegnazione ferma) e raccomandazione per ciascuna. Non scrive in management/kanban/ — gli aggiornamenti sono demandati al TPM o all'orchestrator dopo conferma umana.
 ---
 # tpm-reconcile — riconciliazione kanban canonico
 
@@ -11,6 +11,9 @@ Riferimenti:
 
 Invocata dal tpm-agent su richiesta esplicita dell'umano o al termine di ogni wave
 come passo pre-report. Produce un report in-chat; **non modifica** `management/kanban/`.
+
+La **chiusura di una wave** (gate DoD, patch git↔status, gap CRITICAL, commit atomico del kanban)
+e' un'altra skill: `.claude/skills/tpm-wave-close.md`.
 
 ---
 
@@ -44,6 +47,9 @@ come passo pre-report. Produce un report in-chat; **non modifica** `management/k
    - `status` (`todo` | `in-progress` | `done` | `blocked`)
    - `depends_on` (lista di ID prerequisiti; può essere `[]`)
    - `updated` (data ultima modifica dichiarata nel frontmatter, se presente)
+   - `assignee` (identità umana annotata, se presente — input del passo 3.4)
+   - `blocked_by` (lista `Q_NNN`, se presente — input del passo 3.4)
+   - `created` (data di creazione, se presente — fallback temporale del passo 3.4)
 
 3. Aggiornare i contatori in base al valore di `status` letto.
 
@@ -114,6 +120,89 @@ Per ogni TSK con `status != done`, eseguire le verifiche seguenti nell'ordine.
    rac:  Aggiungere updated al frontmatter e verificare il blocco.
    ```
 
+### 3.4 — Assegnazione ferma (FM-NEW-1, EP-064 / US-253)
+
+Intercetta **FM-NEW-1 — stale assignment**: l'attore è assente, i suoi task restano
+assegnati, il board appare «pieno» ma non avanza, e nessuno prende il lavoro «perché ha un
+proprietario» ⇒ **falsa fiducia**.
+
+**No-op totale a campo assente.** Un TSK senza `assignee:` non viene valutato da questo
+passo: l'assenza del campo non è mai un'anomalia (il campo è opzionale e advisory —
+`.claude/skills/scrivi-task.md` §«Campo `assignee:` — advisory, mai vincolante sul
+dispatch»).
+
+**Riparazione del punto cieco — due vincoli espliciti.** L'anomalia è costruita per non
+ereditare i due difetti che rendevano `assignee:` non presidiabile dagli strumenti attuali:
+
+1. **Non itera sui predecessori.** Il passo 3.2 gira *sui predecessori* di ciascun TSK: con
+   `depends_on: []` quel ciclo è **vuoto** e nessuna anomalia può scattare (al 2026-09-18
+   era il caso di 7 dei 9 task aperti di EP-064). Il passo 3.4 gira **sul TSK stesso**: un
+   TSK con `depends_on: []` è pienamente in scope.
+2. **Non si limita a `in-progress`.** Il passo 3.3 copre solo `in-progress`, ma il caso
+   centrale di FM-NEW-1 è un TSK **`todo`** assegnato e mai preso: è esattamente il «board
+   pieno che non avanza». Il passo 3.4 si applica a tutti gli stati non chiusi
+   (`todo`, `in-progress`, `blocked`).
+
+**Procedura.**
+
+1. Applicabile a ogni TSK in scope con `assignee:` **valorizzato** (stringa non vuota) e
+   `status ∈ {todo, in-progress, blocked}`. I TSK `done` (e `cancelled`, se usato) sono
+   fuori dal passo 3 per costruzione: il caso «`assignee:` valorizzato su TSK chiuso» è
+   materia del **lint Check 4as**, non di questa anomalia.
+2. Determinare la data di riferimento `t_rif`: `updated` se valorizzato, altrimenti
+   `created`. **L'assenza di `updated` non silenzia il check** (è il difetto che ha reso
+   invisibile FM-NEW-1 fin qui): se entrambi i campi sono assenti, registrare l'anomalia
+   con descrizione `durata non stimabile`.
+3. Se `oggi - t_rif > assegnazione_ferma_soglia_giorni` (default **7**, vedi §Input) →
+   registrare anomalia:
+   ```
+   tipo: assegnazione-ferma
+   tsk:  <ID>
+   desc: assignee <valore> fermo da <N> giorni (status: <stato>, t_rif: <DATA> da <updated|created>)
+   rac:  Verificare con <valore> se il task è ancora suo. Se non lo è, riassegnare il campo
+         o rimuoverlo: un task assegnato e immobile scoraggia chi potrebbe prenderlo.
+   ```
+4. **Soppressione con causa dichiarata.** Se `blocked_by` contiene almeno una `Q_NNN`
+   ancora aperta in `management/questions.md`, **non** registrare l'anomalia: l'immobilità
+   ha una causa dichiarata e non produce falsa fiducia (non è il caso che FM-NEW-1
+   descrive). Contare il TSK nella riga di nota del report
+   (`assegnazione ferma con causa dichiarata`), senza contarlo fra le anomalie.
+
+**Cosa questa anomalia NON copre — dichiarato, non nascosto.** Aggiungere un campo
+presidiato da strumenti ciechi produce l'impressione del presidio, non il presidio: il
+residuo va letto insieme all'anomalia.
+
+- **Non distingue «attore assente» da «attore lento».** Rileva il **sintomo** (nessun
+  avanzamento), non la causa. È il massimo ottenibile da un frontmatter: la presenza di una
+  persona non è un dato che vive in un file.
+- **È muta se `updated:` viene rinfrescato senza avanzamento reale.** Qualunque edit resetta
+  l'orologio. La mitigazione possibile — usare la data dell'ultimo cambio effettivo di
+  `status:` ricavata da `git log -L` sul file — **non è implementata**: richiederebbe una
+  lettura git per ogni TSK in scope, fuori dal profilo read-first di questa skill. Resta
+  un'opzione aperta, non un presidio esistente.
+- **Non copre FM-NEW-4** (riallocazione non tracciata: scambio informale, frontmatter non
+  aggiornato). Il suo presidio **parziale** è il lint Check 4as; la sua forma centrale — lo
+  scambio fra due attori entrambi presenti — **resta silenziosa**, perché il frontmatter
+  rimane sintatticamente coerente e nessuno strumento può confrontarlo con la realtà.
+- **La soglia è statica e globale**: non distingue un TSK `XS` da un `L`, né uno sprint
+  attivo da una pausa.
+
+[^src: management/kanban/EP-064-kanban-multi-user-coordination/US-253-assignee-advisory/US-253.md §AC5 + §AC6]
+[^src: management/kanban/EP-064-kanban-multi-user-coordination/US-253-assignee-advisory/TSK-588.md §Deliverable]
+
+**Esempi di riferimento** (soglia default 7 giorni, data di esecuzione 2026-09-18):
+
+| TSK di prova | `assignee` | `status` | `depends_on` | `updated` | Esito atteso |
+|---|---|---|---|---|---|
+| A | `anna` | `todo` | `[]` | `2026-09-01` | **anomalia** `assegnazione-ferma` (17 giorni) — il caso che §3.2 e §3.3 non vedevano |
+| B | — | `todo` | `[]` | `2026-09-01` | **nessun output** (campo assente = no-op, mai un falso positivo) |
+| C | `anna` | `in-progress` | `[]` | `2026-09-17` | nessun output (entro soglia) |
+| D | `anna` | `todo` | `[]` | assente, `created: 2026-08-20` | **anomalia** (fallback su `created`, 29 giorni) |
+| E | `anna` | `todo` | `[]` | assente, `created` assente | **anomalia** con `durata non stimabile` |
+| F | `anna` | `todo` | `[]` | `2026-09-01` + `blocked_by: [Q_012]` aperta | nessuna anomalia; conteggiato nella nota «causa dichiarata» |
+
+---
+
 ---
 
 ## Passo 4 — Report output
@@ -154,13 +243,18 @@ TOTALE:      <N>
   - <TSK-ID>: in-progress da <N> giorni (o updated assente)
     rac: <raccomandazione>
 
+[<N>] assegnazione-ferma
+  - <TSK-ID>: assignee <valore> fermo da <N> giorni (status: <stato>, t_rif: <DATA>)
+    rac: <raccomandazione>
+  nota: <N> TSK con assegnazione ferma ma causa dichiarata (blocked_by su Q aperta) — non contati
+
 [<N>] frontmatter-invalido
   - <TSK-ID>: <descrizione problema>
     rac: correggere il frontmatter manualmente
 
 --- Stato complessivo ---
 Anomalie bloccanti (dipendenze insoddisfatte + mancanti): <N>
-Anomalie di attenzione (drift + blocco + frontmatter):    <N>
+Anomalie di attenzione (drift + blocco + frontmatter + assegnazione ferma): <N>
 Azione richiesta: [NESSUNA | REVISIONE UMANA RACCOMANDATA]
 ```
 
@@ -206,6 +300,7 @@ Flusso atteso post-report:
 |---|---|---|---|
 | `ep_filter` | stringa opzionale | assente | Restringe lo scope a `management/kanban/<EP-ID>/`. Se assente → scope globale su tutto `management/kanban/`. |
 | `blocco_soglia_giorni` | intero opzionale | 3 | Soglia in giorni per rilevare blocco silenzioso (passo 3.3). |
+| `assegnazione_ferma_soglia_giorni` | intero opzionale | 7 | Soglia in giorni per rilevare l'assegnazione ferma (passo 3.4, FM-NEW-1). Valore **dichiarato e modificabile senza toccare la logica** del passo. Default allineato alla soglia di drift temporale di §3.2 (7 giorni) e più larga di `blocco_soglia_giorni` (3) perché un'assegnazione è un impegno di pianificazione, non un lavoro in corso. |
 
 ---
 
@@ -219,3 +314,6 @@ Flusso atteso post-report:
 | Emettere il report su file senza richiesta esplicita dell'umano | Vietato. Default in-chat. Il path del file è a scelta dell'umano. |
 | Applicare `ep_filter` anche al check delle dipendenze dei predecessori | Errato. I predecessori vanno cercati anche fuori dallo scope filtrato (la dipendenza può attraversare epiche). |
 | Interpretare `updated` assente come "aggiornato oggi" | Errato. `updated` assente è dato mancante — classificare come blocco-silenzioso con nota. |
+| Correggere o rimuovere `assignee:` dopo un'anomalia `assegnazione-ferma` | Vietato. La skill è read-only: l'anomalia **segnala**, non corregge. La riassegnazione è un atto di pianificazione del TPM con gate umano (è anche la forma della prelazione in questo modello: «il TPM edita il campo e committa»). |
+| Presentare `assegnazione-ferma` come copertura di FM-NEW-1 | Errato. Copre il **sintomo** (nessun avanzamento), non la causa, e non distingue un attore assente da un attore lento. Il residuo va riportato quando si presenta l'anomalia, non taciuto. |
+| Valutare il passo 3.4 su TSK senza `assignee:` | Errato. Campo assente = no-op totale. Un TSK senza il campo non è mai un'anomalia: il campo è opzionale e advisory. |

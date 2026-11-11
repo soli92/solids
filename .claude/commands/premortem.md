@@ -1,5 +1,6 @@
 ---
-description: Esegue una premortem strutturata (analisi del rischio via prospective hindsight) su un piano o artefatto. PATTERN §3 operazione opzionale v2.16. Accetta 3 input shape (artefatto kanban / pagina wiki / descrizione libera). Invoca la skill premortem-protocol. Opt-in totale, R.P1 (output mai auto-applicato).
+description: >-
+  Esegue una premortem strutturata (prospective hindsight) su un piano o artefatto. 3 input shape: artefatto kanban / pagina wiki / descrizione libera. Invoca premortem-protocol. Opt-in totale: output mai auto-applicato.
 argument-hint: <descrizione | EP-XXX | US-YYY | TSK-ZZZ | wiki-page-path> [--timeframe=Nw|Nmo|Ny]
 ---
 
@@ -9,7 +10,7 @@ Argomenti utente: `$ARGUMENTS`
 
 Comando opzionale **opt-in** introdotto in v2.16 (PATTERN §3 operazione
 opzionale, non parte del cascade L1→L5). Entry-point unico per invocare la
-skill [premortem-protocol](mdc:.cursor/skills/premortem-protocol/SKILL.md) su
+skill `premortem-protocol` (vedi [.claude/skills/premortem-protocol.md]) su
 un target alto-impatto.
 
 Riferimenti: [[premortem-skill]], [[risk-classification-tigers-paper-tigers-elephants]],
@@ -99,7 +100,7 @@ errore): `2m` (ambiguo), `12months` (verbose).
    - Se input shape = `artefatto-kanban` ma `glob management/kanban/**/<ID>.md`
      restituisce 0 match → STOP con errore.
 
-2. **Invoca skill [premortem-protocol](mdc:.cursor/skills/premortem-protocol/SKILL.md)**
+2. **Invoca skill `premortem-protocol`**
    - Passa alla skill: input shape selezionato, target (string), timeframe
      (esplicito o inferito).
    - La skill esegue le 5 fasi in sequenza (Context Gathering → Frame Setting
@@ -202,7 +203,7 @@ Per verifica funzionale post-installazione:
 
 ## Riferimenti
 
-- Skill implementativa: [premortem-protocol](mdc:.cursor/skills/premortem-protocol/SKILL.md) (TSK-001)
+- Skill implementativa: `.claude/skills/premortem-protocol.md` (TSK-001)
 - Design doc completo: [wiki/concepts/factory-premortem-integration.md](../../wiki/concepts/factory-premortem-integration.md)
 - ADR-003: argomento `/premortem` esplicito, no phrase-trigger
 - ADR-006: telemetria → `memory/episodic/premortem-runs.md`

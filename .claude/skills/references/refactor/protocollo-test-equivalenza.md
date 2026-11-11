@@ -1,9 +1,9 @@
 # Protocollo di test di equivalenza (Fase 4)
 
 Ambito: come dimostrare che l'unità (o la flotta) rifattorizzata è
-comportamentalmente equivalente (o migliore) all'originale, riusando
-l'infrastruttura di skill-creator. Prerequisiti: Fase 3 in PASS; snapshot
-dell'originale in `<workspace>/skill-snapshot/` creato in Fase 0.
+comportamentalmente equivalente (o migliore) all'originale. Prerequisiti: Fase 3
+in PASS; `baseline_commit` registrato in Fase 0 (V-6), da cui la baseline si
+materializza a zero byte (`git worktree add <dir> <baseline_commit>`).
 
 ## 0. Scopo mirato
 
@@ -14,31 +14,45 @@ routing/membership/registrazione — i flussi di routing che li coinvolgono. Il
 resto della flotta è garantito invariato dai gate di grafo di Fase 3 (G9–G11):
 se il grafo non è cambiato, il comportamento di routing non è cambiato.
 
-## 1. Localizzare skill-creator
+## 1. Esecutori ammessi e terzo stato del verdetto
 
-Percorsi tipici, in ordine di probabilità:
+Un **esecutore** è valido solo se è **nominato**, **esistente nel repo** e ha un
+**exit code**. Validi oggi: `tools/refactor/verifica_flotta.py` e
+`tools/refactor/mappa_riferimenti.py --gate` (Fase 3). Per la **verifica
+comportamentale** di questa fase **non esiste** un esecutore nel repo —
+`ls tools/refactor/` è l'elenco completo: nessun grader, nessun aggregatore di
+benchmark, nessun validatore di upload, nessun impacchettatore. Erano citati come
+parti di una skill di creazione **mai installata**.
 
-```bash
-for radice in /mnt/skills/examples /mnt/skills/public ~/.claude/skills \
-              ~/.claude/plugins; do
-  find "$radice" -maxdepth 3 -type d -name skill-creator 2>/dev/null
-done
-```
+Da qui **tre** verdetti, non due:
 
-Da skill-creator si riusano: `skill-creator/agents/grader.md` (grading),
-`skill-creator/scripts/aggregate_benchmark.py` (aggregazione in `benchmark.json`
-e `benchmark.md`), `skill-creator/references/schemas.md` (schemi esatti dei
-JSON), `skill-creator/scripts/quick_validate.py` (già usato in Fase 3) e
-`skill-creator/scripts/package_skill.py` (Fase 5). Convenzione: i path interni
-all'unità si citano dalla radice (`references/`, `scripts/`, `assets/`); i file
-di altre skill sempre qualificati con il nome della skill proprietaria, così i
-gate G4/G5 non li scambiano per interni.
+| Verdetto | Quando |
+|---|---|
+| `accept` | tutti i criteri della sezione 6 soddisfatti, payload di evidenza incluso |
+| `reject` | un criterio della sezione 6 violato |
+| `non valutabile` | nessun esecutore valido, o payload assente, o verdetto emesso da chi ha eseguito il refactor (sezione 1-bis) |
 
-**Degradazione controllata**: se skill-creator non è localizzabile, il test si
-esegue comunque in forma manuale — stessi prompt su baseline e rifattorizzata,
-griglia di asserzioni compilata a mano con campi `text`, `passed`, `evidence`,
-confronto presentato all'utente. Ciò che NON è degradabile sono i criteri di
-accettazione della sezione 6: valgono identici.
+`non valutabile` **non è degradabile**: non diventa `accept` per assenza di
+alternative, non diventa `reject` per prudenza, e non si sostituisce con una
+verifica «analitica», descrittiva o a mano. In assenza di esecutore valido la
+Fase 4 **è** `non valutabile` e la Fase 5 non si esegue (sezione 6). Il divieto
+puro, senza terzo stato, si aggira: è così che è nato il verdetto `accept`
+dell'unico artefatto di Fase 4 esistente.
+
+## 1-bis. Divieto di self-certification
+
+Un artefatto di Fase 4 prodotto dalla **stessa unità agentica** che ha eseguito
+il refactor **non è un'evidenza** e **non può produrre un verdetto**: l'esito è
+`non valutabile`. Motivazione, nel repo:
+`.fleet-health/reports/tavola-rotonda-protocol-fase4-20260904T130000.md` è
+intestato «modalità: analitica» — motivata nel file stesso con l'indisponibilità
+dell'esecutore di grading e l'assenza di runtime dispatch — e ha prodotto
+`verdetto: accept`: **zero con una firma sopra, che è peggio**. Un exit code
+narrato in prosa non è un exit code, è un'affermazione su un exit code.
+
+Convenzione di citazione (perché i gate G4/G5 non confondano i path): i path
+interni all'unità si citano dalla radice (`references/`, `scripts/`, `assets/`),
+quelli di altre unità sempre qualificati dal nome dell'unità proprietaria.
 
 ## 2. Costruire il set di prova
 
@@ -61,38 +75,40 @@ accettazione della sezione 6: valgono identici.
 
 ## 3. Struttura del workspace
 
-Pattern di skill-creator, un'iterazione per ciclo:
+Un'iterazione per ciclo:
 
 ```
 <nome>-workspace/
-├── skill-snapshot/              # baseline: l'originale pre-refactor (intera flotta se serve)
+├── baseline/                    # materializzata da git da <baseline_commit> (V-6), non una copia a mano
 └── iteration-1/
     └── <nome-eval>/
         ├── eval_metadata.json   # eval_id, eval_name, prompt, assertions
-        ├── old_skill/outputs/   # esecuzione con lo snapshot
+        ├── old_skill/outputs/   # esecuzione con la baseline
         └── with_skill/outputs/  # esecuzione con la rifattorizzata
 ```
 
 ## 4. Esecuzione
 
-Per ogni prompt, due esecuzioni con gli stessi input: una con lo snapshot
-(baseline `old_skill`), una con la rifattorizzata (`with_skill`).
+Per ogni prompt, due esecuzioni con gli stessi input: una con la baseline
+(`old_skill`), una con la rifattorizzata (`with_skill`).
 
 - **Con subagent** (Claude Code, Cowork): lancia tutte le coppie nello stesso
   turno, in parallelo; salva gli output nelle rispettive directory; cattura
   `total_tokens` e `duration_ms` dalle notifiche di completamento in un
   `timing.json` per run — arrivano una sola volta, salvale subito.
-- **Senza subagent** (Claude.ai): esegui in serie, un caso alla volta, leggendo
-  l'unità in prova e seguendone le istruzioni. Meno rigoroso: compensa con la
-  revisione umana degli output.
+- **Senza subagent**: non c'è esecuzione. Leggere l'unità in prova e seguirne le
+  istruzioni è autocertificazione (sezione 1-bis): il verdetto è `non
+  valutabile`, non una prova «meno rigorosa».
 - Conserva i transcript, non solo gli output finali: servono per le asserzioni di
   aderenza ai trigger e di routing.
 
 ## 5. Grading: tre famiglie di asserzioni
 
-Il grading segue `skill-creator/agents/grader.md`; risultati in `grading.json`
-per run, campi esatti `text`, `passed`, `evidence` (il viewer e l'aggregatore
-dipendono da questi nomi).
+Il grading richiede un esecutore valido (sezione 1) **diverso** dall'unità che
+ha eseguito il refactor; risultati in `grading.json` per run, campi esatti
+`text`, `passed`, `evidence`. Senza quell'esecutore il verdetto è `non
+valutabile`: una griglia compilata a mano da chi ha rifattorizzato non è un
+grading.
 
 **Famiglia 1 — Funzionali (equivalenza di esito).** Le asserzioni dell'eval
 originale, o quelle nuove concordate: verificano che l'output sia corretto. Si
@@ -135,23 +151,33 @@ Tutti, nessuna eccezione:
    modalità operativa è degradata = non accettato.
 3. **Routing/handoff invariati** (su flotta): 100% sui casi applicabili. Un
    instradamento cambiato o un handoff rotto = non accettato.
-4. **Fase 3 in PASS** sulla versione finale testata (se hai corretto file dopo
-   l'ultima esecuzione dei gate, rilanciali).
+4. **Fase 3 con exit code 0** sulla versione finale testata (se hai corretto file
+   dopo l'ultima esecuzione dei gate, rilanciali).
+5. **Payload di evidenza presente**, prodotto da un'unità diversa da chi ha
+   eseguito il refactor (sezioni 1 e 1-bis). Sedi ammesse: `grading.json` per run
+   sotto `<workspace>/iteration-N/` e i trailer del commit che applica il
+   refactor. **Non** `wiki/log.md`, **non** un report in prosa.
 
-Aggrega con `python -m scripts.aggregate_benchmark <workspace>/iteration-N
---skill-name <nome>` dalla directory di skill-creator e riporta anche il delta
-token: il refactor deve ridurre i token del caricamento base (corpo dell'unità);
-se i token totali per task crescono molto oltre il risparmio al caricamento, le
-foglie vengono lette troppo spesso — rivedi il criterio di taglio.
+I cinque criteri sono **precondizione hard della Fase 5**, non un output
+auspicabile: se uno qualunque non è verificabile con un esecutore valido, il
+verdetto è `non valutabile` e la Fase 5 non parte. Riporta il delta token: il
+refactor deve ridurre i token del caricamento base (corpo dell'unità); se i
+token totali per task crescono oltre il risparmio al caricamento, le foglie
+vengono lette troppo spesso — rivedi il taglio alla luce di **V-10** (corpo
+della skill, dove la precondizione di ramificazione è definita).
 
 ## 7. Esito
 
-- **Accettato**: procedi alla Fase 5. Lo snapshot resta finché l'utente non
-  conferma l'adozione.
-- **Non accettato**: analizza i fallimenti (per i trigger ignorati la cura è
+- **`accept`**: procedi alla Fase 5. La baseline resta raggiungibile in git
+  (`baseline_commit`), quindi non c'è nulla da conservare fuori da git.
+- **`non valutabile`**: **non** procedere alla Fase 5. Riferisci quale delle tre
+  condizioni di esecutore (sezione 1) manca, o che il verdetto sarebbe
+  un'autocertificazione. Nessuna consegna: il refactor resta non consegnato, che
+  è l'esito corretto — non un `accept` con una riserva.
+- **`reject`**: analizza i fallimenti (per i trigger ignorati la cura è
   quasi sempre riportare l'enunciato nel corpo o spostare il trigger al punto
   d'uso, non aggiungere enfasi; per il routing rotto, ripristinare il nome/arco
   che il refactor ha alterato), applica le correzioni, rilancia in
   `iteration-N+1`. Se dopo iterazioni ragionevoli l'equivalenza non è raggiunta,
-  rollback: ripristina lo snapshot e riferisci all'utente cosa non ha retto e
-  perché.
+  rollback da git (`git checkout <baseline_commit> -- <target>`) e riferisci cosa
+  non ha retto e perché.

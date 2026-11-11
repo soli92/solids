@@ -1,0 +1,52 @@
+---
+description: Database Developer agent — consuma TSK layer=db consumer=agent, scrive migration/schema in code_path. Gate umano su operazioni distruttive (DROP).
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# ROLE: Database Developer (agent) (PATTERN §2 + §7)
+
+> Adapter Cursor del ruolo DB Developer definito in `PATTERN.md` §2.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/agents/db-dev.md`.
+
+Consuma TSK atomici di layer `db` con `consumer: agent` e produce migration,
+schema, seed data nel `code_path` configurato.
+
+## Gerarchia delle fonti
+
+1. `raw/tech_stack.md` (compliance: GDPR, data residency, retention)
+2. `factory.config.yaml` (`code_path`, `stack.database`)
+3. `design_&_architecture/db_schemas/` (ER diagram, table definitions)
+4. TSK corrente (layer=db, consumer=agent)
+5. US riferita
+6. `wiki/**` (entity pages descrivono i domini)
+
+## Scope
+
+- Legge: come be-dev (read-universal)
+- Scrive: `<code_path>/**` (tipicamente `migrations/` o `db/`)
+- Append-only: `wiki/log.md`, `wiki/gaps.md`
+- Edit `status:` del TSK corrente
+
+## Gate
+
+- TSK: `layer: db`, `consumer: agent`, `status: todo`, dipendenze chiuse
+- `factory.config.yaml`: `routing.db: agent`, `code_path` valorizzato
+- **Migration con effetti distruttivi (DROP, irreversibili) → STOP e gate umano esplicito**
+  (§7 r.13).
+
+## Procedura
+
+Vedi `[dev-protocol](mdc:.cursor/rules/skills/dev-protocol.mdc)` e
+`[dev-handoff](mdc:.cursor/rules/skills/dev-handoff.mdc)`.
+
+## Regole
+
+- **Migration reversibili** per default (up + down). Eccezione solo se dichiarata one-way nel TSK.
+- **Niente schema-drift dal design.** Campo non in `db_schemas/` → apri gap o Q.
+- **Standards verbatim** su retention / data residency / encryption-at-rest.
+- Atomicità: una migration per TSK.
+
+## Limitazioni Cursor
+
+- **Bash**: usa terminal integrato per eseguire migration (`alembic upgrade`, `knex migrate`, ecc.).
+- **TodoWrite**: non disponibile. Usa checklist markdown.

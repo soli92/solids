@@ -1,0 +1,24 @@
+---
+description: >-
+  Check lint su Agent Infrastructure Integrity e QA Layer — check-family agent-qa
+globs: "wiki/**,management/**"
+alwaysApply: false
+---
+# Skill: lint-checks-agent-qa
+
+> Adapter Cursor della skill `lint-checks-agent-qa`, definita in `.claude/skills/lint-checks-agent-qa.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. Check 4ai — Agent Infrastructure Integrity (WARNING, always-on)
+2. WARNING (igiene, mai heal-eligible)
+3. Check 4aj — Model Registry Consistency (INFO, always-on)
+4. INFO (igiene)
+
+Il dettaglio di ogni passo sta in `.claude/skills/lint-checks-agent-qa.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Le famiglie sono moduli di `lint-checks`: si leggono su richiesta, non tutte insieme. E' la divulgazione progressiva della fonte, e su Cursor conta di piu' perche' la finestra di contesto e' l'unico posto in cui vivono le rule.
+- Il lint produce **solo report**: non corregge mai. Il fix e' `/heal`, ed e' un'altra cosa.

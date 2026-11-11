@@ -1,0 +1,78 @@
+---
+description: Parallel Scheduling — DAG dispatcher per wave dispatch parallelo. Toposort + level grouping + code_path conflict check. Usato da orchestrator in /run. Cap fan-out da factory.config.yaml.
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: parallel-scheduling (PATTERN §18, v2.11)
+
+> Adapter Cursor della skill `parallel-scheduling` definita in `.claude/skills/parallel-scheduling.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/parallel-scheduling.md`.
+
+Algoritmo di dispatch parallelo per wave di TSK. L'orchestrator lo usa in `/run` quando
+`scheduler.enabled: true` (default) e ci sono ≥ 2 TSK candidati.
+
+## Config rilevante
+
+```yaml
+scheduler:
+  enabled: true            # default
+  max_parallel: 4          # cap fan-out
+  parallel_gate_threshold: 3  # gate umano sopra N parallel
+  code_path_conflict: strict  # strict|warn|off
+  empty_code_path_policy: serial  # serial|parallel
+  domains:
+    develop: true
+    lint: true
+    review: true
+    # ... altri domini
+```
+
+## Fasi dell'algoritmo
+
+### Fase 1 — Raccolta candidati
+
+Raccogli tutti i TSK con `status: todo` (non `blocked`) e `consumer: agent` per il
+layer di routing corrente. Filtro per dominio attivo in `scheduler.domains`.
+
+### Fase 2 — Toposort + Level Grouping (DAG)
+
+1. Costruisci il grafo di dipendenze da `depends_on:` frontmatter.
+2. Verifica assenza di cicli (Check 4m.4): se ciclo → ERROR, STOP.
+3. Toposort → assegna ogni TSK a un `level` (0, 1, 2, ...).
+4. TSK allo stesso level senza dipendenze incrociate → candidati alla parallelizzazione.
+
+### Fase 3 — Conflict check code_path
+
+Per i TSK candidati allo stesso level:
+1. Estrai i glob `code_path:` di ciascun TSK.
+2. Verifica overlap: `glob_A ∩ glob_B ≠ ∅` → conflitto.
+3. Se `code_path_conflict: strict` → non parallelizzare TSK in conflitto (serializza).
+4. Se `code_path_conflict: warn` → parallelizza ma emetti WARNING.
+5. TSK con `code_path: []` → trattati come serializzanti se `empty_code_path_policy: serial`.
+
+### Fase 4 — Cap fan-out
+
+Ordina i candidati validi (no conflitto) per priority (P0 > P1 > P2).
+Prendi al massimo `max_parallel` TSK per wave.
+
+### Fase 5 — Gate umano
+
+Se i candidati nella wave > `parallel_gate_threshold`:
+→ Mostra il piano in chat e chiedi conferma prima di procedere.
+
+### Fase 6 — Dispatch
+
+Emetti la WAVE con i TSK selezionati.
+Log entry: `[YYYY-MM-DD HH:MM] wave=<WAVE_ID> dispatch=[TSK-A, TSK-B] level=N`
+
+## WAVE_ID propagation (v2.27)
+
+Ogni wave riceve un ID `WAVE_<timestamp>_<level>`. Questo ID è propagato nei log
+e nei token ledger entries per tracciabilità costi per-wave.
+
+## Limitazioni Cursor
+
+- **Fan-out reale**: Cursor non supporta tool `Task` per dispatch parallelo reale.
+  Usa questo algoritmo per pianificare l'ordine di esecuzione sequenziale ottimale.
+- **Visualizzazione DAG**: mostra il grafo come markdown `- level N: [TSK-A, TSK-B]`.
+- **Conflict check**: confronta i glob manualmente o con bash `ls` per verificare overlap.

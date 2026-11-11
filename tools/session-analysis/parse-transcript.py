@@ -15,22 +15,30 @@ Invariants:
   R-SAA-3 redaction:
     - Never include tool_result content (assistant records only; user msgs skipped)
     - Path anonymization: /Users/<name>/ → /Users/USER/ in all string values
+    - Email anonymization: <addr> → user@example.com (same regex as generate-report.py)
     - Credential strip: sk-*, Bearer *, *_TOKEN=*, .env paths → [REDACTED]
     - Evidence cap: strings > evidence-max-chars truncated with [TRUNCATED]
   R-SAA-8 out-of-band gate:
     - sys.exit(2) if session_id == CLAUDE_SESSION_ID env var (euristica 1)
     - sys.exit(2) if main JSONL mtime < 60s ago (euristica 2)
+  R-SAA-9 schema-version guard:
+    - CC version absent or not in SUPPORTED_CC_VERSIONS → schema_degraded=true + WARNING
   Fail-open:
     - Malformed JSONL lines: skip + aggregate warning counter
-    - Missing subagent files: skip silently (backward compat)
+    - subagents/ absent or without agent-*.jsonl: main only + WARNING (analisi degradata)
   Deduplication: by record uuid (avoid double-count if record appears in both
-    main and subagent files)
+    main and subagent files), then by message.id within each file: Claude Code
+    writes one line per content block (thinking/text/tool_use) of the same API
+    response, each carrying message.usage, so one response = one record (usage =
+    max of each field, tool_calls concatenated, last stop_reason). Lines without
+    message.id stay one record each. Same rule as harvest-session-tokens.py.
   stdlib-only: json, pathlib, sys, argparse, re, os, time, datetime, importlib.util
 
 Output format:
   {
     "meta": { session_id, cc_version, schema_degraded, subagent_files_found,
-              records_total, records_skipped_malformed, redaction_applied, generated_at },
+              records_total, records_skipped_malformed, lines_merged_same_message,
+              redaction_applied, generated_at },
     "records": [ { session_id, attribution, agent_hash, attribution_agent,
                    model, usage, elapsed_ms, stop_reason, tool_calls, timestamp,
                    schema_version } ]
@@ -68,6 +76,9 @@ if _HARVEST_PATH.exists():
 # Match /Users/<anything-not-slash-or-space>/ paths for anonymization.
 _PATH_RE = re.compile(r"/Users/[^/\s]+/")
 
+# Email addresses: same regex and placeholder as generate-report.py.
+_EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
+
 # Match known credential patterns for removal.
 _CRED_RE = re.compile(
     r"(sk-[A-Za-z0-9-]+|Bearer\s+[A-Za-z0-9._-]+|[A-Z_]{2,}_TOKEN=[^\s&\"']*|\.env(?=[\s/\"']|$))"
@@ -78,12 +89,14 @@ def _redact_str(s, max_chars):
     """Apply R-SAA-3 redaction to a single string value.
 
     1. Anonymize absolute user paths.
-    2. Remove credential-shaped tokens.
-    3. Cap length at max_chars with [TRUNCATED] marker.
+    2. Anonymize email addresses.
+    3. Remove credential-shaped tokens.
+    4. Cap length at max_chars with [TRUNCATED] marker.
     """
     if not isinstance(s, str):
         return s
     s = _PATH_RE.sub("/Users/USER/", s)
+    s = _EMAIL_RE.sub("user@example.com", s)
     s = _CRED_RE.sub("[REDACTED]", s)
     if len(s) > max_chars:
         s = s[:max_chars] + "[TRUNCATED]"
@@ -102,6 +115,27 @@ def _redact_value(v, max_chars):
 
 
 # ── CC version detection ──────────────────────────────────────────────────────
+
+# R-SAA-9: Claude Code versions whose JSONL this parser has been run against with
+# complete output (records normalized with usage, tool_calls and timestamps, fan-in
+# of subagents/). Derived from the `version` field of real transcripts (first
+# record carrying it), 2026-10-07. A version outside this set is parsed anyway,
+# in degraded mode (schema_degraded=true + WARNING), never silently.
+# Extend the set only after running the parser on a transcript of the new version
+# and checking its output. This is the set the session-analysis pipeline uses;
+# generate-report.py only reads the schema_degraded flag it produces.
+SUPPORTED_CC_VERSIONS = frozenset({
+    "2.1.258",
+    "2.1.263",
+    "2.1.266",
+    "2.1.270",
+    "2.1.274",
+    "2.1.278",
+    "2.1.280",
+    "2.1.281",
+    "2.1.289",
+})
+
 
 def _detect_cc_version(transcript_path):
     """Return CC version string from first JSONL record with a 'version' field.
@@ -151,7 +185,8 @@ def _collect_files(transcript, subagents_override):
     Delegates to harvest_mod.collect_jsonl_files when available and no override
     is requested. Inline fallback mirrors harvest-session-tokens.py logic.
 
-    Fail-open: absent subagents/ directory is silently ignored.
+    Fail-open: absent subagents/ directory yields the main file only; main()
+    emits the "analisi degradata" WARNING.
     """
     if subagents_override is None and _harvest_mod is not None:
         try:
@@ -264,6 +299,8 @@ def _normalize_record(record, attribution, agent_hash, session_id,
         "output":      int(usage_raw.get("output_tokens", 0) or 0),
         "cache_read":  int(usage_raw.get("cache_read_input_tokens", 0) or 0),
         "cache_write": int(usage_raw.get("cache_creation_input_tokens", 0) or 0),
+        "cache_write_1h": int((usage_raw.get("cache_creation") or {})
+                              .get("ephemeral_1h_input_tokens", 0) or 0),
     }
 
     # Timestamp and elapsed
@@ -290,6 +327,23 @@ def _normalize_record(record, attribution, agent_hash, session_id,
 
     # R-SAA-3: apply full redaction to all string values in the normalized record.
     return _redact_value(rec, max_chars)
+
+
+def _merge_same_message(dst, src):
+    """Fold another line of the same API response (same message.id) into dst.
+
+    In the main transcript every line repeats the same usage; in subagents/ the
+    earlier lines are streaming partials whose output_tokens grows up to the final
+    value. The max of each field is the response's usage in both cases.
+    """
+    for k, v in src["usage"].items():
+        dst["usage"][k] = max(dst["usage"].get(k, 0), v)
+    dst["tool_calls"].extend(src["tool_calls"])
+    if src.get("stop_reason"):
+        dst["stop_reason"] = src["stop_reason"]
+    for k in ("model", "attribution_agent"):
+        if not dst.get(k) and src.get(k):
+            dst[k] = src[k]
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -349,23 +403,46 @@ def main():
         )
         return 2
 
-    # ── CC version detection (schema guard) ──
+    # ── CC version detection (schema guard R-SAA-9) ──
     schema_version = _detect_cc_version(str(transcript))
-    schema_degraded = schema_version is None
-    if schema_degraded:
+    if schema_version is None:
+        schema_degraded = True
         print(
             "WARNING: CC version not found in transcript; schema_degraded=true",
             file=sys.stderr,
         )
+    elif schema_version not in SUPPORTED_CC_VERSIONS:
+        schema_degraded = True
+        print(
+            f"WARNING: Claude Code version {schema_version} non nel set SUPPORTED_CC_VERSIONS.\n"
+            "Parsing in modalita best-effort. Risultati potrebbero essere incompleti.",
+            file=sys.stderr,
+        )
+    else:
+        schema_degraded = False
 
     # ── Fan-in: collect all JSONL files ──
     files = _collect_files(transcript, args.subagents_path)
     n_subagent_files = sum(1 for (_, scope) in files if scope == "subagent")
+    if n_subagent_files == 0:
+        if args.subagents_path is not None:
+            sub_dir = pathlib.Path(args.subagents_path)
+        else:
+            sub_dir = transcript.parent / transcript.stem / "subagents"
+        state = "assente" if not sub_dir.is_dir() else "senza file agent-*.jsonl"
+        print(
+            f"WARNING: directory subagents/ {state} "
+            f"({sub_dir.parent.name}/{sub_dir.name}): "
+            "analisi degradata, solo JSONL principale.",
+            file=sys.stderr,
+        )
 
     # ── Parse and normalize records ──
     records = []
     seen_uuids = set()
     skipped_malformed = 0
+    merged_lines = 0
+    record_by_message = {}  # (file, message.id) -> index in records
     # Track last timestamp per attribution channel for elapsed_ms computation.
     prev_ts_ms_by_attr = {}  # attribution -> last ts_ms seen
 
@@ -424,6 +501,15 @@ def main():
                 if ts_ms is not None:
                     prev_ts_ms_by_attr[attribution] = ts_ms
 
+                # One record per API response: lines of the same message.id are merged.
+                mid = (d.get("message") or {}).get("id")
+                key = (str(fpath), mid) if mid else None
+                if key is not None and key in record_by_message:
+                    _merge_same_message(records[record_by_message[key]], rec)
+                    merged_lines += 1
+                    continue
+                if key is not None:
+                    record_by_message[key] = len(records)
                 records.append(rec)
 
     # Aggregate malformed warning at end (fail-open pattern from EP-062).
@@ -443,7 +529,8 @@ def main():
             "subagent_files_found":     n_subagent_files,
             "records_total":            len(records),
             "records_skipped_malformed": skipped_malformed,
-            "redaction_applied":        ["path", "credentials", "truncate"],
+            "lines_merged_same_message": merged_lines,
+            "redaction_applied":        ["path", "email", "credentials", "truncate"],
             "generated_at":             now_iso,
         },
         "records": records,

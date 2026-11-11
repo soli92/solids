@@ -6,7 +6,7 @@ description: Loop evaluator-optimizer SEMANTICO per la qualità di wiki/. Rileva
 
 Riferimenti: `lint-checks` (segnale detection), `heal-protocol` (analogia strutturale,
 natura opposta), `citation-rules`, `wiki-gap-protocol`, `wiki-log-entry`, `wiki/purpose.md`
-(EP-055), `PATTERN.md §35` (Wiki Keeper 2.0) + `§7 r.7` (Aggiornamenti semantici) + `§7 r.12`
+(EP-055), `PATTERN-capabilities.md §35` (Wiki Keeper 2.0) + `§7 r.7` (Aggiornamenti semantici) + `§7 r.12`
 (single-committer) + `§10` (contradictions non-distruttive).
 
 ## Natura e distinzione (Accordo Round 2 TR-llmwiki-20260824)
@@ -198,4 +198,4 @@ su di essi (retrieval 4-fase e KG 4-segnali restano backlog EP-042.1 / spike).
 - `lint-checks.md` — Check 2 (unsourced-claim), Check 1 (broken-wikilink) come segnali di detection
 - `wiki/purpose.md` — riferimento di dominio (EP-055) per terminology-drift
 - `wiki-gap-protocol.md` — destinazione di claim/concept non risolvibili
-- `PATTERN.md §35` — Wiki Keeper 2.0
+- `PATTERN-capabilities.md §35` — Wiki Keeper 2.0

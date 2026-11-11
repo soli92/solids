@@ -1,0 +1,21 @@
+---
+description: Calcola l'«expected branch» di un target VCS in modo deterministico da branch_strategy + base_branch + .factory-branches.yaml. Single source of truth (EP-034 R.B9). Read-only.
+globs: "factory.config.yaml, .factory-branches.yaml"
+alwaysApply: false
+---
+# Skill — branch-resolver (PATTERN §15 §Branch Awareness Layer)
+
+> Adapter Cursor del protocollo definito in `PATTERN.md` §15 (Branch Awareness Layer, EP-034).
+> File equivalente Claude Code: `.claude/skills/branch-resolver.md`.
+
+Pura funzione: dato un target VCS + un TSK, ritorna il branch atteso (`expected_branch`).
+Single source of truth (R.B9) condivisa da `vcs-preflight-protocol` (inspect) e `vcs-handoff`
+(commit). **Read-only (R.B7)**: legge config/frontmatter/manifest, non fa checkout né crea branch.
+
+Regola: manifest `.factory-branches.yaml` (override) → `base_branch` (per `shared`) →
+`tsk-<id>-<slug>` (`per-tsk`) → `sprint-<NN>` (`per-sprint`). Vedi il file `.claude` per il
+dettaglio dei 3 step + il naming dello slug.
+
+## Traduzione tool (Cursor)
+
+- Lettura file → `@factory.config.yaml`, `@.factory-branches.yaml`, frontmatter TSK. Nessuna scrittura.

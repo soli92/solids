@@ -1,19 +1,21 @@
 """tools/tutor/tests/test_student_model.py — Test StudentModel (US-162 AC1-AC6).
 
-6 test case corrispondenti agli Acceptance Criteria di US-162:
+6 test cases corresponding to the US-162 Acceptance Criteria:
 
-  Test 1 (AC1): persist cross-session — salva e ricarica mastery
-  Test 2 (AC2): campi minimi presenti dopo upsert_node
-  Test 3 (AC3): staleness su source change — is_stale=True dopo hash diverso
-  Test 4 (AC4): topological sort prerequisiti — A < B < C
-  Test 5 (AC5): update mastery persiste su sessione successiva
-  Test 6 (AC6): spaced repetition — data corretta > data errata
+  Test 1 (AC1): persist cross-session — save and reload mastery
+  Test 2 (AC2): Minimum fields present after upsert_node
+  Test 3 (AC3): staleness on source change — is_stale=True after different hash
+  Test 4 (AC4): topological sort prerequisites — A < B < C
+  Test 5 (AC5): update mastery persists on subsequent session
+  Test 6 (AC6): spaced repetition — correct date > incorrect date
 
-Framework: pytest + stdlib. Nessuna dipendenza esterna.
-Fixture: tmp_path (pytest built-in) per isolamento filesystem per-test.
-Parametro today iniettabile per determinismo nei test di spaced repetition.
+Framework: pytest + stdlib. No external dependencies.
+Fixture: tmp_path (pytest built-in) for per-test filesystem isolation.
+Injectable today parameter for determinism in spaced repetition tests.
 
 [^src: management/kanban/EP-045-capability-formativa/US-162-student-model-persistente/TSK-360-test-student-model.md]
+
+
 """
 from __future__ import annotations
 
@@ -40,14 +42,14 @@ def test_persist_cross_session(tmp_path: Path) -> None:
     sm1.update_mastery("retrieval-protocol", 0.6)
     sm1.save()
 
-    sm2 = StudentModel(path=path)  # nuova istanza = nuova "sessione"
+    sm2 = StudentModel(path=path)  # new instance = new "session"
     node = sm2.get_node("retrieval-protocol")
     assert node is not None
     assert abs(node["mastery"] - 0.6) < 0.001
 
 
 # ---------------------------------------------------------------------------
-# Test 2 — AC2: campi minimi presenti
+# Test 2 — AC2: minimum fields present
 # ---------------------------------------------------------------------------
 
 def test_campi_minimi(tmp_path: Path) -> None:
@@ -100,13 +102,14 @@ def test_topological_sort(tmp_path: Path) -> None:
     sm.upsert_node("C", prerequisite_ids=["B"])
 
     order = sm.topological_order("C")
-    # A deve precedere B, B deve precedere C
+    # A must precede B, B must precede C
+
     assert order.index("A") < order.index("B")
     assert order.index("B") < order.index("C")
 
 
 # ---------------------------------------------------------------------------
-# Test 5 — AC5: update mastery riflesso sessione successiva
+# Test 5 — AC5: update mastery reflected next session
 # ---------------------------------------------------------------------------
 
 def test_update_mastery_persists(tmp_path: Path) -> None:

@@ -1,0 +1,30 @@
+---
+description: >-
+  Esegue la Passata YAGNI Decision Ladder (Pass 4 advisory) su un diff arbitrario (TSK-id | branch
+  | file | --staged). Wrapper standalone di code-review-protocol §Passata 5. Opt-in EP-057. Non
+  esegue Passate 1-3, non produce verdict.
+globs: "**"
+alwaysApply: false
+---
+# Skill: ponytail-review
+
+> Adapter Cursor della skill `ponytail-review`, definita in `.claude/skills/ponytail-review.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.ponytail.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Gate (precondizione)
+2. Input
+3. Procedura (4 step)
+4. Invariante R.PY1
+5. Cross-link
+
+Il dettaglio di ogni passo sta in `.claude/skills/ponytail-review.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- **HARD DEP**: richiede anche `code_quality.enabled: true`.
+- R.PY1 non e' bypassabile su nessun adapter.
+- Pass 4 resta **advisory**: non produce mai un verdict.

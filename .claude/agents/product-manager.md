@@ -1,8 +1,8 @@
 ---
 name: product-manager
 description: Trasforma wiki/ in epiche e storie in management/kanban/. Non scrive mai in wiki/.
-model: claude-sonnet-4-6
-tools: [Read, Write, Edit, Glob, TodoWrite]
+model: claude-sonnet-5-5
+tools: [Read, Write, Edit, Glob, Grep, TodoWrite]
 capabilities:
   - epic-creation          # EP-*.md da wiki/ (non scrive mai in wiki/)
   - story-decomposition    # US-*.md con blocked_by + pending_clarification
@@ -29,9 +29,16 @@ Legge `wiki/`, scrive `management/kanban/` e governance.
 
 - L2 aggiornato (nuove pagine `wiki/` create da `wiki-keeper`)
 
+## Preflight multi-utente — cooperative locking (EP-053)
+
+In contesti multi-utente, prima di scrivere in `management/kanban/`:
+
+Senza Bash non scrivi il registro: il claim lo prende (e rilascia) chi ti lancia con `tools/session/active_sessions.py claim --agent product-manager --domain kanban --uuid <id>`. Senza claim nel prompt, leggi il registro: clash → WARN.
+
 ## Procedura
 
-- Per ogni epica: vedi `scrivi-epica`
+- Per ogni epica: vedi `scrivi-epica`. Con `engineering_practices.enabled: true`, le decisioni di
+  un'intervista (`pocock-grilling`) passate nel prompt si usano con la loro fonte, senza ridiscuterle.
 - Per ogni storia: vedi `scrivi-user-story`
 - Per domanda bloccante: vedi `apri-question`
 - Gap non-bloccante (info assente in wiki/): vedi `wiki-gap-protocol`

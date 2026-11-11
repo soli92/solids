@@ -1,23 +1,25 @@
 """
-QuestionGenerator — genera domande di richiamo calibrate su scaffold_level.
+QuestionGenerator — generates recall questions calibrated to scaffold_level.
 
-Modulo BE per EP-045 US-163. Primo step del loop di retrieval practice: produce
-una domanda il cui testo dipende dal livello di scaffolding gia' risolto dalla
-logica tutor (tutor_logic.py, TSK-362) e da una classificazione epistemica
-euristica del contenuto del nodo.
+BE module for EP-045 US-163. First step of the retrieval practice loop: produce
+a question whose text depends on the level of scaffolding already resolved by the
+tutor logic (tutor_logic.py, TSK-362) and an epistemic classification
+node content heuristic.
 
-INVARIANTE G-1: il testo della domanda dipende da scaffold_level; i tre livelli
-producono sempre template distinti e non interscambiabili.
+INVARIANT G-1: the question text depends on scaffold_level; the three levels
+they always produce distinct and non-interchangeable templates.
 
-INVARIANTE G-2: questo componente NON valuta mai le risposte — nessuna funzione
-di verifica e' esposta. La separazione Generator/Validator e' invariante (US-163
-Principio P5 / AC2). Solo `generate_recall_question` fa parte dell'API pubblica.
+INVARIANT G-2: This component NEVER evaluates responses — no function
+verification is displayed. The Generator/Validator separation is invariant (US-163
+Principle P5 / AC2). Only `generate_recall_question` is part of the public API.
 
-Requisiti: Python 3.10+, solo stdlib.
+Requirements: Python 3.10+, stdlib only.
 
 [^src: management/kanban/EP-045-capability-formativa/US-163-loop-retrieval-practice/TSK-387-question-generator.md §Technical Specs]
 [^src: management/kanban/EP-045-capability-formativa/US-163-loop-retrieval-practice/US-163.md §Business Rules §AC1 §AC2]
-[^src: .claude/skills/scaffolding-protocol.md §Calibrazione domanda di richiamo]
+[^src: .claude/skills/scaffolding-protocol.md §Recall demand calibration]
+
+
 """
 
 __all__ = ["generate_recall_question"]
@@ -26,11 +28,12 @@ __all__ = ["generate_recall_question"]
 # Costanti livelli epistemic_level
 # ---------------------------------------------------------------------------
 
-_EPISTEMIC_L1_CODE = 1   # nodo contiene snippet di codice
-_EPISTEMIC_L2_CITE = 2   # nodo contiene riferimenti wiki / citazioni
-_EPISTEMIC_L3_CLAIM = 3  # nodo e' un claim / concetto testuale generico
+_EPISTEMIC_L1_CODE = 1   # node contains code snippet
+_EPISTEMIC_L2_CITE = 2   # node contains wiki references / citations
+_EPISTEMIC_L3_CLAIM = 3  # node is a generic textual claim / concept
 
-# Indicatori euristici per L1 e L2
+# Heuristic indicators for L1 and L2
+
 _CODE_MARKERS: tuple[str, ...] = ("```", "def ", "class ")
 _CITE_MARKERS: tuple[str, ...] = ("wiki/", "[^src:")
 
@@ -85,8 +88,10 @@ def _build_question_text(node_id: str, node_content: str, scaffold_level: int) -
         ValueError: se scaffold_level non e' 1, 2 o 3.
     """
     if scaffold_level == 1:
-        # Livello 1 — worked example: mostra un breve excerpt del nodo.
-        # Tronca il contenuto a 200 caratteri per mantenere la domanda leggibile.
+        # Level 1 — worked example: shows a short excerpt of the node.
+
+        # Truncate content to 200 characters to keep the question readable.
+
         excerpt = node_content[:200].strip()
         if len(node_content) > 200:
             excerpt += "..."
@@ -96,11 +101,12 @@ def _build_question_text(node_id: str, node_content: str, scaffold_level: int) -
         )
 
     if scaffold_level == 2:
-        # Livello 2 — fill-in-blank: domanda con lacuna concettuale.
+        # Level 2 — fill-in-blank: question with a conceptual gap.
+
         return f"Completa la lacuna: `{node_id}` funziona perche' ___."
 
     if scaffold_level == 3:
-        # Livello 3 — autonomous: problema aperto senza struttura guidata.
+        # Level 3 — autonomous: open problem without guided structure.
         return (
             f"Spiega con parole tue come funziona `{node_id}` e quando usarlo."
         )
@@ -137,8 +143,8 @@ def generate_recall_question(
         Dizionario con esattamente 4 campi::
 
             {
-              "node_id":         str,  # identificatore del nodo
-              "question":        str,  # testo della domanda di richiamo
+              "node_id":         str,  # node identifier
+              "question":        str,  # retrieval-practice question text
               "scaffold_level":  int,  # 1 | 2 | 3
               "epistemic_level": int,  # 1=L1(code) | 2=L2(citation) | 3=L3(claim)
             }

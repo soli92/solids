@@ -1,0 +1,100 @@
+---
+description: Formato canonico e ciclo di vita di un gap in wiki/gaps.md. Riferimento unico per PM/Arch/TPM/wiki-query (apertura) e wiki-keeper (chiusura).
+globs: []
+alwaysApply: false
+---
+# SKILL: wiki-gap-protocol (canonica)
+
+> Adapter Cursor della skill definita in PATTERN.md §10 (wiki maintenance & feedback loop).
+> File equivalente Claude Code: `.claude/skills/wiki-gap-protocol.md`.
+
+`wiki/gaps.md` e' il **canale formale del feedback loop** della wiki. Tutte le rule L3+
+possono e devono usarlo per segnalare buchi nella knowledge base scoperti lavorando.
+
+## Caratteristiche del file
+
+- **Append-only condiviso in scrittura** fra [product-manager](mdc:.cursor/rules/product-manager.mdc),
+  [lead-architect](mdc:.cursor/rules/lead-architect.mdc), [tpm](mdc:.cursor/rules/tpm.mdc),
+  [wiki-query](mdc:.cursor/rules/wiki-query.mdc). Lettura: tutti; `wiki-keeper` lo legge
+  **obbligatoriamente all'inizio di ogni run** (Fase 0 di
+  [ingest-protocol](mdc:.cursor/rules/skills/ingest-protocol.mdc)).
+- **Chiusura riservata a `wiki-keeper`**: solo l'Analyst annota `**Risolto:**`.
+- Vietato editare gap altrui; vietato cancellare gap risolti (restano storia).
+
+## Formato gap (apertura)
+
+```markdown
+## YYYY-MM-DD HH:MM — <slug-gap>
+**Origine:** <agente> @ <artefatto in lavorazione>
+**Gap:** <cosa manca in wiki/>
+**Sospetta fonte:** <raw da ingerire | "nessuna fonte chiara, serve nuovo raw">
+**Impatto:** <quale produzione e' frenata>
+```
+
+Esempio:
+
+```markdown
+## 2026-05-18 14:23 — payment-flow-3ds
+**Origine:** lead-architect @ ADR-007-payment-gateway
+**Gap:** wiki/ non ha pagina su 3D Secure 2.0. Serve descrizione flusso challenge/frictionless.
+**Sospetta fonte:** raw/2026-04-20-emv-3ds-spec.txt (presente, mai ingerito)
+**Impatto:** blocca scelta auth flow nell'ADR-007
+```
+
+Lo `<slug-gap>` segue la regola dei wikilink: lowercase, `-` separatore, max 40 char,
+univoco fra i gap aperti.
+
+## Bloccante vs non-bloccante
+
+| Tipo | Azione apertura | Azione lavoro |
+|---|---|---|
+| **Non-bloccante** | Append a `gaps.md` | Continua il run citando lo stato corrente della wiki |
+| **Bloccante** | Append a `gaps.md` + `Q_NNN` in `management/questions.md` ([apri-question](mdc:.cursor/rules/skills/apri-question.mdc)) | STOP: l'artefatto impattato passa a `status: blocked` con `blocked_by: [Q_NNN]` |
+
+Distinzione giudiziaria, non automatica. Regola pratica: se puoi produrre l'artefatto
+**citando l'assenza** («il flusso 3DS non e' documentato in wiki/; assumiamo redirect-based»),
+il gap e' non-bloccante. Se l'artefatto non puo' procedere, e' bloccante.
+
+## Chiusura (riservata a wiki-keeper)
+
+A inizio run, per ogni gap aperto:
+
+1. **Coperto da raw esistente** → ingerisci, scrivi le pagine, chiudi il gap.
+2. **Richiede nuovo raw** → segnala in chat all'umano; il gap **resta aperto**.
+3. **Risolvibile con synthesis** → crea `wiki/syntheses/<question-slug>.md`, chiudi il gap.
+
+Per chiudere, **aggiungi una sola riga** alla sezione del gap:
+
+```markdown
+**Risolto:** YYYY-MM-DD — [[<pagina-nuova-o-aggiornata>]]
+```
+
+Mai cancellare il gap, mai modificare le righe precedenti. Poi append in `wiki/log.md`
+(vedi [wiki-log-entry](mdc:.cursor/rules/skills/wiki-log-entry.mdc)):
+
+```
+[YYYY-MM-DD HH:MM] gap-closed — <slug> via [[<pagina>]] — files touched: 1
+```
+
+## Eccezione di scrittura su `wiki/`
+
+E' uno dei pochi casi in cui rule diverse da `wiki-keeper` scrivono in `wiki/`
+(PATTERN §10, eccezioni puntuali). L'eccezione e' **append-only e meccanica**: aggiungere
+una sezione `## YYYY-MM-DD HH:MM — ...` in coda. Mai editare contenuto esistente,
+mai chiudere gap.
+
+## Anti-pattern (vietati)
+
+| Anti-pattern | Correzione |
+|---|---|
+| Aprire gap senza **Origine** | Aggiungi sempre `<agente> @ <artefatto>` |
+| Chiudere un gap non essendo `wiki-keeper` | Solo l'Analyst chiude; gli altri aspettano il prossimo run |
+| Editare gap aperti da altri | Vietato: apri un nuovo gap |
+| Usare `gaps.md` per TODO interni | E' un canale formale, non un blocknotes |
+| Cancellare gap risolti «per fare ordine» | Vietato: e' archivio storico |
+
+## Limitazioni Cursor
+
+L'append a `wiki/gaps.md` avviene con un ciclo Read+Edit (vedi
+`manifest.yaml#runtime_overrides.append_only_log`): leggi il file, aggiungi la sezione
+**in coda**, salva. Non usare riscritture integrali del file: romperebbero l'append-only.

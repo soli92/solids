@@ -29,7 +29,7 @@ Nessun argomento obbligatorio. Tutti i parametri operativi si leggono da
 
 ## Comportamento
 
-Il comando invoca la skill [semantic-drift-scan-protocol](mdc:.cursor/skills/semantic-drift-scan-protocol/SKILL.md) (5 step):
+Il comando invoca la skill `semantic-drift-scan-protocol.md` (5 step):
 
 1. **Step 1 — Bootstrap check**: verifica che `wiki_lint.semantic_check.enabled: true`
    sia impostato in `factory.config.yaml`. Se `false`, STOP con messaggio esplicito.
@@ -122,5 +122,5 @@ Prima di usare questo comando verificare:
   con lo stesso nome file (`wiki-lint-semantic-YYYY-MM-DD.md`). Rinominare
   manualmente se si vogliono conservare più run dello stesso giorno.
 
-Vedi [semantic-drift-scan-protocol](mdc:.cursor/skills/semantic-drift-scan-protocol/SKILL.md) per la procedura completa
+Vedi `.claude/skills/semantic-drift-scan-protocol.md` per la procedura completa
 e `wiki/runbooks/semantic-drift-prerequisites.md` per la configurazione dell'ambiente.

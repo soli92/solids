@@ -1,0 +1,16 @@
+{
+  "name": "factory-tools",
+  "version": "1.0.0",
+  "description": "Factory tools: visual rendering, a11y scan (Playwright + axe-core)",
+  "private": true,
+  "scripts": {
+    "setup": "npm install",
+    "a11y-scan": "bash tools/a11y/a11y-scan.sh",
+    "screenshot": "bash tools/visual/capture_screenshot.sh"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.8.0",
+    "@playwright/test": "^1.40.0",
+    "playwright": "^1.40.0"
+  }
+}

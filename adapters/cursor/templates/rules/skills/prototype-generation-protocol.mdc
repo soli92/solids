@@ -1,0 +1,72 @@
+---
+description: Prototype Generation Protocol — protocollo provider-agnostic a 5 fasi per generare prototipi (EP-035, PATTERN §27). Gated su prototyping.enabled. Invoca backend-resolver (Fase 0) + <backend>-mapping (Fase 2). Analogia con publisher-protocol.
+globs: []
+alwaysApply: false
+---
+# Skill: prototype-generation-protocol (EP-035, PATTERN §27)
+
+> Adapter Cursor della skill `prototype-generation-protocol` definita in `.claude/skills/prototype-generation-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/prototype-generation-protocol.md`.
+
+Protocollo provider-agnostic a 5 fasi per la generazione di prototipi.
+
+> **Gate INV-5**: `factory.config.yaml.prototyping.enabled: true`. Default `false` = STOP.
+
+## Precondizione assoluta
+
+```
+SE prototyping.enabled == false → STOP.
+"[prototype-generation-protocol] Skipped: prototyping.enabled: false (R.P3)."
+```
+
+## Fasi
+
+### Fase 0 — Backend Resolve
+
+Invoca `[backend-resolver](mdc:.cursor/rules/skills/backend-resolver.mdc)` con:
+- `intent`: intenzione utente (`"preview veloce"` / `"componente production-ready"` / `"file di design editabile"` / `"auto"`)
+- `prototyping_config`: blocco `prototyping:` di `factory.config.yaml`
+
+Esiti:
+- `BACKEND_RESOLVED: <backend>` → procedi con quel backend
+- `BACKEND_DEGRADED: <preferred>→<selected>` → procedi con selected + notifica utente
+- `BACKEND_UNAVAILABLE_STRICT` → STOP + gate umano
+
+### Fase 1 — Intent & Source
+
+1. Leggi US/TSK di riferimento (input_ref).
+2. Cerca `design-spec.md` prodotto da `ui-designer` (read-only — INV-3).
+3. Risolvi art-director DSL se presente.
+4. Costruisci brief per il backend selezionato.
+
+### Fase 2 — Generate
+
+Invoca `<selected_backend>-mapping` con il brief:
+- `html` → `[html-prototype-mapping](mdc:.cursor/rules/skills/html-prototype-mapping.mdc)`
+- `react` → `react-mapping`
+- `figma` / `penpot` → MCP server (richiede connettore esterno)
+
+### Fase 3 — Self-contain check
+
+Verifica invarianti meccaniche:
+- **INV-6 (solo html)**: output = single_file `index.html` self-contained. Nessun asset esterno (a parte Tailwind CDN se `css_strategy: tailwind-cdn`).
+- Se INV-6 fallisce → **non emettere** `PROTOTYPE_GENERATED`. Segnala errore.
+
+### Fase 4 — Handoff
+
+1. Append `wiki/log.md`: `[YYYY-MM-DD HH:MM] prototype — <input_ref> → backend: <slug> | output: <path>`
+2. Emetti marker `PROTOTYPE_GENERATED: <output_ref>` (solo se tutti i check passano).
+3. Suggerisci oracle/reviewer downstream se `oracle_handoff: true` in config.
+
+## Invarianti
+
+- **INV-3**: spec sorgente (TSK, US, `design-spec.md`) sempre e solo in lettura.
+- **INV-4**: no auto-eval. Nessuna frase qualitativa sull'artefatto generato.
+- **INV-5**: default off (R.P3).
+- **INV-6**: single_file per html.
+
+## Limitazioni Cursor
+
+- **figma/penpot**: MCP server non disponibili di default. Usa `html` o `react` come backend effettivo.
+- **react backend**: richiede `code_paths[]` con `layers: [fe]`. In questo meta-framework degrada a `html`.
+- **INV-4**: non commentare la qualità del prototipo generato.

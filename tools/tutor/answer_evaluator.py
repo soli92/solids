@@ -1,16 +1,18 @@
 """
-answer_evaluator.py — Verifica la risposta dello studente con livello epistemico corretto.
+answer_evaluator.py — Verifies the student's answer with the correct epistemic level.
 
-Terzo step del loop retrieval-practice (US-163 Business Rule 3).
-Dispatcha la verifica sul livello epistemico della domanda (L1/L2/L3).
+Third step of the retrieval-practice loop (US-163 Business Rule 3).
+Dispatche the verification on the epistemic level of the question (L1/L2/L3).
 
-Solo stdlib + sandbox_exec_tool.execute_snippet + os. Nessuna dipendenza esterna.
+Only stdlib + sandbox_exec_tool.execute_snippet + os. No external dependencies.
 
-INVARIANTE V-1: il Valutatore NON genera domande (nessuna logica generate_*).
-INVARIANTE V-2: per L1, la verifica usa esecuzione reale del codice via execute_snippet
-               (non semplice pattern matching).
-INVARIANTE V-3: per L3, correct=None e method="L3_manual_check_required" — mai invocare
-               un LLM come unico valutatore.
+INVARIANT V-1: the Evaluator does NOT generate questions (no generate_* logic).
+INVARIANT V-2: for L1, verification uses real code execution via execute_snippet
+               (not simple pattern matching).
+INVARIANT V-3: for L3, correct=None and method="L3_manual_check_required" — never invoke
+               an LLM as the sole assessor.
+
+
 """
 
 from __future__ import annotations
@@ -60,17 +62,20 @@ def _extract_code_snippet(text: str) -> str | None:
     if match:
         return match.group(1)
 
-    # 2. Cerca linee indentate con 4+ spazi o tab
+    # 2. Look for indented lines with 4+ spaces or tabs
+
     indented_lines: list[str] = []
     for line in text.splitlines():
         if line.startswith("    ") or line.startswith("\t"):
             indented_lines.append(line)
         elif indented_lines:
-            # Blocco interrotto — usa il primo blocco trovato
+            # Broken block — uses the first block found
+
             break
 
     if indented_lines:
-        # Dedent: rimuove il prefisso comune minimo
+        # Dedent: Removes the least common prefix
+
         prefix = "    " if indented_lines[0].startswith("    ") else "\t"
         return "\n".join(
             line[len(prefix):] if line.startswith(prefix) else line
@@ -81,7 +86,8 @@ def _extract_code_snippet(text: str) -> str | None:
 
 
 # ---------------------------------------------------------------------------
-# Valutatori per livello
+# Evaluators by level
+
 # ---------------------------------------------------------------------------
 
 
@@ -155,7 +161,8 @@ def _eval_l2_citation(question: dict, student_answer: str) -> dict:
     pattern = re.compile(r"(?:wiki|tools)/\S+")
     candidates: list[str] = pattern.findall(student_answer)
 
-    # Rimuove punteggiatura finale che potrebbe fare parte della frase, non del path
+    # Removes trailing punctuation that could be part of the sentence, not the path
+
     cleaned: list[str] = []
     for c in candidates:
         c = c.rstrip(".,;:)\"'")
@@ -217,7 +224,8 @@ def _eval_l3_claim(question: dict, student_answer: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Funzione pubblica
+# Public function
+
 # ---------------------------------------------------------------------------
 
 
@@ -233,9 +241,9 @@ def evaluate_answer(question: dict, student_answer: str) -> dict:
 
     Returns:
         {
-            "correct":         bool | None,  # None se L3 (non auto-valutabile)
+            "correct":         bool | None,  # None for L3 (not auto-evaluable)
             "feedback":        str,
-            "epistemic_level": int,          # 1 | 2 | 3 (copiato dalla question)
+            "epistemic_level": int,          # 1 | 2 | 3 (copied from question)
             "method":          str,          # "code_exec" | "citation_check" |
                                              # "L3_manual_check_required"
         }
@@ -244,12 +252,12 @@ def evaluate_answer(question: dict, student_answer: str) -> dict:
     INVARIANTE V-2: per L1, la verifica usa esecuzione reale del codice (non pattern matching).
     INVARIANTE V-3: per L3, correct=None e method="L3_manual_check_required" — mai LLM-only.
     """
-    level: int = question.get("epistemic_level", 3)  # fallback L3 se assente
+    level: int = question.get("epistemic_level", 3)  # fallback L3 if absent
 
     if level == 1:
         return _eval_l1_code_exec(question, student_answer)
     elif level == 2:
         return _eval_l2_citation(question, student_answer)
     else:
-        # L3 o qualsiasi valore non riconosciuto
+        # L3 or any unrecognized value
         return _eval_l3_claim(question, student_answer)

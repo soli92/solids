@@ -1,0 +1,33 @@
+---
+description: >-
+  Skill procedurale design UX/UI — 6 step (Brief → DS → Deliverable → A11y by Design → Assunzioni
+  → Handoff Review). No auto-eval: ogni output va a ux-ui-review-protocol. Capability opt-in
+  v2.18, PATTERN §3 UX/UI Design.
+globs: "**"
+alwaysApply: false
+---
+# Skill: ux-ui-design-protocol
+
+> Adapter Cursor della skill `ux-ui-design-protocol`, definita in `.claude/skills/ux-ui-design-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.ux_ui.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Step 1 — Brief (obiettivo + contesto + vincoli + assunzioni)
+2. Step 2 — Ancora al Design System (cascata 3 livelli)
+3. Step 2-bis — Gate pre-generazione Design Intelligence (condizionale, opt-in EP-019)
+4. Step 3 — Produci il deliverable (4 tipi)
+5. Step 4 — A11y by Design (5 dimensioni)
+6. Step 5 — Assunzioni + Open Questions (obbligatori)
+7. Step 6 — Handoff Review (OBBLIGATORIO, no auto-eval)
+8. Output schema standard
+9. Vincoli del designer (enforced)
+
+Il dettaglio di ogni passo sta in `.claude/skills/ux-ui-design-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Nessuna auto-valutazione: chi produce l'artefatto non lo giudica. La separazione e' strutturale e vale su ogni adapter.
+- Accessibilita' by design, non a valle.

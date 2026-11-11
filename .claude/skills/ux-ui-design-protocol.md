@@ -1,10 +1,11 @@
-# Skill: UX/UI Design Protocol
-
-> Adapter Cursor della skill `ux-ui-design-protocol` definita in PATTERN.md.
->
-> Metadata originale — name: ux-ui-design-protocol. Descrizione: skill procedurale design UX/UI — 6 step (Brief → DS → Deliverable → A11y by Design → Assunzioni → Handoff Review). No auto-eval: ogni output va a ux-ui-review-protocol. Capability opt-in v2.18, PATTERN §3 UX/UI Design.
-
-**Protocollo UX/UI Design — produzione deliverable in 6 step + handoff obbligatorio**
+---
+name: ux-ui-design-protocol
+description: >-
+  Skill procedurale design UX/UI — 6 step (Brief → DS → Deliverable → A11y by Design → Assunzioni
+  → Handoff Review). No auto-eval: ogni output va a ux-ui-review-protocol. Capability opt-in
+  v2.18, PATTERN §3 UX/UI Design.
+---
+# Protocollo UX/UI Design — produzione deliverable in 6 step + handoff obbligatorio
 
 Skill procedurale fondante della sotto-capability **Design** di EP-008
 ([[ux-ui-review-design-capability]]): incapsula la conoscenza operativa per produrre
@@ -68,7 +69,7 @@ domanda di chiarimento bloccante e si è in attesa di risposta.
 1. **DS ufficiale** — `factory.config.yaml.ux_ui.design_system_path` (JSON/YAML/Tailwind
    config). Se valorizzato e leggibile → fonte primaria di token, componenti, pattern.
 2. **Token estratti** — se non c'è DS canonico ma esiste codice/CSS/Figma: estrarre i token
-   osservabili (delega a [design-tokens-extraction](mdc:.cursor/skills/design-tokens-extraction/SKILL.md), ADR-017) come secondo livello.
+   osservabili (delega a `design-tokens-extraction`, ADR-017) come secondo livello.
 3. **Default ragionevoli** — in assenza di entrambi: default conservativi documentati
    (ADR-018), **dichiarati come assunzioni** nello Step 5.
 
@@ -92,7 +93,7 @@ A flag spento (default): **SKIP** — procedere direttamente allo Step 3 (no-op 
 
 ### Sub-step A — Art-Director Coordination
 
-**Azione**: invocare la skill [art-director-coordination-protocol](mdc:.cursor/skills/art-director-coordination-protocol/SKILL.md) come step pre-generazione.
+**Azione**: invocare la skill `art-director-coordination-protocol` come step pre-generazione.
 
 La skill produrrà `art_director_spec` (token di colore, tipografia, spaziatura, gerarchia,
 varianti ammesse) in:
@@ -177,8 +178,6 @@ render_component(deliverable):
             - note a11y inline (vedi Step 4)
 ```
 
-(La cattura opzionale delega a [screenshot-capture-protocol](mdc:.cursor/skills/screenshot-capture-protocol/SKILL.md).)
-
 Il fallback testuale **non è un degrado d'errore**: è l'output atteso quando l'host non ha
 generazione immagine (tool grafico reale out-of-scope v2.18, ADR-017). Il deliverable resta
 valido e consumabile dal `fe-dev`.
@@ -238,7 +237,7 @@ bloccanti sono marcate come tali.
 **Input**: il deliverable completo (Step 3-5).
 
 **Azione** — il design **non si auto-valida**. Chiude con il passaggio strutturato alla
-Review (US-028, [ux-ui-review-protocol](mdc:.cursor/skills/ux-ui-review-protocol/SKILL.md)):
+Review (US-028, `ux-ui-review-protocol`):
 
 ```
 ui-designer produce deliverable
@@ -262,7 +261,7 @@ bound → gate umano.
 > Se sei l'agente `ui-designer`, NON puoi invocare `ux-ui-review-protocol` su tuo stesso
 > output — devi delegare all'agente `ux-ui-reviewer`.
 
-I due agenti sono **fisicamente distinti** (file separati, system prompt che dichiarano
+I due agenti sono **fisicamente distinti** (file `.md` separati, system prompt che dichiarano
 "NON sei l'altro agente"). Questo enforce architetturalmente il no-auto-eval (ADR-020 §H).
 
 **Handoff verso fe-dev** (ADR-020 §A): il deliverable viene scritto in
@@ -278,7 +277,7 @@ Il `ui-designer` **suggerisce** nel proprio output il path da allegare al TSK FE
 > (ADR-020 §E, US-086). Questo campo consente al Check 4ac (EP-024) di verificare il
 > vincolo no-auto-eval.
 
-**Criterio di completamento**: il deliverable è stato passato a [ux-ui-review-protocol](mdc:.cursor/skills/ux-ui-review-protocol/SKILL.md) via
+**Criterio di completamento**: il deliverable è stato passato a `ux-ui-review-protocol` via
 l'agente `ux-ui-reviewer` — **mai** auto-valutato dal designer.
 
 ---

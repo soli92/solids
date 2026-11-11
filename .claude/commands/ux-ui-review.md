@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Edit, Glob, Bash
 Comando della capability [[ux-ui-review-design-capability]] (faccia **Review**, EP-008 US-030).
 Delega la review UX/UI end-to-end (capture screenshot → estrazione token → conformità design
 system → euristiche + flusso + UI visiva → richiamo a11y → report standard) all'agente
-[ux-ui-reviewer](mdc:.cursor/rules/ux-ui-reviewer.mdc); con fallback sulla skill [ux-ui-review-protocol](mdc:.cursor/skills/ux-ui-review-protocol/SKILL.md) (US-028) quando l'agente non
+`ux-ui-reviewer`; con fallback sulla skill `ux-ui-review-protocol` (US-028) quando l'agente non
 è scaffoldato. Thin dispatcher, analogo a `/a11y` (EP-007) e `/review` (CQRL).
 
 Riferimenti architetturali: EP-008 (`management/kanban/EP-008-ux-ui-review-design-capability/EP-008.md`),
@@ -54,10 +54,11 @@ dai `code_path` (o dalla route associata). Se il TSK non esiste → ABORT «TSK 
    ABORT pulito; suggerisci «Abilita con `ux_ui.agents.reviewer: true`».
 2. Risolvi `<target>` nelle 4 forme sopra (se `TSK-id`, deriva il target dal frontmatter del TSK).
 3. **Invocazione** (con fallback discovery, ADR-019):
-   - Se [ux-ui-reviewer](mdc:.cursor/rules/ux-ui-reviewer.mdc) è scaffoldato **e** `ux_ui.agents.reviewer: true` →
-     invoca l'agente `ux-ui-reviewer` passando `target`, `rubric`, `skip_a11y`, `ephemeral`.
-   - **Fallback** (agente non scaffoldato / `reviewer: false`): se la skill [ux-ui-review-protocol](mdc:.cursor/skills/ux-ui-review-protocol/SKILL.md)
-     (US-028) è presente → la skill è invocata da fe-dev o qa-dev (chi è attivo nella
+   - Se `.claude/agents/ux-ui-reviewer.md` è scaffoldato **e** `ux_ui.agents.reviewer: true` →
+     invoca l'agente `ux-ui-reviewer` (Claude Code `Agent` con `subagent_type: ux-ui-reviewer`)
+     passando `target`, `rubric`, `skip_a11y`, `ephemeral`.
+   - **Fallback** (agente non scaffoldato / `reviewer: false`): se la skill `ux-ui-review-protocol`
+     (US-028) è presente → la skill è invocata da `fe-dev` o `qa-dev` (chi è attivo nella
      topologia). La capability di review resta disponibile come skill anche senza agente dedicato
      (PATTERN §3, albero Tool/Skill/Agente).
    - Se né agente né skill esistono → fail-loud «Nessun agente disponibile per la review UX/UI;
@@ -91,8 +92,8 @@ Inoltre l'agente scrive una riga in `memory/episodic/ux-ui-runs.md` (formato:
 
 ## Fallback (agente non scaffoldato)
 
-Se l'agente `ux-ui-reviewer` **non** è scaffoldato ma la skill [ux-ui-review-protocol](mdc:.cursor/skills/ux-ui-review-protocol/SKILL.md)
-(US-028) **sì**, il comando non fallisce: la skill è invocata da fe-dev o qa-dev attivi nella
+Se `.claude/agents/ux-ui-reviewer.md` **non** è scaffoldato ma la skill `ux-ui-review-protocol.md`
+(US-028) **sì**, il comando non fallisce: la skill è invocata da `fe-dev` o `qa-dev` attivi nella
 topologia. La forma Agente è una comodità di delega, non un prerequisito della capability.
 
 ## Vincoli (R.P3 — opt-in totale)
@@ -106,5 +107,5 @@ topologia. La forma Agente è una comodità di delega, non un prerequisito della
 - L'agente non modifica il corpo dei TSK: al massimo il campo frontmatter `ux_ui_status:`
   (`pending|pass|conditional|reject`) del TSK target (single-writer logico, ADR-020).
 
-Vedi l'agente [ux-ui-reviewer](mdc:.cursor/rules/ux-ui-reviewer.mdc), skill [ux-ui-review-protocol](mdc:.cursor/skills/ux-ui-review-protocol/SKILL.md), EP-008, ADR-019/020, e
+Vedi `.claude/agents/ux-ui-reviewer.md`, skill `ux-ui-review-protocol`, EP-008, ADR-019/020, e
 [[ux-ui-review-design-capability]] per il contratto completo.

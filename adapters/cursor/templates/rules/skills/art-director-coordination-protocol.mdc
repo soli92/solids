@@ -1,0 +1,32 @@
+---
+description: >-
+  Skill 5-fasi per il coordinamento centralizzato del tema (EP-019). Produce DSL intermedia
+  `art_director_spec` (colori, tipografia, spaziatura, gerarchia, varianti) che vincola i
+  generatori FE prima della produzione. Art-director…
+globs: "**"
+alwaysApply: false
+---
+# Skill: art-director-coordination-protocol
+
+> Adapter Cursor della skill `art-director-coordination-protocol`, definita in `.claude/skills/art-director-coordination-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.design_intelligence.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Costanti
+2. Fase 1 — Bootstrap
+3. Fase 2 — Analisi tema
+4. Fase 3 — Produzione DSL (`art_director_spec`)
+5. Fase 4 — Validazione vs Design System
+6. Fase 5 — Handoff al generatore
+7. Output schema della skill
+8. Vincoli enforced (R.D1)
+9. Pattern
+
+Il dettaglio di ogni passo sta in `.claude/skills/art-director-coordination-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Nessun fan-out nativo di sub-agenti (`profile: sequential`): dove la fonte dispatcha in parallelo, esegui in sequenza e aggrega a mano.

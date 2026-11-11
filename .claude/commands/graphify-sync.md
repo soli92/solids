@@ -25,11 +25,12 @@ Sintassi:
      «Attiva `compression.context.enabled: true` via `/compression set
      context.enabled true` per usare Graphify»).
    - `code_paths[name == target]` deve esistere.
-2. Invoca l'agente [graphify-sync](mdc:.cursor/rules/graphify-sync.mdc) passando:
+2. Invoca l'agent `graphify-sync` (Claude Code `Agent` con `subagent_type: graphify-sync`)
+   passando:
    - `target: <name>`
    - `force: <true|false>` (default `false`; `--force` lo forza `true`)
    - `slug: <slug-or-auto>` (default `<target-name>`)
-3. L'agent esegue la skill [graphify-extraction-protocol](mdc:.cursor/skills/graphify-extraction-protocol/SKILL.md) 5 fasi:
+3. L'agent esegue `graphify-extraction-protocol` 5 fasi:
    - Fase 1 — Bootstrap (valida target, verifica `graphifyy`/`graphify-ts`, dedup manifest).
    - Fase 2 — Discovery + Cost estimation (auto-detect full vs incremental, STOP se cost > warn).
    - Fase 3 — Build Graph (Graphify CLI, output in `.graphify-state/code_paths/<slug>/`).
@@ -118,7 +119,7 @@ DOPO L'ESTRAZIONE
   `OPENAI_API_KEY` (mai committata)
 - `code_paths[name == target]` definito in `factory.config.yaml`
 - Read access su tutto `<code_path>`
-- Agente [graphify-sync](mdc:.cursor/rules/graphify-sync.mdc) presente
+- `.claude/agents/graphify-sync.md` presente
 - `raw/` esistente nella factory che invoca
 
 ## Output (artefatti L1 + side-channel)
@@ -175,7 +176,6 @@ Se attivato, il bootstrap scaffolda `.graphify-state/` in `.gitignore` automatic
 La prima invocazione di `/graphify-sync <target>` esegue il primo full rebuild
 (cost-gated).
 
-Vedi la skill [graphify-extraction-protocol](mdc:.cursor/skills/graphify-extraction-protocol/SKILL.md) per la procedura completa, l'agente
-[graphify-sync](mdc:.cursor/rules/graphify-sync.mdc) per il contratto, PATTERN §16 «Sync adapters» + §20.10 «Context
-Compression Layer» per la cornice generale, [[factory-compression-layer]] per il
-design rationale.
+Vedi `graphify-extraction-protocol` per la procedura completa, `graphify-sync` agent
+per il contratto, PATTERN §16 «Sync adapters» + §20.10 «Context Compression Layer»
+per la cornice generale, [[factory-compression-layer]] per il design rationale.

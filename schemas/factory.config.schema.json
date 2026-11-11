@@ -1,0 +1,2737 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "factory.config.schema.json",
+  "title": "Factory Config Schema",
+  "description": "Validation schema for factory.config.yaml (soli-multi-agents-factory v2.33)",
+  "type": "object",
+  "properties": {
+
+    "project": {
+      "type": "object",
+      "description": "Identita' della factory. `pattern_version` qui vale come quello di primo livello (factory-upgrade, check-version-coherence); `name` lo legge smlib.factory_name.",
+      "properties": {
+        "name":            { "type": "string" },
+        "owner":           { "type": "string" },
+        "language":        { "type": "string" },
+        "pattern_version": { "type": "string" }
+      }
+    },
+
+    "wiki": {
+      "type": "object",
+      "description": "Sorgente di alimentazione della wiki scelta al bootstrap (factory-bootstrap, bootstrap-validation-protocol).",
+      "properties": {
+        "feeding_source": { "type": "string" },
+        "code_path_ref":  { "type": "string" }
+      }
+    },
+
+    "lint": {
+      "type": "object",
+      "description": "Regole del lint deterministico che variano per factory; assenti = REGOLE_DEFAULT di tools/lint/lint_comune.py (EP-072 TSK-773)",
+      "properties": {
+        "kanban": {
+          "type": "object",
+          "properties": {
+            "scope": { "enum": ["all", "open"] },
+            "required": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } },
+            "warning": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } },
+            "layer_severity": { "enum": ["error", "warning"] },
+            "layer_segment": { "type": "boolean" },
+            "id_duplicate": { "type": "boolean" },
+            "equivalents": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } },
+            "in_progress_needs_sprint": { "type": "boolean" }
+          }
+        },
+        "wiki": {
+          "type": "object",
+          "properties": {
+            "orphan": { "enum": ["index", "reachability"] },
+            "append_only_links": { "enum": ["error", "info"] },
+            "date_fields": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+
+    "schema_local_keys": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Chiavi top-level proprie della factory, assenti dallo schema per scelta (check-config-schema-coverage le riporta come INFO, non ERROR). EP-072"
+    },
+
+    "pattern_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Current PATTERN version (X.Y format, e.g. 2.33)"
+    },
+
+    "models": {
+      "type": "object",
+      "description": "Central Model Registry (v2.27): single place for model IDs of all agents",
+      "properties": {
+        "routing": {
+          "type": "object",
+          "description": "Tier semantics: fast/default/deep",
+          "properties": {
+            "tier_fast":    { "type": "string", "description": "Model for mechanical tasks (e.g. claude-haiku-*)" },
+            "tier_default": { "type": "string", "description": "Model for general tasks (e.g. claude-sonnet-*)" },
+            "tier_deep":    { "type": "string", "description": "Model for complex reasoning (e.g. claude-opus-*)" }
+          }
+        },
+        "overrides": {
+          "type": "object",
+          "description": "Override for specific agents that deviate from the natural tier",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+
+    "adapters": {
+      "type": "array",
+      "description": "Runtime adapters installed in the factory (PATTERN §12)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name":     { "type": "string", "description": "Adapter slug (e.g. claude, cursor, aider)" },
+          "folder":   { "type": "string", "description": "Scaffolding folder (e.g. .claude, .cursor)" },
+          "maturity": {
+            "type": "string",
+            "enum": ["full", "core", "partial", "manifest-only"],
+            "description": "Adapter maturity"
+          }
+        },
+        "required": ["name", "folder", "maturity"]
+      }
+    },
+
+    "topology": {
+      "type": "string",
+      "enum": ["knowledge-only", "plan-only", "full-stack-agents", "hybrid-be-agents", "hybrid-fe-agents", "custom"],
+      "description": "Factory topology — determines which dev agents are active (PATTERN §13)"
+    },
+
+    "code_paths": {
+      "type": "array",
+      "description": "List of target repositories/paths with distinct scopes (v2.12 multi-repo, PATTERN §13)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "Unique slug — used as target: in TSK" },
+          "path": { "type": "string", "description": "Path relative to factory repo or absolute" },
+          "layers": {
+            "type": "array",
+            "description": "TSK layers that point to this entry",
+            "items": {
+              "type": "string",
+              "enum": ["be", "fe", "db", "qa", "infra", "docs"]
+            }
+          },
+          "tags": {
+            "type": "array",
+            "description": "Optional descriptive tags",
+            "items": { "type": "string" }
+          },
+          "vcs": {
+            "type": "object",
+            "description": "VCS configuration for this entry",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": ["monorepo", "submodule", "sibling", "external", "none"]
+              },
+              "submodule_path":   { "type": "string" },
+              "remote_url":       { "type": "string" },
+              "branch_strategy":  { "type": "string" },
+              "commit_coupling":  { "type": "string" },
+              "base_branch":      { "type": "string" },
+              "branch_awareness": {
+                "type": "object",
+                "properties": {
+                  "enabled":       { "type": "boolean" },
+                  "preflight":     { "type": "boolean" },
+                  "dispatch_gate": {
+                    "description": "off (YAML boolean false)|warn|block — dev-protocol Phase 0 gate",
+                    "anyOf": [{"type": "boolean"}, {"type": "string", "enum": ["warn", "block"]}]
+                  },
+                  "auto_align": {
+                    "description": "off (YAML boolean false)|propose",
+                    "anyOf": [{"type": "boolean"}, {"type": "string", "enum": ["propose"]}]
+                  },
+                  "drift_check":   { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "required": ["name", "path"]
+      }
+    },
+
+    "code_path": {
+      "type": "string",
+      "description": "Legacy single-repo path (backward compat v2.7-v2.11; auto-promoted to code_paths if code_paths absent)"
+    },
+
+    "vcs": {
+      "type": "object",
+      "description": "Top-level VCS configuration — valid only in legacy single-repo mode (v2.8)",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["monorepo", "submodule", "sibling", "external", "none"]
+        },
+        "submodule_path":  { "type": "string" },
+        "remote_url":      { "type": "string" },
+        "branch_strategy": { "type": "string" },
+        "commit_coupling": { "type": "string" },
+        "base_branch":     { "type": "string" },
+        "branch_awareness": {
+          "type": "object",
+          "properties": {
+            "enabled":       { "type": "boolean" },
+            "preflight":     { "type": "boolean" },
+            "dispatch_gate": {
+              "description": "off (YAML boolean false)|warn|block",
+              "anyOf": [{"type": "boolean"}, {"type": "string", "enum": ["warn", "block"]}]
+            },
+            "auto_align": {
+              "description": "off (YAML boolean false)|propose",
+              "anyOf": [{"type": "boolean"}, {"type": "string", "enum": ["propose"]}]
+            },
+            "drift_check":   { "type": "boolean" }
+          }
+        }
+      }
+    },
+
+    "stack_mode": {
+      "type": "string",
+      "enum": ["manual", "guided", "auto"],
+      "description": "Technology stack selection mode"
+    },
+
+    "routing": {
+      "type": "object",
+      "description": "TSK → consumer routing per layer (agent | human). Per-TSK override allowed.",
+      "properties": {
+        "be":    { "type": "string", "enum": ["agent", "human"] },
+        "fe":    { "type": "string", "enum": ["agent", "human"] },
+        "db":    { "type": "string", "enum": ["agent", "human"] },
+        "qa":    { "type": "string", "enum": ["agent", "human"] },
+        "infra": { "type": "string", "enum": ["agent", "human"] },
+        "docs":  { "type": "string", "enum": ["agent", "human"] }
+      },
+      "additionalProperties": { "type": "string", "enum": ["agent", "human"] }
+    },
+
+    "stack": {
+      "type": "object",
+      "description": "Selected stack (source-of-truth: raw/tech_stack.md)",
+      "properties": {
+        "backend":  { "type": "string" },
+        "frontend": { "type": "string" },
+        "database": { "type": "string" },
+        "qa":       { "type": "string" },
+        "infra":    { "type": "string" }
+      }
+    },
+
+    "kanban_publish": {
+      "type": "object",
+      "description": "Push-only mirror of EP/US/TSK to external tool (v2.10, PATTERN §17)",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["none", "github", "gitlab", "jira", "linear", "custom"],
+          "description": "Kanban publish provider"
+        },
+        "target":     { "type": "string", "description": "Destination (e.g. org/repo for GitHub)" },
+        "auth_env":   { "type": "string", "description": "Environment variable name containing the authentication token" },
+        "mode":       { "type": "string", "enum": ["push-only"], "description": "Sync mode (push-only in v2.10)" },
+        "batch_limit": { "type": "integer", "minimum": 1, "description": "Max CREATE+UPDATE per run without second human gate" },
+        "mapping": {
+          "type": "object",
+          "description": "Kanban entity → provider entity mapping",
+          "properties": {
+            "epic_to":   { "type": "string" },
+            "story_to":  { "type": "string" },
+            "task_to":   { "type": "string" },
+            "sprint_to": { "type": "string" }
+          }
+        },
+        "labels": {
+          "type": "object",
+          "description": "Labels to apply on entities created in the provider",
+          "properties": {
+            "epic":             { "type": "string" },
+            "story":            { "type": "string" },
+            "task":             { "type": "string" },
+            "layer_prefix":     { "type": "string" },
+            "milestone_prefix": { "type": "string" }
+          }
+        },
+        "filter": {
+          "type": "object",
+          "description": "Filters for selecting entities to publish",
+          "properties": {
+            "only_consumer": { "type": "string", "enum": ["any", "agent", "human"] },
+            "only_status":   { "type": "string", "enum": ["any", "todo", "in-progress", "done"] }
+          }
+        }
+      }
+    },
+
+    "scheduler": {
+      "type": "object",
+      "description": "DAG-based parallel scheduler (v2.11, PATTERN §18)",
+      "properties": {
+        "enabled":                { "type": "boolean", "description": "true → parallel wave dispatch" },
+        "max_parallel":           { "type": "integer", "minimum": 1, "description": "Fan-out cap per turn (R.S3, default 4). Nessun tetto di schema: oltre parallel_gate_threshold decide il gate umano" },
+        "parallel_gate_threshold":{ "type": "integer", "minimum": 1, "description": "Human gate threshold for parallel sub-agents" },
+        "code_path_conflict": {
+          "type": "string",
+          "enum": ["strict", "warn", "off"],
+          "description": "Policy on glob overlap among candidate TSKs"
+        },
+        "empty_code_path_policy": {
+          "type": "string",
+          "enum": ["serial", "parallel"],
+          "description": "Behavior for TSK with empty code_path"
+        },
+        "domains": {
+          "type": "object",
+          "description": "Opt-in/out per parallelism domain",
+          "properties": {
+            "ingest":           { "type": "boolean" },
+            "develop":          { "type": "boolean" },
+            "lint":             { "type": "boolean" },
+            "query":            { "type": "boolean" },
+            "plan":             { "type": "boolean" },
+            "design":           { "type": "boolean" },
+            "publish":          { "type": "boolean" },
+            "sync":             { "type": "boolean" },
+            "review":           { "type": "boolean" },
+            "premortem":        { "type": "boolean" },
+            "visual-oracle":    { "type": "boolean" },
+            "a11y":             { "type": "boolean" },
+            "ux-ui-review":     { "type": "boolean" },
+            "functional-oracle":{ "type": "boolean" },
+            "analytics":        { "type": "boolean" },
+            "prototype":        { "type": "boolean" }
+          },
+          "additionalProperties": { "type": "boolean" }
+        }
+      }
+    },
+
+    "code_quality": {
+      "type": "object",
+      "description": "Code Quality Review Layer — CQRL (v2.12, PATTERN §19)",
+      "properties": {
+        "enabled":        { "type": "boolean", "description": "Master switch CQRL" },
+        "max_iterations": { "type": "integer", "minimum": 1, "description": "Bound review loop (R.Q4, default 3)" },
+        "trigger_default": {
+          "type": "object",
+          "description": "Review di default per layer/consumer: dev-protocol Fase 4-quater imposta review_status: pending, dispatch-policy §12 dispatcha code-reviewer. Assente = solo opt-in per TSK (EP-072 TSK-778)",
+          "properties": {
+            "enabled":               { "type": "boolean" },
+            "layer":                 { "type": "array", "items": { "type": "string" } },
+            "consumer":              { "type": "array", "items": { "type": "string" } },
+            "review_status_field":   { "type": "string" },
+            "review_status_default": { "type": "string" }
+          }
+        },
+        "thresholds": {
+          "type": "object",
+          "properties": {
+            "confidence_min":       { "type": "number", "minimum": 0, "maximum": 1 },
+            "batching_split":       { "type": "integer", "minimum": 1 },
+            "pass_rate_warn":       { "type": "number", "minimum": 0, "maximum": 1 },
+            "false_positive_warn":  { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "passes": {
+          "type": "object",
+          "description": "Review passes opt-in/out",
+          "properties": {
+            "idiomaticity":      { "type": "boolean" },
+            "design":            { "type": "boolean" },
+            "robustness":        { "type": "boolean" },
+            "premortem-on-merge":{ "type": "boolean" },
+            "accessibility":     { "type": "boolean" },
+            "spec_adherence":    { "type": "boolean", "description": "Passata 6 — aderenza alla specifica del TSK (EP-077, default false)" }
+          }
+        },
+        "router": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": ["all-in-one", "severity-tiered", "split-by-area"]
+            },
+            "max_diff_lines": { "type": "integer", "minimum": 1 },
+            "ordering":       { "type": "string" },
+            "layer_filter": {
+              "type": "array",
+              "items": { "type": "string", "enum": ["be", "fe", "db", "qa", "infra", "docs"] }
+            }
+          }
+        },
+        "ruleset": {
+          "type": "object",
+          "properties": {
+            "path":  { "type": "string" },
+            "tiers": { "type": "array", "items": { "type": "string" } },
+            "evolve": {
+              "type": "object",
+              "properties": {
+                "enabled":      { "type": "boolean" },
+                "cadence_days": { "type": "integer", "minimum": 1 }
+              }
+            }
+          }
+        },
+        "reports": {
+          "type": "object",
+          "properties": {
+            "path":               { "type": "string" },
+            "retain_iterations":  { "type": "integer", "minimum": 1 },
+            "digest_cadence":     { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "ponytail": {
+      "type": "object",
+      "description": "Ponytail Decision Ladder — YAGNI gate (v2.39, EP-057, opt-in). Invariante R.PY1: il pass yagni-ladder NON può downgrade/sopprimere findings di security/a11y/trust-boundary (non bypassabile via config). ponytail.passes.yagni_ladder richiede code_quality.enabled: true.",
+      "default": {},
+      "properties": {
+        "enabled": { "type": "boolean", "description": "Master switch EP-057 (default false)" },
+        "passes": {
+          "type": "object",
+          "description": "Yagni-ladder passes opt-in (abilita Lint Check 4ao + Pass 4 advisory)",
+          "properties": {
+            "yagni_ladder": { "type": "boolean", "description": "Richiede code_quality.enabled: true" }
+          }
+        },
+        "lint": {
+          "type": "object",
+          "properties": {
+            "severity": {
+              "type": "string",
+              "enum": ["warning", "info"],
+              "description": "Severity Check 4ao (forzato a info su code_path: '.')"
+            }
+          }
+        },
+        "audit": {
+          "type": "object",
+          "properties": {
+            "exclude_patterns": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Glob esclusi da /ponytail-audit"
+            }
+          }
+        }
+      }
+    },
+
+    "engineering_practices": {
+      "type": "object",
+      "description": "Pratiche di ingegneria (EP-077, opt-in R.P3): skill pocock-* adattate da mattpocock/skills @49dd158. A flag spento nessun aggancio si attiva.",
+      "default": {},
+      "properties": {
+        "enabled":        { "type": "boolean", "description": "Master switch (default false)" },
+        "kanban_path":    { "type": "string", "description": "Radice dei TSK misurati da tools/pocock/kpi_pilota.py" },
+        "analytics_path": { "type": "string", "description": "Cartella dei registri (controlli.yaml, invenzioni.yaml, bilancio-n1.yaml)" }
+      }
+    },
+
+    "ui_craft": {
+      "type": "object",
+      "description": "Mestiere della UI (EP-090, opt-in R.P3): skill kowalski-* adattate da emilkowalski/skills @715c180. A flag spento nessun aggancio si attiva.",
+      "default": {},
+      "properties": {
+        "enabled":         { "type": "boolean", "description": "Master switch (default false)" },
+        "worst_case_data": { "type": "boolean", "description": "Dati del caso peggiore: skill kowalski-worst-case-data, /worst-case, fase opzionale del functional oracle" },
+        "motion_review":   { "type": "boolean", "description": "Passata 7 advisory del code review sui diff con motion" }
+      }
+    },
+
+    "fe_correctness": {
+      "type": "object",
+      "description": "FE Correctness Layer — visual oracle and FE correctness (v2.17, EP-005/006)",
+      "properties": {
+        "enabled":             { "type": "boolean", "description": "Master switch visual oracle" },
+        "max_iterations":      { "type": "integer", "minimum": 1 },
+        "viewports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name":  { "type": "string" },
+              "width": { "type": "integer", "minimum": 1 }
+            },
+            "required": ["name", "width"]
+          }
+        },
+        "themes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "checks":               { "type": "array", "items": { "type": "string" } },
+        "state_matrix_inject":  { "type": "boolean" },
+        "granularity_lint":     { "type": "boolean" },
+        "granularity": {
+          "type": "object",
+          "properties": {
+            "max_estimate_hours": { "type": "number", "minimum": 0 },
+            "max_states":         { "type": "integer", "minimum": 1 }
+          }
+        },
+        "dispatch_gate": { "type": "boolean" },
+        "ssr_aware": {
+          "type": "object",
+          "properties": {
+            "enabled":   { "type": "boolean" },
+            "framework": { "type": "string" }
+          }
+        },
+        "functional_oracle": {
+          "type": "object",
+          "properties": {
+            "enabled":              { "type": "boolean" },
+            "max_iterations":       { "type": "integer", "minimum": 1 },
+            "critic":               { "type": "string", "enum": ["advisory", "off"] },
+            "acceptance_spec_glob": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "a11y": {
+      "type": "object",
+      "description": "Accessibility Testing Layer WCAG 2.2 AA (v2.18, EP-007)",
+      "properties": {
+        "enabled":              { "type": "boolean", "description": "Master switch EP-007" },
+        "agent":                { "type": "boolean" },
+        "standard":             { "type": "string", "description": "axe-core WCAG target tag (e.g. wcag22aa)" },
+        "severity_threshold": {
+          "type": "string",
+          "enum": ["critical", "major", "minor", "none"]
+        },
+        "required_on_fe_done":  { "type": "boolean" },
+        "fail_ci_on":           { "type": "string" },
+        "include_interactive":  { "type": "boolean" },
+        "fallback_non_web":     { "type": "string" }
+      }
+    },
+
+    "ux_ui": {
+      "type": "object",
+      "description": "UX/UI Review & Design Layer (v2.18, EP-008)",
+      "properties": {
+        "enabled":                   { "type": "boolean", "description": "Master switch EP-008" },
+        "max_iterations":            { "type": "integer", "minimum": 1 },
+        "rubric_strict":             { "type": "boolean" },
+        "design_system_path":        { "type": "string" },
+        "default_viewports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name":  { "type": "string" },
+              "width": { "type": "integer", "minimum": 1 }
+            }
+          }
+        },
+        "agents": {
+          "type": "object",
+          "properties": {
+            "reviewer": { "type": "boolean" },
+            "designer": { "type": "boolean" }
+          }
+        },
+        "required_on_fe_done":             { "type": "boolean" },
+        "lint_check_4q":                   { "type": "boolean" },
+        "parallel_during_conditional":     { "type": "boolean" },
+        "delegate_a11y_to_ep007":          { "type": "boolean" }
+      }
+    },
+
+    "analytics": {
+      "type": "object",
+      "description": "Task Analytics Layer — measurement, estimation, dogfooding, token ledger (v2.18, EP-009/010/013/022)",
+      "properties": {
+        "measurement": {
+          "type": "object",
+          "description": "Measurement layer (EP-009)",
+          "properties": {
+            "enabled":                    { "type": "boolean" },
+            "agent":                      { "type": "boolean" },
+            "store":                      { "type": "string", "enum": ["jsonl", "sqlite"] },
+            "rotation":                   { "type": "string", "enum": ["monthly", "weekly", "daily"] },
+            "compress_older_than_months": { "type": "integer", "minimum": 0 },
+            "jsonl_scan_warn_lines":      { "type": "integer", "minimum": 1 },
+            "event_store_path":           { "type": "string" },
+            "pricing_table_path":         { "type": "string" },
+            "rate_card_path":             { "type": "string" },
+            "rate_basis":                 { "type": "string", "enum": ["fully-loaded", "bill-rate"] },
+            "report_compression_savings": { "type": "boolean" },
+            "min_aggregation_n":          { "type": "integer", "minimum": 1 },
+            "operational_show_actor_id":  { "type": "boolean" },
+            "actors_map":                 { "type": "object" },
+            "tools_dir":                  { "type": "string" },
+            "drift_warn_days":            { "type": "integer", "minimum": 1 },
+            "required_on_done":           { "type": "boolean" },
+            "granularity":                { "type": "string", "enum": ["tsk", "wave", "tool"] }
+          }
+        },
+        "estimation": {
+          "type": "object",
+          "description": "Estimation layer (EP-010)",
+          "properties": {
+            "enabled":                           { "type": "boolean" },
+            "agent":                             { "type": "boolean" },
+            "rcf_min_samples":                   { "type": "integer", "minimum": 0 },
+            "rcf_low_confidence_threshold":      { "type": "integer", "minimum": 0 },
+            "rcf_medium_confidence_threshold":   { "type": "integer", "minimum": 0 },
+            "rcf_high_confidence_threshold":     { "type": "integer", "minimum": 0 },
+            "similarity_factor":                 { "type": "object" },
+            "default_contingency_pct":           { "type": "number", "minimum": 0 },
+            "default_M_per_layer":               { "type": "object" },
+            "default_model":                     { "type": "string" },
+            "include_compression_in_assumptions":{ "type": "boolean" },
+            "monte_carlo": {
+              "type": "object",
+              "properties": {
+                "runtime":         { "type": "string", "enum": ["python", "typescript", "none"] },
+                "iterations":      { "type": "integer", "minimum": 1 },
+                "ts_max_iterations":{ "type": "integer", "minimum": 1 },
+                "seed":            {}
+              }
+            },
+            "required_on_kickoff": { "type": "boolean" }
+          }
+        },
+        "dogfooding": {
+          "type": "object",
+          "description": "Analytics dogfooding (EP-013) — meta-framework repo only",
+          "properties": {
+            "enabled":              { "type": "boolean" },
+            "privacy_policy_path":  { "type": "string" },
+            "runbook_path":         { "type": "string" },
+            "baseline_reports_path":{ "type": "string" },
+            "lock_strategy":        { "type": "string" },
+            "lock_timeout_seconds": { "type": "integer", "minimum": 0 },
+            "idempotency_strategy": { "type": "string" }
+          }
+        },
+        "token_ledger": {
+          "type": "object",
+          "description": "Token Ledger (v2.21, EP-022) — inline economic visibility",
+          "properties": {
+            "enabled":               { "type": "boolean" },
+            "display_mode":          { "type": "string", "enum": ["compact", "full"] },
+            "show_cache_savings":    { "type": "boolean" },
+            "auto_call_on_wave_close":{ "type": "boolean" },
+            "pricing_fallback":      { "type": "string" }
+          }
+        },
+        "cost_alert": {
+          "type": "object",
+          "description": "Cost Alert — controllo dei costi in token dell'operatore contro analytics/alert-rules.yaml",
+          "properties": {
+            "enabled":    { "type": "boolean" },
+            "agent":      { "type": "boolean" },
+            "rules_file": { "type": "string" },
+            "alerts_dir": { "type": "string" }
+          }
+        },
+        "sprint_progress": {
+          "type": "object",
+          "description": "Sprint Progress Signal (v2.30, EP-043)",
+          "properties": {
+            "enabled":               { "type": "boolean" },
+            "velocity_rolling_days": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+
+    "release_governance": {
+      "type": "object",
+      "description": "Release Governance — battle-test gate for meta-framework release (v2.19, EP-012)",
+      "properties": {
+        "enabled":                    { "type": "boolean" },
+        "min_run_reports":            { "type": "integer", "minimum": 1 },
+        "bypass_allowed":             { "type": "boolean" },
+        "bypass_sla_releases":        { "type": "integer", "minimum": 1 },
+        "changelog_section_required": { "type": "boolean" },
+        "battle_test_gate": {
+          "type": "object",
+          "properties": {
+            "enabled":             { "type": "boolean" },
+            "mode":                { "type": "string", "enum": ["blocking", "warn"] },
+            "min_run_reports":     { "type": "integer", "minimum": 1 },
+            "bypass_allowed":      { "type": "boolean" },
+            "bypass_sla_releases": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+
+    "compression": {
+      "type": "object",
+      "description": "Two-axis Compression Layer — output (Caveman) + context (Graphify) (v2.14, PATTERN §20)",
+      "properties": {
+        "output": {
+          "type": "object",
+          "description": "Output axis (Phase 1) — agent-to-agent message compression",
+          "properties": {
+            "enabled":         { "type": "boolean" },
+            "provider":        { "type": "string" },
+            "install_command": { "type": "string" },
+            "policy_profile":  {
+              "type": "string",
+              "enum": ["conservative", "aggressive", "custom"]
+            },
+            "invariants": {
+              "type": "object",
+              "description": "R.C1 — non-overridable invariants (off in YAML = false in JSON)",
+              "properties": {
+                "to_user":              { "type": "boolean", "description": "Always off/false (R.C1)" },
+                "to_artifact":          { "type": "boolean", "description": "Always off/false (R.C1)" },
+                "propagate_resolution": { "type": "boolean", "description": "Always off/false (R.C1)" }
+              }
+            },
+            "channels": {
+              "type": "object",
+              "description": "Used only if policy_profile == custom",
+              "additionalProperties": { "type": "string", "enum": ["full", "ultra", "lite", "normal"] }
+            },
+            "chain_depth_downgrade":  { "type": "boolean" },
+            "chain_depth_threshold":  { "type": "integer", "minimum": 1 },
+            "cross_factory": {
+              "description": "R.C4 — always off/false cross-factory (YAML off = boolean false)",
+              "type": "boolean"
+            },
+            "drift_fallback": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "markers": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "audit_trail_for": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "decision_anchor": {
+              "type": "object",
+              "properties": { "enabled": { "type": "boolean" } }
+            },
+            "consistency_check": {
+              "type": "object",
+              "properties": {
+                "enabled":              { "type": "boolean" },
+                "trigger":              { "type": "string", "enum": ["per_handoff", "per_review_iter", "per_wave_close"] },
+                "token_budget_max":     { "type": "integer", "minimum": 1 },
+                "required_on_chain":    { "type": "boolean" }
+              }
+            },
+            "migration": {
+              "type": "object",
+              "properties": {
+                "strict":                      { "type": "boolean" },
+                "warn_threshold_chain_depth":  { "type": "integer", "minimum": 0 },
+                "warn_threshold_capabilities": { "type": "integer", "minimum": 0 },
+                "audit_after_upgrade":         { "type": "boolean" }
+              }
+            }
+          }
+        },
+        "context": {
+          "type": "object",
+          "description": "Context axis (Phase 2) — context compression via Graphify",
+          "properties": {
+            "provider":  {
+              "type": "string",
+              "enum": ["none", "graphify-cloud", "graphify-ollama"]
+            },
+            "enabled":         { "type": "boolean" },
+            "package":         { "type": "string" },
+            "install_command": { "type": "string" },
+            "ollama": {
+              "type": "object",
+              "properties": {
+                "model":      { "type": "string" },
+                "vram_gb_min":{ "type": "number", "minimum": 0 }
+              }
+            },
+            "targets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "kind":               { "type": "string", "enum": ["code_path", "wiki"] },
+                  "name":               { "type": "string" },
+                  "path":               { "type": "string" },
+                  "gitignore_patterns": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["kind"]
+              }
+            },
+            "update_strategy":       { "type": "string", "enum": ["incremental", "manual", "always"] },
+            "full_rebuild_cron":     { "type": "string" },
+            "drift_alert_days":      { "type": "integer", "minimum": 1 },
+            "full_rebuild_cost_warn":{ "type": "number", "minimum": 0 },
+            "ghost_duplicates_warn": { "type": "integer", "minimum": 0 },
+            "ci_strategy": {
+              "type": "object",
+              "properties": {
+                "mode":                   { "type": "string", "enum": ["cache-with-fallback", "disabled", "always-rebuild"] },
+                "cache_provider":         { "type": "string" },
+                "cache_key_prefix":       { "type": "string" },
+                "stale_threshold_hours":  { "type": "integer", "minimum": 1 },
+                "full_rebuild_on_demand": { "type": "boolean" }
+              }
+            },
+            "confidence_gating": {
+              "type": "object",
+              "properties": {
+                "executor": { "type": "array", "items": { "type": "string" } },
+                "explorer": { "type": "array", "items": { "type": "string" } },
+                "reviewer": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "mcp_server": {
+              "type": "object",
+              "properties": {
+                "enabled":       { "type": "boolean" },
+                "topology":      { "type": "string", "enum": ["per-agent", "shared"] },
+                "crg_tools_max": { "type": "integer", "minimum": 1 }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "temporal": {
+      "type": "object",
+      "description": "Temporal layers — context injection, handoff protocol, state machine, budget governor, estimate protocol (EP-011/014/043)",
+      "properties": {
+        "enabled": { "type": "boolean", "description": "Master switch EP-011 — prerequisite for all sub-blocks" },
+        "context_injection": {
+          "type": "object",
+          "description": "Temporal Context injection in system prompt (US-045, Pattern 1)",
+          "properties": {
+            "enabled":            { "type": "boolean" },
+            "time_source":        { "type": "string" },
+            "session_id_format":  { "type": "string" },
+            "helper_path":        { "type": "string" }
+          }
+        },
+        "handoff_protocol": {
+          "type": "object",
+          "description": "Temporal Handoff Block in every handoff (US-046, Pattern 4)",
+          "properties": {
+            "enabled":                       { "type": "boolean" },
+            "elapsed_ms_basis":              { "type": "string", "enum": ["wall-clock", "compute-only"] },
+            "use_reference_class":           { "type": "boolean" },
+            "handoff_required_on_wave_close":{ "type": "boolean" },
+            "context_summary_required":      { "type": "boolean" }
+          }
+        },
+        "state_machine": {
+          "type": "object",
+          "description": "State file per TSK (US-047, Pattern 3)",
+          "properties": {
+            "enabled":             { "type": "boolean" },
+            "activation_policy":   { "type": "string", "enum": ["estimate-xl", "always", "explicit-only"] },
+            "state_file_path":     { "type": "string" },
+            "source":              { "type": "string", "enum": ["standalone", "events"] },
+            "required_on_xl":      { "type": "boolean" },
+            "append_only_enforce": { "type": "boolean" }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "description": "Temporal Budget Governor — economic bound of the loop (EP-014)",
+          "properties": {
+            "enabled":                { "type": "boolean" },
+            "token_budget_source":    { "type": "string", "enum": ["p85", "p50", "p95", "fixed"] },
+            "wave": {
+              "type": "object",
+              "properties": {
+                "enabled":              { "type": "boolean" },
+                "token_budget_source":  { "type": "string" },
+                "token_budget_fixed":   { "type": "integer", "minimum": 1 }
+              }
+            },
+            "tsk": {
+              "type": "object",
+              "properties": {
+                "enabled":              { "type": "boolean" },
+                "token_budget_source":  { "type": "string" },
+                "token_budget_fixed":   { "type": "integer", "minimum": 1 }
+              }
+            },
+            "sprint": {
+              "type": "object",
+              "properties": {
+                "enabled":              { "type": "boolean" },
+                "token_budget_source":  { "type": "string" },
+                "token_budget_fixed":   { "type": "integer", "minimum": 1 },
+                "sprint_source_file":   { "type": "string" }
+              }
+            },
+            "thresholds": {
+              "type": "object",
+              "properties": {
+                "green":  { "type": "number", "minimum": 0 },
+                "yellow": { "type": "number", "minimum": 0 },
+                "orange": { "type": "number", "minimum": 0 },
+                "red":    { "type": "number", "minimum": 0 }
+              }
+            },
+            "bootstrap": {
+              "type": "object",
+              "properties": {
+                "min_n":                { "type": "integer", "minimum": 1 },
+                "wave_default_tokens":  { "type": "integer", "minimum": 1 },
+                "very_cautious_mode":   { "type": "boolean" }
+              }
+            },
+            "required_on_wave_close": { "type": "boolean" },
+            "cost_per_1k_tokens":     {}
+          }
+        },
+        "estimate_protocol": {
+          "type": "object",
+          "description": "Adaptive elapsed/progress estimation (EP-043 US-152, Layer 3 Generative Time Model)",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "budget_ms": {
+              "type": "object",
+              "properties": {
+                "S":  { "type": "integer", "minimum": 1 },
+                "M":  { "type": "integer", "minimum": 1 },
+                "L":  { "type": "integer", "minimum": 1 },
+                "XL": { "type": "integer", "minimum": 1 }
+              }
+            },
+            "thresholds": {
+              "type": "object",
+              "properties": {
+                "warn_time_ratio":       { "type": "number", "minimum": 0 },
+                "escalate_time_ratio":   { "type": "number", "minimum": 0 },
+                "escalate_confidence_min":{ "type": "number", "minimum": 0, "maximum": 1 }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "adoption_profile": {
+      "type": "string",
+      "enum": ["minimal", "standard", "full"],
+      "description": "PATTERN view exposed to maintainer / newcomer (v2.19, EP-016)"
+    },
+
+    "complexity_budget": {
+      "type": "object",
+      "description": "Subtractive PATTERN governance — N:1 rule for ## top-level sections (v2.19, EP-016)",
+      "properties": {
+        "n":                   { "type": "integer", "minimum": 1, "description": "Recalibrated N:1 ratio" },
+        "required_on_release": { "type": "boolean", "description": "ERROR on minor/major release with violated N:1 ratio" }
+      }
+    },
+
+    "design_intelligence": {
+      "type": "object",
+      "description": "Design Intelligence Layer (v2.21, EP-019, PATTERN §24) — art-director DSL + LLM-Generator Separation + Critic/Judge",
+      "properties": {
+        "enabled":                  { "type": "boolean", "description": "Master switch EP-019 — requires ux_ui.enabled: true" },
+        "art_director":             { "type": "boolean" },
+        "generator_tool":           { "type": "string", "enum": ["none", "plop", "yeoman"] },
+        "critic_enabled":           { "type": "boolean" },
+        "rubric_intention_economy": { "type": "boolean" }
+      }
+    },
+
+    "prototyping": {
+      "type": "object",
+      "description": "Prototype Generation Layer (v2.25, EP-035, PATTERN §27) — adaptive cascade figma→penpot→react→html",
+      "properties": {
+        "enabled":          { "type": "boolean", "description": "Master switch EP-035" },
+        "backend":          { "type": "string", "enum": ["auto", "html", "react", "figma", "penpot"] },
+        "fallback_chain": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["html", "react", "figma", "penpot"] }
+        },
+        "degrade_policy":   { "type": "string", "enum": ["notify", "strict"] },
+        "fidelity":         { "type": "string", "enum": ["static", "interactive", "animated"] },
+        "design_source":    { "type": "string" },
+        "art_director":     { "type": "string", "enum": ["inherit", "on", "off"] },
+        "output_path":      { "type": "string" },
+        "oracle_handoff":   { "type": "boolean" },
+        "scheduler_domain": { "type": "string" },
+        "variants":         { "type": "integer", "minimum": 1, "maximum": 5, "default": 1, "description": "EP-090: numero di varianti divergenti (1 = comportamento invariato)" },
+        "backends": {
+          "type": "object",
+          "properties": {
+            "html": {
+              "type": "object",
+              "properties": {
+                "css_strategy": { "type": "string", "enum": ["tailwind-cdn", "inline", "vanilla"] },
+                "single_file":  { "type": "boolean" }
+              }
+            },
+            "react": {
+              "type": "object",
+              "properties": {
+                "component_lib": { "type": "string" },
+                "storybook":     { "type": "boolean" },
+                "target":        {}
+              }
+            },
+            "figma": {
+              "type": "object",
+              "properties": {
+                "mcp_server": { "type": "string" },
+                "file_key":   { "type": "string" }
+              }
+            },
+            "penpot": {
+              "type": "object",
+              "properties": {
+                "mcp_server":   { "type": "string" },
+                "instance_url": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "qa_layer": {
+      "type": "object",
+      "description": "QA layers — flakiness detection (EP-027), test self-healing (EP-028), failure taxonomy (EP-029)",
+      "properties": {
+        "failure_taxonomy": {
+          "type": "object",
+          "properties": { "enabled": { "type": "boolean" } }
+        },
+        "flakiness_detection": {
+          "type": "object",
+          "properties": {
+            "enabled":                  { "type": "boolean" },
+            "score_threshold":          { "type": "number", "minimum": 0, "maximum": 1 },
+            "release_threshold":        { "type": "number", "minimum": 0, "maximum": 1 },
+            "rolling_window":           { "type": "integer", "minimum": 1 },
+            "release_consecutive_runs": { "type": "integer", "minimum": 1 },
+            "stale_threshold":          { "type": "integer", "minimum": 1 }
+          }
+        },
+        "test_healing": {
+          "type": "object",
+          "properties": {
+            "enabled":              { "type": "boolean" },
+            "max_attempts":         { "type": "integer", "minimum": 1 },
+            "auto_apply_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+            "propose_threshold":    { "type": "number", "minimum": 0, "maximum": 1 },
+            "healing_invariants": {
+              "type": "object",
+              "properties": {
+                "acceptance_spec_immutable": { "type": "boolean" },
+                "acceptance_spec_glob":      { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "wiki_lint": {
+      "type": "object",
+      "description": "Wiki Lint configuration — semantic drift detection (v2.23, EP-031)",
+      "properties": {
+        "semantic_check": {
+          "type": "object",
+          "properties": {
+            "enabled":              { "type": "boolean" },
+            "similarity_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+            "embedding_model":      { "type": "string" },
+            "cost_warn_usd":        { "type": "number", "minimum": 0 },
+            "output_report":        { "type": "boolean" },
+            "output_report_path":   { "type": "string" }
+          }
+        },
+        "log_append_guard": {
+          "type": "object",
+          "description": "Guardia append-only di wiki/log.md (EP-077). Il check di lint 4bb e' sempre attivo e advisory; qui solo l'hook di pre-commit, opt-in.",
+          "properties": {
+            "hook": { "type": "boolean", "default": false, "description": "true: tools/vcs/install_factory_hooks.py installa il pre-commit che blocca il commit se wiki/log.md perde righe senza archivio" }
+          }
+        }
+      }
+    },
+
+    "tavola_rotonda": {
+      "type": "object",
+      "description": "Tavola Rotonda Mode — structured multi-agent deliberation (v2.27, EP-039, PATTERN §28)",
+      "properties": {
+        "enabled":                { "type": "boolean", "description": "Master switch EP-039" },
+        "partecipanti_default":   { "type": "array", "items": { "type": "string" } },
+        "critico": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "mode":    { "type": "string", "enum": ["dedicated", "rotation"] }
+          }
+        },
+        "max_round":          { "type": "integer", "minimum": 1 },
+        "stop_su_consenso":   { "type": "boolean" },
+        "definizione_consenso": {
+          "type": "string",
+          "enum": ["unanimity", "supermajority", "no_blocking_objection"]
+        },
+        "meccanismo_decisione": {
+          "type": "string",
+          "enum": ["sintesi_moderatore", "voto", "voto_pesato", "consenso", "ibrido"]
+        },
+        "budget": {
+          "type": "object",
+          "properties": {
+            "max_cost_usd":  { "type": "number", "minimum": 0 },
+            "max_tokens":    {},
+            "max_latency_s": {}
+          }
+        },
+        "topologia":           { "type": "string", "enum": ["lavagna", "grafo_completo"] },
+        "sintesi_progressiva": { "type": "boolean" }
+      }
+    },
+
+    "voice_channel": {
+      "type": "object",
+      "description": "Voice Channel Layer — STT/TTS/VAD/AEC (v2.28, EP-041, PATTERN §30)",
+      "properties": {
+        "enabled":   { "type": "boolean", "description": "Master switch EP-041 — explicit opt-in" },
+        "phase":     { "type": "integer", "minimum": 1, "maximum": 4 },
+        "log_level": { "type": "string", "enum": ["DEBUG", "INFO", "WARNING"] },
+        "stt": {
+          "type": "object",
+          "properties": {
+            "provider":                     { "type": "string" },
+            "model":                        { "type": "string" },
+            "language":                     { "type": "string" },
+            "no_speech_prob_threshold":     { "type": "number", "minimum": 0, "maximum": 1 },
+            "compression_ratio_threshold":  { "type": "number", "minimum": 0 }
+          }
+        },
+        "tts": {
+          "type": "object",
+          "properties": {
+            "provider":          { "type": "string" },
+            "voice":             { "type": "string" },
+            "model_dir":         { "type": "string" },
+            "playing_watchdog_s":{ "type": "number", "minimum": 0 }
+          }
+        },
+        "audio": {
+          "type": "object",
+          "properties": {
+            "input_device":  {},
+            "output_device": {}
+          }
+        },
+        "vad": {
+          "type": "object",
+          "properties": {
+            "provider":           { "type": "string" },
+            "threshold":          { "type": "number", "minimum": 0, "maximum": 1 },
+            "endpoint_silence_ms":{ "type": "integer", "minimum": 1 },
+            "debounce_ms":        { "type": "integer", "minimum": 0 }
+          }
+        },
+        "barge_in": {
+          "type": "object",
+          "properties": {
+            "enabled":       { "type": "boolean" },
+            "vad_threshold": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "aec": {
+          "type": "object",
+          "properties": {
+            "enabled":  { "type": "boolean" },
+            "provider": { "type": "string" }
+          }
+        },
+        "runtime": {
+          "type": "object",
+          "properties": {
+            "provider":                   { "type": "string", "enum": ["file-pipe", "claude-code", "anthropic", "ollama", "mock"] },
+            "claude_code_bin":            { "type": "string" },
+            "claude_code_timeout":        { "type": "integer", "minimum": 1 },
+            "claude_code_max_spoken":     { "type": "integer", "minimum": 1 },
+            "claude_code_allowed_tools":  { "type": "string" },
+            "claude_code_model":          { "type": "string" },
+            "llm_model":                  { "type": "string" },
+            "ollama_base_url":            { "type": "string" },
+            "ollama_model":               { "type": "string" },
+            "liveness_check":             { "type": "boolean" },
+            "consumer_alive_path":        {},
+            "consumer_alive_ttl_s":       { "type": "integer", "minimum": 1 },
+            "not_connected_message":      { "type": "string" }
+          }
+        },
+        "wake_word": {
+          "type": "object",
+          "properties": {
+            "enabled":         { "type": "boolean" },
+            "keyword":         { "type": "string" },
+            "sensitivity":     { "type": "number", "minimum": 0, "maximum": 1 },
+            "samples_dir":     { "type": "string" },
+            "listen_chunk_ms": { "type": "integer", "minimum": 1 },
+            "min_detections":  { "type": "integer", "minimum": 1 },
+            "filter_threshold":{ "type": "integer", "minimum": 0 }
+          }
+        },
+        "capture": {
+          "type": "object",
+          "properties": {
+            "onset_timeout_s": { "type": "number", "minimum": 0 },
+            "max_duration_s":  { "type": "number", "minimum": 0 }
+          }
+        }
+      }
+    },
+
+    "wiki_search": {
+      "type": "object",
+      "description": "Hybrid Wiki Search Layer — vector+FTS+RRF on wiki/ via LanceDB (v2.29, EP-042, PATTERN §31)",
+      "properties": {
+        "enabled":            { "type": "boolean", "description": "Master switch EP-042 — opt-in (R.WS2)" },
+        "backend":            { "type": "string", "enum": ["auto", "fts5", "hybrid"], "description": "auto = hybrid se lancedb e sentence-transformers sono importabili, altrimenti fts5 (SQLite FTS5, solo stdlib)" },
+        "fts_db":             { "type": "string", "description": "Indice SQLite del backend fts5 (default .wiki-search/fts.sqlite)" },
+        "embedding_provider": { "type": "string", "enum": ["local", "voyage-api", "openai-api"] },
+        "embedding_model":    { "type": "string" },
+        "embedding_dim":      { "type": "integer", "minimum": 1 },
+        "index_path":         { "type": "string" },
+        "index_table":        { "type": "string" },
+        "chunk_strategy":     { "type": "string", "enum": ["h2-section", "whole-page"] },
+        "mode":               { "type": "string", "enum": ["hybrid", "vector", "fts"] },
+        "rrf_k":              { "type": "integer", "minimum": 1 },
+        "candidate_k":        { "type": "integer", "minimum": 1 },
+        "top_k":              { "type": "integer", "minimum": 1 },
+        "exclude_types": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "capability_formativa": {
+      "type": "object",
+      "description": "Capability Formativa — adaptive tutoring MVP with Student Model SM-2 (v2.32, EP-045)",
+      "properties": {
+        "enabled":                { "type": "boolean", "description": "Master switch EP-045" },
+        "wiki_search_integration":{ "type": "boolean" }
+      }
+    },
+
+    "content_share": {
+      "type": "object",
+      "description": "Content Share Consumer Layer — publishes HTML artifacts to soli-frames (v2.33, EP-048)",
+      "properties": {
+        "enabled":            { "type": "boolean", "description": "Master switch EP-048 — opt-in (R.CS2)" },
+        "target_repo":        { "type": "string", "description": "Destination hub (e.g. org/repo)" },
+        "source_repo_slug":   { "type": "string", "description": "Source factory slug — explicit required" },
+        "source_repo":        { "type": "string", "description": "Source repo in org/repo format" },
+        "pat_env":            { "type": "string", "description": "Fine-grained PAT environment variable name (Contents:write)" },
+        "secret_env":         { "type": "string", "description": "Dispatch secret environment variable name" },
+        "publish_default":    { "type": "string", "enum": ["draft", "published"] },
+        "size_limit_kb":      { "type": "integer", "minimum": 1 },
+        "size_warn_kb":       { "type": "integer", "minimum": 1 },
+        "artifact_categories": {
+          "type": "object",
+          "properties": {
+            "prototype":        { "type": "boolean" },
+            "analytics_report": { "type": "boolean" },
+            "custom":           { "type": "boolean" }
+          }
+        }
+      }
+    },
+
+    "mcp_server": {
+      "type": "object",
+      "description": "Factory-as-MCP-Server opt-in (EP-058, v2.39). R.MCP1: nessun tool scrive su factory state. Con enabled:false la factory è identica a v2.38.",
+      "default": {},
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Abilita il server MCP. R.P3 opt-in — false di default."
+        },
+        "server_script": {
+          "type": "string",
+          "default": "adapters/mcp/server.py",
+          "description": "Path relativo al root factory dello script server MCP."
+        },
+        "transport": {
+          "type": "string",
+          "enum": ["stdio"],
+          "default": "stdio",
+          "description": "Transport MCP. stdio = start-per-session avviato dal client."
+        },
+        "resources": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Resource set esposto. Valori: wiki, kanban, config."
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Tool set esposto. Valori: query_wiki, get_task, lint_status."
+        },
+        "mcp_spec_version": {
+          "type": "string",
+          "description": "ISO date della spec MCP in uso. ADR-MCP-004: non modificare senza upgrade gate umano."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "refactor_agent_skills": {
+      "type": "object",
+      "description": "Refactor Skill Layer / Fleet Health (EP-060, v2.41, opt-in). R.FH1: enabled:false default. R.FH2: lint check WARNING-only. R.FH3: fail-open se script mancanti.",
+      "default": {},
+      "additionalProperties": false,
+      "properties": {
+        "status": { "type": "string", "description": "Ciclo di vita della capability (active, dormant, exempt...), come negli altri blocchi" },
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Opt-in totale. false (default) = factory identica a v2.40. R.FH1."
+        },
+        "default_target": {
+          "type": "string",
+          "default": ".",
+          "description": "Target di default per /refactor senza argomenti."
+        },
+        "snapshot_dir": {
+          "type": "string",
+          "default": ".fleet-health/workspace",
+          "description": "Directory gitignored per snapshot baseline pre-refactor (V-6)."
+        },
+        "reports_dir": {
+          "type": "string",
+          "default": ".fleet-health/reports",
+          "description": "Directory gitignored per output gate + benchmark."
+        },
+        "thresholds": {
+          "type": "object",
+          "description": "Soglie righe corpo per verdetto refactor.",
+          "properties": {
+            "error":       { "type": "integer", "minimum": 1, "description": ">N righe = REFACTOR raccomandato" },
+            "warning":     { "type": "integer", "minimum": 1, "description": "N..error righe = VALUTARE" },
+            "body_target": { "type": "integer", "minimum": 1, "description": "Target righe corpo post-refactor" },
+            "leaf_min":    { "type": "integer", "minimum": 1, "description": "Sotto = micro-foglia anti-pattern" },
+            "leaf_max":    { "type": "integer", "minimum": 1, "description": "Sopra = foglia da rifattorizzare" }
+          },
+          "additionalProperties": false
+        },
+        "sampling": {
+          "type": "object",
+          "description": "Parametri campionamento Fase 4.",
+          "properties": {
+            "fan_in_floor": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Floor min(fan_in, N) call-site distinte per Fase 4. PA-5 default."
+            }
+          },
+          "additionalProperties": false
+        },
+        "injection_globs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Override manuale glob agenti Pattern B; vuoto = auto-detect via mappa_riferimenti.py."
+        }
+      }
+    },
+
+    "updated": {
+      "type": "string",
+      "description": "Metadata: last update date of factory.config.yaml (YYYY-MM-DD, non-normative)"
+    },
+
+    "ai_policy_check": {
+      "type": "object",
+      "description": "AI Attribution Policy — Layer-2 detective scan (v2.44-candidate, EP-068, opt-in). Guardia di scope: il repo della factory non e' mai scansionato.",
+      "properties": {
+        "enabled":  { "type": "boolean", "default": false, "description": "Master switch (default false). Comandi espliciti funzionano anche a flag spento." },
+        "status":   { "type": "string", "description": "Lifecycle marker (dormant | active)" },
+        "triggers": {
+          "type": "object",
+          "properties": {
+            "on_explicit":           { "type": "boolean" },
+            "on_session_close":      { "type": "boolean" },
+            "on_tsk_closed_count":   { "type": "integer", "minimum": 0, "description": "0 = disabilitato" }
+          }
+        },
+        "scope": {
+          "type": "array",
+          "description": "Path dei code_path da scansionare. Vuoto = nulla da scansionare (exit 0, non errore).",
+          "items": {
+            "type": "object",
+            "properties": { "path": { "type": "string" } }
+          }
+        }
+      }
+    },
+
+    "repo_align": {
+      "type": "object",
+      "description": "Repo Align — verifica allineamento locale/remote su tutti i vcs.mode (v2.44-candidate, EP-068, opt-in). Zero mutazione: solo git ls-remote.",
+      "properties": {
+        "enabled":              { "type": "boolean", "default": false },
+        "status":               { "type": "string" },
+        "triggers": {
+          "type": "object",
+          "properties": {
+            "on_explicit":           { "type": "boolean" },
+            "on_session_close":      { "type": "boolean" },
+            "on_tsk_closed_count":   { "type": "integer", "minimum": 0 }
+          }
+        },
+        "auth_domains":   {
+          "type": "array",
+          "description": "Repo -> credenziale. Lookup per name o path (forma documentata: path + token_env_var)",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name":          { "type": "string" },
+              "path":          { "type": "string" },
+              "remote":        { "type": "string" },
+              "branch":        { "type": "string", "description": "Branch primario che il gitlink segue, non il feature branch" },
+              "token_env":     { "type": "string" },
+              "token_env_var": { "type": "string", "description": "Sinonimo di token_env" },
+              "auth_type":     { "type": "string" }
+            },
+            "anyOf": [ { "required": ["name"] }, { "required": ["path"] } ]
+          }
+        },
+        "env_file":       { "type": "string", "description": "File KEY=VALUE (letto, mai eseguito) per i token assenti dall'ambiente" },
+        "persist_yaml":   { "type": "boolean" },
+        "log_to_wiki":    { "type": "boolean" }
+      }
+    },
+
+    "kanban_coordination": {
+      "type": "object",
+      "description": "Kanban Multi-User Coordination — visibilita' bidirezionale al ciclo di push (v2.43-candidate, EP-064, opt-in). Non impedisce la doppia presa.",
+      "properties": {
+        "enabled":                { "type": "boolean", "default": false },
+        "oracle_window_days":     { "type": "integer", "minimum": 1, "description": "Finestra in giorni per l'oracolo di collisione" },
+        "stale_assignment_days":  { "type": "integer", "minimum": 1, "description": "Soglia assegnazione ferma (assignee: advisory)" }
+      }
+    },
+
+    "visual_channel": {
+      "type": "object",
+      "description": "Visual Channel / Plancia — canale visivo factory (v2.45+, EP-067, opt-in). Non e' uno scrittore; non arbitra la concorrenza.",
+      "properties": {
+        "enabled":                    { "type": "boolean", "default": false },
+        "host":                       { "type": "string", "description": "Solo loopback (127.0.0.1). Esporre su 0.0.0.0 e' una scelta esplicita." },
+        "port":                       { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "runtime_timeout_seconds":    { "type": "integer", "minimum": 1 },
+        "stale_after_seconds":        { "type": "integer", "minimum": 1 },
+        "coordinamento": {
+          "type": "object",
+          "description": "Riquadro «Avanzamento delle attivita'»: report PM di EP-070 nella plancia. Richiede pm_report.enabled: true.",
+          "properties": {
+            "config": { "type": "string", "description": "Config operatore relativa alla root. Assente = analytics/coordinamento/config-<git user.name>.json." },
+            "fonte":  { "type": "string", "enum": ["worktree", "commit"], "default": "worktree", "description": "worktree vede anche gli status: non committati; commit misura solo HEAD." }
+          }
+        }
+      }
+    },
+
+    "version_coherence": {
+      "type": "object",
+      "description": "Version coherence profile — disambigua i siti di dichiarazione per check-version-coherence.py (v2.44-candidate, EP-068).",
+      "properties": {
+        "profile": {
+          "type": "string",
+          "enum": ["framework", "derived"],
+          "description": "framework = meta-repo padre; derived = factory derivata. Chiave da non propagare alle derivate."
+        }
+      }
+    },
+
+    "session_analysis": {
+      "type": "object",
+      "description": "Session Agentic Analyser — analisi critica post-hoc out-of-band (v2.43-candidate, EP-061, opt-in). SUNSET-CANDIDATE v2.44.",
+      "properties": {
+        "enabled":              { "type": "boolean", "default": false, "description": "opt-in, default off (R-SAA-5)" },
+        "depth_default":        { "type": "string", "enum": ["quick", "full"] },
+        "auto_on_session_end":  { "type": "boolean" },
+        "read_transcript":      { "type": "boolean" },
+        "subagents_path":       { "type": "string" },
+        "schema_version_guard": { "type": "boolean", "description": "R-SAA-9 obbligatorio, non disabilitabile" },
+        "anonymize_rules":      { "type": "array", "items": { "type": "string" } },
+        "max_token_budget":     { "type": "integer", "minimum": 1 },
+        "advisory_model":       { "type": "string", "description": "modello dell'advisory LLM (depth full); vuoto = models.routing.tier_fast del registro modelli" },
+        "kill_criterion_ref":   { "type": "string" }
+      }
+    },
+
+    "wiki_sweep": {
+      "type": "object",
+      "description": "Wiki Sweep — pass di qualita' semantica wiki (EP-056, opt-in). Risolve claim non supportati, wikilink dangling, deriva terminologica.",
+      "properties": {
+        "enabled":          { "type": "boolean", "default": false },
+        "max_iterations":   { "type": "integer", "minimum": 1 },
+        "confidence_min":   { "type": "number", "minimum": 0, "maximum": 1 },
+        "categories":       { "type": "array", "items": { "type": "string" } },
+        "use_purpose_md":   { "type": "boolean" }
+      }
+    },
+
+    "documentation": {
+      "type": "object",
+      "description": "Documentazione generata dalla wiki (EP-075, opt-in, default off): sito tecnico, documentazione funzionale, digest settimanale",
+      "properties": {
+        "enabled":    { "type": "boolean", "default": false },
+        "status":     { "type": "string" },
+        "redaction":  { "type": "object", "properties": { "enabled": { "type": "boolean", "default": true } } },
+        "tech_site": {
+          "type": "object",
+          "properties": {
+            "output_dir":       { "type": "string" },
+            "include_sections": { "type": "array", "items": { "type": "string" } },
+            "exclude_sections": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "functional_docs": {
+          "type": "object",
+          "properties": {
+            "output_dir": { "type": "string" },
+            "services": {
+              "type": "object",
+              "description": "Catalogo servizio -> pagine wiki sorgente; vuoto = si usano i file di wiki/user-flows/",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "title":   { "type": "string" },
+                  "sources": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            }
+          }
+        },
+        "weekly_digest": {
+          "type": "object",
+          "properties": {
+            "output_dir": { "type": "string" },
+            "release_kinds": {
+              "type": "array",
+              "description": "Etichette dei rilasci del registro: il primo prefix che combacia (minuscolo) vince; nessuna corrispondenza = altro",
+              "items": {
+                "type": "object",
+                "required": ["prefix", "label"],
+                "properties": { "prefix": { "type": "string" }, "label": { "type": "string" } }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "code_intelligence": {
+      "type": "object",
+      "description": "Code Intelligence Stack — tre layer local-first per navigazione codice (v2.37, EP-054, opt-in). Zero dipendenze SaaS.",
+      "properties": {
+        "enabled":  { "type": "boolean", "default": false },
+        "l1_ctags": {
+          "type": "object",
+          "description": "L1 Symbol Resolver via universal-ctags",
+          "properties": {
+            "enabled":       { "type": "boolean" },
+            "languages":     { "type": "array", "items": { "type": "string" } },
+            "side_channel":  { "type": "string" },
+            "extra_flags":   { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "l2_semantic": {
+          "type": "object",
+          "description": "L2 Semantic Search via tree-sitter + embedding + LanceDB",
+          "properties": {
+            "enabled":           { "type": "boolean" },
+            "embedding_model":   { "type": "string" },
+            "chunk_max_lines":   { "type": "integer", "minimum": 1 },
+            "lancedb_path":      { "type": "string" },
+            "exclude_patterns":  { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "l3_impact": {
+          "type": "object",
+          "description": "L3 Impact Graph via graphify (EP-052)",
+          "properties": {
+            "enabled":                { "type": "boolean" },
+            "auto_run_on_dev":        { "type": "boolean" },
+            "min_symbol_confidence":  { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      }
+    },
+
+    "vcs_tooling": {
+      "type": "object",
+      "description": "VCS Tooling — submodule doctor e hook (EP-069, v2.44-candidate, opt-in). Default: tutti spenti. Funziona solo su factory con submodule in code_paths[].",
+      "properties": {
+        "default_target": { "type": "string", "description": "Submodule usato da sm_checkout, sm_update e sm_commit --coordinated quando manca --target e i candidati sono piu' d'uno (EP-072)" },
+        "submodule_scope": { "type": "string", "enum": ["code_paths", "gitmodules"], "default": "code_paths", "description": "Submodule su cui lavorano sm_status/sm_doctor/sm_update/sm_checkout senza --target: i dichiarati in code_paths[] (default) o tutti quelli di .gitmodules (EP-072)" },
+        "submodule_doctor": {
+          "type": "object",
+          "properties": {
+            "enabled":           { "type": "boolean", "default": false, "description": "Installa hook post-merge/post-checkout" },
+            "auto_align":        { "type": "boolean" },
+            "quiet_on_hook":     { "type": "boolean" }
+          }
+        },
+        "submodule_hooks": {
+          "type": "object",
+          "properties": {
+            "enabled":           { "type": "boolean", "default": false, "description": "Hook pre-commit/commit-msg nei submodule; solo se suppress_ai_traces: true" },
+            "force_reinstall":   { "type": "boolean" }
+          }
+        }
+      }
+    },
+
+    "artifact_release": {
+      "type": "object",
+      "description": "Artifact Release — master switch del release engine (EP-069 US-312, v2.44-candidate, opt-in). Gated su release_targets[] non vuoto.",
+      "properties": {
+        "enabled": { "type": "boolean", "default": false, "description": "Master switch. A flag spento la factory e' identica a v2.43." }
+      }
+    },
+
+    "release_targets": {
+      "type": "array",
+      "description": "Lista target rilasciabili (EP-069 US-312). Vuota di default. Profili: container-gitops | package-registry | manifest-edit.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name":           { "type": "string" },
+          "code_path":      { "type": "string" },
+          "profile":        { "type": "string", "enum": ["container-gitops", "package-registry", "manifest-edit"] },
+          "ci_provider":    { "type": "string", "enum": ["github", "gitlab", "ado", "none"] },
+          "pipeline_ref":   { "type": "string" },
+          "registry":       { "type": "string" },
+          "manifest_path":  { "type": "string" },
+          "image_tag_field":{ "type": "string" },
+          "environments":   { "type": "array", "items": { "type": "string" } },
+          "credential_check": {
+            "type": "object",
+            "description": "Verifica permessi credenziale (Fase 1c, US-326). Default: enabled=true. Impostare enabled=false solo per opt-out esplicito (es. provider pubblico senza autenticazione).",
+            "properties": {
+              "enabled": { "type": "boolean", "default": true, "description": "false = skip Fase 1c (opt-out esplicito, richiede motivazione nel gate R.14)" }
+            }
+          }
+        },
+        "required": ["name", "profile"]
+      }
+    },
+
+    "session_close": {
+      "type": "object",
+      "description": "Session Close — chiusura di sessione e agente session-sync (EP-069 US-313, v2.44-candidate, opt-in). Claim advisory.",
+      "properties": {
+        "enabled":          { "type": "boolean", "default": false, "description": "Master switch. false = /session-close risponde con fallback esplicito." },
+        "status":           { "type": "string", "enum": ["inactive", "active"] },
+        "output_dir":       { "type": "string" },
+        "wiki_output_dir":  { "type": "string" },
+        "manifest_path":    { "type": "string" },
+        "naming_pattern":   { "type": "string", "description": "Pattern nome file. Mai ':' (vincolo Windows portabile)." },
+        "sources": {
+          "type": "object",
+          "properties": {
+            "git_log":   { "type": "boolean" },
+            "wiki_log":  { "type": "boolean" },
+            "wiki_gaps": { "type": "boolean" }
+          }
+        }
+      }
+    },
+
+    "kanban_namespaces": {
+      "type": "object",
+      "description": "Namespace Kanban — registro opt-in dei namespace ID (EP-069 US-314, v2.44-candidate). A flag spento next-id.py e' invariato.",
+      "properties": {
+        "enabled":  { "type": "boolean", "default": false },
+        "registry": { "type": "string", "description": "Path relativo alla root del repo del registro YAML" }
+      }
+    },
+
+    "session_start": {
+      "type": "object",
+      "description": "Session Start — apertura di sessione con claim advisory (EP-069 US-316, v2.44-candidate, opt-in). Hook SessionStart non installato di default.",
+      "properties": {
+        "enabled":                      { "type": "boolean", "default": false, "description": "Master switch. false = /session-start inerte." },
+        "init_check_on_start":          { "type": "boolean" },
+        "vcs_soft_warning_threshold":   {},
+        "auto_launch": {
+          "type": "object",
+          "properties": {
+            "enabled":                   { "type": "boolean", "default": false },
+            "idempotency_ttl_minutes":   { "type": "integer", "minimum": 1 },
+            "log_writes":                { "type": "boolean" },
+            "mode_default":              { "type": "string", "enum": ["auto", "quick"] }
+          }
+        }
+      }
+    },
+
+    "code_migration": {
+      "type": "object",
+      "description": "Code Migration Verifier — oracolo non attuatore fra due repo (EP-069 US-317, v2.44-candidate, opt-in). reject/divergent/ambiguous sono gate umani.",
+      "properties": {
+        "enabled":              { "type": "boolean", "default": false, "description": "Governa il dispatch automatico. /migration-verify funziona comunque (esplicito = voluto)." },
+        "artifacts_home":       { "type": "string", "description": "Path relativo alla root factory per gli artefatti di migrazione." },
+        "verdict_reject_gate":  { "type": "string", "enum": ["human", "auto"], "description": "reject/divergent/ambiguous → gate umano JSON" },
+        "default_plugin":       { "type": "string", "description": "js-ts | svelte | composizione 'svelte,js-ts' | path a un plugin .mjs" },
+        "join_by":              { "type": "string", "enum": ["path", "name"] },
+        "library_package":      {},
+        "parity_threshold":     { "type": "number", "minimum": 0, "maximum": 1 },
+        "debt_registry":        {}
+      }
+    },
+
+    "pm_report": {
+      "type": "object",
+      "description": "Report PM deterministico dal kanban (EP-070, opt-in). A enabled false run.py e proponi_kanban.py si fermano con STOP esplicito, exit 0.",
+      "properties": {
+        "enabled": {"type": "boolean", "default": false},
+        "da_assegnare": {
+          "type": "object",
+          "description": "Soglie di permanenza dei TSK senza owner, in giorni lavorativi da prima_vista.",
+          "properties": {
+            "stale_alert_days": {"type": "integer", "minimum": 1, "default": 7},
+            "escalation_days": {"type": "integer", "minimum": 1, "default": 14}
+          }
+        }
+      }
+    },
+    "kanban_dates": {
+      "type": "object",
+      "description": "Date di lavoro dei TSK (EP-079, Check 4be ERROR): dalla data required_from, il passaggio a in-progress richiede started_at e quello a done richiede started_at e closed_at. A chiave assente il check non segnala nulla.",
+      "properties": {
+        "required_from": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "Data di adozione AAAA-MM-GG: conta la data del commit del cambio di stato."}
+      }
+    },
+    "ste_lite": {
+      "type": "object",
+      "description": "STE-lite (EP-076, opt-in): regole strutturali di ASD-STE100 sugli output rivolti alle persone. Verdetto di tools/lint/ste_lite.py; a enabled false --targets esce con 0, l'invocazione esplicita su file funziona.",
+      "properties": {
+        "enabled": {"type": "boolean", "default": false},
+        "targets": {"type": "array", "items": {"type": "string"}, "default": [], "description": "Glob relativi alla radice, controllati con --targets."},
+        "limits": {
+          "type": "object",
+          "properties": {
+            "procedural_words": {"type": "integer", "minimum": 1, "default": 20},
+            "descriptive_words": {"type": "integer", "minimum": 1, "default": 25},
+            "paragraph_sentences": {"type": "integer", "minimum": 1, "default": 6}
+          }
+        },
+        "glossary": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}, "default": {}, "description": "Termine preferito -> sinonimi vietati (un termine, un significato)."},
+        "max_fact_loss": {"type": "number", "minimum": 0, "maximum": 1, "default": 0.1, "description": "Perdita massima di fatti accettata da tools/lint/fact_loss.py."}
+      }
+    },
+    "repo_handover": {
+      "type": "object",
+      "description": "Repo Handover — export a SHA senza history, push mai automatico (EP-069 US-318, v2.44-candidate, opt-in).",
+      "properties": {
+        "enabled":      { "type": "boolean", "default": false, "description": "false = /repo-handover risponde con fallback esplicito." },
+        "local_gates":  { "type": "array", "items": { "type": "string" }, "description": "Comandi gate locali eseguiti pre-push. Vuoto = nessun gate." }
+      }
+    },
+
+    "environment": {
+      "type": "object",
+      "description": "Blocco di configurazione per /init-check (EP-069 US-315). Assente = solo controlli base. Sonde di rete solo con --probes.",
+      "properties": {
+        "binaries": {
+          "type": "array",
+          "description": "Binari richiesti dall'ambiente.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name":          { "type": "string" },
+              "any_of":        { "type": "array", "description": "Alternativi: basta uno (es. nvm, fnm). Una sola riga di esito",
+                                 "items": { "oneOf": [ { "type": "string" },
+                                                       { "type": "object", "properties": { "name": { "type": "string" }, "paths": { "type": "array", "items": { "type": "string" } } }, "required": ["name"] } ] } },
+              "paths":         { "type": "array", "items": { "type": "string" }, "description": "File che, se esiste, vale come trovato (strumenti che sono funzioni di shell, es. $NVM_DIR/nvm.sh)" },
+              "min_version":   { "type": "string" },
+              "version_cmd":   { "type": "string" },
+              "required":      { "type": "boolean" }
+            },
+            "anyOf": [ { "required": ["name"] }, { "required": ["any_of"] } ]
+          }
+        },
+        "env_files": {
+          "type": "array",
+          "description": "File .env la cui esistenza viene verificata (mai il contenuto).",
+          "items": { "type": "string" }
+        },
+        "variables": {
+          "type": "object",
+          "description": "Variabili d'ambiente — solo presenza, mai il valore (invariante privacy).",
+          "properties": {
+            "required": { "type": "array", "items": { "oneOf": [ { "type": "string" }, { "type": "object", "properties": { "name": { "type": "string" }, "tied_to_capability": { "type": "string" } }, "required": ["name"] } ] } },
+            "optional": { "type": "array", "items": { "oneOf": [ { "type": "string" }, { "type": "object", "properties": { "name": { "type": "string" }, "tied_to_capability": { "type": "string" } }, "required": ["name"] } ] } },
+            "source_file": { "type": "string", "description": "File KEY=VALUE in cui cercare le chiavi (letto, mai eseguito, mai il valore); assente = ambiente del processo" }
+          }
+        },
+        "node_version_file": { "type": "string", "description": "es. .nvmrc — WARN se presente ma node non matcha" },
+        "probes": {
+          "type": "array",
+          "description": "Probe di rete/processo — eseguiti SOLO con --probes (nessun traffico implicito).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name":       { "type": "string" },
+              "kind":       { "type": "string", "enum": ["http", "tcp", "cmd"] },
+              "target":     { "type": "string" },
+              "timeout_s":  { "type": "number", "minimum": 0 },
+              "required":   { "type": "boolean" }
+            },
+            "required": ["name", "kind", "target"]
+          }
+        }
+      }
+    },
+
+    "log_access": {
+      "type": "object",
+      "description": "Lettura dei log OpenSearch in sola lettura (EP-086, /log, log-operator). Opt-in.",
+      "properties": { "enabled": { "type": "boolean" } }
+    },
+    "db_access": {
+      "type": "object",
+      "description": "Accesso PostgreSQL con catalogo DDL e mappa funzionalita'-tabella (EP-087, /db, db-operator). Opt-in; scrittura spenta (write.enabled).",
+      "properties": { "enabled": { "type": "boolean" } }
+    },
+    "cypress_pipeline": {
+      "type": "object",
+      "description": "Pipeline di generazione dei test Cypress (EP-088, /cypress-gen). Opt-in; repos[] registro dei repo di test.",
+      "properties": { "enabled": { "type": "boolean" }, "repos": { "type": "array" } }
+    },
+    "promemoria_operatori": {
+      "type": "object",
+      "description": "Promemoria fra operatori su un ramo condiviso (EP-089, /promemoria). Opt-in; ogni push passa da un gate di conferma.",
+      "properties": { "enabled": { "type": "boolean" } }
+    },
+    "onboarding_day0": {
+      "type": "object",
+      "description": "Onboarding Day 0 per ruolo (EP-089, /onboarding v1.1). Opt-in; spento: /onboarding resta v1.0.",
+      "properties": { "enabled": { "type": "boolean" }, "roles": { "type": "object" }, "verify": { "type": "object" } }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-form notes on factory context (optional)"
+    }
+
+  },
+
+  "allOf": [
+    {
+      "description": "HARD DEP 1 — CQRL: ruleset.evolve requires code_quality master switch",
+      "if": {
+        "properties": {
+          "code_quality": {
+            "properties": {
+              "ruleset": {
+                "properties": {
+                  "evolve": {
+                    "properties": {
+                      "enabled": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "enabled"
+                    ]
+                  }
+                },
+                "required": [
+                  "evolve"
+                ]
+              }
+            },
+            "required": [
+              "ruleset"
+            ]
+          }
+        },
+        "required": [
+          "code_quality"
+        ]
+      },
+      "then": {
+        "properties": {
+          "code_quality": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "code_quality.ruleset.evolve.enabled:true requires code_quality.enabled:true"
+    },
+    {
+      "description": "HARD DEP — Ponytail (EP-057): yagni_ladder pass requires CQRL master switch (Pass 4 vive dentro code-review-protocol)",
+      "if": {
+        "properties": {
+          "ponytail": {
+            "properties": {
+              "passes": {
+                "properties": {
+                  "yagni_ladder": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "yagni_ladder"
+                ]
+              }
+            },
+            "required": [
+              "passes"
+            ]
+          }
+        },
+        "required": [
+          "ponytail"
+        ]
+      },
+      "then": {
+        "properties": {
+          "code_quality": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "ponytail.passes.yagni_ladder:true requires code_quality.enabled:true (Pass 4 advisory vive in code-review-protocol)"
+    },
+    {
+      "description": "HARD DEP 2 — Analytics: dogfooding requires measurement (ADR-041 §A §F — fail-loud at boot)",
+      "if": {
+        "properties": {
+          "analytics": {
+            "properties": {
+              "dogfooding": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "required": [
+              "dogfooding"
+            ]
+          }
+        },
+        "required": [
+          "analytics"
+        ]
+      },
+      "then": {
+        "properties": {
+          "analytics": {
+            "properties": {
+              "measurement": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "analytics.dogfooding.enabled:true requires analytics.measurement.enabled:true (ADR-041 §A §F — fail-loud at boot)"
+    },
+    {
+      "description": "HARD DEP 3 — Release Governance: battle_test_gate requires release_governance master switch",
+      "if": {
+        "properties": {
+          "release_governance": {
+            "properties": {
+              "battle_test_gate": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "required": [
+              "battle_test_gate"
+            ]
+          }
+        },
+        "required": [
+          "release_governance"
+        ]
+      },
+      "then": {
+        "properties": {
+          "release_governance": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "release_governance.battle_test_gate.enabled:true requires release_governance.enabled:true"
+    },
+    {
+      "description": "HARD DEP 4 — Output Compression: decision_anchor requires compression.output master switch",
+      "if": {
+        "properties": {
+          "compression": {
+            "properties": {
+              "output": {
+                "properties": {
+                  "decision_anchor": {
+                    "properties": {
+                      "enabled": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "enabled"
+                    ]
+                  }
+                },
+                "required": [
+                  "decision_anchor"
+                ]
+              }
+            },
+            "required": [
+              "output"
+            ]
+          }
+        },
+        "required": [
+          "compression"
+        ]
+      },
+      "then": {
+        "properties": {
+          "compression": {
+            "properties": {
+              "output": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "compression.output.decision_anchor.enabled:true requires compression.output.enabled:true"
+    },
+    {
+      "description": "HARD DEP 5 — Output Compression: consistency_check requires compression.output master switch",
+      "if": {
+        "properties": {
+          "compression": {
+            "properties": {
+              "output": {
+                "properties": {
+                  "consistency_check": {
+                    "properties": {
+                      "enabled": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "enabled"
+                    ]
+                  }
+                },
+                "required": [
+                  "consistency_check"
+                ]
+              }
+            },
+            "required": [
+              "output"
+            ]
+          }
+        },
+        "required": [
+          "compression"
+        ]
+      },
+      "then": {
+        "properties": {
+          "compression": {
+            "properties": {
+              "output": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "compression.output.consistency_check.enabled:true requires compression.output.enabled:true"
+    },
+    {
+      "description": "HARD DEP 6 — Context Compression: mcp_server requires compression.context master switch",
+      "if": {
+        "properties": {
+          "compression": {
+            "properties": {
+              "context": {
+                "properties": {
+                  "mcp_server": {
+                    "properties": {
+                      "enabled": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "enabled"
+                    ]
+                  }
+                },
+                "required": [
+                  "mcp_server"
+                ]
+              }
+            },
+            "required": [
+              "context"
+            ]
+          }
+        },
+        "required": [
+          "compression"
+        ]
+      },
+      "then": {
+        "properties": {
+          "compression": {
+            "properties": {
+              "context": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "compression.context.mcp_server.enabled:true requires compression.context.enabled:true"
+    },
+    {
+      "description": "HARD DEP 7 — Temporal: context_injection requires temporal master switch",
+      "if": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "context_injection": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "required": [
+              "context_injection"
+            ]
+          }
+        },
+        "required": [
+          "temporal"
+        ]
+      },
+      "then": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "temporal.context_injection.enabled:true requires temporal.enabled:true"
+    },
+    {
+      "description": "HARD DEP 8 — Temporal: handoff_protocol requires temporal master switch",
+      "if": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "handoff_protocol": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "required": [
+              "handoff_protocol"
+            ]
+          }
+        },
+        "required": [
+          "temporal"
+        ]
+      },
+      "then": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "temporal.handoff_protocol.enabled:true requires temporal.enabled:true"
+    },
+    {
+      "description": "HARD DEP 9 — Temporal: state_machine requires temporal master switch",
+      "if": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "state_machine": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "required": [
+              "state_machine"
+            ]
+          }
+        },
+        "required": [
+          "temporal"
+        ]
+      },
+      "then": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "temporal.state_machine.enabled:true requires temporal.enabled:true"
+    },
+    {
+      "description": "HARD DEP 10 — Temporal: budget requires temporal master switch",
+      "if": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "budget": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "required": [
+              "budget"
+            ]
+          }
+        },
+        "required": [
+          "temporal"
+        ]
+      },
+      "then": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "temporal.budget.enabled:true requires temporal.enabled:true"
+    },
+    {
+      "description": "HARD DEP 11 — Temporal: budget.wave requires temporal.budget master switch",
+      "if": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "budget": {
+                "properties": {
+                  "wave": {
+                    "properties": {
+                      "enabled": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "enabled"
+                    ]
+                  }
+                },
+                "required": [
+                  "wave"
+                ]
+              }
+            },
+            "required": [
+              "budget"
+            ]
+          }
+        },
+        "required": [
+          "temporal"
+        ]
+      },
+      "then": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "budget": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "temporal.budget.wave.enabled:true requires temporal.budget.enabled:true"
+    },
+    {
+      "description": "HARD DEP 12 — Temporal: budget.tsk requires temporal.budget master switch",
+      "if": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "budget": {
+                "properties": {
+                  "tsk": {
+                    "properties": {
+                      "enabled": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "enabled"
+                    ]
+                  }
+                },
+                "required": [
+                  "tsk"
+                ]
+              }
+            },
+            "required": [
+              "budget"
+            ]
+          }
+        },
+        "required": [
+          "temporal"
+        ]
+      },
+      "then": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "budget": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "temporal.budget.tsk.enabled:true requires temporal.budget.enabled:true"
+    },
+    {
+      "description": "HARD DEP 13 — Temporal: budget.sprint requires temporal.budget master switch",
+      "if": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "budget": {
+                "properties": {
+                  "sprint": {
+                    "properties": {
+                      "enabled": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "enabled"
+                    ]
+                  }
+                },
+                "required": [
+                  "sprint"
+                ]
+              }
+            },
+            "required": [
+              "budget"
+            ]
+          }
+        },
+        "required": [
+          "temporal"
+        ]
+      },
+      "then": {
+        "properties": {
+          "temporal": {
+            "properties": {
+              "budget": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "temporal.budget.sprint.enabled:true requires temporal.budget.enabled:true"
+    },
+    {
+      "description": "HARD DEP 14 — Design Intelligence: requires ux_ui master switch (ADR-071 §B)",
+      "if": {
+        "properties": {
+          "design_intelligence": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": [
+              "enabled"
+            ]
+          }
+        },
+        "required": [
+          "design_intelligence"
+        ]
+      },
+      "then": {
+        "properties": {
+          "ux_ui": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "design_intelligence.enabled:true requires ux_ui.enabled:true (ADR-071 §B)"
+    },
+    {
+      "description": "HARD DEP 15 — Tavola Rotonda: critico requires tavola_rotonda master switch",
+      "if": {
+        "properties": {
+          "tavola_rotonda": {
+            "properties": {
+              "critico": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "required": [
+              "critico"
+            ]
+          }
+        },
+        "required": [
+          "tavola_rotonda"
+        ]
+      },
+      "then": {
+        "properties": {
+          "tavola_rotonda": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "tavola_rotonda.critico.enabled:true requires tavola_rotonda.enabled:true"
+    },
+    {
+      "description": "HARD DEP 16 — Voice Channel: barge_in requires voice_channel master switch (and phase >= 3)",
+      "if": {
+        "properties": {
+          "voice_channel": {
+            "properties": {
+              "barge_in": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "required": [
+              "barge_in"
+            ]
+          }
+        },
+        "required": [
+          "voice_channel"
+        ]
+      },
+      "then": {
+        "properties": {
+          "voice_channel": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "voice_channel.barge_in.enabled:true requires voice_channel.enabled:true (and phase >= 3)"
+    },
+    {
+      "description": "HARD DEP 17 — Voice Channel: aec requires voice_channel master switch (and phase >= 4)",
+      "if": {
+        "properties": {
+          "voice_channel": {
+            "properties": {
+              "aec": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "required": [
+              "aec"
+            ]
+          }
+        },
+        "required": [
+          "voice_channel"
+        ]
+      },
+      "then": {
+        "properties": {
+          "voice_channel": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "voice_channel.aec.enabled:true requires voice_channel.enabled:true (and phase >= 4)"
+    },
+    {
+      "description": "HARD DEP 18 — Voice Channel: wake_word requires voice_channel master switch",
+      "if": {
+        "properties": {
+          "voice_channel": {
+            "properties": {
+              "wake_word": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            },
+            "required": [
+              "wake_word"
+            ]
+          }
+        },
+        "required": [
+          "voice_channel"
+        ]
+      },
+      "then": {
+        "properties": {
+          "voice_channel": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "voice_channel.wake_word.enabled:true requires voice_channel.enabled:true"
+    },
+    {
+      "description": "HARD DEP 19 — Capability Formativa: wiki_search_integration requires capability_formativa master switch",
+      "if": {
+        "properties": {
+          "capability_formativa": {
+            "properties": {
+              "wiki_search_integration": {
+                "const": true
+              }
+            },
+            "required": [
+              "wiki_search_integration"
+            ]
+          }
+        },
+        "required": [
+          "capability_formativa"
+        ]
+      },
+      "then": {
+        "properties": {
+          "capability_formativa": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "capability_formativa.wiki_search_integration:true requires capability_formativa.enabled:true"
+    },
+    {
+      "description": "HARD DEP 20 — Capability Formativa: wiki_search_integration requires wiki_search master switch",
+      "if": {
+        "properties": {
+          "capability_formativa": {
+            "properties": {
+              "wiki_search_integration": {
+                "const": true
+              }
+            },
+            "required": [
+              "wiki_search_integration"
+            ]
+          }
+        },
+        "required": [
+          "capability_formativa"
+        ]
+      },
+      "then": {
+        "properties": {
+          "wiki_search": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "errorMessage": "capability_formativa.wiki_search_integration:true requires wiki_search.enabled:true"
+    }
+  ],
+
+  "additionalProperties": true
+}

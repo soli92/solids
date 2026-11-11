@@ -1,0 +1,68 @@
+---
+description: Propagate Resolution — riconciliazione downstream quando una Q_NNN viene chiusa. Aggiorna US/TSK (rimuove blocked_by/pending_clarification) e appende marker wiki/log.md.
+globs: "management/**"
+alwaysApply: false
+---
+# Skill: propagate-resolution (PATTERN §7 r.9)
+
+> Adapter Cursor della skill `propagate-resolution` definita in `.claude/skills/propagate-resolution.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/propagate-resolution.md`.
+
+Procedura di riconciliazione downstream quando un gap/question `Q_NNN` viene chiuso.
+
+## Trigger
+
+Questa skill viene invocata quando:
+1. Una Q hard o soft in `management/questions.md` viene spostata da `[APERTE]` a `[RISOLTE]`
+2. Un gap in `wiki/gaps.md` viene marcato `status: resolved`
+
+## Procedura
+
+### Fase 1 — Identificazione impatto
+
+1. Leggi `management/questions.md` (o `wiki/gaps.md`) e trova la Q/gap appena chiuso.
+2. Estrai tutti i `US-YYY` e `TSK-ZZZ` referenziati in `Storie bloccate:` / `TSK bloccati:`.
+3. Costruisci la lista di artefatti da riconciliare.
+
+### Fase 2 — Riconciliazione US
+
+Per ogni `US-YYY` in lista:
+1. Apri `management/kanban/.../US-YYY.md`.
+2. Rimuovi `Q_NNN` da `blocked_by:` (se presente).
+3. Rimuovi `Q_NNN` da `pending_clarification:` (se presente).
+4. Se `blocked_by: []` risultante → imposta `status: ready` (se era `blocked`).
+5. Se `pending_clarification: []` risultante → nessun cambio status (era già `ready`).
+6. Aggiorna `updated: YYYY-MM-DD`.
+
+### Fase 3 — Riconciliazione TSK
+
+Per ogni `TSK-ZZZ` in lista:
+1. Apri `management/kanban/.../TSK-ZZZ.md`.
+2. Rimuovi `Q_NNN` da `blocked_by:` (se presente).
+3. Se `blocked_by: []` risultante → nessun cambio status automatico (TSK non ha `blocked`; verifica manuale se era `todo` ed è schedulabile).
+4. Aggiorna `updated: YYYY-MM-DD`.
+
+### Fase 4 — Log + marker
+
+Se la riconciliazione è **parziale** (es. Q chiusa fuori contesto, nessuna US/TSK aggiornata contestualmente):
+```
+wiki/log.md append:
+[YYYY-MM-DD HH:MM] propagate-resolution — Q_NNN closed → reconcile-needed: US-XXX,TSK-ZZZ → marker
+```
+
+Se la riconciliazione è **completa** (tutti gli artefatti aggiornati):
+```
+wiki/log.md append:
+[YYYY-MM-DD HH:MM] propagate-resolution — Q_NNN closed → reconciled: US-XXX(ready), TSK-ZZZ(unblocked)
+```
+
+## Marker `reconcile-needed`
+
+Il marker in `wiki/log.md` viene surfacizzato dall'orchestrator in `/run`. L'orchestrator
+lo segnala in chat invitando il PM/Arch a verificare manualmente.
+
+## Limitazioni Cursor
+
+- **Glob scan**: usa `@management/kanban/**` per caricare il contesto.
+- **Multi-file edit**: modifica un file per volta con Edit; verifica ogni modifica.
+- **Marker**: append manuale a `wiki/log.md` con il formato corretto.

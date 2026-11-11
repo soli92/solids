@@ -1,0 +1,265 @@
+# acceptance-spec.schema.yaml
+# version: 1.0 — EP-018 ADR-065
+#
+# SCHEMA dell'acceptance-spec del Functional Oracle.
+# Il meta-framework possiede questo SCHEMA + l'ENGINE di esecuzione/asserzione.
+# Il progetto possiede il CONTENUTO (i valori: fixture, scenario, asserzioni).
+# Fonte autoritativa: ADR-065 §B (struttura) §C (primitive) §D (semantica severita') §E (fail-loud).
+#
+# Principio separazione: ADR-065 §A
+#   - Framework  → schema + engine (Playwright via Bash, ADR-008)
+#   - Progetto   → acceptance-spec valorizzata (path in frontmatter TSK `functional_acceptance_spec:`)
+#
+# Posizione dei file di contenuto nel progetto:
+#   code_quality/acceptance/<app|tsk>.acceptance.yaml   (per-app o per-TSK)
+#   Referenziato nel TSK con: functional_acceptance_spec: <path>
+#
+# Verdict semantics (ADR-065 §D, allineato a CQRL EP-005 ADR-012):
+#   pass        — tutte le asserzioni `blocking` passano
+#   conditional — solo asserzioni `advisory` falliscono, entro `advisory_max`
+#   reject      — almeno una `blocking` fallisce OPPURE `advisory` fallite > advisory_max
+#
+# Assenza spec (ADR-065 §E):
+#   functional_oracle.enabled: true + spec assente/illeggibile → fail-loud (mai pass silenzioso)
+#   spec presente ma scenario vuoto (scenario: [])              → verdict `skip` dichiarato (non pass)
+
+# ============================================================
+# SEZIONE 1 — fixtures
+# ============================================================
+# Tipo    : lista di oggetti (array)
+# Richiesta: SI' (almeno 1 elemento se scenario non e' vuoto)
+# Scopo   : dichiara gli artefatti di input reali da caricare prima dell'esecuzione
+#           dello scenario. I fixture sono di proprieta' del progetto (licenze, ROM, file di test)
+#           — ADR-066 §E per la gestione licenze.
+#
+# Campi per ogni elemento:
+#
+#   id (string, required)
+#     Identificativo univoco del fixture, referenziato negli action step del scenario.
+#
+#   path (string, required)
+#     Percorso relativo al root del progetto verso il file da caricare.
+#     Deve esistere al momento dell'esecuzione: se assente → fail-loud.
+#
+#   load_via (object, required)
+#     Descrive come il fixture viene consegnato all'app.
+#     Sotto-campi:
+#       selector (string, required) — selettore CSS/test-id dell'elemento target
+#       action (enum, required)     — modalita' di caricamento:
+#           set_input_files   → file <input type="file"> (Playwright setInputFiles)
+#           drag_drop         → drag & drop sul selettore
+#           fetch_mock        → intercetta la fetch e restituisce il file come response body
+#           fs_copy           → copia il file nel path atteso dall'app (solo se app su filesystem)
+fixtures:
+  # Esempio (da rimuovere nel file di contenuto del progetto):
+  # - id: <string>
+  #   path: <string>           # es. packages/app/public/test-roms/homebrew.gba
+  #   load_via:
+  #     selector: <string>     # es. "input[type=file]"
+  #     action: <enum>         # set_input_files | drag_drop | fetch_mock | fs_copy
+
+# ============================================================
+# SEZIONE 1b — ssr_context (opzionale, EP-030 v2.22)
+# ============================================================
+# Tipo    : oggetto (opzionale)
+# Richiesta: NO — campo opzionale; assenza = comportamento CSR invariato (backward compat totale)
+# Scopo   : specifica il contesto di rendering SSR per lo scenario. Valorizzato
+#           automaticamente da qa-dev quando fe_correctness.ssr_aware.enabled: true
+#           e il framework rilevato da stack-detector != 'none'.
+#           Acceptance-spec senza ssr_context: sono valide (0 ERROR lint).
+#
+# Campi:
+#
+#   javascript_enabled (boolean, opzionale)
+#     Default implicito: true (se campo assente, backward compat totale).
+#     false  → l'assertion deve essere verificata sull'HTML iniziale senza esecuzione JS
+#              (critical path SSR: verifica che il contenuto critico sia presente nel HTML
+#              renduto dal server, non idratato dal client).
+#     true   → comportamento CSR standard (idratazione completa, default).
+#     Rilevante per: Next.js (App Router e Pages Router), Nuxt 3.
+#
+#   revalidate_before_run (boolean, opzionale)
+#     Default implicito: false (se campo assente).
+#     true  → la cache ISR deve essere invalidata prima dell'esecuzione del test
+#             (tramite revalidation API call o wait). Rilevante SOLO quando
+#             revalidation_support: true nell'output ssr_context di stack-detector
+#             (Next.js App Router, Pages Router).
+#     false → nessuna invalidazione cache prima del test (default, CSR e SSR senza ISR).
+#
+# Nota procedurale (EP-030):
+#   Quando ssr_aware.enabled: true, qa-dev genera scenari con ssr_context valorizzato
+#   in base al framework rilevato da stack-detector:
+#     - javascript_enabled: false e' rilevante per Next.js/Nuxt (SSR initial render).
+#     - revalidate_before_run: true e' rilevante solo quando revalidation_support: true
+#       nell'output di stack-detector (Next.js App Router, Pages Router).
+#   qa-dev NON modifica acceptance-spec gia' esistenti (invariante: solo aggiunta nuovi scenari).
+#   Se framework: 'none' → nessun campo ssr_context aggiunto, nessuno scenario SSR generato.
+#
+# Esempio:
+#   ssr_context:
+#     javascript_enabled: false    # verifica HTML iniziale senza idratazione JS
+#     revalidate_before_run: false # true solo per scenari ISR con Next.js App/Pages Router
+#
+ssr_context:
+  # Campo opzionale — assente per spec CSR standard (backward compat totale).
+  # javascript_enabled: <boolean>        # default true se assente
+  # revalidate_before_run: <boolean>     # default false se assente
+
+# ============================================================
+# SEZIONE 2 — scenario
+# ============================================================
+# Tipo    : lista di oggetti (array)
+# Richiesta: SI' (puo' essere [] → verdict `skip` dichiarato, non `pass` — ADR-065 §E)
+# Scopo   : sequenza di passi di interazione che simula il flusso funzionale target.
+#           Il vocabolario action e' condiviso dal framework (ADR-066).
+#
+# Campi per ogni step:
+#
+#   action (enum, required)
+#     Azione da eseguire. Valori ammessi (ADR-066 vocabolario):
+#       click              → Playwright click sul selettore
+#       fill               → riempie un campo testo (field + value)
+#       press              → tasto tastiera (key: "Enter", "Tab", …)
+#       wait_for           → attende condizione su selettore (state: visible|hidden|attached|detached)
+#       wait_ms            → pausa esplicita in millisecondi (value: <int>)
+#       navigate           → naviga a un URL (url: <string>)
+#       load_fixture       → carica un fixture dichiarato in fixtures[] (fixture_id: <string>)
+#       screenshot         → cattura evidenza visiva (id: <string>, per cross-ref nel report)
+#
+#   selector (string, condizionale)
+#     Selettore CSS o data-test attribute. Required per: click, fill, wait_for.
+#     Convenzione raccomandata: `[data-test=<id>]` per stabilita' dei test.
+#
+#   state (enum, condizionale)
+#     Required per action: wait_for. Valori: visible | hidden | attached | detached.
+#
+#   timeout_ms (integer, opzionale)
+#     Timeout override per wait_for. Default engine: 5000ms. Max consigliato: 30000ms.
+#
+#   value (string|integer, condizionale)
+#     Required per: fill (stringa testo), wait_ms (millisecondi, intero > 0).
+#
+#   key (string, condizionale)
+#     Required per: press. Es. "Enter", "Tab", "Escape".
+#
+#   url (string, condizionale)
+#     Required per: navigate. URL assoluto o path relativo.
+#
+#   fixture_id (string, condizionale)
+#     Required per: load_fixture. Deve corrispondere a un `id` in fixtures[].
+#
+#   id (string, opzionale)
+#     Identificativo dello step per il report. Se assente, autogenerato come step-<N>.
+scenario:
+  # Esempio (da rimuovere nel file di contenuto del progetto):
+  # - { action: click, selector: "[data-test=load-rom]" }
+  # - { action: wait_for, selector: "canvas", state: visible, timeout_ms: 10000 }
+  # - { action: wait_ms, value: 2000 }
+
+# ============================================================
+# SEZIONE 3 — assertions
+# ============================================================
+# Tipo    : lista di oggetti (array)
+# Richiesta: SI' (almeno 1 elemento se scenario non e' vuoto)
+# Scopo   : esiti OSSERVABILI da verificare dopo l'esecuzione dello scenario.
+#           Ciascuna asserzione ha una severita' che determina il contributo al verdict.
+#
+# Semantica severita' (ADR-065 §D):
+#   blocking → gate pass/fail: se fallisce, verdict = reject (indipendentemente dalle advisory)
+#   advisory → threshold: se fallisce, contribuisce al contatore; verdict = conditional se entro
+#              advisory_max, reject se supera advisory_max
+#
+# Campi comuni a tutte le asserzioni:
+#
+#   id (string, required)
+#     Identificativo univoco dell'asserzione. Usato nel report e nel log evidenza.
+#
+#   severity (enum, required)
+#     blocking | advisory  — vedi semantica sopra.
+#
+#   kind (enum, required)
+#     Primitiva di asserzione. Set chiuso definito dal framework (ADR-065 §C).
+#     Vedere tabella completa nella sezione "PRIMITIVE" sotto.
+#
+# ============================================================
+# PRIMITIVE DI ASSERZIONE — tabella kind (ADR-065 §C)
+# ============================================================
+#
+# Le primitive sono domain-agnostic: il framework non aggiunge mai semantica di dominio.
+# Il progetto COMPONE queste primitive per esprimere il significato di dominio.
+#
+# ┌─────────────────────────┬────────────────────────────────────────────────────────────────┐
+# │ kind                    │ Parametri richiesti / Verifica                                 │
+# ├─────────────────────────┼────────────────────────────────────────────────────────────────┤
+# │ selector_visible        │ selector (string) — verifica che il selettore sia visibile nel │
+# │                         │ DOM al momento dell'asserzione                                  │
+# ├─────────────────────────┼────────────────────────────────────────────────────────────────┤
+# │ selector_absent         │ selector (string) — verifica che il selettore NON sia presente │
+# │                         │ nel DOM (o sia hidden)                                          │
+# ├─────────────────────────┼────────────────────────────────────────────────────────────────┤
+# │ attr_equals             │ selector (string), attr (string), value (string)               │
+# │                         │ — verifica che element.getAttribute(attr) === value             │
+# │                         │ Uso tipico: transizioni di stato osservabili via data-* attr.   │
+# ├─────────────────────────┼────────────────────────────────────────────────────────────────┤
+# │ text_matches            │ selector (string), pattern (string, regex)                     │
+# │                         │ — verifica che element.textContent corrisponda al pattern       │
+# ├─────────────────────────┼────────────────────────────────────────────────────────────────┤
+# │ canvas_pixel_variance   │ selector (string), min_variance (float 0.0-1.0), frames (int)  │
+# │                         │ — cattura N frames del canvas a intervalli fissi, calcola la    │
+# │                         │   varianza normalizzata pixel-by-pixel tra i frame.             │
+# │                         │   Verifica: variance >= min_variance                            │
+# │                         │ Semantica: «il canvas mostra contenuto che cambia nel tempo»   │
+# │                         │ (emulatori, video, grafica, animazioni) — domain-agnostic.      │
+# │                         │ min_variance consigliato: 0.01-0.05 (rumore < contenuto reale) │
+# │                         │ frames consigliato: 4-16 (piu' frames = piu' robusto)           │
+# ├─────────────────────────┼────────────────────────────────────────────────────────────────┤
+# │ storage_key_present     │ store (enum: localStorage|sessionStorage|idb|fs),              │
+# │                         │ key_glob (string, glob pattern)                                 │
+# │                         │ — verifica che esista almeno una chiave corrispondente a        │
+# │                         │   key_glob nel data store indicato.                             │
+# │                         │ Uso tipico: verifica creazione di artefatti (save-state, cache) │
+# ├─────────────────────────┼────────────────────────────────────────────────────────────────┤
+# │ console_no_error        │ (nessun parametro aggiuntivo)                                   │
+# │                         │ — verifica che la console browser non abbia ricevuto            │
+# │                         │   messaggi di livello error durante l'esecuzione dello scenario  │
+# │                         │ severity raccomandata: advisory (errori console non sempre      │
+# │                         │   fatali per la funzionalita')                                  │
+# ├─────────────────────────┼────────────────────────────────────────────────────────────────┤
+# │ network_no_5xx          │ (nessun parametro aggiuntivo)                                   │
+# │                         │ — verifica che nessuna request HTTP durante lo scenario abbia   │
+# │                         │   ricevuto risposta con status 5xx                              │
+# │                         │ severity raccomandata: blocking (errori server indicano          │
+# │                         │   malfunzionamento del backend, non del solo FE)                │
+# └─────────────────────────┴────────────────────────────────────────────────────────────────┘
+#
+assertions:
+  # Esempio blocking (da rimuovere nel file di contenuto del progetto):
+  # - id: <string>
+  #   severity: blocking        # blocking | advisory
+  #   kind: <enum>              # vedere tabella PRIMITIVE sopra
+  #   # + parametri specifici del kind (vedere tabella)
+  #
+  # Esempio advisory:
+  # - id: <string>
+  #   severity: advisory
+  #   kind: console_no_error    # nessun parametro aggiuntivo
+
+# ============================================================
+# SEZIONE 4 — thresholds
+# ============================================================
+# Tipo    : oggetto
+# Richiesta: SI' (deve essere presente; advisory_max required)
+# Scopo   : soglie numeriche che modulano la semantica del verdict per le asserzioni advisory.
+#           Le asserzioni blocking non hanno soglia: qualsiasi fallimento → reject.
+#
+# Campi:
+#
+#   advisory_max (integer >= 0, required)
+#     Numero massimo di asserzioni advisory che possono fallire prima che il verdict
+#     degradi da `conditional` a `reject`.
+#     0 → qualsiasi advisory fallita → reject (trattamento equivalente a blocking)
+#     N → fino a N advisory fallite → conditional; oltre N → reject
+#     Valore consigliato: 1-2 (permissivita' ragionevole senza svuotare di significato)
+#
+thresholds:
+  advisory_max: <integer>    # required — soglia max asserzioni advisory fallite prima di reject

@@ -1,7 +1,7 @@
 ---
 name: graphify-sync
 description: Estrae knowledge graph da un code_path target via Graphify CLI (PATTERN §16 + §20.10, v2.14 Fase 2). Sub-agent Sync per la sorgente "codebase as graph". Scrive in raw/ + side-channel .graphify-state/. Read-only verso code_path scansionato (§7 r.17).
-model: claude-haiku-4-5-20251001
+model: claude-haiku-5-5
 tools: [Read, Write, Edit, Glob, Bash]
 capabilities:
   - raw-sync               # scrive in raw/ + .graphify-state/ (scope esclusivo)
@@ -192,6 +192,11 @@ Quello che il graph NON ha potuto chiarire — input per ingest L1→L2.
   }
 }
 ```
+
+## Regole
+
+- **Comandi di shell portabili**: segui `.claude/skills/shell-portability.md` (POSIX, flag
+  comuni a GNU e BSD, Python per il parsing; su Windows tool `Bash`, mai PowerShell).
 
 ## Non in scope per graphify-sync
 

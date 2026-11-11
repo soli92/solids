@@ -139,10 +139,16 @@ def _read_budget_from_config():
         return None
     try:
         text = config_path.read_text(encoding="utf-8")
-        # Look for top-level `budget:` block then `max_cost_usd:` within it.
-        # Simple approach: find `max_cost_usd:` at any indentation level and take first numeric.
+        # Solo il blocco top-level `budget:`. Prima si prendeva il primo `max_cost_usd:` a
+        # qualunque indentazione: nel master era `tavola_rotonda.budget`, una soglia d'altro (EP-073).
+        in_budget = False
         for line in text.splitlines():
-            m = re.match(r"\s*max_cost_usd:\s*([\d.]+)", line)
+            if re.match(r"^budget:\s*(#.*)?$", line):
+                in_budget = True
+                continue
+            if in_budget and line.strip() and not line.startswith((" ", "\t")) and not line.lstrip().startswith("#"):
+                break
+            m = re.match(r"\s+max_cost_usd:\s*([\d.]+)", line) if in_budget else None
             if m:
                 return float(m.group(1))
     except Exception:
@@ -365,7 +371,7 @@ def _detect_budget(session_totals, per_agent, budget_max_usd, warnings):
                 "evidence_count": 1,
                 "fix_suggestion": (
                     f"Ridurre tier per agent {agent_hash}; "
-                    "migrare a claude-haiku-4-5 per task piccoli con output ridotto"
+                    "migrare a claude-haiku-5-5 per task piccoli con output ridotto"
                 ),
                 "pattern_eligible": True,
                 "provenance": {

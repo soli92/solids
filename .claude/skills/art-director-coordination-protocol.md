@@ -1,7 +1,7 @@
-# Skill: Art Director Coordination Protocol
-
-> Adapter Cursor della skill `art-director-coordination-protocol` definita in PATTERN.md. Riferimenti agent → `.cursor/rules/<name>.mdc`; skill → `.cursor/skills/<name>/SKILL.md`.
-
+---
+name: art-director-coordination-protocol
+description: Skill 5-fasi per il coordinamento centralizzato del tema. Produce DSL art_director_spec (colori, tipografia, spaziatura, gerarchia, varianti) che vincola i generatori FE. Art-director single-writer, fe-dev read-only sul tema. No-op se design_intelligence.enabled false.
+---
 # Protocollo Art-Director Coordination — DSL intermedia e coordinamento tema centralizzato
 
 Skill procedurale a 5 fasi per il coordinamento del tema (EP-019, [[art-director-coordination]]):

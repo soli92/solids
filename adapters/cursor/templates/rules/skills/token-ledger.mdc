@@ -1,0 +1,89 @@
+---
+description: >-
+  Token Ledger — visibilità economica inline EP-022 (v2.21). Display puro costo cumulativo
+  sessione. Formato compatto "◉ TOKENS in:42.3k out:8.1k 💾 -$0.0031 | sessione: ~$0.1527".
+  Fail-open, non blocca workflow.
+globs: []
+alwaysApply: false
+---
+# Skill: token-ledger (EP-022, v2.21)
+
+> Adapter Cursor della skill `token-ledger` definita in `.claude/skills/token-ledger.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/token-ledger.md`.
+
+> **Gate**: `analytics.token_ledger.enabled: true` in `factory.config.yaml`.
+
+Display puro del costo cumulativo sessione. Non prende decisioni.
+Complementa `cost-and-time-analytics` (batch EP-009) con readout immediato.
+
+## Architettura
+
+```
+Claude Code finisce una risposta
+        │
+        ▼  (hook Stop — settings.json)
+show-session-tokens.py --from-hook
+        │
+        ├─ legge transcript JSONL (~/.claude/projects/<cwd>/*.jsonl)
+        │   → token reali da message.usage (no stima)
+        ├─ risolve pricing da analytics/pricing.yaml (ADR-022)
+        │   → fallback prefix-based se yaml assente
+        ├─ calcola: cost = input/1M×in_rate + output/1M×out_rate + cache_savings
+        └─ stampa one-liner ◉ TOKENS
+```
+
+Sorgente di verità: transcript JSONL → campo `message.usage` per ogni messaggio assistant.
+
+## Display format
+
+**Compatto (default, hook Stop):**
+```
+◉ TOKENS  in:42.3k  out:8.1k  💾 -$0.0031  │  sessione: ~$0.1527
+```
+
+**Completo (`--full` flag o `/token-ledger --full`):**
+```
+╭────────────────────────────────────────────────────╮
+│  TOKEN LEDGER — sessione corrente                  │
+│  Modelli: claude-sonnet-4-6                        │
+├────────────────────────────────────────────────────┤
+│  Input:           42.3k  tokens                    │
+│  Output:           8.1k  tokens                    │
+│  Cache read:      31.2k  tokens                    │
+│  Risparmio:      $0.0031                           │
+├────────────────────────────────────────────────────┤
+│  Costo sessione:  ~$0.1527                         │
+╰────────────────────────────────────────────────────╯
+```
+
+## Invocazione manuale
+
+```bash
+python3 "<factory-path>/tools/analytics/show-session-tokens.py"
+python3 "<factory-path>/tools/analytics/show-session-tokens.py" --full
+```
+
+## Vincoli
+
+- **Display-only**: non scrive nel JSONL store (`harvest-session-tokens.py` è il writer canonico EP-013). No duplicazioni.
+- **Fail-open**: errore (transcript non trovato, parsing fallito, timeout) → skip silente. Mai bloccare il workflow.
+- **Timeout 5s**: il parsing deve completare entro 5s anche su transcript grandi.
+- **Self-observation**: i token dell'hook stesso non sono nel transcript al momento del parsing → costo mostrato leggermente inferiore (< 0.5%). Accettabile.
+
+## Integrazione wave_close
+
+Quando `analytics.token_ledger.auto_call_on_wave_close: true`, l'orchestrator invoca `--full` al termine di ogni wave (visibilità costo per-wave):
+```bash
+python3 "$FACTORY_DIR/tools/analytics/show-session-tokens.py" --full
+```
+
+## Pricing
+
+Da `analytics/pricing.yaml` (single-writer umano, ADR-022). Fallback prefix-based se modello non in tabella: Sonnet $3/$15, Opus $5/$25, Haiku $1/$5.
+Aggiornamento: aggiungere entry con `valid_from:` — mai editare entry esistenti (no-retroactive ADR-022 §E).
+
+## Limitazioni Cursor
+
+- **Transcript JSONL**: il path `~/.claude/projects/<cwd>/*.jsonl` è Claude Code-specifico. Lo script non funziona nativamente in Cursor (transcript in formato diverso).
+- **Hook Stop**: non disponibile in Cursor; invocare lo script manualmente dopo ogni risposta significativa se `token_ledger.enabled: true`.
+- **Alternativa Cursor**: mostrare `◉ TOKENS ~$<stima>` come stima manuale basata sul contesto usato, senza precisione token reali.

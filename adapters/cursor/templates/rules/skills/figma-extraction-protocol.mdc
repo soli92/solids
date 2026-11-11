@@ -1,0 +1,97 @@
+---
+description: Protocollo di estrazione Figma per figma-sync — 5 fasi (Bootstrap → Discovery → Chunked Extraction → Proposta → Scrittura). Implementa il pattern chunked-extraction-pipeline.
+globs: []
+alwaysApply: false
+---
+# SKILL: figma-extraction-protocol
+
+> Adapter Cursor della skill definita in PATTERN.md §16 (sync adapters).
+> File equivalente Claude Code: `.claude/skills/figma-extraction-protocol.md`.
+> Invocata da [figma-sync](mdc:.cursor/rules/figma-sync.mdc).
+
+Riferimenti: PATTERN §16, §6 (citazioni JSON), §7 r.1 (L1 read-only).
+
+## Prerequisiti
+
+- `ANTHROPIC_API_KEY` in env (o `.env` non committato). Assente → **ABORT**.
+- Accesso Figma MCP (`https://mcp.figma.com/mcp`), configurato nelle impostazioni Cursor.
+  Il file Figma deve essere visibile alle credenziali del MCP server.
+- (Opzionale) `FIGMA_TOKEN` per scaricare i thumbnail dei frame via Figma REST
+  (`/v1/images/:key`).
+
+## Costanti
+
+```
+MODEL            = "claude-sonnet-5-5"   # parametrizzabile
+MAX_CONCURRENCY  = 3                     # su Cursor: degrada a esecuzione sequenziale
+MAX_RETRIES      = 2                     # tentativi per chunk in errore
+RETRY_BASE_DELAY = 1500 ms               # base exponential backoff
+FRAMES_PER_CHUNK = 3                     # frame per gruppo
+```
+
+## Schema KB (single source of truth)
+
+```json
+{
+  "project":    { "name", "description", "domain", "pages_count", "screens_count" },
+  "screens":    [{ "id", "name", "type": "dashboard|list|detail|form|modal|auth|settings|other",
+                   "description", "components": [], "actions": [], "data": [], "links_to": [] }],
+  "components": [{ "name", "category": "layout|navigation|form|display|feedback|other",
+                   "description", "props": [], "screens": [] }],
+  "flows":      [{ "name", "description", "trigger", "steps": [], "screens": [] }],
+  "features":   [{ "name", "description", "priority": "high|medium|low", "screens": [], "stories": [] }],
+  "tokens":     { "colors": [{ "name", "value" }], "typography": [{ "name", "value" }],
+                  "spacing": [{ "name", "value" }] }
+}
+```
+
+## Fase 0 — Bootstrap
+
+1. Verifica `ANTHROPIC_API_KEY`. Assente → ABORT con messaggio chiaro.
+2. Estrai `file_key` dall'URL. Pattern supportati: `/file/KEY/`, `/design/KEY/`,
+   `/proto/KEY/`. Un `file_key` alfanumerico passato direttamente e' accettato.
+3. Leggi `raw/.extraction-manifest.json`; chiave manifest `<data>-figma-<file_key>`:
+   - `status: success` già presente → mostra l'entry e chiedi «Re-extract? [y/N]».
+   - `status: partial` o `error` → procedi (retry trasparente).
+4. Leggi `raw/tech_stack.md` se esiste (hint per il `DISCOVERY_PROMPT`).
+
+## Fase 1 — Piano di estrazione (STOP iniziale)
+
+Mostra in chat file, output primario, frame stimati, chunk previsti e costo
+approssimativo. **Attendi conferma** prima di procedere.
+
+## Fase 2 — Discovery (singola chiamata)
+
+`DISCOVERY_PROMPT` + Figma MCP `get_metadata` / `get_variable_defs` → struttura pagine,
+elenco frame significativi, design tokens.
+
+## Fase 3 — Chunked extraction
+
+Frame raggruppati a `FRAMES_PER_CHUNK`. Su Cursor i chunk vanno eseguiti **in sequenza**
+(`orchestration.profile: sequential`). Retry con backoff su chunk in errore; dopo
+`MAX_RETRIES` il chunk e' marcato fallito e concorre a `status: partial`.
+
+## Fase 4 — Proposta (STOP, §7 r.6)
+
+Mostra i file che verranno scritti e il conteggio degli elementi estratti per sezione.
+**Nessuna scrittura senza conferma esplicita.**
+
+## Fase 5 — Scrittura
+
+- `raw/YYYY-MM-DD-figma-<file_key>.kb.json`
+- `raw/images/YYYY-MM-DD-figma-<file_key>-frame-NN.md` (companion stub per frame)
+- append entry in `raw/.extraction-manifest.json` (`source`, `primary_artifact`,
+  `secondary_artifacts`, `extractor_version`, `status`)
+- append in `wiki/log.md` (vedi [wiki-log-entry](mdc:.cursor/rules/skills/wiki-log-entry.mdc))
+- Suggerisci come next step l'ingest con [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc).
+
+## Regole anti-corner-case
+
+- **Zero invenzione** (§7 r.2): dato assente → campo omesso o `null`, mai inferito.
+- **Estrazione parziale e' un esito valido**: `status: partial` nel manifest + nota in chat.
+- **Mai scrivere fuori scope**: solo i path `*-figma-*` elencati in Fase 5.
+
+## Non in scope
+
+Ingest in `wiki/` (e' di `wiki-keeper`), scrittura in `management/`, modifica del file Figma
+sorgente (§7 r.17: la sorgente e' read-only).

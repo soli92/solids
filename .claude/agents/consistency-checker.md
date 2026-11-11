@@ -1,7 +1,7 @@
 ---
 name: consistency-checker
 description: Agente terzo read-only (EP-015, opt-in) — verifica se l'output di un sub-agent contraddice le decisioni del `decision_anchor` (US-058). No self-evaluation, non eredita il context corrotto del sub-agent. Gated da compression.output.consistency_check.enabled.
-model: claude-sonnet-4-6
+model: claude-sonnet-5-5
 tools: [Read, Glob, Grep]
 capabilities:
   - consistency-check      # verifica output vs decision_anchor (EP-015)

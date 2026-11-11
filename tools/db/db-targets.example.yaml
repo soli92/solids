@@ -1,0 +1,91 @@
+# Registro dei database raggiungibili dalla capability db_access (/db, db-operator). ESEMPIO con host fittizi:
+# copiarlo in tools/db/db-targets.yaml (percorso di `db_access.registry`) e sostituire i valori.
+#
+# Solo dati NON segreti: host, porte, nomi dei database, schemi, NOMI delle variabili d'ambiente.
+# I valori delle credenziali vivono solo nel file indicato da `db_access.env_file` (default .env.db,
+# gitignored: verificare che sia davvero ignorato prima di compilarlo).
+#
+# Struttura:
+#   environments.<env>.hosts.<host_id>    -> endpoint + candidati credenziali
+#   environments.<env>.databases.<target> -> database logico su un host
+#   services.<servizio>                   -> quali target (e schemi) usa: serve a `locate` e a map-check
+#
+# host / port: letterali, oppure *_var (variabile del .env) con default_* come ripiego.
+# sslmode: facoltativo, per host. Se assente vale `db_access.sslmode` (default verify-full). prefer/require/
+#          disable/allow sono ammessi SOLO se scritti qui in modo esplicito e producono un avviso a ogni connessione.
+# credentials: lista ordinata di coppie [VAR_UTENTE, VAR_PASSWORD]; vince la prima coppia con entrambi i
+#              valori presenti nel .env.
+# schemas: il primo e' il search_path di default; --schema lo sovrascrive. Lista vuota = schemi ancora da
+#          censire (`check` li elenca con i privilegi).
+# unverified: database atteso per analogia ma non ancora visto su quell'host (`databases <env>`).
+# aliases: parole con cui cercare il target con `locate` (area funzionale, nome commerciale).
+# reference_tables: tabelle di dominio di cui il catalogo versiona i valori: solo le colonne in `columns`,
+#              mai colonne di audit o dati personali (con pii_scrub acceso la guardia le rifiuta).
+#
+# I privilegi effettivi li dice `db_access.py check`, non questo file. Gli ambienti in
+# `db_access.read_only_envs` (default prod) sono in sola lettura per configurazione, qualunque privilegio
+# abbia l'utenza.
+
+version: 1
+
+environments:
+  test:
+    label: "TEST"
+    hosts:
+      main:
+        host_var: DB_TEST_HOST                       # override dal .env
+        default_host: db.example.internal
+        port: 5432
+        sslmode: verify-full
+        credentials:
+          - [DB_USERNAME, DB_PASSWORD]
+    databases:
+      app:       {host: main, dbname: app, schemas: [public], aliases: [customers, accounts]}
+      billing:   {host: main, dbname: billing, schemas: [public, invoicing], aliases: [fatturazione]}
+      reporting: {host: main, dbname: reporting, schemas: [public], unverified: true}
+  staging:
+    label: "STAGING"
+    hosts:
+      main:
+        host_var: DB_STAGING_HOST
+        default_host: db-staging.example.internal
+        port: 5432
+        credentials:
+          - [DB_USERNAME, DB_PASSWORD]
+    databases:
+      app:       {host: main, dbname: app, schemas: [public], aliases: [customers, accounts]}
+      billing:   {host: main, dbname: billing, schemas: [public, invoicing], aliases: [fatturazione]}
+  prod:
+    label: "PROD (sola lettura)"
+    hosts:
+      main:
+        host_var: DB_PROD_HOST
+        default_host: db-prod.example.internal
+        port: 5432
+        credentials:
+          - [DB_USERNAME, DB_PASSWORD]
+    databases:
+      app:
+        host: main
+        dbname: app
+        schemas: [public]
+        aliases: [customers, accounts]
+        reference_tables:
+          - {table: public.account_type, columns: [id, value], reason: "valori di dominio che le funzionalita' citano per nome"}
+      billing:   {host: main, dbname: billing, schemas: [public, invoicing], aliases: [fatturazione]}
+
+# Servizio -> target (e schemi) che usa. `locate <env> <servizio>` parte da qui.
+# Fonte di ogni voce in `source`; unverified = dedotto, non letto in un datasource.
+services:
+  account-service:
+    aliases: [accounts]
+    source: docs/services/account-service.md
+    uses: [{target: app, schemas: [public]}]
+  invoice-service:
+    aliases: [fatture]
+    source: docs/services/invoice-service.md
+    uses: [{target: billing, schemas: [invoicing]}, {target: app, schemas: [public]}]
+  report-service:
+    unverified: true
+    source: "dedotto dal nome del database reporting; da confermare sul datasource"
+    uses: [{target: reporting}]

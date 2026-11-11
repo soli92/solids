@@ -1,0 +1,83 @@
+---
+description: >-
+  Graphify Extraction Protocol — estrazione knowledge graph da code_path (PATTERN §16+§20, v2.14
+  Fase 2). 5 fasi: Bootstrap → Discovery+Cost → Build Graph → Side-channel write → Log.
+  Provider-bound a graphify (pip install graphifyy). Output raw/ + .graphify-state/.
+globs: []
+alwaysApply: false
+---
+# Skill: graphify-extraction-protocol (PATTERN §16+§20, v2.14)
+
+> Adapter Cursor della skill `graphify-extraction-protocol` definita in `.claude/skills/graphify-extraction-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/graphify-extraction-protocol.md`.
+
+Estrazione knowledge graph da `code_path` via Graphify. Invocata da `graphify-sync` agent.
+
+> **Gate**: `factory.config.yaml.compression.context.provider ∈ {graphify-cloud, graphify-ollama}`.
+
+## Prerequisiti
+
+- Graphify installato: `graphify --version` (da `pip install graphifyy` — doppia-y).
+- Target `<name>` presente in `factory.config.yaml.code_paths[]`.
+- API key configurata (`ANTHROPIC_API_KEY` o `OPENAI_API_KEY` per graphify-cloud; Ollama locale per graphify-ollama).
+
+## Fase 1 — Bootstrap
+
+1. Read `factory.config.yaml.compression.context` + `code_paths[name == target]`.
+2. Verifica Graphify installato (`bash graphify --version`).
+3. Verifica `<code_path>` esiste e è leggibile.
+4. Calcola slug: `<target-name-kebab>`.
+5. Modalità: `incremental` (se entry odierna in `raw/.extraction-manifest.json`) o `full`.
+6. Drift alert: se `last_full_rebuild.txt` > `drift_alert_days` giorni → suggerisci `full`.
+
+## Fase 2 — Discovery + Cost Estimation
+
+1. Conta file nel target (esclusi pattern `gitignore_patterns`).
+2. Stima costo token → se > `full_rebuild_cost_warn` (USD) → STOP con gate umano.
+3. Su conferma: procedi.
+
+## Fase 3 — Build Graph
+
+```bash
+# Incremental (default):
+graphify update <code_path>
+
+# Full rebuild:
+graphify update <code_path> --force
+
+# Pre-check blast radius:
+graphify affected "<changed file>" <code_path>
+```
+
+Salva output in:
+- `raw/<YYYY-MM-DD>-graph-<slug>.md` (knowledge base ingest)
+- `.graphify-state/code_paths/<slug>/graph.json` (struttura macchina)
+- `.graphify-state/code_paths/<slug>/GRAPH_REPORT.md` (digest umano)
+
+## Fase 4 — Side-channel write
+
+Aggiorna:
+- `raw/.extraction-manifest.json` → entry `{slug, date, mode, nodes, edges}`.
+- `.graphify-state/code_paths/<slug>/last_full_rebuild.txt` (se `full`).
+
+**R.G3 (read-only sul sorgente)**: mai modificare file in `<code_path>/**`. Solo lettura.
+**R.G6 (single-writer)**: solo questa skill scrive in `.graphify-state/code_paths/<slug>/`.
+
+## Fase 5 — Log
+
+Append `wiki/log.md`:
+```
+[YYYY-MM-DD HH:MM] graphify-sync — target: <slug> nodes: N edges: M → .graphify-state/code_paths/<slug>/
+```
+
+## Confidence gating (R.G2)
+
+- `executor` context: usa solo nodi `EXTRACTED` (confidence elevata)
+- `explorer` context: usa `EXTRACTED` + `INFERRED`
+- `reviewer` context: usa tutto (incluso `SPECULATIVE`)
+
+## Limitazioni Cursor
+
+- **graphify CLI**: usa terminal integrato. `pip install graphifyy` per installare.
+- **API key**: imposta `ANTHROPIC_API_KEY` come variabile d'ambiente nel terminal prima di eseguire.
+- **Full rebuild su repo grandi**: può richiedere 5-15 min. Esegui in background.

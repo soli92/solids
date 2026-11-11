@@ -1,0 +1,85 @@
+---
+description: >-
+  Temporal Estimate Protocol — stima adattiva del tempo rimanente da progresso osservato (Layer 3
+  EP-043, v2.30). Opt-in. Input: task_estimate (S/M/L/XL) + elapsed_ms + steps. Output:
+  temporal_estimate con recommendation continue/warn/escalate.
+globs: []
+alwaysApply: false
+---
+# Skill: temporal-estimate-protocol (EP-043, v2.30)
+
+> Adapter Cursor della skill `temporal-estimate-protocol` definita in `.claude/skills/temporal-estimate-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/temporal-estimate-protocol.md`.
+
+Stima adattiva del tempo rimanente. Layer 3 del Generative Time Model. Complementa
+`temporal-budget-governor` (vincolo economico) con proiezione temporale basata su velocità osservata.
+
+> **Gate**: `factory.config.yaml.temporal.estimate_protocol.enabled: true`. Default `false` = no-op.
+
+## Input
+
+| Campo | Tipo | Vincolo |
+|---|---|---|
+| `task_estimate` | string | S \| M \| L \| XL |
+| `elapsed_ms` | integer | ≥ 0 |
+| `completed_steps` | integer | ≥ 0 |
+| `total_steps` | integer | > 0, ≥ completed_steps |
+
+Input invalidi → `temporal_estimate: null` con `rationale: "Input insufficienti"`.
+
+## Budget table (default, sovrascrivibile via config)
+
+| task_estimate | budget_reference_ms |
+|---|---|
+| S | 900_000 (15 min) |
+| M | 3_600_000 (1 h) |
+| L | 14_400_000 (4 h) |
+| XL | 57_600_000 (16 h) |
+
+## Fasi di calcolo
+
+### Fase 1 — Bootstrap
+Check flag. Se `false` → `temporal_estimate: null` (no-op, backward compat R.P3).
+
+### Fase 2 — Progress Ratio
+```
+progress_ratio = completed_steps / total_steps
+```
+Se `progress_ratio == 0` → `temporal_estimate: null, confidence: 0.0, recommendation: continue, rationale: "Progresso zero"`.
+
+### Fase 3 — Time Estimate + Confidence
+```
+estimated_total_ms    = elapsed_ms / progress_ratio
+estimated_remaining_ms = estimated_total_ms - elapsed_ms
+time_ratio             = elapsed_ms / budget_reference_ms
+```
+
+**Confidence** (senza reference_class_ms): `min(0.9, progress_ratio)`
+
+**Recommendation** (primo match vince):
+- **escalate**: `time_ratio > 5.0` OR `confidence < 0.1` OR `remaining > 3×budget`
+- **warn**: `time_ratio > 1.5` OR `confidence < 0.3`
+- **continue**: altrimenti
+
+### Fase 4 — Output strutturato
+```yaml
+temporal_estimate:
+  estimated_remaining_ms: integer | null
+  confidence: float              # 0.0–1.0
+  recommendation: continue | warn | escalate
+  rationale: string              # SEMPRE non vuota (AC6)
+  budget_reference_ms: integer
+  progress_ratio: float
+  time_ratio: float
+```
+
+## Complementarietà con temporal-budget-governor
+
+Ordine: `temporal-budget-governor` prima (vincolo economico), poi `temporal-estimate-protocol` (vincolo temporale).
+**Precedenza assoluta** del governor: se `verdict == hard-stop`, `temporal_estimate` non viene valutato.
+
+## Limitazioni Cursor
+
+- **elapsed_ms**: calcola con `bash date +%s%3N` (epoch ms) per il valore corrente.
+- **steps**: definisci `total_steps` dal piano TSK (Implementation Steps). Aggiorna `completed_steps` manualmente.
+- **Usa i valori di default** per le soglie se non configurati in `factory.config.yaml.temporal.estimate_protocol.thresholds`.

@@ -1,7 +1,7 @@
-# Skill: Tech Scout
-
-> Adapter Cursor della skill `tech-scout` definita in PATTERN.md.
-
+---
+name: tech-scout
+description: Proposta automatica di stack tecnologico (stack_mode=auto). Output raw/tech_stack.md.proposal con gate umano (PATTERN §14).
+---
 # Procedura — Tech-scout (stack proposal)
 
 Skill invocata quando `factory.config.yaml` ha `stack_mode: auto`, o on-demand

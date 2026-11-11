@@ -1,0 +1,32 @@
+---
+description: >-
+  Procedura di installazione e configurazione del Voice Channel (EP-041, PATTERN §30). Guida
+  l'agente voice-channel-installer attraverso 5 fasi sequenziali per attivare l'interazione vocale
+  con la factory.
+globs: "voice/**"
+alwaysApply: false
+---
+# Skill: voice-channel-install-protocol
+
+> Adapter Cursor della skill `voice-channel-install-protocol`, definita in `.claude/skills/voice-channel-install-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.voice_channel.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Invarianti
+2. Output schema
+3. Fase 1 — Prerequisiti Python + dipendenze
+4. Fase 2 — Configurazione factory.config.yaml
+5. Fase 3 — Registrazione campioni wake word (se wake_word.enabled)
+6. Fase 4 — Installazione LaunchAgent (macOS, opt-in)
+7. Fase 5 — Validazione (smoke test)
+
+Il dettaglio di ogni passo sta in `.claude/skills/voice-channel-install-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Il canale vocale e' un modulo Python in `voice/`: l'adapter fornisce solo il binding.
+- Il `LaunchAgent` e' specifico del sistema operativo.
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.

@@ -1,25 +1,25 @@
-# Skill: Propagate Resolution
-
-> Adapter Cursor della skill `propagate-resolution` definita in PATTERN.md.
-
+---
+name: propagate-resolution
+description: Riconcilia downstream quando il wiki-keeper chiude un gap che cita una Q_NNN. Appende marker reconcile-needed a wiki/log.md per ogni US dipendente. Nessuna scrittura su kanban.
+---
 # Propagate Resolution (operazione canonica `Propagate`, PATTERN.md §3)
 
-Skill del [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc). Eseguita **solo** come effetto collaterale della
+Skill del `wiki-keeper`. Eseguita **solo** come effetto collaterale della
 chiusura di un gap che cita esplicitamente una `Q_NNN` in `management/questions.md`.
 
-Riferimenti: [wiki-gap-protocol](mdc:.cursor/skills/wiki-gap-protocol/SKILL.md) (chiusura gap), [wiki-log-entry](mdc:.cursor/skills/wiki-log-entry/SKILL.md) (template
+Riferimenti: `wiki-gap-protocol` (chiusura gap), `wiki-log-entry` (template
 marker `reconcile-needed`), `PATTERN.md §3` (operazione `Propagate`) + `§7 r.9`
 (gate L4 graduato).
 
 ## Chi può eseguirla
 
-**Solo il [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc)**, automaticamente alla chiusura di un gap.
+**Solo il `wiki-keeper`**, automaticamente alla chiusura di un gap.
 Single-committer §7 r.12 invariato — questa skill scrive **solo** su `wiki/log.md`
 (append-only, già nello scope del keeper).
 
 ## Trigger
 
-Il [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc), mentre marca un gap come `**Risolto:** YYYY-MM-DD — [[<pagina>]]`,
+Il `wiki-keeper`, mentre marca un gap come `**Risolto:** YYYY-MM-DD — [[<pagina>]]`,
 rileva che la sezione del gap (o la Q che ne dipendeva) cita una o più
 `Q_NNN`. Esempio di gap chiuso che attiva il flow:
 
@@ -55,7 +55,7 @@ Per ogni US trovata:
 
 ### 3. Append marker a `wiki/log.md`
 
-Una riga per US ancora non riconciliata. Template (vedi [wiki-log-entry](mdc:.cursor/skills/wiki-log-entry/SKILL.md)):
+Una riga per US ancora non riconciliata. Template (vedi `wiki-log-entry`):
 
 ```
 [YYYY-MM-DD HH:MM] reconcile-needed — US-YYY → Q_NNN closed (gap [[<slug>]]) — files touched: 0
@@ -84,9 +84,9 @@ sulle 3 US elencate, oppure correggi a mano se hai chiarezza tu.
 - **Mai scrittura su `management/kanban/**`** — proprietà esclusiva del PM
   (§2). Il keeper segnala, non riconcilia.
 - **Mai notifiche fuori `wiki/log.md`** — il canale è il log, surfaced
-  dall'orchestrator in `/run` (vedi [state-scan](mdc:.cursor/skills/state-scan/SKILL.md)).
+  dall'orchestrator in `/run` (vedi `state-scan`).
 - **Mai chiusura silenziosa di Q** — la chiusura di una Q resta una decisione
-  che passa per [apri-question](mdc:.cursor/skills/apri-question/SKILL.md) (con `**Data risoluzione:**` + decisione esplicita).
+  che passa per `apri-question` (con `**Data risoluzione:**` + decisione esplicita).
   Questa skill reagisce *dopo* la chiusura, non la innesca.
 
 ## Idempotenza
@@ -95,7 +95,7 @@ Eseguire `propagate-resolution` due volte sullo stesso gap chiuso produce
 markers duplicati nel log. **È accettabile** (log append-only, segnale ridondante
 non rumore strutturale). Per evitare la duplicazione, il keeper esegue la
 skill **una sola volta**, contestualmente alla chiusura del gap (Fase 5 di
-[ingest-protocol](mdc:.cursor/skills/ingest-protocol/SKILL.md), prima della log-entry di ingest).
+`ingest-protocol`, prima della log-entry di ingest).
 
 ## Anti-pattern (vietati)
 
@@ -103,5 +103,5 @@ skill **una sola volta**, contestualmente alla chiusura del gap (Fase 5 di
 |---|---|
 | Modificare `US-YYY.md` rimuovendo `Q_NNN` da `blocked_by` | Violazione write-scope §2 (kanban è PM) |
 | Riaprire la Q se la riconciliazione non avviene | Q resta in `[RISOLTE]`; il problema è il kanban stale, non la Q |
-| Emettere marker per Q ancora aperte | La skill opera *post-chiusura*; per Q aperte usa [apri-question](mdc:.cursor/skills/apri-question/SKILL.md) |
+| Emettere marker per Q ancora aperte | La skill opera *post-chiusura*; per Q aperte usa `apri-question` |
 | Marker senza riferimento esplicito al gap | Il marker DEVE citare `(gap [[<slug>]])` per audit trail |

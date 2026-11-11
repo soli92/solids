@@ -1,0 +1,77 @@
+---
+description: Dev Handoff — entry wiki/log.md a chiusura TSK da dev-agent. Formato canonico + Decision Anchor Propagation opt-in + Temporal Handoff Block opt-in + Suggerimento post-esecuzione EP-033.
+globs: "wiki/log.md"
+alwaysApply: false
+---
+# Skill: dev-handoff (PATTERN §3, v2.24)
+
+> Adapter Cursor della skill `dev-handoff` definita in `.claude/skills/dev-handoff.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/dev-handoff.md`.
+
+Append-only su `wiki/log.md` quando un dev-agent completa un TSK.
+
+## Formato entry canonico
+
+```markdown
+## YYYY-MM-DD HH:MM — develop TSK-ZZZ
+**Agente:** <be-dev|fe-dev|db-dev|qa-dev>
+**TSK:** [[../management/kanban/EP-XXX-<slug>/US-YYY-<slug>/TSK-ZZZ]]
+**Layer:** <be|fe|db|qa|infra>
+**Code path:** <resolved_code_path>
+**Files touched:** <count> (lista compatta se ≤ 5; altrimenti "vedi commit")
+**Commit:** <hash short se git tracciato; oppure "n/a">
+**DoD:** <pass | partial — descrivi>
+**Note:** <free-form, max 2-3 righe>
+```
+
+## Decision Anchor Propagation (opt-in v2.19, `compression.output.decision_anchor.enabled: true`)
+
+Pre-handoff (prima di emettere l'entry):
+1. Verifica presenza `decision_anchor` nel task package.
+2. Verifica checksum `decision_anchor.checksum` == `canonical_json(decision_anchor.decisions[])`.
+3. Copia invariata nell'output (dev-agent è read-only sull'anchor).
+4. ERROR `[anchor-stripped]` o `[anchor-tampered]` + blocco handoff se verifica fallisce.
+
+## Temporal Handoff Block (opt-in `temporal.handoff_protocol.enabled: true`)
+
+Schema 5 campi obbligatori:
+```yaml
+temporal_handoff:
+  handoff_id: "HO-<timestamp-utc>-<random-4char>"
+  elapsed_ms: <wall-clock ms da started>
+  estimated_remaining_ms: <integer | null>
+  completed_steps:
+    - {step_id, name, started_at, completed_at, agent}
+  pending_steps:
+    - {step_id, name, agent}
+  context_summary: |
+    <testo multi-riga — mai vuoto>
+```
+
+Vincoli: 5 campi obbligatori; `context_summary` mai vuoto; `completed_steps` append-only; timestamp UTC ISO-8601 Z.
+
+## Suggerimento post-esecuzione (EP-033, v2.24)
+
+Dopo ogni TSK, applica regole push-based per layer (solo se comando installato + non già eseguito per questa US):
+
+| Layer | Suggerimenti |
+|---|---|
+| fe | `/a11y` (se `a11y.enabled`), `/ux-ui-review` (se `ux_ui.enabled`), `/visual-oracle` (se `fe_correctness.visual_oracle.enabled`), `/prototype` (se `prototyping.enabled`) |
+| be | `/review` (focus robustezza) |
+| db | `/review` (focus robustezza) + nota su backup strategy se migration DDL |
+| qa | `flakiness-detection-protocol` se test asincroni |
+| docs | `/lint` |
+
+Tono: sempre "Potresti considerare" — mai imperativo. Sezione `## Suggerimento post-esecuzione` appare solo se ≥1 suggerimento supera i gate.
+
+## Regole
+
+- **Append-only**: mai editare entry passate.
+- **Una entry per TSK chiuso**.
+- **Mai citare codice direttamente in wiki/log.md**: cita TSK, non il codice.
+- **Coerenza**: entry solo se `status: done` o `partial`. Mai per TSK in gate.
+
+## Limitazioni Cursor
+
+- **Append**: usa terminal `echo "## YYYY-MM-DD HH:MM — develop TSK-ZZZ\n..." >> wiki/log.md`.
+- **Temporal**: calcola `elapsed_ms` via `bash date +%s%3N` (epoch ms) se disponibile.

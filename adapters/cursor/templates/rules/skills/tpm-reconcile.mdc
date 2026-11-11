@@ -1,0 +1,29 @@
+---
+description: >-
+  Riconciliazione periodica tra stato dichiarato nel kanban e stato reale dell'esecuzione. 5 passi
+  — Bootstrap, Discovery, Riconciliazione, Report, Vincolo sola-lettura. Produce conteggio TSK per
+  stato, lista anomalie (dipendenze…
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: tpm-reconcile
+
+> Adapter Cursor della skill `tpm-reconcile`, definita in `.claude/skills/tpm-reconcile.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. Passo 1 — Bootstrap
+2. Passo 2 — Discovery
+3. Passo 3 — Riconciliazione
+4. Passo 4 — Report output
+5. Passo 5 — Vincolo sola-lettura
+6. Input
+7. Anti-pattern (vietati)
+
+Il dettaglio di ogni passo sta in `.claude/skills/tpm-reconcile.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- **Read-only**: produce un report, le scritture le fa il TPM dopo conferma umana.
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.

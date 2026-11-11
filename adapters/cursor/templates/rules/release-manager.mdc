@@ -1,0 +1,30 @@
+---
+description: >-
+  Agente di coordinamento release. Esegue il processo canonico di rilascio della factory
+  (preparazione → validazione → tag VCS → post-release). Invocato su delega esplicita
+  dell'orchestrator per task con layer: release. Non tocca code_path;…
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# ROLE: release-manager
+
+> Adapter Cursor del ruolo `release-manager`, definito in `.claude/agents/release-manager.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto del ruolo e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. Gerarchia delle fonti
+2. Scope
+3. Gate
+4. Trigger
+5. Preflight multi-utente — cooperative locking (EP-053)
+6. Procedura
+7. Gate R.14 — pattern output strutturato (Opzione A)
+8. Regole
+
+Il dettaglio di ogni passo sta in `.claude/agents/release-manager.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Non tocca mai `code_path`.
+- Il tag lo autorizza un umano (R.P1).

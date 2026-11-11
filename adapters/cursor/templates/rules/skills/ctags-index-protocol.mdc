@@ -1,0 +1,30 @@
+---
+description: >-
+  Protocollo L1 del Code Intelligence Stack (§33). Genera e aggiorna un indice universal-ctags nel
+  side-channel .ctags-state/ per lookup esatto di simboli (funzioni, classi, interfacce) senza
+  consumare token LLM.
+globs: "**"
+alwaysApply: false
+---
+# Skill: ctags-index-protocol
+
+> Adapter Cursor della skill `ctags-index-protocol`, definita in `.claude/skills/ctags-index-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.code_intelligence.l1_ctags.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Fase 0 — Prerequisite Check
+2. Fase 1 — Generate / Update Index
+3. Fase 2 — Query
+4. Fase 3 — Side-channel Management
+5. Vincoli
+6. Integrazione
+
+Il dettaglio di ogni passo sta in `.claude/skills/ctags-index-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- L1 e' `universal-ctags` piu' `grep`: nessun ML, nessun servizio.
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.

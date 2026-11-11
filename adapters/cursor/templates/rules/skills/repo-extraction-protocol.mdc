@@ -1,0 +1,113 @@
+---
+description: Protocollo di estrazione di un documento di specifiche markdown da un repository locale (PATTERN §16) — 5 fasi (Bootstrap → Discovery → Sampling → Proposta → Scrittura). Read-only verso la sorgente.
+globs: []
+alwaysApply: false
+---
+# SKILL: repo-extraction-protocol
+
+> Adapter Cursor della skill definita in PATTERN.md §16 (sync adapters, v2.12).
+> File equivalente Claude Code: `.claude/skills/repo-extraction-protocol.md`.
+> Invocata da [repo-sync](mdc:.cursor/rules/repo-sync.mdc).
+> Sub-skill: [stack-detector](mdc:.cursor/rules/skills/stack-detector.mdc).
+
+Riferimenti: PATTERN §16, §7 r.1 (L1 read-only), **§7 r.17 (la sorgente scansionata e'
+read-only: mai scrivere nel repo analizzato)**, §19.2 (stack detector riusato).
+
+## Quando viene invocata
+
+| Caller | Trigger | Output |
+|---|---|---|
+| `repo-sync` | `/repo-sync <path>` | `raw/YYYY-MM-DD-repo-<slug>.md` + manifest entry |
+| bootstrap | `wiki_feed_source: existing-repo` | come sopra, a fine bootstrap |
+
+## Prerequisiti
+
+- Path locale al repo (assoluto o relativo alla cwd), con read access.
+- `raw/` esistente nella factory che invoca (unico target di scrittura).
+
+## Costanti
+
+```
+SAMPLING_DEPTH      = 3          # profondita' albero riassunto
+MAX_FILES_SAMPLED   = 30         # cap difensivo Fase 3
+MAX_FILE_BYTES      = 50_000     # file piu' grandi: skip + nota nel documento
+TARGET_DOC_SIZE_KB  = (5, 15)    # lunghezza target del documento prodotto
+SLUG_MAX_LEN        = 40         # vedi PATTERN §4 naming
+```
+
+## Fase 0 — Bootstrap
+
+1. Valida il path (`test -d`) → se assente, ABORT.
+2. Verifica che sia «repo-ish»: `.git/` (preferito) **o** un manifest di linguaggio noto
+   (`package.json`, `pyproject.toml`, `go.mod`, …).
+3. Calcola lo slug (max `SLUG_MAX_LEN`) e la chiave manifest `<data>-repo-<slug>`;
+   applica la stessa logica di dedup/re-extract della sorgente Figma.
+
+## Fase 1 — Piano di estrazione (STOP iniziale)
+
+Mostra path, slug, output previsto, stack presunto e numero di file da campionare.
+**Repo > 10000 file**: conferma esplicita obbligatoria e `MAX_FILES_SAMPLED` ridotto a 15.
+
+## Fase 2 — Discovery
+
+- **2.a Git metadata** (se `.git/`): `git log` read-only — primo/ultimo commit, contributor,
+  branch corrente. Repo senza `.git` (snapshot/ZIP): salta, lascia i campi `git_*` vuoti.
+- **2.b Stack detection**: delega a [stack-detector](mdc:.cursor/rules/skills/stack-detector.mdc).
+- **2.c Struttura ad alto livello**: albero fino a `SAMPLING_DEPTH`.
+- **2.d Documenti correlati**: `README*`, `docs/**`, ADR, changelog.
+
+## Fase 3 — Sampling mirato
+
+Max `MAX_FILES_SAMPLED` file, max `MAX_FILE_BYTES` ciascuno.
+
+- **Obbligatori**: README top-level (primi 500 char + sezione Installation), manifest
+  principale (`name`/`description`/`version`/dipendenze top-level), config del framework
+  (`next.config.*`, `nest-cli.json`, `settings.py`+`urls.py`, istanza `FastAPI()`,
+  `application.{yml,properties}`, `config/routes.rb`).
+- **Euristici**: entrypoint (`main.py`, `app.*`, `index.*`, `cmd/*/main.go`,
+  `**/Application.java` — primi 100 righe); routing/API (grep
+  `@app.route|@app.get|@router|router.HandleFunc|@RestController|@Controller`);
+  schema DB (`schema.prisma`, `migrations/*.sql`, `models.py`, `schema.sql`, `*.proto` →
+  solo lista entita'); OpenAPI (`openapi.*`, `swagger.*` → title, version, conteggio path).
+- **Moduli core (fan-in)**: conteggio degli import (`grep -r`), top-5 file piu' importati.
+  Nessuna analisi semantica.
+- **Vincoli normativi**: grep case-insensitive su README + `docs/**` per
+  `SPID|OIDC|OAuth2|SAML|eIDAS|FHIR|GDPR|HIPAA|PCI-DSS|HL7|ISO 27001|RFC \d+` →
+  trascrivi **verbatim** la frase circostante (max 200 char per match), regola §11.
+- **Secret**: grep su `*.env*`, `*.config.*`, `secrets/**` e pattern noti (API key, JWT,
+  password literal). **Non trascrivere i valori**: conta in
+  `extraction_metadata.secrets_redacted` e annota nel documento. `> 20` match → WARNING
+  in chat + conferma esplicita prima di procedere.
+
+## Fase 4 — Proposta (STOP, §7 r.6)
+
+Mostra il documento pronto (sezioni + dimensione) e attendi conferma. Nessuna scrittura prima.
+
+## Fase 5 — Scrittura
+
+- **5.a** `raw/YYYY-MM-DD-repo-<slug>.md` con le sezioni: Identita' · Stack rilevato ·
+  Struttura ad alto livello · Entrypoint e moduli chiave · API surface · Schema dati ·
+  Dipendenze esterne · Vincoli normativi/Standard · Documenti correlati · Test coverage
+  rilevato · Gap evidenti · Note di estrazione.
+- **5.b** (opzionale) companion tree del filesystem.
+- **5.c** append entry in `raw/.extraction-manifest.json`.
+- **5.d** suggerisci l'ingest con [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc)
+  e appendi in `wiki/log.md`.
+
+Re-estrazione confermata su output esistente → aggiungi `## Aggiornamenti (vYYYY-MM-DD)`
+in fondo, **mai** overwrite della prima parte (§7 r.7).
+
+## Non in scope
+
+- Decidere quali parti diventano pagine wiki (e' di `wiki-keeper`).
+- **Eseguire codice del repo** (`npm install`, `pip install`, …): mai. Solo filesystem
+  locale + `git log` read-only.
+- **Modificare il repo scansionato**: mai (§7 r.17).
+- Generare wikilink `[[...]]`, aprire gap o storie, chiamate API GitHub/GitLab (offline).
+
+## Limitazioni Cursor
+
+- Il sampling usa il terminale integrato (`grep`, `git log`, `find`): stessi comandi,
+  nessuna differenza di risultato.
+- Nessun fan-out: i file vengono campionati in sequenza entro lo stesso cap
+  `MAX_FILES_SAMPLED`.

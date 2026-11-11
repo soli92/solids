@@ -1,0 +1,12 @@
+{
+  "_doc": "ESEMPIO di profilo di rumore (copiare in tools/logs/noise/<profilo>.json, dove <profilo> e' il campo `noise` del registro). Regole in AND: container, logger, level (valori esatti), message (frase), piu' name, reason, added. Il profilo e' condiviso da tutte le app che lo dichiarano. Nuove regole: `noise <env> <app>` poi `noise-add` con anteprima e conferma dell'utente.",
+  "rules": [
+    {
+      "name": "health-probe",
+      "container": "gateway",
+      "message": "GET /health",
+      "reason": "probe di liveness ripetuta ogni pochi secondi",
+      "added": "2026-01-01"
+    }
+  ]
+}

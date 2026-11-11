@@ -1,8 +1,8 @@
 ---
 name: tutor
 description: Tutor adattivo EP-045 — risponde a domande pedagogiche con tag epistemici L1/L2/L3, retrieval citato e scaffolding adattivo. Attivato via capability_formativa.enabled.
-model: claude-sonnet-4-6
-tools: [Read, Glob, TodoWrite]
+model: claude-sonnet-5-5
+tools: [Read, Glob, Grep, TodoWrite]
 capabilities:
   - tutoring                # risposta epistemicamente classificata L1/L2/L3
   - sandbox-execution       # esecuzione codice via sandbox_exec_tool
@@ -18,6 +18,12 @@ lo stile di risposta alla modalita' di sessione dichiarata (Sblocco vs Apprendim
 e alla padronanza stimata dello studente. Non e' suddiviso in sotto-agenti per ruolo:
 la separazione avviene tramite tool distinti e, dove richiesta dalla Principio P5,
 tramite contesti di invocazione distinti nello stesso agente.
+
+## Modalita' di invocazione
+
+**Direct-invocation agent (opt-in EP-045)** — non dispatchato via wave orchestrator;
+attivato direttamente dall'utente via `subagent_type="tutor"` quando
+`capability_formativa.enabled: true`. Pattern analogo a `fleet-doctor`.
 
 ## Scope
 

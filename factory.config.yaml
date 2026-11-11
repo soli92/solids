@@ -2,8 +2,8 @@ factory:
   name: solids-design-system
   description: "SoliDS — Design system React (@soli92/solids)"
 
-pattern_version: "2.42"
-topology: knowledge-only
+pattern_version: "2.45"
+topology: custom   # EP-090 test 2026-11-11: dev-agent presenti dopo l'upgrade 2.45; routing fe/docs: agent
 
 code_paths:
   - name: solids
@@ -60,7 +60,8 @@ tavola_rotonda:
 
 # Prototype Generation Layer (v2.26, EP-035, PATTERN §27)
 prototyping:
-  enabled: false                              # master switch EP-035 (R.P3 default off)
+  enabled: true                              # master switch EP-035 (R.P3 default off)
+  variants: 3                                 # EP-090: varianti divergenti (test su soli-ds)
 
 # Parallel Scheduler (v2.11)
 scheduler:
@@ -131,3 +132,603 @@ refactor_agent_skills:
 # Session Observability (v2.42, EP-062)
 session_analysis:
   enabled: false                              # opt-in tools/session-analysis + comando /session-analysis
+
+# --- blocchi aggiunti da factory-upgrade (pattern 2.45), tutti spenti ---
+
+adapters:
+  - name: claude
+    folder: .claude
+    maturity: full
+
+kanban_publish:
+  provider: github                    # enabled 2026-05-29 for v2.16 Premortem Integration milestone
+  target: "soli92/soli-multi-agents-factory"   # same repo: v2.16 kanban push-only mirror on GH Issues
+  auth_env: GH_TOKEN                  # authenticated gh CLI (already used for v2.14.0/v2.15.0 releases)
+  mode: push-only                     # v2.10: push-only only (bidirectional future candidate)
+  batch_limit: 10                     # gate §7 r.15: max CREATE+UPDATE per run without second human gate
+  mapping:
+    epic_to: milestone                # GH Milestone (1 EP → 1 milestone)
+    story_to: issue-label             # GH Issue with kanban:story label
+    task_to: issue-label              # GH Issue with kanban:task label
+    sprint_to: milestone              # sprint.md → separate GH Milestone (parallel to EP-milestones)
+  labels:
+    epic: "kanban:epic"
+    story: "kanban:story"
+    task: "kanban:task"
+    layer_prefix: "layer:"            # optional: produces "layer:docs", "layer:be", ...
+    milestone_prefix: "milestone:"    # optional: "milestone:v2.16"
+  filter:
+    only_consumer: any                # any | agent | human (meta-framework: any, both agent and human)
+    only_status: any                  # any | todo | in-progress | done
+
+code_quality:
+  enabled: true   # ADR-EP047-002 (2026-07-14): factory-guide in code_paths → real L5 (fe layer). CQRL reactivated on factory-guide FE TSK. (was false after ACC-02 TR-20260714-14 when code_paths was [])
+  max_iterations: 3
+  thresholds:
+    confidence_min: 0.6
+    batching_split: 7
+    pass_rate_warn: 0.05
+    false_positive_warn: 0.30
+  passes:
+    idiomaticity: true
+    design: true
+    robustness: true
+    # premortem-on-merge (opt-in v2.16, default OFF): 4th pass — mini-premortem on diff
+    # (timeframe 3mo, max 3-5 findings) as verdict subsection. See
+    # .claude/skills/code-review-protocol.md Pass 4 + ADR-005. To enable:
+    # premortem-on-merge: true
+    # accessibility (opt-in v2.18, EP-007 ADR-016 §H): 4th pass — invokes run_a11y_scan as check
+    # additional in code-review-protocol. Independent of a11y scheduler domain (can run
+    # even with a11y domain off). To enable:
+    # accessibility: false
+    # spec_adherence (opt-in, EP-077): Passata 6 — il diff contro la specifica del TSK
+    # (.claude/skills/references/code-review-protocol/passata-6-aderenza-spec.md). To enable:
+    # spec_adherence: false
+  router:
+    strategy: severity-tiered      # all-in-one | severity-tiered | split-by-area
+    max_diff_lines: 80
+    ordering: severity_then_complexity
+    layer_filter: [be, fe, db, qa]  # CQRL only on layers with real code; docs excluded (target cost: $540→<$200, US-190)
+  ruleset:
+    path: ./code_quality/rules/
+    tiers: [canonical, emergent, team-specific]
+    evolve:
+      enabled: false
+      cadence_days: 7
+  reports:
+    path: ./code_quality/reports/
+    retain_iterations: 5
+    digest_cadence: weekly
+
+engineering_practices:
+  enabled: false                        # master switch; la Passata 6 ha il proprio flag code_quality.passes.spec_adherence
+  kanban_path: management/kanban        # radice dei TSK misurati da kpi_pilota.py
+  analytics_path: analytics/pocock-pilota  # registri: controlli.yaml, invenzioni.yaml, bilancio-n1.yaml
+
+ui_craft:
+  enabled: true                        # master switch
+  worst_case_data: true                # skill kowalski-worst-case-data + fase opzionale del functional oracle, /worst-case
+  motion_review: true                  # Passata 7 advisory del code review (solo diff con motion)
+
+fe_correctness:
+  enabled: false
+  max_iterations: 3
+  viewports:
+    - { name: mobile,  width: 375  }
+    - { name: desktop, width: 1280 }
+  themes:
+    - light
+    - dark
+  checks: []
+  state_matrix_inject: false
+  granularity_lint: false
+  granularity:
+    max_estimate_hours: 8
+    max_states: 3
+  dispatch_gate: false
+  # SSR-Aware Test Generation (v2.22, EP-030) — automatic SSR framework detection
+  # and YAML scenario generation with ssr_context: field (javascript_enabled, revalidate_before_run).
+  # Opt-in layer (R.P3): enabled: false (default) → no SSR detection, no SSR scenario
+  # generated, fa-dev/qa-dev identical to v2.21 (total backward compat).
+  # framework: auto → automatic detection via priority chain (stack-detector SSR section);
+  #            explicit value (e.g. nextjs-app-router) skips detection and uses declared value.
+  ssr_aware:
+    enabled: false       # opt-in (R.P3) — enables SSR framework detection and test generation
+    framework: auto      # auto = automatic detection | nextjs-app-router | nextjs-pages-router | nuxt3 | remix | sveltekit
+
+  # Functional Oracle (v2.20, EP-018, ADR-065/066/067) — acceptance-spec engine opt-in.
+  # Exercises the app loading real fixtures + Playwright scenario + domain-agnostic assertions.
+  # Executor: qa-dev in functional-oracle mode (ADR-067 §A). No new agent.
+  # Loop bounded by max_iterations (R.Q4 CQRL analogy). Critic LLM advisory on trace only.
+  # Default false → factory identical to v2.19 (total R.P3 opt-in, total backward compat).
+  # enabled: true → automatically activates scheduler.domains.functional-oracle: true (ADR-066 §Consequences).
+  functional_oracle:
+    enabled: true            # master switch EP-018 (R.P3 default off)
+    max_iterations: 3         # loop bound (ADR-067 §C, R.Q4 analogy)
+    critic: advisory          # advisory (default) | off — LLM critique on trace (never in pass/fail path)
+    acceptance_spec_glob: "code_quality/acceptance/*.acceptance.yaml"  # default per-app spec glob
+
+a11y:
+  enabled: false
+  agent: false
+  standard: "wcag22aa"
+  severity_threshold: critical      # critical|major|minor|none
+  required_on_fe_done: false        # → Lint Check 4o WARNING-only (ADR-016 §A)
+  fail_ci_on: critical              # critical|critical,major|any|none
+  include_interactive: false
+  fallback_non_web: snippet-inline  # ADR-015
+
+ux_ui:
+  enabled: false
+  max_iterations: 3
+  rubric_strict: true
+  design_system_path: ""
+  default_viewports:
+    - { name: mobile,  width: 375  }
+    - { name: desktop, width: 1280 }
+  agents:
+    reviewer: false
+    designer: false
+  required_on_fe_done: false        # → Lint Check 4p WARNING-only (ADR-020 §G)
+  lint_check_4q: false              # Check 4ac no-auto-eval: WARNING if same agent authored design and review on same TSK (ADR-020 §H)
+  parallel_during_conditional: false  # if true, ux-ui-review starts in parallel during visual oracle conditional loop (ADR-019 §Rationale 7)
+  delegate_a11y_to_ep007: true      # if true, ux-ui-reviewer invokes run_a11y_scan (ADR-014)
+
+release_governance:
+  enabled: false                           # ACTIVATED in meta-framework repo by TSK-109 (2026-06-08, ADR-037 transitional bootstrap). Derived factories: false by default (R.P3).
+  min_run_reports: 3
+  bypass_allowed: true
+  bypass_sla_releases: 1
+  changelog_section_required: true
+  battle_test_gate:
+    enabled: false                         # ACTIVATED (TSK-109): no v2.19+ tag without ≥3 valid RUN-REPORT. Lint Check 4w/4x gate + /release skill now active in framework repo.
+    mode: blocking                        # blocking (maintainer decision TSK-109: full activation) | warn (notification only). blocking → fail verdict STOPS tag (R.P1: never auto-tag).
+    min_run_reports: 3                    # overrides top-level if set
+    bypass_allowed: true
+    bypass_sla_releases: 1
+
+compression:
+  output:
+    provider: caveman
+    enabled: false
+    install_command: "curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash"
+    policy_profile: conservative   # conservative | aggressive | custom
+    invariants:
+      to_user: off
+      to_artifact: off
+      propagate_resolution: off
+    # channels: used ONLY if policy_profile == custom (full preset override)
+    channels:
+      orchestrator_to_subagent: full
+      subagent_to_tool: ultra
+      tool_to_subagent: lite
+      subagent_to_orchestrator: full
+      sibling_to_sibling: full
+      feedback_router_to_devagent: full
+    chain_depth_downgrade: true
+    chain_depth_threshold: 3
+    cross_factory: off
+    drift_fallback:
+      enabled: false
+      markers: [AMBIGUOUS_HANDOFF, REQUEST_CLARIFY]
+    audit_trail_for:
+      - propagate-resolution
+      - feedback-router
+    # ============================================================
+    # Decision-Preserving Compression (v2.19, EP-015, opt-in)
+    # ADR-047..051, PATTERN §20.4 R.C7. All flags default false →
+    # factory identical to v2.18 (R.P3 / R.C7 no-op at flag off).
+    # Operational runbook (prerequisites, procedure, verification, rollback):
+    #   wiki/runbooks/decision-anchor-runbook.md §12 "Operational activation"
+    # ============================================================
+    decision_anchor:
+      enabled: false                 # opt-in: non-compressible decision_anchor field (ADR-047, R.C7) — see wiki/runbooks/decision-anchor-runbook.md §12
+    consistency_check:
+      enabled: false                 # opt-in: third-party consistency-checker agent (ADR-048) — see wiki/runbooks/consistency-checker-runbook.md §3 "Step-by-step procedure"
+      trigger: per_review_iter       # per_handoff | per_review_iter (default) | per_wave_close — see wiki/runbooks/consistency-checker-runbook.md §4 "The three trigger values"
+      token_budget_max: 5000         # self-observation cap per invocation (ADR-048 §H)
+      required_on_chain: false       # empirical Lint Check 4s gate on chain >3 (default false)
+    migration:
+      strict: false                  # false (default): soft downgrade + WARNING; true: hard fail (ADR-050)
+      warn_threshold_chain_depth: 3  # chain_depth > N triggers migration check (cross-ADR-049)
+      warn_threshold_capabilities: 5 # active_capabilities > N (in AND with depth) (cross-ADR-049)
+      audit_after_upgrade: false     # Lint Check 4t-migration INFO opt-in post-upgrade (ADR-050 §I)
+  # Context axis (Graphify, v2.14 Phase 2) — token reduction of context passed to dev-agents.
+  # Knowledge graph extracted from code_path consumed as GRAPH_REPORT.md instead of
+  # raw source files. Opt-in, default OFF (R.G6).
+  #
+  # provider                       : graphify-cloud (default, higher quality, sends
+  #                                  docs/images to LLM API) | graphify-ollama (local,
+  #                                  16+ GB VRAM, enterprise data residency) | none
+  # enabled                        : false → no-op; true → dev-agents read GRAPH_REPORT.md
+  # targets                        : list of {kind, name|path, gitignore_patterns}
+  #                                  - kind: code_path → name match factory.config.yaml.code_paths
+  #                                  - kind: wiki      → reserved v2.15 with karpathy PoC gate
+  # update_strategy                : incremental | manual | always (default: incremental)
+  # full_rebuild_cron              : cron expression for semantic weekly cron (R.G4)
+  # drift_alert_days               : alert if delta(last_ast, last_full_rebuild) > N days
+  # ci_strategy                    : cache-with-fallback (default) | disabled | always-rebuild
+  # confidence_gating              : R.G2 — which tags each agent role consumes
+  # mcp_server                     : opt-in for Graphify tool exposure via MCP
+  # full_rebuild_cost_warn         : USD cost threshold for explicit confirmation (default $5)
+  # ghost_duplicates_warn          : threshold for ghost dup warning (known Graphify bug)
+  context:
+    provider: none                 # graphify-cloud | graphify-ollama | none
+    enabled: false                 # default OFF, opt-in (R.G6)
+    package: graphifyy             # safishamsi/graphify (PyPI: double y) | graphify-ts
+    install_command: "pip install graphifyy"   # or: npm i -g graphify-ts
+    ollama:
+      model: llama3.1:8b           # used if provider == graphify-ollama
+      vram_gb_min: 16
+    targets: []
+    # Multi-target examples (commented, activate after defining code_paths):
+    # targets:
+    #   - kind: code_path
+    #     name: backend
+    #     gitignore_patterns:
+    #       - "*.env"
+    #       - "secrets/**"
+    #   - kind: wiki                # v2.15 only, reserved post-karpathy PoC preservation
+    #     path: wiki/
+    update_strategy: incremental
+    full_rebuild_cron: "0 0 * * 0"  # weekly (R.G4 drift mitigation)
+    drift_alert_days: 7
+    full_rebuild_cost_warn: 5       # USD; full rebuild > threshold → explicit confirmation
+    ghost_duplicates_warn: 10       # warning threshold for Graphify ghost duplicates bug
+    ci_strategy:
+      mode: cache-with-fallback     # cache-with-fallback (default) | disabled | always-rebuild
+      cache_provider: actions       # actions (GitHub) | gitlab | s3 | local
+      cache_key_prefix: graphify-state
+      stale_threshold_hours: 168    # 7 days: beyond, filesystem scan fallback
+      full_rebuild_on_demand: true  # only via /graphify-sync <target> --force
+    confidence_gating:              # R.G2 — per agent role
+      executor: [EXTRACTED]         # be-dev / fe-dev / db-dev / qa-dev
+      explorer: [EXTRACTED, INFERRED]   # lead-architect / wiki-query
+      reviewer: [EXTRACTED, INFERRED, AMBIGUOUS]   # code-reviewer
+    mcp_server:
+      enabled: false                # opt-in if user has MCP runtime
+      topology: per-agent           # per-agent (isolated) | shared (mature factory)
+      crg_tools_max: 8              # CRG_TOOLS env var (reduces ~25 tools → ~8)
+
+complexity_budget:
+  n: 5                                     # N:1 rule recalibrated from 3 → 5 (ADR-055 §Revision, 2026-06-08; TSK-126). For every N top-level `##` sections added to vX.Y, ≥1 deprecated/removed
+  # PROMOTED to true in meta-framework repo (N:1 rule self-application — self-application
+  # analogous to release_governance.enabled + analytics.dogfooding.enabled) — derived factories
+  # remain false by default (total R.P3 opt-in).
+  # Side-effect Lint Check 4v (note: PATTERN §23 cited "4t" — historical; slot 4t reserved for ADR-050 §I):
+  # with required_on_release: true check changes behavior from WARNING no-op (false) to ERROR
+  # on minor/major release with violated N:1 ratio in meta-framework.
+  # v2.19 non-retroactivity: check applies from v2.21 onward; v2.19/v2.20 releases
+  # are not re-evaluated (prospective application, TSK-166 2026-06-15).
+  required_on_release: true                # PROMOTED (TSK-166, 2026-06-15): ERROR on minor/major release with violated N:1 ratio. Derived factories: false by default (R.P3).
+  # Count: top-level heading `##` (exclusion whitelist: TOC, Examples, Storia — ADR-052 §C)
+  # Exceptions: bug-fix release `x.y.Z` does not trigger; only minor/major `x.Y` / `X`
+  # Release exemption: marker [skip-complexity-budget --reason="<reason>"] in CHANGELOG entry
+  # Backward compat: v2.18 factory without this block → treated as required_on_release: false (R.P3)
+  # §23.8 condizione di falsificazione (EP-065/US-278): N giorni da flag acceso senza artefatti misurabili
+  # ⇒ capability candidata a sunset. N < i 17 giorni misurati su EP-060 (refactor_agent_skills acceso il
+  # 2026-09-04, zero refactor al 2026-09-21): una soglia che il caso reale non supera e' un tono, non un vincolo.
+  # Metrica di record: tools/fleet-observer/observe.py --load. Divieto d'ingresso + allowlist di grandfathering:
+  # .claude/skills/lint-checks-agent-fleet.md (Check 4at, ERROR). NON e' un flag: scalare in un blocco esistente.
+  sunset_falsification_days: 14
+
+qa_layer:
+  failure_taxonomy:
+    enabled: false       # opt-in (R.P3) — EP-029 routing QA failure taxonomy
+  flakiness_detection:
+    enabled: false              # master switch EP-027 (R.P3 default off). Derived factories: false.
+    score_threshold: 0.20       # score > 0.20 → quarantine entry
+    release_threshold: 0.05     # score < 0.05 for release_consecutive_runs runs → quarantine exit
+    rolling_window: 50          # last N runs considered for score calculation
+    release_consecutive_runs: 10 # consecutive passing runs for released transition
+    stale_threshold: 100        # quarantined_since_runs > N → Check 4ae WARNING (US-097)
+  # Test Self-Healing Layer (v2.22-candidate, EP-028) — failure classification, repair
+  # automatic with confidence-gating and immutable acceptance-spec invariant. Opt-in layer,
+  # default OFF (total R.P3 opt-in) → factory v2.21 identical at flag off (total backward compat).
+  #
+  # enabled                  : master switch EP-028. false → qa-dev behavior identical to v2.21.
+  # max_attempts             : bounded loop (default 3, analogous to R.Q4 CQRL) — after N failed attempts → mandatory human escalation
+  # auto_apply_threshold     : confidence > threshold → auto-apply repair (default 0.95)
+  # propose_threshold        : confidence > threshold → patch/PR proposal (default 0.70); < threshold → human gate
+  # healing_invariants:
+  #   acceptance_spec_immutable : non-overridable INVARIANT — test-healer does not modify acceptance-spec (EP-018)
+  #   acceptance_spec_glob      : glob of acceptance-spec YAML files protected by invariant
+  #
+  # Skill: not written yet (EP-028 is config-only; no file in .claude/skills/). No runtime effect while enabled: false.
+  # Event store: analytics/events/qa-events.jsonl (sub-schema alongside EP-009 + EP-027)
+  test_healing:
+    enabled: false           # opt-in (R.P3) — EP-028 test self-healing layer
+    max_attempts: 3          # loop bounded
+    auto_apply_threshold: 0.95  # confidence > threshold → auto-apply
+    propose_threshold: 0.70     # confidence > threshold → proposal (otherwise escalation)
+    healing_invariants:
+      acceptance_spec_immutable: true   # INVARIANT: test-healer does not modify acceptance-spec
+      acceptance_spec_glob: "**/acceptance-spec/*.yaml"
+
+wiki_lint:
+  semantic_check:
+    # SUNSET: v2.46 (riprogrammata 2026-09-25, US-264/TSK-581 — era v2.36, scaduta da 7 release)
+    # Condizione risolvibile, non una data sola: o una factory derivata PUBBLICA attiva
+    # il layer, oppure §23.8 viene emendata perché il criterio «pubblica» sia applicabile
+    # a una flotta privata. Se a v2.46 nessuna delle due è avvenuta, la disposizione
+    # diventa «dismessa» senza ulteriore istruttoria. Misurato 2026-09-25: le uniche
+    # derivate pubbliche (soli-boy, soli-projects, solids) sono APPLICAZIONI, non factory
+    # che usano questi layer — il criterio qui misura la pubblicità della flotta, non
+    # l'utilità del layer.
+    enabled: false                     # master switch EP-031 (R.P3 default off). false → no API calls, total no-op.
+    similarity_threshold: 0.75         # cosine threshold (default 0.75 — requires empirical calibration US-108)
+    embedding_model: "voyage-3"        # embedding model (Voyage via Anthropic default); alternative: "text-embedding-3-small"
+    cost_warn_usd: 1.0                 # USD threshold for explicit confirmation before scan (borrowed from Graphify full_rebuild_cost_warn)
+    output_report: true                # if true → writes wiki-lint-semantic-<YYYY-MM-DD>.md
+    output_report_path: "code_quality/reports/"  # report output directory (analogous to CQRL)
+  log_append_guard:
+    # wiki/log.md si scrive solo in coda (R.5). Il check di lint 4bb e' sempre attivo e advisory
+    # (WARNING). Questo flag riguarda solo il blocco preventivo: con true,
+    # `python3 tools/vcs/install_factory_hooks.py` installa un hook pre-commit che lancia
+    # tools/wiki/log_append_guard.py quando wiki/log.md e' in stage e rifiuta il commit se una
+    # riga sparisce senza archivio wiki/log-*.md. Con false l'installer non lo installa (e non
+    # tocca un pre-commit gia' presente). Hook locale: ogni collaboratore rilancia l'installer.
+    hook: false
+
+visual_channel:
+  enabled: false            # opt-in, default off — e resta off ANCHE QUI.
+                            # Accenderla metterebbe `visual_channel` fra le capability
+                            # attive fuori dall'allowlist di grandfathering, il cui tetto
+                            # e' congelato (27, poi 28 per la sola deroga dichiarata di
+                            # pm_report, TSK-736) e «puo' solo scendere» (TSK-653, §23.8):
+                            # aggiungercisi sarebbe l'erosione che EP-065 esiste per
+                            # impedire. Per il dogfooding si usa `--force`, che avvia
+                            # senza toccare la configurazione.
+
+  host: 127.0.0.1           # solo loopback. Esporre la plancia su 0.0.0.0 la rende
+                            # raggiungibile dalla rete locale: e' in sola lettura,
+                            # ma mostra kanban, telemetria e costi. Scelta esplicita.
+
+  port: 8756                # porta occupata -> la plancia dichiara l'alternativa
+                            # libera e non parte, invece di sceglierla da sola
+
+  runtime_timeout_seconds: 300  # quanto la plancia attende una direttiva prima di dichiarare
+                            # il turno scaduto. Il default dell'adapter vocale e' 120 s,
+                            # tarato su una domanda parlata; una direttiva come `/run` su
+                            # questo repo non ci sta dentro e il primo test funzionale e'
+                            # scaduto proprio li'. Non e' una modifica del Voice Channel:
+                            # e' una configurazione diversa dello stesso adapter, perche'
+                            # i due canali hanno attese d'uso diverse.
+
+  stale_after_seconds: 120  # oltre questa eta' una lettura e' marcata «dato stantio».
+                            # Non la nasconde: un dato vecchio dichiarato vecchio e'
+                            # utile, un dato vecchio spacciato per fresco e' un difetto
+
+  coordinamento:            # riquadro «Avanzamento delle attivita'»: report PM di EP-070
+                            # (tools/coordinamento/run.py), verificato da L0. Serve
+                            # pm_report.enabled: true; a flag spento il riquadro lo dichiara.
+    fonte: worktree         # worktree = vede anche gli `status:` non committati, quindi si
+
+kanban_coordination:
+  enabled: false            # opt-in, default off — a flag spento la factory e' identica a prima
+                            # (l'osservatore resta invocabile a mano: e' read-only e senza stato)
+
+  oracle_window_days: 30    # finestra in giorni dell'oracolo di collisione
+                            # (tools/kanban-trial/collision-oracle.py --days N).
+                            # E' anche la finestra della condizione di riapertura dei 43 TSK:
+                            # allargarla aumenta la sensibilita', non cambia l'asimmetria —
+                            # `0` resta «nessuna informazione», non «nessun problema».
+
+  stale_assignment_days: 7  # default dichiarato della factory per il parametro
+
+repo_align:
+  enabled: false                 # opt-in (R.P3). A flag spento la factory e' identica a v2.43.
+  status: dormant
+
+  triggers:
+    on_explicit: true            # /repo-align funziona ANCHE a enabled: false
+    on_session_close: false      # non implementato qui: nessun session protocol in questa factory
+    on_tsk_closed_count: 0       # 0 = disabilitato. >0 = verifica ogni N TSK chiusi.
+
+  persist_yaml: false            # true = scrive memory/repo-align-last.yaml (overwrite)
+  log_to_wiki: false             # append entry in wiki/log.md (default off — basso rumore)
+
+  # Opzionale. Serve alle derivate su remote privati; questa factory usa le credenziali
+  # gia' in ambiente. Assente → si tenta ls-remote senza header; fallimento →
+  # unverified: auth_failure, mai un crash.
+  auth_domains: []
+
+ai_policy_check:
+  enabled: false                 # opt-in (R.P3). A flag spento la factory e' identica a v2.43.
+  status: dormant
+
+  triggers:
+    on_explicit: true            # /ai-policy-check funziona ANCHE a enabled: false
+    on_session_close: false      # non implementato qui: nessun session protocol
+    on_tsk_closed_count: 0       # 0 = disabilitato
+
+  # code_paths da scansionare. Indipendente dal loro vcs.mode.
+  # Vuoto → lo strumento dice che non ha nulla da scansionare ed esce 0: non e' un errore.
+  scope: []
+
+vcs_tooling:
+  # submodule_scope: code_paths   # code_paths (default) | gitmodules: target senza --target degli sm_*
+  # default_target: <nome>       # submodule di checkout/update/commit coordinato senza --target
+  submodule_doctor:
+    enabled: false        # false: hook post-merge/post-checkout non installati
+    auto_align: true      # l'hook lancia sm_doctor --align (solo su working tree pulito)
+    quiet_on_hook: true
+  submodule_hooks:
+    enabled: false        # pre-commit/commit-msg nei submodule, solo se suppress_ai_traces: true
+    force_reinstall: false
+
+artifact_release:
+  enabled: false   # porta a true per attivare /release-artifact e artifact-release-manager
+
+release_targets: []
+
+session_close:
+  enabled: false                   # master switch — false = /session-close risponde con fallback esplicito
+  status: inactive                 # lifecycle: artefatti in raw/sessions/ + wiki/sessions/index.md
+  output_dir: raw/sessions/        # path di scrittura (session-sync scope)
+  wiki_output_dir: wiki/sessions/  # path target post-ingest wiki-keeper (su richiesta)
+  manifest_path: raw/.extraction-manifest.json
+  naming_pattern: "session-{date}-{uuid8}.md"   # date=YYYY-MM-DD-HH UTC; mai ':' (vincolo Windows)
+  sources:
+    git_log: true                  # git log factory + code_paths (obbligatorio)
+    wiki_log: true                 # delta wiki/log.md (obbligatorio)
+    wiki_gaps: true                # delta wiki/gaps.md (obbligatorio)
+    active_sessions: true          # memory/active-sessions.yaml (obbligatorio)
+    analytics_events: true         # analytics/events/ token cost (opzionale)
+    kanban_diff: true              # TSK modificati oggi (opzionale)
+  git_log_limit: 30                # max righe git log per fonte
+  log_entry_limit: 20              # max entry wiki/log.md filtrate per data
+  target_doc_kb: 8                 # dimensione target documento (sampling, non dump)
+
+kanban_namespaces:
+  enabled: false                                     # default off — a flag spento next-id.py e' invariato
+  registry: management/kanban/id-registry.yaml       # path relativo alla root del repo
+
+session_start:
+  enabled: false                   # master switch: false = /session-start inerte
+  init_check_on_start: false       # tabella /init-check a ogni apertura (mai in --auto senza --init-check)
+  vcs_soft_warning_threshold: ~    # avviso morbido di divergenza; ~ = disattivo
+  auto_launch:
+    enabled: false                 # kill switch dell'auto-apertura (hook SessionStart + riga CLAUDE.md)
+    idempotency_ttl_minutes: 1440  # validita' di un session_id in memory/auto-launch-seen.yaml
+    log_writes: false              # --auto scrive claim e entry di log solo se true
+    mode_default: auto             # auto | quick — modo iniettato dall'hook
+
+code_migration:
+  enabled: false                # governa solo il dispatch automatico di code-cartographer / migration-verifier;
+                                # /migration-verify e gli script funzionano comunque (esplicito = voluto)
+  artifacts_home: migration/    # relativa alla root della factory; la guard rifiuta un valore che cada
+                                # fuori dalla factory o dentro un repo analizzato
+  verdict_reject_gate: human    # reject, divergent e ambiguous -> gate umano JSON {gate, action, payload}
+  default_plugin: js-ts         # js-ts | svelte | composizione "svelte,js-ts" | path a un plugin .mjs
+  join_by: path                 # path | name (name se la migrazione ha riorganizzato il layout)
+  library_package: ~            # pacchetto per l'asse B (es. una design system); nessun default cablato
+  parity_threshold: 0.95        # soglia KPI parity_ratio (target pass / oracolo pass sulle coppie appaiate)
+  debt_registry: ~              # path del registro, relativo alla factory; "{target}" = slug del target.
+
+repo_handover:
+  enabled: false       # default: false — a flag spento /repo-handover risponde con
+                       # fallback esplicito e STOP, senza eseguire nessuna operazione
+
+  # Gate locali (opzionale): comandi eseguiti via worktree-gate sul commit di import
+  # in G3 prima della conferma push (G4). Vuoto = nessun gate locale.
+  local_gates: []
+  # Esempio:
+  # local_gates:
+  #   - "npm run lint"
+  #   - "npm test"
+
+  # Exclude patterns globali (aggiuntivi a quelli passati per singolo travaso).
+  # Formato fnmatch (stile .gitignore-style, relativo alla root dell'albero estratto).
+  default_exclude_patterns:
+    - ".git/"
+    - "node_modules/"
+    - "dist/"
+    - "*.log"
+
+documentation:
+  enabled: false
+  status: dormant
+  redaction:
+    enabled: false                   # un segreto nell'output blocca la scrittura; spegnerlo e' una scelta esplicita
+  tech_site:
+    output_dir: deliverables/doc-tecnica
+    include_sections: [getting-started, guides, runbooks, decisions, concepts, entities, incidents, syntheses]
+    exclude_sections: [sources, sessions, lint, gaps]   # piu' wiki/log*.md e wiki/gaps.md
+  functional_docs:
+    output_dir: deliverables/doc-funzionale
+    services: {}                    # catalogo servizio -> pagine wiki sorgente; vuoto = wiki/user-flows/*.md
+    # Esempio:
+    # services:
+    #   servizio-esempio:
+    #     title: "Servizio di esempio"
+    #     sources:
+    #       - wiki/user-flows/servizio-esempio.md
+    #       - wiki/entities/modulo-esempio.md
+  weekly_digest:
+    output_dir: deliverables/digest
+    release_kinds: []               # etichette dei rilasci; nessuna corrispondenza = "altro"
+
+pm_report:
+  enabled: false             # acceso 2026-10-06 per deroga del manutentore (TSK-736):
+                               # allowlist 4at 27 -> 28, vedi lint-checks-agent-fleet.md
+  da_assegnare:                # TSK senza owner, giorni lavorativi da prima_vista
+    stale_alert_days: 7        # oltre: avviso medio
+    escalation_days: 14        # oltre: avviso alto (avvisa, non scrive nel kanban)
+
+ste_lite:
+  enabled: false               # spenta per decisione, TSK-809 (2026-10-15): /ste-lite su richiesta
+  targets: []                  # glob controllati da `ste_lite.py --targets`, a flag acceso
+  limits:
+    procedural_words: 20       # ASD-STE100 Issue 9
+    descriptive_words: 25
+    paragraph_sentences: 6
+  glossary: {}                 # termine preferito: [sinonimi vietati]
+  max_fact_loss: 0.10          # soglia di tools/lint/fact_loss.py (US-339)
+
+kanban_dates:
+  required_from: "2026-10-18"
+
+log_access:
+  enabled: false
+  env_file: .env                    # credenziali; sovrascrivibile per cluster/app nel registro
+  registry: tools/logs/log-targets.yaml   # copia di log-targets.example.yaml (gitignored)
+  noise_dir: tools/logs/noise
+  handled_dir: tools/logs/handled
+  protected_envs: [prod]            # avviso e divieto di copiare l'output in raw/, wiki/
+  protected_out_forbidden_dirs: [raw, wiki, deliverables, management]  # --out rifiutato dal codice
+  timezone: UTC
+  app_package: ""                   # prefisso dei frame applicativi tenuti negli stack trace
+  mask_patterns: []                 # insiemi opt-in: it-codice-fiscale, it-partita-iva
+  mask_custom_patterns: {}
+  mask_person_keys: []
+  mask_personal_data: true          # --no-mask per una esecuzione; i segreti restano mascherati
+  default_since: 1h
+  default_size: 50
+  max_size: 500
+  timeout_s: 60
+  state_dir: .log-access-state
+  pending_ttl_minutes: 30
+
+db_access:
+  enabled: false
+  env_file: .env.db                 # gitignored
+  registry: tools/db/db-targets.yaml   # copia di db-targets.example.yaml (gitignored)
+  protected_envs: [prod]
+  read_only_envs: [prod]            # nessuna scrittura, nemmeno dry-run
+  default_limit: 200
+  max_limit_protected: 500
+  statement_timeout_ms: 30000
+  lock_timeout_ms: 5000
+  cost_gate:
+    envs: [prod]
+    max_total_cost: 1000000
+    max_plan_rows: 1000000
+  connect_timeout_s: 10
+  sslmode: verify-full              # prefer/require solo se espliciti, con avviso
+  state_dir: .db-access-state
+  audit_log: deliverables/db-access/audit-scritture.jsonl
+  write:
+    enabled: false                  # accesa: --commit vuole token + gate umano
+  catalog:
+    directory: memory/semantic/db-catalog
+    versioned_envs: [dev, test, staging, preprod, prod]
+    system_schemas: [pg_catalog, information_schema, pg_toast]
+    pii_scrub: true
+
+cypress_pipeline:
+  enabled: false
+  reporter: generic                 # profilo di tools/cypress/run_report.py; custom: --reporter-module
+  repos: []
+
+promemoria_operatori:
+  enabled: false
+  remote: origin
+  branch: main
+  dir: memory/promemoria
+
+onboarding_day0:
+  enabled: false
+  file: .claude/skills/references/onboarding/day0-per-ruolo.md
+  roles: {}                         # slug: etichetta; vuoto = elenco neutro
+  verify: {}                        # nomi dei campi kanban di done_by / taken_by / taken_at

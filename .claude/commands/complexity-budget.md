@@ -1,4 +1,5 @@
 ---
+description: "Governance del complexity budget di PATTERN.md (regola N:1 aggiunte e deprecazioni, PATTERN §23): check in sola lettura con report."
 command: /complexity-budget
 capability: EP-016
 pattern_ref: PATTERN §23
@@ -20,13 +21,13 @@ ad-hoc) e dal Lint Check 4v.
 
 ### /complexity-budget check [--version=<vX.Y.Z>]
 
-Invoca la skill [complexity-budget-check](mdc:.cursor/skills/complexity-budget-check/SKILL.md) (5 step) e mostra il report in output.
+Invoca la skill `complexity-budget-check` (5 step) e mostra il report in output.
 **Read-only**: non scrive mai `PATTERN.md` (ADR-056 §C). Produce
 `complexity/budget-report-<version>.md`. Default `--version`: ultima versione in `CHANGELOG.md`.
 
 ### /complexity-budget deprecate <section-ref> [--reason="<r>"] [--target="<vX.Y.Z>"]
 
-Helper per aggiungere una entry in `PATTERN.md §23.2 ## Sezione Deprecate` (cross-ADR-052 §B).
+Helper per aggiungere una entry in `PATTERN-governance.md §23.2 ## Sezione Deprecate` (cross-ADR-052 §B).
 **Non rimuove** la sezione (solo deprecation note); la rimozione effettiva avviene via Develop
 US-063 quando il `target` è raggiunto (ADR-056 §C).
 
@@ -42,7 +43,7 @@ Scrive `PATTERN.md` (single-writer = maintainer, coerente con R.S2 / R.A1).
 **Read-only**. Mostra:
 
 - Count sezioni attive (non deprecate) in `PATTERN.md`.
-- Count + lista delle deprecazioni attive in `PATTERN.md §23.2 ## Sezione Deprecate`.
+- Count + lista delle deprecazioni attive in `PATTERN-governance.md §23.2 ## Sezione Deprecate`.
 - Ultimo verdict da `complexity/budget-report-*.md`.
 - Delta rispetto alla versione precedente.
 
@@ -53,8 +54,8 @@ Shortcut per `/pattern-view historical` (ADR-053, TSK-123).
 
 ## Cross-link
 
-- Skill [complexity-budget-check](mdc:.cursor/skills/complexity-budget-check/SKILL.md).
+- Skill `complexity-budget-check` (`.claude/skills/complexity-budget-check.md`).
 - PATTERN §23 (§23.1 regola N:1, §23.2 Sezione Deprecate, §23.3 Governance) + §3 entry op. canonica.
-- Lint Check 4v (skill [lint-checks](mdc:.cursor/skills/lint-checks/SKILL.md), WARNING-only, gated).
+- Lint Check 4v (`.claude/skills/lint-checks.md`, WARNING-only, gated).
 - Runbook `wiki/runbooks/complexity-budget-runbook.md`.
 - ADR-052 (regola N:1), ADR-053 (`/pattern-view`), ADR-056 (governance combinata).

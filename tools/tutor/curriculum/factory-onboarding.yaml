@@ -88,3 +88,34 @@ nodes:
       - path: ".claude/skills/dev-handoff.md"
         type: "code"
     difficulty: 3
+
+  - id: garanzie-e-limiti
+    title: "Garanzie e limiti: cosa controlla uno script, cosa si controlla leggendo"
+    description: >
+      Le regole della factory sono istruzioni a un modello: solo alcune sono anche controllate
+      da uno script. docs/GUARANTEES.it.md le divide in tre gruppi (controllato da script,
+      richiesto agli agenti e controllato leggendo, cosa non fa). Saperle distinguere evita di
+      scambiare una promessa per una garanzia. Il protocollo di chiusura (evidenza citata,
+      diff di chiusura a comando, done ricavato dai criteri) sta nel secondo gruppo.
+    prerequisites: [dev-protocol]
+    sources:
+      - path: "docs/GUARANTEES.it.md"
+        type: "wiki"
+      - path: "docs/STATUS.it.md"
+        type: "wiki"
+    difficulty: 2
+
+  - id: lint-deterministico
+    title: "Il lint deterministico e la CI"
+    description: >
+      run-deterministic.py esegue in un colpo i check di /lint che hanno un'implementazione
+      eseguibile: stesso risultato a ogni esecuzione, senza modello. In CI i check verdi sono
+      bloccanti, quelli con debito noto (1 e 3) girano in sola lettura. L'esempio
+      examples/hello-factory mostra un anello rotto che il check 3 trova.
+    prerequisites: [garanzie-e-limiti]
+    sources:
+      - path: "tools/lint/run-deterministic.py"
+        type: "code"
+      - path: "examples/hello-factory/README.md"
+        type: "wiki"
+    difficulty: 3

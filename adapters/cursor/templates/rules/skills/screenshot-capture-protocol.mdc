@@ -1,0 +1,32 @@
+---
+description: >-
+  Skill condivisa per cattura screenshot Playwright multi-viewport. Invocata da
+  visual-oracle-protocol (EP-005) e ux-ui-review-protocol (EP-008). No MCP, Bash via Playwright
+  (ADR-008/ADR-017).
+globs: "**"
+alwaysApply: false
+---
+# Skill: screenshot-capture-protocol
+
+> Adapter Cursor della skill `screenshot-capture-protocol`, definita in `.claude/skills/screenshot-capture-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.fe_correctness.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Contratto di invocazione
+2. Logica interna (Playwright headless via Bash)
+3. Naming convention PNG
+4. Matrice viewports × themes — risolta dal caller (ADR-017)
+5. CWD di esecuzione (ADR-064 §D)
+6. Fail-loud su Playwright mancante
+7. Refactor EP-005 — `visual-oracle-protocol` Fase 3 delega qui
+8. Pattern
+
+Il dettaglio di ogni passo sta in `.claude/skills/screenshot-capture-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Playwright gira da terminale: identico. Cambia solo chi lo lancia.
+- Gli screenshot finiscono negli stessi path.

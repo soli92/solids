@@ -1,7 +1,7 @@
-# Skill: Design System Conformance Check
-
-> Adapter Cursor della skill `design-system-conformance-check` definita in PATTERN.md. Riferimenti agent → `.cursor/rules/<name>.mdc`; skill → `.cursor/skills/<name>/SKILL.md`.
-
+---
+name: design-system-conformance-check
+description: Skill deterministica per confronto rendering vs token design system. No LLM judgment. Produce lista deviazioni tipizzate (major/minor). Invocata da ux-ui-review-protocol Step 2.
+---
 # Protocollo Design System Conformance Check — `check_design_system_conformance` confronto deterministico
 
 Skill **interna deterministica, no LLM judgment** per confrontare i valori misurati su un

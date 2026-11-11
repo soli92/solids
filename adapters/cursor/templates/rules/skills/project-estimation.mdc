@@ -1,0 +1,34 @@
+---
+description: >-
+  Skill procedurale Project Estimation — 5 step (Decomponi Scope → Reference Class outside-view →
+  PERT/Monte Carlo inside-view → Combinazione + RCF → Output Obbligatorio). Orchestra i tool
+  deterministici di stima (run-pert / run-monte-carlo…
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: project-estimation
+
+> Adapter Cursor della skill `project-estimation`, definita in `.claude/skills/project-estimation.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.analytics.estimation.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Boot Validation — analytics.estimation thresholds (ADR-025 §A)
+2. Step 1 — Decomponi Scope
+3. Step 2 — Reference Class (outside view)
+4. Step 1b — Recupera reference class e calcola confidence (ADR-025 §A)
+5. Step 1c — Mapping confidence → metodo primario + contingency (ADR-025 §C)
+6. Step 3 — PERT three-point (inside view)
+7. Step 4 — Monte Carlo throughput + Combinazione
+8. Step 5 — Output Obbligatorio
+9. 4 regole invarianti del report (non negoziabili)
+
+Il dettaglio di ogni passo sta in `.claude/skills/project-estimation.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.
+- Monte Carlo e PERT girano da terminale, identici.
+- Senza storico degrada a PERT-only: e' il comportamento della fonte.

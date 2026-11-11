@@ -11,7 +11,7 @@ Argomento utente: `$ARGUMENTS`
 
 ### Con argomento (domanda in linguaggio naturale)
 
-Esegui la skill [help-router-protocol](mdc:.cursor/skills/help-router-protocol/SKILL.md) passando l'intero valore di `$ARGUMENTS`
+Esegui la skill `help-router-protocol` passando l'intero valore di `$ARGUMENTS`
 come **query** di input.
 
 La skill eseguira':
@@ -23,7 +23,7 @@ La skill eseguira':
 4. **Output** — risponde con la capability piu' pertinente (o lista di candidati
    in caso di ambiguita', o lista delle 10 aree se nessun match).
 
-Comportamento completo e invarianti: vedi [help-router-protocol](mdc:.cursor/skills/help-router-protocol/SKILL.md).
+Comportamento completo e invarianti: vedi `.claude/skills/help-router-protocol.md`.
 
 ### Senza argomento (`/help` invocato senza query)
 

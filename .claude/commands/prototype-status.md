@@ -57,7 +57,7 @@ sezione **Output a layer spento** (sotto).
 
 ### Fase 1 — Invoca `backend-resolver` in modalita' dry-run
 
-Invoca la skill [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md) con:
+Invoca la skill `backend-resolver` con:
 
 - `intent: "auto"` — il caso piu' informativo per lo snapshot (mostra quale backend
   verrebbe scelto senza preferenza espressa, percorrendo la `fallback_chain` in ordine)
@@ -154,6 +154,6 @@ Il comportamento a `enabled: false` non produce side-effect nel normale flusso f
 - I probe MCP (`figma`, `penpot`) non eseguono OAuth — se il server non e' autenticato,
   lo stato e' UNAVAILABLE senza blocco (INV-2).
 - `html` e' sempre AVAILABLE — invariante INV-1 del layer EP-035.
-- Cross-link: skill [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md) (TSK-229), [stack-detector](mdc:.cursor/skills/stack-detector/SKILL.md), PATTERN §26
+- Cross-link: skill `backend-resolver` (TSK-229), `stack-detector`, PATTERN §26
   «Prototype Generation Layer» (candidato); analogia strutturale con `/vcs-status`
   (EP-034) e `/compression show` (v2.14).

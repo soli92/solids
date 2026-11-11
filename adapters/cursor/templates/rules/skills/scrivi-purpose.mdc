@@ -1,0 +1,25 @@
+---
+description: >-
+  Template e regole per scrivere wiki/purpose.md — direttive semantiche di dominio per-factory
+  (EP-055).
+globs: "wiki/**"
+alwaysApply: false
+---
+# Skill: scrivi-purpose
+
+> Adapter Cursor della skill `scrivi-purpose`, definita in `.claude/skills/scrivi-purpose.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. Formato (frontmatter YAML + corpo markdown)
+2. Campi obbligatori
+3. Corpo markdown
+4. Regole
+5. Check di `wiki-lint` (Check 4an)
+
+Il dettaglio di ogni passo sta in `.claude/skills/scrivi-purpose.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- `wiki/purpose.md` ha un solo scrittore: il wiki-keeper (§7 r.12).

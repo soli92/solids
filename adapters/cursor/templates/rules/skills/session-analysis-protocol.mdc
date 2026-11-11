@@ -1,0 +1,33 @@
+---
+description: >-
+  Protocollo 5 fasi per analisi critica post-hoc dell'attivita agentica di una sessione Claude
+  Code chiusa. Determinism-first, LLM advisory. Solo out-of-band. Produce report dual md+JSON in
+  raw/.
+globs: "raw/**"
+alwaysApply: false
+---
+# Skill: session-analysis-protocol
+
+> Adapter Cursor della skill `session-analysis-protocol`, definita in `.claude/skills/session-analysis-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.session_analysis.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Scopo e contesto
+2. Fase 0 — Bootstrap
+3. Fase 1 — Collect Sources
+4. Fase 2 — Parse & Normalize
+5. Fase 3 — Detect Anomalies
+6. Fase 4 — Report Generation
+7. Invarianti (R-SAA-1..10)
+8. Cross-link
+
+Il dettaglio di ogni passo sta in `.claude/skills/session-analysis-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- **R-SAA-8: solo out-of-band.** Mai sulla sessione in corso.
+- Il percorso dei transcript e' specifico del runtime e va configurato.
+- Determinism-first: l'LLM resta advisory.

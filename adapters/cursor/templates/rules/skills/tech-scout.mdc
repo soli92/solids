@@ -1,0 +1,100 @@
+---
+description: Tech Scout — proposta automatica di stack tecnologico (stack_mode=auto). Output raw/tech_stack.md.proposal con gate umano obbligatorio. Mai scrivere raw/tech_stack.md direttamente.
+globs: "raw/**"
+alwaysApply: false
+---
+# Skill: tech-scout (PATTERN §14)
+
+> Adapter Cursor della skill `tech-scout` definita in `.claude/skills/tech-scout.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/tech-scout.md`.
+
+Skill invocata quando `factory.config.yaml.stack_mode: auto` o on-demand.
+
+**Output**: `raw/tech_stack.md.proposal` (effimero, gate umano per promote).
+**MAI** scrive direttamente `raw/tech_stack.md` (PATTERN §7 r.1 + §7 r.10).
+
+## Fase 0 — Pre-condizioni
+
+- `stack_mode: auto` o invocazione esplicita.
+- `wiki/` contiene almeno un'epica con requisiti business o concept/synthesis con dominio + vincoli.
+- Standards normativi già in `wiki/` o `raw/` → **trattati verbatim** (PATTERN §11).
+
+## Fase 1 — Estrazione vincoli
+
+Da `wiki/syntheses/`, `wiki/concepts/`, `wiki/entities/` e `management/kanban/EP-*/`:
+- Dominio (fintech, healthcare, e-commerce, ...)
+- Scala attesa (utenti, throughput, latency budget)
+- Compliance/standards (GDPR, FHIR, OIDC, SPID, eIDAS, ISO 27001, ...)
+- Geografia (data residency, multi-region)
+- Vincoli organizzativi (team size, expertise)
+
+## Fase 2 — Ricerca
+
+Per ciascun layer (`backend`, `frontend`, `database`, `qa`, `infra`):
+- 1-2 query web focalizzate con anno 2026.
+- Fonti datate preferibilmente Q3-Q4 2026. Scarta fonti senza data o pre-2025.
+- Per ogni candidato: versione (LTS/stable), maturità/adoption 2026, compatibilità vincoli normativi, trade-off (1 pro, 1 contro).
+
+## Fase 3 — Scrittura proposta
+
+**File**: `raw/tech_stack.md.proposal`
+
+```markdown
+---
+type: tech-stack-proposal
+created: YYYY-MM-DD
+stack_mode: auto
+generator: tech-scout skill (PATTERN §14)
+status: proposal
+---
+# Tech stack proposal — YYYY-MM-DD
+
+> NON sovrascrive `raw/tech_stack.md`. Gate umano per applicare.
+
+## Vincoli rilevati
+- <vincolo 1> [^src: wiki/concepts/<page>.md §X]
+- Standards verbatim: <lista>
+
+## Stack proposto
+
+### Backend
+**Scelta:** <es. FastAPI 0.115 + Python 3.13>
+**Razionale:** <1-2 righe>
+**Fonti:**
+- [^web: <url>] (accessed YYYY-MM-DD)
+**Alternative considerate:** <X, Y>
+
+### Frontend / Database / QA / Infra
+(stessa struttura)
+
+## Trade-off complessivi
+<3-5 righe>
+
+## Non scelto verbatim da raw/
+<Eventuali divergenze dichiarate esplicitamente>
+```
+
+## Fase 4 — Handoff
+
+Append `wiki/log.md`:
+```
+## YYYY-MM-DD HH:MM — tech-scout proposal
+**Generata:** raw/tech_stack.md.proposal
+**Fonti web:** <count>
+**Standards verbatim adottati:** <lista o "nessuno">
+**Next:** gate umano per promuovere a tech_stack.md
+```
+
+Segnala in chat: "Proposta scritta in `raw/tech_stack.md.proposal`. Reviewala e, se ok, rinominala in `raw/tech_stack.md`. MAI applicare automaticamente."
+
+## Vincoli inviolabili
+
+- **MAI scrivere `raw/tech_stack.md`** direttamente. Solo `.proposal`.
+- **MAI sostituire standards normativi** già citati in raw/wiki.
+- **Citation obbligatoria**: almeno una fonte web datata 2026 per ogni scelta.
+- **Trasparenza sulle alternative**: l'utente deve vedere cosa è stato scartato e perché.
+
+## Limitazioni Cursor
+
+- **Web search**: usa il browser o WebFetch per le ricerche — il terminal non ha accesso web.
+- **Stack mode check**: leggi `@factory.config.yaml` prima di procedere.

@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Edit, Glob, Bash
 Comando della capability [[ux-ui-review-design-capability]] (faccia **Design**, EP-008 US-030).
 Delega la produzione del deliverable di design end-to-end (obiettivo utente + design system →
 wireframe/spec/flusso/copy → rationale + assunzioni esplicite → accessibilità by design)
-all'agente [ui-designer](mdc:.cursor/rules/ui-designer.mdc); con fallback sulla skill [ux-ui-design-protocol](mdc:.cursor/skills/ux-ui-design-protocol/SKILL.md) (US-029) quando
+all'agente `ui-designer`; con fallback sulla skill `ux-ui-design-protocol` (US-029) quando
 l'agente non è scaffoldato. Thin dispatcher, faccia speculare di `/ux-ui-review`.
 
 Riferimenti architetturali: EP-008 (`management/kanban/EP-008-ux-ui-review-design-capability/EP-008.md`),
@@ -48,10 +48,11 @@ sono fisicamente distinti (separazione enforced, US-030 §Business Rules).
    ABORT pulito; suggerisci «Abilita con `ux_ui.agents.designer: true`».
 2. Risolvi `<brief>` nelle 2 forme sopra. Se `--tsk=<id>`, valida l'esistenza del TSK.
 3. **Invocazione** (con fallback discovery, ADR-019):
-   - Se [ui-designer](mdc:.cursor/rules/ui-designer.mdc) è scaffoldato **e** `ux_ui.agents.designer: true` →
-     invoca l'agente `ui-designer` passando `brief`, `type`, `tsk`, `ephemeral`.
-   - **Fallback** (agente non scaffoldato / `designer: false`): se la skill [ux-ui-design-protocol](mdc:.cursor/skills/ux-ui-design-protocol/SKILL.md)
-     (US-029) è presente → la skill è invocata da fe-dev o qa-dev (chi è attivo nella
+   - Se `.claude/agents/ui-designer.md` è scaffoldato **e** `ux_ui.agents.designer: true` →
+     invoca l'agente `ui-designer` (Claude Code `Agent` con `subagent_type: ui-designer`)
+     passando `brief`, `type`, `tsk`, `ephemeral`.
+   - **Fallback** (agente non scaffoldato / `designer: false`): se la skill `ux-ui-design-protocol`
+     (US-029) è presente → la skill è invocata da `fe-dev` o `qa-dev` (chi è attivo nella
      topologia). La capability di design resta disponibile come skill anche senza agente dedicato
      (PATTERN §3, albero Tool/Skill/Agente).
    - Se né agente né skill esistono → fail-loud «Nessun agente disponibile per il design UX/UI;
@@ -96,8 +97,8 @@ Inoltre l'agente scrive una riga in `memory/episodic/ux-ui-runs.md` (formato:
 
 ## Fallback (agente non scaffoldato)
 
-Se l'agente `ui-designer` **non** è scaffoldato ma la skill [ux-ui-design-protocol](mdc:.cursor/skills/ux-ui-design-protocol/SKILL.md)
-(US-029) **sì**, il comando non fallisce: la skill è invocata da fe-dev o qa-dev attivi nella
+Se `.claude/agents/ui-designer.md` **non** è scaffoldato ma la skill `ux-ui-design-protocol.md`
+(US-029) **sì**, il comando non fallisce: la skill è invocata da `fe-dev` o `qa-dev` attivi nella
 topologia. La forma Agente è una comodità di delega, non un prerequisito della capability.
 
 ## Vincoli (R.P3 — opt-in totale)
@@ -111,5 +112,5 @@ topologia. La forma Agente è una comodità di delega, non un prerequisito della
   `ui_design_spec: <path>` al TPM, che lo committa (designer non è single-writer del frontmatter
   TSK, ADR-020).
 
-Vedi l'agente [ui-designer](mdc:.cursor/rules/ui-designer.mdc), skill [ux-ui-design-protocol](mdc:.cursor/skills/ux-ui-design-protocol/SKILL.md), EP-008, ADR-019/020, e
+Vedi `.claude/agents/ui-designer.md`, skill `ux-ui-design-protocol`, EP-008, ADR-019/020, e
 [[ux-ui-review-design-capability]] per il contratto completo.

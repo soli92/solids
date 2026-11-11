@@ -1,0 +1,27 @@
+---
+description: >-
+  4 check di chiusura wave eseguiti dal tpm prima del report e del push — gate DoD, reconcile
+  git↔status, gap CRITICAL senza bridge, commit atomico del kanban. Propone, non applica.
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: tpm-wave-close
+
+> Adapter Cursor della skill `tpm-wave-close`, definita in `.claude/skills/tpm-wave-close.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. Check (a) — Gate DoD
+2. Check (b) — Reconcile git↔status
+3. Check (c) — Gap CRITICAL senza bridge
+4. Check (d) — Commit atomico del kanban
+5. Output canonico
+6. Anti-pattern
+
+Il dettaglio di ogni check sta in `.claude/skills/tpm-wave-close.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- La patch (b), l'apertura di TSK (c) e il commit (d) passano da un gate umano: in Cursor la conferma e' esplicita in chat prima di ogni scrittura.
+- Distinta da `tpm-reconcile` (riconciliazione periodica, sola lettura).

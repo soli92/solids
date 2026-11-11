@@ -28,13 +28,15 @@ Complementarietà con show-session-tokens.py:
   - show-session-tokens.py : costo stimato da transcript JSONL, per display in-chat (EP-022)
   I due tool coesistono e non si sovrappongono (canali distinti).
 
-DIPENDENZE: solo stdlib Python 3 — sys, json, os, argparse.
+DIPENDENZE: solo stdlib Python 3 — sys, json, os, argparse. Con analytics.cost_alert.enabled
+  importa tools/analytics/cost_alert.py (PyYAML) per il suffisso di soglia; senza, nulla.
 VINCOLI: nessun subprocess, nessuna scrittura file, sempre exit 0.
 """
 import sys
 import json
 import os
 import argparse
+import importlib.util
 
 
 def fmt_k(n) -> str:
@@ -92,6 +94,19 @@ def format_line(m: dict) -> str:
     return f"{'  '.join(parts)}  {tail}"
 
 
+def cost_alert_suffix(cost) -> str:
+    """Suffisso della capability cost-alert (soglia di sessione, alert pendenti).
+    Vuoto se la capability e' spenta, il tool manca o qualcosa va storto."""
+    try:
+        tool = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cost_alert.py")
+        spec = importlib.util.spec_from_file_location("cost_alert", tool)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)  # type: ignore[union-attr]
+        return mod.status_line_suffix(cost)
+    except Exception:  # noqa: BLE001 — la statusline non deve mai rompersi
+        return ""
+
+
 def format_json(m: dict) -> str:
     """Produce output JSON machine-readable con le stesse metriche."""
     out = {
@@ -124,7 +139,9 @@ def main() -> int:
     if args.output_json:
         print(format_json(metrics))
     else:
-        print(format_line(metrics))
+        line = format_line(metrics)
+        alert = cost_alert_suffix(metrics["cost"])
+        print(f"{line}  │  {alert}" if alert else line)
 
     return 0
 

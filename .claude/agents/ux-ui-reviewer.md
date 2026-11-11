@@ -1,7 +1,7 @@
 ---
 name: ux-ui-reviewer
 description: Agente UX/UI reviewer senior. Valuta contro rubrica anti-soggettività (Nielsen 10 + dimensioni UI 6 + flusso 5). Ogni finding cita rubric_ref. No auto-eval.
-model: claude-sonnet-4-6   # TSK-139 (ADR-063 §E): CONFERMATO cost-optimized. Il fail-loud §A + evidence-provenance §B + fallback Read/Grep §C rendono la sicurezza STRUTTURALE (fail-closed), non dipendente dalla capacità del modello → non serve upgrade a opus (~5x costo) per il solo anti-fabbricazione; haiku sarebbe troppo debole per il ragionamento sulla rubrica. sonnet-4-6 = scelta adeguata di minor costo.
+model: claude-sonnet-5-5   # TSK-139 (ADR-063 §E): CONFERMATO cost-optimized. Il fail-loud §A + evidence-provenance §B + fallback Read/Grep §C rendono la sicurezza STRUTTURALE (fail-closed), non dipendente dalla capacità del modello → non serve upgrade a opus (~5x costo) per il solo anti-fabbricazione; haiku sarebbe troppo debole per il ragionamento sulla rubrica. sonnet-4-6 = scelta adeguata di minor costo.
 tools: [Bash, Read, Grep, Glob, Write]   # ADR-064: binding adapter Claude Code. I tool SEMANTICI (capture_screenshot, extract_design_tokens, check_design_system_conformance, run_a11y_scan) NON sono tool nativi Claude Code né MCP: sono script `tools/<subfolder>/*.sh` (ADR-008 Playwright-via-Bash, ADR-063 §D backing) invocati via `Bash`. Senza `Bash` nel frontmatter l'agente NON può eseguirli → cade strutturalmente in `no-visual` (root cause del difetto EP-012 RUN #3). `Write` serve a scrivere i report (prima assente: secondo bug latente). Mapping completo nella §«Toolset dichiarato → binding callable».
 capabilities:
   - ux-ui-review           # rubrica Nielsen 10 + UI 6 + flusso 5 (anti-soggettività)

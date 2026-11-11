@@ -1,0 +1,34 @@
+---
+description: >-
+  Rifattorizza in divulgazione progressiva le unità di contesto agentiche troppo grandi — SKILL.md
+  di skill, file di agenti e sotto-agenti, indice di flotta (AGENTS.md o equivalente) — tenendo
+  snella la spina dorsale (frontmatter, vincoli,…
+globs: ".cursor/**"
+alwaysApply: false
+---
+# Skill: refactor-agent-skills
+
+> Adapter Cursor della skill `refactor-agent-skills`, definita in `.claude/skills/refactor-agent-skills.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.refactor_agent_skills.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Principio
+2. Soglie di intervento (per unità)
+3. Vincoli non negoziabili
+4. Fase 0.0 — Detection topologia (se mode external, ADR-EP060-003)
+5. Fase 0 — Ricognizione e topologia (sola lettura)
+6. Fase 1 — Piano dichiarato (gate di approvazione)
+7. Fase 2 — Esecuzione
+8. Fase 3 — Verifica strutturale e integrità del grafo (fail-closed)
+9. Fase 4 — Verifica comportamentale mirata (equivalenza)
+
+Il dettaglio di ogni passo sta in `.claude/skills/refactor-agent-skills.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Le 5 foglie diventano rule sotto `.cursor/rules/skills/references/refactor/`, referenziate con `mdc:`.
+- V-9 e i gate G1-G11 valgono identici.
+- Nessun fan-out nativo di sub-agenti (`profile: sequential`): dove la fonte dispatcha in parallelo, esegui in sequenza e aggrega a mano.

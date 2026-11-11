@@ -1,0 +1,33 @@
+---
+description: >-
+  Skill interna condivisa — single source of truth per l'esecuzione di passi di interazione
+  Playwright scriptati. Vocabolario 6 azioni
+  (click/type/set_input_files/wait_for/wait_ms/keyboard). Consumatori: functional-oracle-protocol
+  (EP-018)…
+globs: "**"
+alwaysApply: false
+---
+# Skill: interaction-drive-protocol
+
+> Adapter Cursor della skill `interaction-drive-protocol`, definita in `.claude/skills/interaction-drive-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.fe_correctness.functional_oracle.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Contratto di invocazione
+2. Vocabolario azioni (set chiuso — 6 azioni)
+3. Fail-loud su azione non riconosciuta
+4. Logica interna (Playwright headless via Bash)
+5. CWD di esecuzione (ADR-064 §D)
+6. Fail-loud su Playwright mancante
+7. Gestione fixture
+8. Consumatori
+9. Pattern
+
+Il dettaglio di ogni passo sta in `.claude/skills/interaction-drive-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Playwright gira da terminale: identico. Cambia solo chi lo lancia.

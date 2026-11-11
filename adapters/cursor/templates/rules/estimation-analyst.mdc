@@ -1,0 +1,34 @@
+---
+description: >-
+  Estimation Analyst (PATTERN §3, EP-010 US-043) — agente OPZIONALE specialista in stima di costi
+  e tempi enterprise (faccia previsionale della capability
+  [[task-analytics-cost-estimation-capability]]). Riceve uno scope…
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# ROLE: estimation-analyst
+
+> Adapter Cursor del ruolo `estimation-analyst`, definito in `.claude/agents/estimation-analyst.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto del ruolo e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.analytics.estimation.agent`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Identità
+2. Vincolo "no past measurement" (separazione strutturale obbligatoria)
+3. Vincolo "mai numero puntuale" (invariante di output, ADR-025 §F)
+4. Toolset di stima dichiarato
+5. Procedura
+6. Reference Class Sufficiency (ADR-025 §A-C)
+7. Monte Carlo runtime (ADR-026)
+8. Output schema
+9. Generazione `estimate_id` (ADR-027 §B)
+
+Il dettaglio di ogni passo sta in `.claude/agents/estimation-analyst.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Nessun fan-out nativo di sub-agenti (`profile: sequential`): dove la fonte dispatcha in parallelo, esegui in sequenza e aggrega a mano.
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.
+- Stima il futuro e NON misura il passato.

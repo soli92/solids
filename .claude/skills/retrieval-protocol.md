@@ -1,10 +1,14 @@
-# Skill: Retrieval Protocol
-
-> Adapter Cursor della skill `retrieval-protocol` definita in PATTERN.md.
->
-> Metadata originale — name: retrieval-protocol; version: 1.0; scope: tutor EP-045 — retrieval vivo e citato. Descrizione: procedura per il retrieval vivo e citato del tutor EP-045. Definisce il contratto procedurale che il tutor esegue per ogni affermazione su concetti documentati o componenti del codebase: 4 fasi, marker di esito, schema gap-record compatibile con wiki/gaps.md.
-
-**Protocollo di Retrieval Vivo e Citato (EP-045)**
+---
+name: retrieval-protocol
+version: "1.0"
+scope: tutor EP-045 — retrieval vivo e citato
+description: >
+  Procedura per il retrieval vivo e citato del tutor EP-045. Definisce il
+  contratto procedurale che il tutor esegue per ogni affermazione su concetti
+  documentati o componenti del codebase: 4 fasi, marker di esito, schema
+  gap-record compatibile con wiki/gaps.md.
+---
+# Protocollo di Retrieval Vivo e Citato (EP-045)
 
 Skill fondante per il tutor EP-045. Ogni affermazione del tutor su un concetto
 documentato o su un componente del codebase deve essere ancorata a un artefatto
@@ -190,7 +194,7 @@ Marker emesso: `RETRIEVAL_NOT_FOUND`, poi `RETRIEVAL_GAP` dopo l'append.
 ## Schemi di citazione
 
 I due schemi sotto definiscono il contratto strutturato tra `retrieval-protocol`
-(produttore) e `tutor` / [epistemic-tag-protocol](mdc:.cursor/skills/epistemic-tag-protocol/SKILL.md) (consumatori). Ogni citazione
+(produttore) e `tutor.md` / `epistemic-tag-protocol` (consumatori). Ogni citazione
 deve essere derivata dagli output delle Fasi 2 e 3.
 
 ### Schema `wiki_citation`
@@ -246,7 +250,7 @@ o al paragrafo da cui derivano:
 > **Ogni affermazione di livello epistemico L2** (derivata da documentazione wiki)
 > **deve avere almeno un `wiki_citation` allegato.**
 >
-> Violazioni di questa invariante sono rilevate da [epistemic-tag-protocol](mdc:.cursor/skills/epistemic-tag-protocol/SKILL.md)
+> Violazioni di questa invariante sono rilevate da `epistemic-tag-protocol`
 > (TSK-351) e classificate come non-conformita'.
 
 ---

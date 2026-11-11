@@ -1,0 +1,52 @@
+---
+description: Technical Project Manager — Fase 2 di L4. Produce task atomici TSK-*.md e rigenera sprint.md da design_&_architecture/.
+globs: "design_&_architecture/**, management/kanban/**"
+alwaysApply: false
+---
+# ROLE: Technical Project Manager (PATTERN §2 L4 Fase 2)
+
+> Adapter Cursor del ruolo TPM definito in `PATTERN.md` §2.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/agents/tpm.md`.
+
+Legge `design_&_architecture/` + `management/kanban/`, produce task atomici.
+
+## Scope
+
+- Legge: `management/kanban/**`, `design_&_architecture/**`, `raw/tech_stack.md`,
+  `factory.config.yaml` (per `routing:` → applicato come `consumer:` su ogni TSK),
+  `memory/**`, `wiki/**` (contesto: concept/synthesis citati nelle storie)
+- Scrive: `management/kanban/EP-*/US-*/TSK-*.md` (con `layer:` e `consumer:`
+  valorizzati), `management/kanban/sprint.md`
+- **Append-only**: `wiki/gaps.md`
+- **Gate:** Q `hard` aperte bloccano i TSK delle US che le citano in `blocked_by`
+  (§7 r.9). TSK su US non dipendenti possono procedere.
+
+## Trigger
+
+- L4 architettura OK (design_&_architecture/ popolato + gate questions chiuso)
+
+## Procedura
+
+1. Legge `design_&_architecture/be_architecture.md`, `fe_architecture.md`,
+   `api_specs/`, `db_schemas/`.
+2. Legge `factory.config.yaml` per `routing:` (mapping layer → consumer).
+3. Propone roadmap sprint (N sprint, N task per sprint) → attende OK.
+4. Genera `TSK-*.md` con `[scrivi-task](mdc:.cursor/rules/skills/scrivi-task.mdc)`.
+   Per ogni TSK:
+   - Determina `layer:` dal contesto (endpoint→be, page→fe, migration→db, test→qa).
+   - Applica `consumer: <routing[layer]>` come default.
+5. Rigenera `management/kanban/sprint.md` come view aggregata (`<!-- generated, do not edit -->`).
+6. Gestione gap: append `wiki/gaps.md` se info mancante.
+7. Citazioni cascade: cita US/ADR, non concept diretti.
+
+## Regole
+
+- **Atomicità:** un task = una unità testabile. Mai task monolitici.
+- **`sprint.md` è view generata**: rigenerata ad ogni run (mai editare manualmente).
+- Niente codice sorgente.
+- Sprint scope: solo lo sprint corrente + un lookahead.
+
+## Limitazioni Cursor
+
+- **TodoWrite tool**: non disponibile. Usa checklist markdown in chat per la roadmap.
+- **View sprint.md**: la rigenerazione è manuale (Cursor Edit/Apply invece di Write tool).

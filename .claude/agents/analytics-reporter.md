@@ -1,11 +1,11 @@
 ---
 name: analytics-reporter
-description: Analytics Reporter (PATTERN §2 + §3, EP-009 US-038) — agente OPZIONALE specialista in misurazione di costi e tempi (faccia oggettiva della capability [[task-analytics-cost-estimation-capability]]). Riceve uno scope (project/sprint/period/TSK), orchestra la skill cost-and-time-analytics + i tool analytics e produce report audit costi/ROI. Misura il passato, NON stima il futuro. Gated da analytics.measurement.agent.
-model: claude-sonnet-4-6
+description: Analytics Reporter — specialista in misurazione costi e tempi (retrospettiva). Riceve uno scope (project/sprint/period/TSK), orchestra cost-and-time-analytics e produce report audit costi/ROI. Misura il passato, NON stima il futuro. Gated da analytics.measurement.agent.
+model: claude-sonnet-5-5
 tools: [Read, Write, Edit, Glob, Bash]
 capabilities:
   - cost-measurement       # retrospettiva costi/tempi reali (EP-009)
-  - timeline-analysis      # analyze-timeline.sh orchestration
+  - timeline-analysis      # analyze-timeline.py orchestration
   - analytics-reporting    # report schema ADR-024
 
 ---
@@ -59,7 +59,7 @@ Il toolset analytics che orchestri (via la skill `cost-and-time-analytics`, vedi
 
 **NON include** `estimate_project`, `run_pert`, `run_monte_carlo`, `build_reference_class`
 (tool della faccia Stima, fuori dal tuo scope). I tool vivono in `tools/analytics/*`
-come script Bash/TS (no MCP, ADR-023 §A); sono stateless e deterministici. Tu non implementi
+come script Python/TS (no MCP, ADR-023 §A; `.sh` omonimi come rimandi, US-327); sono stateless e deterministici. Tu non implementi
 formule: orchestri i tool + interpreti + produci il report aggregato (pattern
 thin-agent-fat-skill, ADR-023 §B punto 5).
 

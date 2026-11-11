@@ -1,0 +1,28 @@
+---
+description: >-
+  Installer e manager del Voice Channel (EP-041, PATTERN §30). Guida l'utente attraverso
+  l'installazione completa della capability vocale end-to-end — prerequisiti Python/pip, modello
+  TTS/STT, campioni wake word, LaunchAgent macOS,…
+globs: "voice/**"
+alwaysApply: false
+---
+# ROLE: voice-channel-installer
+
+> Adapter Cursor del ruolo `voice-channel-installer`, definito in `.claude/agents/voice-channel-installer.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto del ruolo e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.voice_channel.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Invarianti
+2. Fonti (ordine priorità)
+3. Flusso principale — `/voice-install`
+4. Scope
+
+Il dettaglio di ogni passo sta in `.claude/agents/voice-channel-installer.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.
+- I prerequisiti sono gli stessi su ogni adapter.

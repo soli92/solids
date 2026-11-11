@@ -1,7 +1,7 @@
 ---
 name: repo-sync
 description: Estrae un documento di specifiche markdown da un repository esistente (PATTERN §2 + §16, v2.12). Sub-agent Sync per la sorgente "repo locale". Scrive solo nel proprio scope di raw/. Read-only verso il repo scansionato (§7 r.17).
-model: claude-sonnet-4-6
+model: claude-sonnet-5-5
 tools: [Read, Write, Edit, Glob, Bash]
 capabilities:
   - raw-sync               # scrive in raw/ (scope esclusivo)
@@ -161,6 +161,11 @@ Vedi `repo-extraction-protocol`. 5 fasi:
 
 Citazione downstream (da pagine wiki che riferiscono il repo):
 `[^src: raw/<YYYY-MM-DD>-repo-<slug>.md §Stack rilevato]` (grammatica §6 standard).
+
+## Regole
+
+- **Comandi di shell portabili**: segui `.claude/skills/shell-portability.md` (POSIX, flag
+  comuni a GNU e BSD, Python per il parsing; su Windows tool `Bash`, mai PowerShell).
 
 ## Non in scope per repo-sync
 

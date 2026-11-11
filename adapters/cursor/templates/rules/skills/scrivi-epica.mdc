@@ -1,0 +1,90 @@
+---
+description: >-
+  Scrivi Epica — template EP-XXX con frontmatter canonico v2.11 (depends_on, status, owner). Path:
+  management/kanban/EP-XXX-<slug>/EP-XXX.md. Tecnologia-agnostico, cita wiki, include Goals e KPI.
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: scrivi-epica (PATTERN §8)
+
+> Adapter Cursor della skill `scrivi-epica` definita in `.claude/skills/scrivi-epica.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/scrivi-epica.md`.
+
+Template per scrivere un'Epica (`EP-XXX`). L'Epica è il contenitore di User Stories
+per una capability o feature complessa.
+
+## Path
+
+```
+management/kanban/EP-XXX-<slug>/EP-XXX.md
+```
+
+## Frontmatter
+
+```yaml
+---
+id: EP-XXX
+title: <Titolo Epica>
+status: draft | active | done | archived
+owner: <ruolo o persona>
+depends_on: []          # v2.11: lista EP prerequisite (es. [EP-001, EP-005])
+wiki_page: wiki/<file>.md
+updated: YYYY-MM-DD
+---
+```
+
+### `depends_on` (v2.11)
+
+- Lista di EP che devono essere `done` prima che questa possa diventare `active`.
+- L'orchestrator usa questo campo per il DAG L1 (epic-level).
+- EP indipendenti possono essere lavorate in parallelo.
+
+## Corpo
+
+```markdown
+# EP-XXX — <Titolo Epica>
+
+## Obiettivo
+<Perché questa epica esiste. Problema di business risolto. Max 3 frasi.>
+[^src: wiki/<file>.md §<sezione>]
+
+## Scope
+### In scope
+- <feature 1>
+- <feature 2>
+
+### Out of scope
+- <cosa non fa questa epica>
+
+## Goals e KPI
+| Goal | KPI | Target |
+|---|---|---|
+| <obiettivo misurabile> | <metrica> | <valore> |
+
+## User Stories
+<!-- Link alle US quando create -->
+- [ ] US-YYY — <titolo> (status: ready|blocked|done)
+
+## ADR correlati
+- [ADR-NNN](../../../design_&_architecture/decisions/ADR-NNN.md) — <titolo>
+
+## Rischi
+- <rischio 1>: <mitigazione>
+
+## Fonti
+[^src: wiki/<file>.md §<sezione>]
+```
+
+## Regole
+
+- **ID sequenziale**: `EP-XXX` = numero progressivo globale (es. EP-001, EP-045).
+- **Slug**: kebab-case, 3-5 parole descrittive. Es. `EP-045-capability-formativa`.
+- **Tecnologia-agnostica**: nessun framework/linguaggio nello scope.
+- **KPI misurabili**: no obiettivi vaghi ("migliora la UX"). Usa metriche concrete.
+- **Status lifecycle**: `draft → active → done → archived`. Non saltare step.
+- **depends_on**: solo EP con `status: active|done`. Non referenziare EP `draft`.
+
+## Limitazioni Cursor
+
+- **Glob**: usa `@management/kanban/` mention per verificare la numerazione EP esistente.
+- **Link ADR**: usa path relativi corretti rispetto alla cartella dell'epica.

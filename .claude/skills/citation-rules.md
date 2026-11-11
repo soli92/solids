@@ -1,17 +1,12 @@
-# Skill: Citation Rules
-
-> Adapter Cursor della skill `citation-rules` definita in PATTERN.md.
-
+---
+name: citation-rules
+description: Grammatica canonica delle citazioni e dei wikilink. Riferimento unico per ogni agente che scrive in wiki/, management/, design_&_architecture/.
+---
 # Regole di citazione (canoniche)
 
 Questa è la **single source of truth** della grammatica citazioni della factory.
-Tutte le altre skill ([scrivi-wiki-page](mdc:.cursor/skills/scrivi-wiki-page/SKILL.md),
-[scrivi-epica](mdc:.cursor/skills/scrivi-epica/SKILL.md),
-[scrivi-user-story](mdc:.cursor/skills/scrivi-user-story/SKILL.md),
-[scrivi-task](mdc:.cursor/skills/scrivi-task/SKILL.md),
-[ingest-protocol](mdc:.cursor/skills/ingest-protocol/SKILL.md),
-[lint-checks](mdc:.cursor/skills/lint-checks/SKILL.md),
-[query-protocol](mdc:.cursor/skills/query-protocol/SKILL.md)) rimandano qui.
+Tutte le altre skill (`scrivi-wiki-page`, `scrivi-epica`, `scrivi-user-story`,
+`scrivi-task`, `ingest-protocol`, `lint-checks`, `query-protocol`) rimandano qui.
 
 ## Forme
 
@@ -20,7 +15,7 @@ Tutte le altre skill ([scrivi-wiki-page](mdc:.cursor/skills/scrivi-wiki-page/SKI
 | `[^src: <path>.{md,txt} §<sez>]` | Citazione fonte testuale (raw o wiki) su claim ≥ 20 parole; `<sez>` è un header markdown del file citato | `[^src: raw/2026-05-15-spid.txt §Autenticazione]` |
 | `[^src: <path>.kb.json §<dotted-path>]` (v2.9) | Citazione fonte strutturata JSON; `<dotted-path>` segue convenzioni v2.9 (vedi sotto) | `[^src: raw/2026-05-21-figma-ABC.kb.json §screens[0]]` |
 | `[[<slug>]]` | Link interno wiki, senza estensione, senza `../` | `[[oidc]]`, `[[circuit-breaker]]` |
-| `[^code: <path>:<line>]` | Citazione codice (solo factory, non progetto host) | `[^code: .cursor/rules/wiki-keeper.mdc:15]` |
+| `[^code: <path>:<line>]` | Citazione codice (solo factory, non progetto host) | `[^code: .claude/agents/wiki-keeper.md:15]` |
 
 ### Grammatica `<dotted-path>` per JSON (v2.9)
 
@@ -66,14 +61,14 @@ La citazione segue la cascata dei layer (vedi `PATTERN.md §1`):
 | `management/kanban/**/TSK-*.md` | `design_&_architecture/<file>.md §<sez>` o US/ADR |
 
 Regola **cascade**: ogni agente cita la layer immediatamente sopra di sé, **anche
-se ha letto la wiki** per contesto. [lead-architect](mdc:.cursor/rules/lead-architect.mdc) può aprire `wiki/concepts/oidc.md`
+se ha letto la wiki** per contesto. `lead-architect` può aprire `wiki/concepts/oidc.md`
 per capire cosa significa OIDC, ma nell'ADR cita la user story, non il concept.
 
 ## Wikilink: regole
 
 - Slug **senza estensione** e **senza path**: `[[oidc]]`, mai `[[wiki/concepts/oidc.md]]` né `[[../../concepts/oidc.md]]`.
 - Slug case-sensitive, lowercase con `-` come separatore.
-- Un wikilink che non risolve a un file esistente = `ERROR broken-link` (rilevato dal [lint-checks](mdc:.cursor/skills/lint-checks/SKILL.md) Check 1).
+- Un wikilink che non risolve a un file esistente = `ERROR broken-link` (rilevato dal `lint-checks` Check 1).
 
 ## Anti-pattern (vietati)
 
@@ -87,7 +82,7 @@ per capire cosa significa OIDC, ma nell'ADR cita la user story, non il concept.
 
 ## Verifica
 
-Il [wiki-lint](mdc:.cursor/rules/wiki-lint.mdc) (Check 2 di [lint-checks](mdc:.cursor/skills/lint-checks/SKILL.md)) controlla periodicamente:
+Il `wiki-lint` (Check 2 di `lint-checks`) controlla periodicamente:
 
 1. Ogni claim ≥ 20 parole ha citazione adiacente (entro 3 righe).
 2. Il path citato esiste.

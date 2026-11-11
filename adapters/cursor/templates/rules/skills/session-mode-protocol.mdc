@@ -1,0 +1,78 @@
+---
+description: Session Mode Protocol — modalità di interazione del tutor EP-045 (Sblocco vs Apprendimento). Contratto di dichiarazione avvio sessione. Sblocco=risposta diretta, Apprendimento=loop retrieval practice con P5 Generator/Validator.
+globs: []
+alwaysApply: false
+---
+# Skill: session-mode-protocol (EP-045)
+
+> Adapter Cursor della skill `session-mode-protocol` definita in `.claude/skills/session-mode-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/session-mode-protocol.md`.
+
+Definisce le due modalità di interazione del tutor EP-045.
+
+## Contratto di dichiarazione (avvio sessione)
+
+All'avvio, prima di qualsiasi risposta:
+```
+Dichiara la modalità: Sblocco (risposta diretta) o Apprendimento (loop pratica)?
+```
+
+Se lo studente non risponde entro 1 turno:
+```
+Nessuna modalità dichiarata — imposto la modalità di default: Sblocco.
+[MODALITA':Sblocco]
+```
+
+## Stato sessione
+
+```yaml
+SESSION_STATE:
+  mode: Sblocco | Apprendimento
+  declared_at: <ISO-8601>
+  current_node_id: <nodo di competenza corrente>
+  cycle_count: 0
+```
+
+## Modalità Sblocco
+
+**Comportamento**: risposta diretta senza domande di richiamo.
+- Applica `epistemic-tag-protocol` (classificazione L1/L2/L3 + guard).
+- Applica `retrieval-protocol` (per affermazioni L2).
+- Applica `scaffolding-protocol` solo per livello risposta (non per domande di richiamo).
+- **NO** Fase Generator/Validator.
+
+Marker: `[MODALITA':Sblocco]` nella prima risposta della sessione.
+
+## Modalità Apprendimento
+
+**Comportamento**: loop di retrieval practice con separazione Generator/Validator (P5).
+
+Loop per ogni query:
+1. `retrieval-protocol` → retrieval citato.
+2. `epistemic-tag-protocol` → classifica L1/L2/L3.
+3. `scaffolding-protocol` → livello scaffolding da mastery.
+4. **[GENERATOR]**: emetti risposta + domanda di richiamo calibrata.
+   - `[GENERATOR:domanda-richiamo]` marker obbligatorio.
+   - STOP. Attendi risposta studente.
+5. **[VALIDATOR]** (invocazione separata): valuta risposta studente.
+   - `[VALIDATOR:verifica]` marker obbligatorio.
+   - Aggiorna Student Model via `student_model_write`.
+
+**P5 strutturale**: Generator e Validator in due invocazioni distinte (mai stessa tool call).
+
+Marker: `[MODALITA':Apprendimento]` nella prima risposta della sessione.
+
+## Cambio modalità
+
+Lo studente può re-dichiarare esplicitamente la modalità in qualsiasi momento:
+```
+/modalita sblocco
+/modalita apprendimento
+```
+Il tutor aggiorna `SESSION_STATE.mode` e conferma.
+
+## Limitazioni Cursor
+
+- **P5 strutturale**: usa due turni di chat separati per Generator e Validator (non comprimere nello stesso messaggio).
+- **student_model_write**: richiede `tools/tutor/student_model.py`. Se assente → traccia manualmente mastery per nodo.
+- **SESSION_STATE**: mantieni lo stato in memoria di conversazione Cursor (non persistito tra sessioni).

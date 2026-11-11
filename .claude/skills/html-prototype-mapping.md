@@ -1,18 +1,20 @@
-# Skill: HTML Prototype Mapping
+---
+name: html-prototype-mapping
+description: >-
+  Mapping provider-specific per il backend html del Prototype Generation Layer. Genera prototipi HTML self-contained single-file dato uno spec/intent. Invocata da prototype-generation-protocol Fase 2. Fallback terminale garantito: funziona in qualsiasi ambiente, zero dipendenze esterne.
+epic_id: EP-035
+us_id: US-121
+pattern_version: "2.25"
+---
+# Mapping HTML (provider-specific per backend html T0)
 
-> Adapter Cursor della skill `html-prototype-mapping` definita in PATTERN.md.
->
-> Metadata originale — name: html-prototype-mapping; epic_id: EP-035; us_id: US-121; pattern_version: 2.25. Descrizione: mapping provider-specific per il backend html (T0) del Prototype Generation Layer (EP-035, PATTERN §26 candidato). Definisce come generare un prototipo HTML self-contained single-file dato uno spec/intent in input. Invocata da prototype-generation-protocol Fase 2. Fallback terminale garantito (INV-1): funziona in qualsiasi ambiente, zero dipendenze esterne.
-
-**Mapping HTML (provider-specific per backend html T0)**
-
-Riferimenti: [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md) (Fase 0 invoca html come fallback terminale),
-[prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) (Fase 2 invoca questa skill), PATTERN §26 candidato
+Riferimenti: `backend-resolver` (Fase 0 invoca html come fallback terminale),
+`prototype-generation-protocol` (Fase 2 invoca questa skill), PATTERN §26 candidato
 (Prototype Generation Layer), `wiki/concepts/prototype-generation-capability.md §INV-6`.
 
 Questa skill e' **provider-specific per il backend `html`**: definisce come trasformare
 uno spec/intent in un file `index.html` self-contained interattivo multi-stato. Il
-[prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) non conosce i dettagli di questa skill — la invoca
+`prototype-generation-protocol` non conosce i dettagli di questa skill — la invoca
 passando input strutturato e riceve in output il path del file generato.
 
 ---
@@ -42,7 +44,7 @@ con uno strato di stile base `<style>` che preserva la leggibilita'.
 
 ## Input
 
-Ricevuto da [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) Fase 2:
+Ricevuto da `prototype-generation-protocol` Fase 2:
 
 ```yaml
 spec_source: <path>          # path al design-spec.md dell'ui-designer, oppure null
@@ -60,6 +62,8 @@ art_director_tokens:         # presente solo se art_director_active: true
   border_radius: "..."
   shadow: "..."
 states_hint: [...]           # lista di stati UI richiesti dalla spec (opzionale)
+variants: <1..5>             # default 1; > 1 → varianti nello STESSO index.html (INV-6),
+                             # vedi references/prototype-generation-protocol/varianti.md
 ```
 
 Se `spec_source` e' valorizzato, leggi il file e estrai: titolo/scopo, componenti
@@ -185,7 +189,7 @@ Path canonico: `prototyping.output_path` + `/` + `slug` + `/index.html`.
 Esempio: se `output_path: "output/prototypes"` e `slug: "login-form"`, il path e':
 `output/prototypes/login-form/index.html`.
 
-Emetti l'output YAML (vedi §Output) al caller ([prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md)).
+Emetti l'output YAML (vedi §Output) al caller (`prototype-generation-protocol`).
 
 ---
 
@@ -421,6 +425,8 @@ setTimeout(function() { setState('success'); }, 1500);
   qualita' del prototipo.
 - **INV-1**: questo backend e' il fallback terminale — deve sempre produrre output
   valido indipendentemente dall'ambiente. Nessun prerequisito esterno richiesto.
+- **Varianti** (`variants` > 1): tutte nello stesso `index.html` (un `<template>` per
+  direzione + selettore neutro); mai un file per variante. Dettaglio in `varianti.md`.
 - **Nessun framework JS**: solo JS vanilla in `<script>` inline. Nessun import di
   librerie (React, Vue, Alpine.js, ecc.).
 - **Path output**: sempre in `<prototyping.output_path>/<slug>/index.html`. Il
@@ -434,10 +440,10 @@ setTimeout(function() { setState('success'); }, 1500);
 
 ## Cross-link
 
-- [backend-resolver](mdc:.cursor/skills/backend-resolver/SKILL.md) — Fase 0 di [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md): seleziona `html`
+- `backend-resolver` — Fase 0 di `prototype-generation-protocol`: seleziona `html`
   come backend (BACKEND_RESOLVED o BACKEND_DEGRADED). E' il caller indiretto di questa
-  skill tramite [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md).
-- [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) — Fase 2: invoca direttamente questa skill con
+  skill tramite `prototype-generation-protocol`.
+- `prototype-generation-protocol` — Fase 2: invoca direttamente questa skill con
   l'input strutturato descritto in §Input. Fase 3 esegue il self-contain check che
   complementa la Fase D di questa skill.
 - `wiki/concepts/prototype-generation-capability.md §INV-6` — invariante di

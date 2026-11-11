@@ -1,0 +1,91 @@
+---
+description: >-
+  Stack Detector — riconosce lingua, framework, versione da un albero di codice (3 fasi: manifest
+  scan + config framework + sampling import). Output JSON con ruleset_id e confidence. Condivisa
+  fra code-reviewer e repo-sync.
+globs: []
+alwaysApply: false
+---
+# Skill: stack-detector (PATTERN §19.2, v2.12)
+
+> Adapter Cursor della skill `stack-detector` definita in `.claude/skills/stack-detector.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/stack-detector.md`.
+
+Riconosce lingua, framework, versione di un albero di codice.
+Invocata da `code-review-protocol` Fase 1 e da `repo-extraction-protocol` Fase 2.
+
+## Output schema
+
+```json
+{
+  "language": "python | typescript | javascript | go | java | kotlin | rust | ruby | php | csharp | other",
+  "framework": "fastapi | django | flask | express | nestjs | nextjs | react | vue | svelte | spring | gin | echo | actix | rails | laravel | dotnet | other | none",
+  "framework_version": "string | unknown",
+  "secondary_libs": ["<name>@<version>"],
+  "patterns_expected": ["async | pydantic_v2 | hooks | ..."],
+  "ruleset_id": "<language>.<framework>.v<major>",
+  "confidence": 0.94,
+  "evidence": [
+    {"type": "manifest", "file": "pyproject.toml", "weight": 0.5}
+  ]
+}
+```
+
+Soglie `confidence`: `≥0.9` high (manifest+import+config coerenti); `0.6-0.9` medium; `<0.3` very low → segnala in chat.
+
+## Algoritmo (3 fasi)
+
+### Fase 1 — Manifest scan (peso 0.5)
+
+| Manifest | Lingua | Framework |
+|---|---|---|
+| `package.json` | typescript (+ `tsconfig.json`) / javascript | react, vue, next, ... da `dependencies` |
+| `pyproject.toml` | python | fastapi, django, flask da dipendenze |
+| `requirements.txt` | python (fallback) | regex sui pacchetti |
+| `go.mod` | go | gin, echo, fiber |
+| `Cargo.toml` | rust | actix, axum |
+| `pom.xml` | java | spring-boot |
+| `build.gradle{.kts}` | java/kotlin | spring |
+| `Gemfile` | ruby | rails |
+| `composer.json` | php | laravel, symfony |
+| `*.csproj` | csharp | dotnet |
+
+### Fase 2 — Config framework (peso 0.2)
+
+File di config noti: `next.config.{js,mjs}`, `vite.config.{js,ts}`, `nest-cli.json`, `manage.py`, `nuxt.config.{js,ts}`, `angular.json`, `tsconfig.json`, `Dockerfile` (regex su `FROM`).
+
+### Fase 3 — Sampling import (peso 0.3)
+
+Glob `**/*.<ext>`, campiona ≤50 file (priorità `src/`, `app/`, `cmd/`, `lib/`; salta `node_modules/`, `vendor/`, `.git/`, `dist/`). Regex sui primi 50 righe per import statements. Se ≥5 file importano il framework candidato → aggiungi weight 0.3. Divergenza → riduci confidence 0.2 + `evidence.type: "import-divergence"`.
+
+`patterns_expected` derivati da `(language, framework, version)`:
+- `python, fastapi ≥0.95` → `["async", "pydantic_v2", "dependency_injection"]`
+- `typescript, react ≥18` → `["hooks", "concurrent_mode_compatible", "strict_mode"]`
+- `go, gin` → `["middleware_chain", "context_propagation", "explicit_error_return"]`
+
+## Casi limite
+
+- **Monorepo multi-language**: produce `stack_descriptor[]` (array).
+- **Manifest assente**: salta Fase 1; Fase 3 con peso aumentato (0.5); `confidence` cap 0.5.
+- **Versione unknown**: `framework_version: "unknown"`, `confidence` cap 0.7, usa ruleset versione più recente.
+- **Nessun framework**: `framework: "none"`, `ruleset_id: "<language>.none.v1"`.
+
+## SSR Detection (opt-in `fe_correctness.ssr_aware.enabled: true`)
+
+Emette `ssr_context` aggiuntivo:
+```json
+{
+  "framework": "nextjs-app-router | nextjs-pages-router | nuxt3 | remix | sveltekit | none | unknown-ssr",
+  "rendering_mode": "ssr | csr",
+  "router_type": "app | pages | null",
+  "revalidation_support": true
+}
+```
+
+Priority rules: Next.js App Router (cartella `app/` + `page.tsx`) > Pages Router (`pages/_app.tsx`) > Nuxt3 > Remix > SvelteKit > none.
+
+## Limitazioni Cursor
+
+- **Glob**: usa `@<code_path>/` mention per caricare i manifest rilevanti.
+- **Sampling**: leggi i file con `@<file>` mention; campiona max 50 file.
+- **Stateless**: ogni invocazione ricalcola da zero. No cache.

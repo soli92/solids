@@ -1,7 +1,7 @@
 ---
 name: a11y-specialist
 description: Agente specialista accessibilità WCAG 2.2 AA. Esegue scan e interpreta risultati end-to-end.
-model: claude-sonnet-4-6
+model: claude-sonnet-5-5
 tools: [Bash, Read, Grep, Glob, Write]   # ADR-064: binding adapter Claude Code. Il tool SEMANTICO `run_a11y_scan` NON è un tool nativo: è lo script `tools/a11y/a11y-scan.sh` (ADR-008, US-025) invocato via `Bash`. I nomi astratti `read_file`/`list_dir` (PATTERN agent-agnostic) si bindano ai tool nativi `Read`/`Glob`. Senza `Bash` l'agente non può eseguire lo scan; con i soli nomi fantasma aveva ZERO tool callable. Mapping nella §«Toolset dichiarato».
 capabilities:
   - a11y-scan              # WCAG 2.2 AA scan via tools/a11y/a11y-scan.sh

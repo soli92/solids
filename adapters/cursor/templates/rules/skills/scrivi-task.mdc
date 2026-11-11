@@ -1,0 +1,120 @@
+---
+description: >-
+  Scrivi Task — template TSK-ZZZ atomico (v2.11). Frontmatter: id, sprint, layer, consumer,
+  priority, estimate, status, depends_on, blocked_by, code_path. DoD FE State Matrix opt-in.
+  Atomic: una unità testabile.
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: scrivi-task (PATTERN §8, v2.11)
+
+> Adapter Cursor della skill `scrivi-task` definita in `.claude/skills/scrivi-task.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/scrivi-task.md`.
+
+Template per un task `TSK-ZZZ` atomico e contractuale.
+
+## Path
+
+```
+management/kanban/EP-XXX-<slug>/US-YYY-<slug>/TSK-ZZZ.md
+```
+
+## Frontmatter
+
+```yaml
+---
+id: TSK-ZZZ
+sprint: NN
+layer: be | fe | db | qa | infra | docs
+consumer: agent | human
+priority: P0 | P1 | P2
+estimate: XS | S | M | L
+status: todo | in-progress | done
+depends_on: []    # v2.11: TSK prerequisiti
+blocked_by: []    # Q_NNN hard aperte
+code_path: []     # glob dei path toccati in scrittura
+# Opzionali EP-018 Functional Oracle (no-op se disabled):
+functional_status: pending
+functional_acceptance_spec: code_quality/acceptance/<TSK-id>.acceptance.yaml
+# Opzionale EP-029 Test Failure Taxonomy (solo layer: qa):
+failure_classification:  # APPLICATION_BUG | SSR_BUG | TEST_BUG | INFRASTRUCTURE | FLAKY
+---
+```
+
+### Campi v2.11 per il parallel scheduler
+
+- **`depends_on`**: TSK che devono essere `done` prima che questo parta. Hard dependency.
+  Vince sul body `## Dependencies` se entrambi presenti.
+- **`blocked_by`**: Q hard aperte. Rimosso quando Q è chiusa via `propagate-resolution`.
+- **`code_path`**: glob in `<code_path>/**` da scrivere. Overlap con altri TSK → non parallelizzabili.
+  Lista vuota = "scope sconosciuto" → scheduler tratta come serializzante (conservativo).
+
+## Corpo
+
+```markdown
+# TSK-ZZZ — <Titolo conciso>
+
+## Context
+<US riferita, perché serve questo task>
+[^src: management/kanban/EP-XXX-<slug>/US-YYY-<slug>/US-YYY.md §AC]
+
+## Technical Specs
+- **BE:** endpoint → `POST /api/v1/foo`
+- **FE:** componente → `LoginPage`
+- **DB:** tabelle impattate
+- **Auth:** ruoli abilitati
+
+## Implementation Steps
+1. <step 1>
+2. <step 2>
+3. <step 3>
+
+## Definition of Done
+- [ ] Test unitario passa
+- [ ] Test integrazione passa
+- [ ] Documentazione aggiornata
+
+## Dependencies
+<!-- Derivata da depends_on + blocked_by (opzionale — rationale umano-leggibile) -->
+- TSK-XXX — <rationale>
+```
+
+## Layer FE — DoD State Matrix (opt-in, `fe_correctness.state_matrix_inject: true`)
+
+Se abilitato, aggiungere sezione `## DoD FE — stati obbligatori`:
+
+```markdown
+## DoD FE — stati obbligatori (selezionare quelli applicabili)
+- [ ] loading state
+- [ ] empty state
+- [ ] error state
+- [ ] success state (happy path)
+- [ ] responsive: mobile (≤ 768px)
+- [ ] responsive: desktop (≥ 1280px)
+- [ ] dark mode / tema alternativo
+- [ ] accessibilità da tastiera (tab order, focus visible)
+- [ ] contenuti di lunghezza variabile (testo corto / lunghissimo / overflow)
+- [ ] stato disabled / read-only (se form o interazione)
+```
+
+**Regola**: il TPM **deve** selezionare solo gli stati applicabili. Lasciare il block intatto (10 righe non triage-ate) è anti-pattern.
+
+## Layer FE — Granularity Rule (opt-in, `fe_correctness.granularity`)
+
+Se TSK `layer: fe` — verifica regola OR (preventiva):
+> `estimate ≤ max_estimate_hours (default 8h)` **OPPURE** `states ≤ max_states (default 3)`
+
+Se entrambe violate → scomporre il TSK.
+
+## Regole
+
+- **Atomicità**: un task = una unità testabile. Es. NON "Crea modulo Login" → spezza in endpoint + pagina.
+- **Estimate**: XS=<2h, S=mezza giornata, M=1 giorno, L=2+ giorni.
+- **`story` ed `epic`**: deducibili dal path (non nel frontmatter).
+- **`consumer` default**: da `factory.config.yaml.routing.<layer>`. Override esplicito ammesso.
+- **`ui_design_spec:`**: opzionale (EP-008). Scritto dal TPM se esiste deliverable Design.
+
+## Limitazioni Cursor
+
+- **Glob**: usa `@management/kanban/` mention per verificare la numerazione TSK esistente.
+- **code_path**: usa glob relativi a `code_path` configurato in `factory.config.yaml` (non path assoluti).

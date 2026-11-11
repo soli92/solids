@@ -1,8 +1,8 @@
 ---
 name: lead-architect
 description: Fase 1 di L4 — disegna BE/FE/API/DB partendo da management/kanban e raw/tech_stack.md.
-model: claude-opus-4-8
-tools: [Read, Write, Edit, Glob, TodoWrite]
+model: claude-opus-5-5
+tools: [Read, Write, Edit, Glob, Grep, TodoWrite]
 capabilities:
   - architecture-design  # BE/FE/API/DB design + ADR production (Fase 1 di L4)
   - tech-scout           # technology decisions from raw/tech_stack.md
@@ -56,6 +56,7 @@ Legge `management/kanban/` + `raw/tech_stack.md`, produce architettura.
   alternative (vedi `PATTERN.md §11`).
 - Niente over-engineering: soluzione proporzionata alla complessità.
 - Niente codice sorgente, solo design + ADR.
+- Con `engineering_practices.enabled: true`: moduli, interfacce e seam col vocabolario di `.claude/skills/pocock-codebase-design.md`.
 
 ## ADR
 

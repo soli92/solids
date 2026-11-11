@@ -1,0 +1,22 @@
+# api-acceptance-spec.example.invalid.yaml
+# Esempio NON VALIDO: deve essere rifiutato dalla validazione. Motivi, nell'ordine:
+#   1. manca `thresholds` (campo obbligatorio);
+#   2. target.mode "grpc" non e' nel set ammesso;
+#   3. request.method "FETCH" non e' nel set ammesso;
+#   4. l'asserzione "bad-status" ha kind sconosciuto "status_between";
+#   5. l'asserzione "bad-step" punta a uno step inesistente ("missing");
+#   6. severity "info" non e' ammessa.
+id: news-service/invalid-case
+service: news-service
+target:
+  mode: grpc
+fixtures: {}
+scenario:
+  - id: list
+    request:
+      method: FETCH
+      path: /v1/public/news
+assertions:
+  - {id: bad-status, step: list, severity: blocking, kind: status_between}
+  - {id: bad-step, step: missing, severity: blocking, kind: status_equals, status: 200}
+  - {id: bad-severity, step: list, severity: info, kind: status_equals, status: 200}

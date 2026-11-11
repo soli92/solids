@@ -1,0 +1,109 @@
+---
+description: VCS Handoff — coordina il commit del codice prodotto da un dev-agent con la topologia VCS (monorepo/submodule/sibling/external). Gate umano obbligatorio per ogni git commit. Mai push automatico.
+globs: []
+alwaysApply: false
+---
+# Skill: vcs-handoff (PATTERN §15, v2.12)
+
+> Adapter Cursor della skill `vcs-handoff` definita in `.claude/skills/vcs-handoff.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/vcs-handoff.md`.
+
+Invocata da `dev-protocol` Fase 5, DOPO `dev-handoff`.
+
+## Fase 0 — Pre-condizioni
+
+1. Leggi `factory.config.yaml`: estrai `vcs.mode`, `vcs.submodule_path`, `vcs.remote_url`, `vcs.branch_strategy`, `vcs.commit_coupling`.
+2. Verifica coerenza `code_path` vs `vcs.mode`:
+   - `monorepo` → `code_path` relativo, dentro al repo
+   - `submodule` → `vcs.submodule_path` valorizzato e in `.gitmodules`
+   - `sibling` → `code_path` assoluto o relativo fuori dal repo
+   - `external` → qualsiasi path
+   - `none` → STOP (errore di config)
+
+## Fase 1 — Branch (solo submodule/sibling)
+
+Usa `[branch-resolver](mdc:.cursor/rules/skills/branch-resolver.mdc)` → `expected_branch`.
+
+Strategie:
+- `shared`: `base_branch` se valorizzato; altrimenti branch corrente.
+- `per-tsk`: `tsk-<id-lowercase>-<slug-from-tsk-title>` (es. `tsk-042-add-login-endpoint`)
+- `per-sprint`: `sprint-<NN>`
+
+Se `expected_branch` non esiste → proponi `git checkout -b <expected_branch>` → **gate umano**.
+Se branch diverso da expected → STOP, segnala (comando suggerito, mai auto-checkout R.B8).
+
+**Drift check** (opt-in `resolved_vcs.branch_awareness.drift_check: true`, solo submodule):
+Confronta parent-ref con submodule-HEAD; se divergono → segnala e chiedi conferma prima del bump.
+
+## Fase 2 — Procedura per mode
+
+### Mode: monorepo
+
+```bash
+git status
+git add <code_path>
+# Propone commit:
+# feat(<layer>): <TSK title sintetizzato>
+# TSK-ZZZ: <link>
+# → GATE UMANO → git commit -m <messaggio>
+```
+
+### Mode: submodule
+
+1. `git status` nel submodule.
+2. Commit nel submodule (gate umano).
+3. Opzionale push submodule (solo su conferma esplicita).
+4. `git add <submodule_path>` nel factory repo → commit bump (gate umano).
+5. Se `commit_coupling: pin` → aggiorna `.factory-lock`.
+
+### Mode: sibling
+
+Come submodule, MA senza bump nel factory repo (due repo indipendenti).
+Avviso: "Ricorda di aprire PR su `<vcs.remote_url>`."
+
+### Mode: external
+
+Test best-effort `git rev-parse HEAD`. Cattura hash per log. **Nessuna operazione VCS**.
+
+## Fase 3 — `.factory-lock` (solo `commit_coupling: pin`)
+
+Append-only, format YAML:
+```yaml
+- tsk: TSK-ZZZ
+  layer: be
+  vcs_mode: submodule
+  submodule_path: ./code/
+  commit: a1b2c3d4
+  date: 2026-05-20T14:32:00Z
+```
+
+## Fase 4 — Log entry
+
+Append `wiki/log.md` (estende dev-handoff con info VCS):
+```markdown
+**VCS mode:** <monorepo|submodule|sibling|external>
+**Branch:** <nome-branch o "shared">
+**Commit (L5):** <hash-short o "n/a">
+**Commit (factory):** <hash-short se bump; "n/a">
+```
+
+## Vincoli inviolabili (PATTERN §7 r.14)
+
+- **Mai `git push`** senza conferma esplicita.
+- **Mai `git submodule add|update --remote`** automatico.
+- **Mai `git clone`** automatico per `sibling`.
+- **Mai `--force`, `--no-verify`, `--amend`** (preferisci nuovi commit).
+- **Mai cambiare branch** nel factory repo o nei sibling/external (responsabilità umana).
+
+## Decision Anchor Propagation (opt-in v2.19)
+
+Stessa logica di `dev-handoff`: verifica presenza + checksum anchor; copia invariata.
+
+## Temporal Handoff Block (opt-in `temporal.handoff_protocol.enabled: true`)
+
+Schema identico a `dev-handoff`; `context_summary` include info branch, convenzioni commit, stato PR.
+
+## Limitazioni Cursor
+
+- **git commands**: usa terminal integrato; attendi gate umano esplicito per ogni commit.
+- **Submodule**: esegui `git -C <submodule_path> <command>` per operare dentro al submodule.

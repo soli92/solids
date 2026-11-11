@@ -1,10 +1,10 @@
-# Skill: Scrivi Wiki Page
-
-> Adapter Cursor della skill `scrivi-wiki-page` definita in PATTERN.md.
-
+---
+name: scrivi-wiki-page
+description: Template e regole per scrivere una pagina della wiki llm-style (karpathy).
+---
 # Procedura per scrivere una pagina `wiki/`
 
-Riferimenti: [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md) (citazioni e wikilink), [wiki-gap-protocol](mdc:.cursor/skills/wiki-gap-protocol/SKILL.md)
+Riferimenti: `citation-rules` (citazioni e wikilink), `wiki-gap-protocol`
 (informazione assente).
 
 ## Path (karpathy-style)
@@ -56,8 +56,8 @@ tags: [...]
 
 ## Regole stilistiche
 
-- Citazioni e wikilink: vedi [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md) (forma, soglia 20 parole, cascade).
-- Informazione assente nei `raw/` → apri un gap (vedi [wiki-gap-protocol](mdc:.cursor/skills/wiki-gap-protocol/SKILL.md)),
+- Citazioni e wikilink: vedi `citation-rules` (forma, soglia 20 parole, cascade).
+- Informazione assente nei `raw/` → apri un gap (vedi `wiki-gap-protocol`),
   non inventare.
 - Update di pagina già `review`: aggiungi `## Aggiornamenti (vYYYY-MM-DD)`,
   non sovrascrivere.

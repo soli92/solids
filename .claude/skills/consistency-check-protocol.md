@@ -1,19 +1,17 @@
-# Skill: Consistency Check Protocol
-
-> Adapter Cursor della skill `consistency-check-protocol` definita in PATTERN.md.
-
-Metadata skill (originale):
-```yaml
+---
 id: consistency-check-protocol
 version: v2.19
 capability: EP-015
 opt_in: compression.output.consistency_check.enabled
 actor: consistency-checker
 pattern_refs: [evaluator-optimizer, fail-closed]
-```
+description: Verifica in 5 step se l'output di un sub-agent contraddice il decision_anchor (EP-015) per prevenire drift semantico tra decisioni prese e artefatti prodotti. Invocabile solo da consistency-checker, non da sub-agent su se stesso.
+---
+
+# Skill: consistency-check-protocol
 
 > 5 step per verificare se l'output di un sub-agent contraddice il `decision_anchor`.
-> Invocata SOLO dall'agente [consistency-checker](mdc:.cursor/rules/consistency-checker.mdc) (non invocabile da sub-agent su se stesso).
+> Invocata SOLO dall'agente `consistency-checker` (non invocabile da sub-agent su se stesso).
 
 ## Step 1 — Read anchor
 
@@ -59,7 +57,7 @@ Regole severity → verdict:
 |----------|-----------|---------|
 | ≥ 1 `severity: critical` | `confidence > 0.7` | `fail` |
 | ≥ 1 `severity: critical` | `confidence ≤ 0.7` | `warn` |
-| Solo `severity: major\|minor` | qualsiasi | `warn` |
+| Solo `severity: major|minor` | qualsiasi | `warn` |
 | 0 findings | — | `pass` |
 
 Verdict aggregato: più severo tra tutti i finding.

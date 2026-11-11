@@ -1,15 +1,11 @@
-# Skill: Figma Extraction Protocol
-
-> Adapter Cursor della skill `figma-extraction-protocol` definita in PATTERN.md.
-
-Metadata skill (originale):
-```yaml
+---
 name: figma-extraction-protocol
 description: Protocollo di estrazione Figma per il figma-sync. 5 fasi (Bootstrap → Discovery → Chunked Extraction → Proposta → Scrittura). Implementa il pattern chunked-extraction-pipeline.
-```
+---
+# Protocollo di estrazione Figma
 
 Riferimenti: PATTERN §16 (sync adapters), §6 (citazioni JSON), §7 r.1 (L1
-read-only), [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md), `wiki-log-entry`. Implementa in headless il pattern
+read-only), `citation-rules`, `wiki-log-entry`. Implementa in headless il pattern
 documentato in [[chunked-extraction-pipeline]] (concept derivato da `raw/figma-extraction-agent.jsx`).
 
 ## Prerequisiti
@@ -62,7 +58,7 @@ documentato in [[chunked-extraction-pipeline]] (concept derivato da `raw/figma-e
 Costanti (allineate al pattern [[chunked-extraction-pipeline]]):
 
 ```
-MODEL            = "claude-sonnet-4-6"        # o successivo, parametrizzabile
+MODEL            = "claude-sonnet-5-5"        # o successivo, parametrizzabile
 MAX_CONCURRENCY  = 3                          # chunk in parallelo
 MAX_RETRIES      = 2                          # tentativi per chunk in errore
 RETRY_BASE_DELAY = 1500 ms                    # base exponential backoff
@@ -233,7 +229,7 @@ Se chunk falliti > 0 → mostra quali frame mancano. L'utente decide:
    ```
 
 5. **Suggerisci esplicitamente** in chat: «Estrazione completata. Invoca
-   [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) per l'ingest L1→L2.» Mai chiamare wiki-keeper automaticamente
+   `wiki-keeper` per l'ingest L1→L2.» Mai chiamare wiki-keeper automaticamente
    (orchestrazione cross-ruolo è responsabilità dell'utente o dell'orchestrator,
    §7 r.12).
 

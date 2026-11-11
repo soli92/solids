@@ -19,12 +19,13 @@ Sintassi:
 ### `/repo-sync <path>`
 
 1. Read `factory.config.yaml` (verifica `pattern_version >= 2.12`, presenza
-   dell'agente [repo-sync](mdc:.cursor/rules/repo-sync.mdc)).
-2. Invoca l'agente [repo-sync](mdc:.cursor/rules/repo-sync.mdc) passando:
+   `.claude/agents/repo-sync.md`).
+2. Invoca l'agent `repo-sync` (Claude Code `Agent` con `subagent_type: repo-sync`)
+   passando:
    - `source_path: <path>`
    - `companion_tree: <true|false>` (default `true`; `--no-tree` lo forza `false`)
    - `tree_depth: <N>` (default `3`)
-3. L'agent esegue la skill [repo-extraction-protocol](mdc:.cursor/skills/repo-extraction-protocol/SKILL.md) 5 fasi:
+3. L'agent esegue `repo-extraction-protocol` 5 fasi:
    - Fase 0 — Bootstrap (valida path, calcola slug, dedup manifest).
    - Fase 1 — Piano (STOP, attende conferma).
    - Fase 2 — Discovery (git metadata + stack detection + struttura).
@@ -78,7 +79,7 @@ DOPO L'ESTRAZIONE
 - Read access su tutto il contenuto del repo.
 - **Mai write access** richiesto sulla sorgente — la skill è read-only verso il repo
   scansionato (§7 r.17).
-- Agente [repo-sync](mdc:.cursor/rules/repo-sync.mdc) presente.
+- `.claude/agents/repo-sync.md` presente.
 - `raw/` esistente nella factory che invoca.
 
 ## Output (artefatti L1)
@@ -100,8 +101,8 @@ Re-estrazione con data diversa (giorno successivo) → produce un nuovo file
 
 - **L1 read-only** per la factory (§7 r.1): solo `repo-sync` scrive in `raw/*-repo-*.md`.
 - **Sync read-only verso la sorgente** (§7 r.17): mai modificare il repo scansionato.
-  In particolare: mai aggiungere `factory.config.yaml`, `CLAUDE.md`, adapter, o
-  qualsiasi file infrastrutturale al repo esterno. Una factory che ingerisce sé stessa
+  In particolare: mai aggiungere `factory.config.yaml`, `CLAUDE.md`, adapter `.claude/`,
+  o qualsiasi file infrastrutturale al repo esterno. Una factory che ingerisce sé stessa
   via repo-sync (reflective) resta legittima — la regola distingue *sorgente* da *output*.
 - **Mai chiamate network**: la skill è offline. Per repo remoti, clone locale prima e
   poi punta `/repo-sync` al clone.
@@ -116,5 +117,5 @@ automaticamente questo comando sul path scelto dall'utente. Il documento prodott
 finisce in `raw/` e il bootstrap suggerisce in chat di invocare `wiki-keeper` per
 l'ingest L1→L2 — primo passo della pipeline standard.
 
-Vedi la skill [repo-extraction-protocol](mdc:.cursor/skills/repo-extraction-protocol/SKILL.md) per la procedura completa, l'agente
-[repo-sync](mdc:.cursor/rules/repo-sync.mdc) per il contratto, PATTERN §16 «Sync adapters» per la cornice generale.
+Vedi `repo-extraction-protocol` per la procedura completa, `repo-sync` agent per il
+contratto, PATTERN §16 «Sync adapters» per la cornice generale.

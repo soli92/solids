@@ -43,6 +43,26 @@ FM_DELIM = "---"
 _EXT = chr(92) * 2 + "?" + chr(92)   # prefisso Windows extended-length: \\?\
 
 
+def _basi_di_risoluzione(file: Path) -> list[Path]:
+    """Basi contro cui risolvere un path citato, in ordine di specificita'.
+
+    Un path come `scripts/sm_commit.py` o `agents/fe-dev.md` e' scritto rispetto
+    alla root della factory o alla root dell'adapter `.claude/`, non rispetto alla
+    directory passata sulla riga di comando. Risolvere solo su quest'ultima
+    produce «file assente» su file che esistono: 8 falsi positivi G4 e 22 G9
+    misurati su una derivata il 2026-09-25.
+    """
+    basi: list[Path] = [file.parent]
+    p = file.resolve()
+    for anc in [p, *p.parents]:
+        if (anc / "factory.config.yaml").is_file():
+            basi.append(anc)                 # root factory -> scripts/, tools/, management/
+            if (anc / ".claude").is_dir():
+                basi.append(anc / ".claude")  # root adapter -> agents/, skills/, commands/
+            break
+    return basi
+
+
 def _exists(path) -> bool:
     """exists() robusto: su Windows os.stat fallisce silenziosamente (ritorna False)
     per path > MAX_PATH; ritenta con prefisso extended-length."""
@@ -293,7 +313,7 @@ def main() -> int:
                         continue
                     n.out_paths.add(p)
                     # i path interni si citano relativi al file OPPURE alla radice
-                    if not (_exists(n.path.parent / p) or _exists(base / p)):
+                    if not any(_exists(b / p) for b in _basi_di_risoluzione(n.path) + [base]):
                         unresolved.append((n.rel, f"path {p} (file assente)"))
                 # dispatch-path agents|specialists/<name>.md
                 for m in DISPATCH_PATH_RE.finditer(ln):
@@ -380,7 +400,14 @@ def main() -> int:
             stem = norm(basename[:-3])           # senza '.md'
             if stem in agent_ids:                # è un altro AGENTE, non una foglia
                 continue
-            if not (_exists(n.path.parent / raw) or _exists(base / raw)):
+            # La root della factory e' la cwd del subagent: un path che si risolve li' e'
+            # raggiungibile anche per iniezione. Contano solo le basi agente e adapter.
+            basi_foglia = [b for b in _basi_di_risoluzione(n.path) + [base]
+                           if b == n.path.parent or b.name == ".claude" or b == base]
+            if any(_exists(b / raw) for b in _basi_di_risoluzione(n.path)
+                   if b not in basi_foglia):
+                continue                         # path dalla root della factory: raggiungibile
+            if not any(_exists(b / raw) for b in basi_foglia):
                 continue                         # foglia inesistente -> illustrativa/G9
             if basename not in n.md_claude:       # nessuna forma .claude/ raggiungibile
                 v9.append((n.rel, raw))

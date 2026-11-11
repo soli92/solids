@@ -1,0 +1,81 @@
+---
+description: >-
+  Caveman Protocol — compressione output payload messaging agent-to-agent (PATTERN §20, v2.14). 5
+  fasi: Bootstrap → Identify Channel → Apply Compression → Drift Check → Log. Allow-list R.C1:
+  to_user/to_artifact/propagate_resolution sempre off.
+globs: []
+alwaysApply: false
+---
+# Skill: caveman-protocol (PATTERN §20, v2.14)
+
+> Adapter Cursor della skill `caveman-protocol` definita in `.claude/skills/caveman-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/caveman-protocol.md`.
+
+Protocollo di output compression per payload agent-to-agent.
+
+> **Gate**: `factory.config.yaml.compression.output.enabled: true` AND `provider: caveman`.
+
+## Fase 1 — Bootstrap (una volta per sessione)
+
+1. Read `factory.config.yaml.compression.output`.
+2. Verifica: `enabled: true`; `provider: caveman`; caveman installato (`caveman --version`).
+3. Carica matrice canale→livello da `policy_profile`:
+   - `conservative` | `aggressive` | `custom` (richiede blocco `channels` completo)
+4. Carica invarianti enforced (R.C1): `to_user: off`, `to_artifact: off`, `propagate_resolution: off`.
+
+Se prerequisiti mancano → ABORT silenzioso, fallback a normal mode + warning `wiki/log.md`.
+
+## Fase 2 — Identify Channel
+
+Identifica il canale dal `(sender, receiver, kind)`:
+
+| Canale | Trigger |
+|---|---|
+| `orchestrator_to_subagent` | orchestrator → sub-agent dispatch |
+| `subagent_to_tool` | sub-agent → tool call |
+| `tool_to_subagent` | tool result → sub-agent |
+| `subagent_to_orchestrator` | sub-agent → orchestrator return |
+| `sibling_to_sibling` | sub-agent_a → sub-agent_b handoff |
+| `feedback_router_to_devagent` | feedback-router → dev-agent task_package |
+| `to_user` (R.C1 sempre off) | qualsiasi → user |
+| `to_artifact` (R.C1 sempre off) | qualsiasi → file write |
+| `propagate_resolution` (R.C1 off) | propagate-resolution → wiki page update |
+
+Canale non identificabile → normal mode + warning.
+Check cross-factory (R.C4): se receiver.factory ≠ sender.factory → normal mode + marker.
+
+## Fase 3 — Apply Compression
+
+Per il canale identificato, applica il livello configurato nel policy_profile:
+- `off` → normal mode (no compressione)
+- `light` → abbreviazioni minori, rimozione verbose fillers
+- `medium` → contrazione struttura, liste compatte
+- `aggressive` → forma telegraphica essenziale
+
+**`chain_depth_downgrade`** (R.C3): se `chain_depth > threshold`, abbassa il livello di compressione per preservare coerenza context in catene lunghe.
+
+## Fase 4 — Drift Check
+
+Verifica che il payload compresso non abbia perso informazioni semantiche critiche:
+- Controlla presenza di marker `AMBIGUOUS_HANDOFF` nel payload compresso
+- Se marker presente: emetti `REQUEST_CLARIFY` al receiver + log warning
+
+## Fase 5 — Log
+
+Append `wiki/log.md`:
+```
+[YYYY-MM-DD HH:MM] compression — channel: <slug> level: <level> tsk: <tsk_id>
+```
+
+## Invarianti enforced (R.C1)
+
+- **`to_user: off`**: mai comprimere messaggi diretti all'utente.
+- **`to_artifact: off`**: mai comprimere write di artefatti (file, wiki page, TSK).
+- **`propagate_resolution: off`**: mai comprimere aggiornamenti di riconciliazione downstream.
+
+Queste 3 invarianti non sono overridabili da nessun `policy_profile`.
+
+## Limitazioni Cursor
+
+- **caveman binary**: in Cursor il binario `caveman` deve essere installato (`pip install caveman`). Verifica con `bash caveman --version` nel terminal.
+- **Channel detection**: in Cursor l'identificazione del canale è manuale (non automatica); applicare il livello corrispondente alla propria situazione.

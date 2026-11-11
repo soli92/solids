@@ -1,0 +1,23 @@
+---
+description: >-
+  Check lint su Functional Oracle (acceptance-spec) e Analytics (measurement, estimation) —
+  check-family oracle-analytics
+globs: "wiki/**,management/**"
+alwaysApply: false
+---
+# Skill: lint-checks-oracle-analytics
+
+> Adapter Cursor della skill `lint-checks-oracle-analytics`, definita in `.claude/skills/lint-checks-oracle-analytics.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. ERROR non meccanici (manuali)
+2. WARNING (igiene)
+
+Il dettaglio di ogni passo sta in `.claude/skills/lint-checks-oracle-analytics.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Le famiglie sono moduli di `lint-checks`: si leggono su richiesta, non tutte insieme. E' la divulgazione progressiva della fonte, e su Cursor conta di piu' perche' la finestra di contesto e' l'unico posto in cui vivono le rule.
+- Il lint produce **solo report**: non corregge mai. Il fix e' `/heal`, ed e' un'altra cosa.

@@ -1,0 +1,73 @@
+---
+description: Query Protocol — procedura per rispondere a domande sul wiki (5 fasi Bootstrap→Answer→Cite→Persist→Log). Usata da wiki-query agent. Salva la risposta in wiki/query/ salvo --ephemeral.
+globs: "wiki/**"
+alwaysApply: false
+---
+# Skill: query-protocol (PATTERN §6)
+
+> Adapter Cursor della skill `query-protocol` definita in `.claude/skills/query-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/query-protocol.md`.
+
+Procedura per rispondere a domande sulla knowledge base del wiki.
+
+## Fasi
+
+### Fase 1 — Bootstrap
+
+1. Leggi `factory.config.yaml` per verifica capability attive.
+2. Se `wiki_search.enabled: true` → usa `[wiki-search-protocol](mdc:.cursor/rules/skills/wiki-search-protocol.mdc)` per ricerca semantica.
+3. Se `wiki_search.enabled: false` → usa scansione lineare: `wiki/concepts/**`, `wiki/syntheses/**`, `wiki/runbooks/**`.
+4. Carica `wiki/gaps.md` per conoscere i gap aperti (non inventare ciò che manca).
+
+### Fase 2 — Search & Ground
+
+1. Cerca la risposta nei file wiki caricati.
+2. Identifica le sezioni rilevanti (max 3 fonti primarie).
+3. **Mai inventare** informazioni non presenti nel wiki.
+4. Se informazione non trovata → dichiara il gap: "Non trovato in wiki. Gap potenziale."
+
+### Fase 3 — Answer
+
+Struttura la risposta:
+- Risposta diretta alla domanda (< 3 paragrafi)
+- Citazioni esplicite: `[^src: wiki/<file>.md §<section>]`
+- Se gap: suggerimento apertura gap in `wiki/gaps.md`
+
+### Fase 4 — Persist (salvo `--ephemeral`)
+
+```
+wiki/query/YYYY-MM-DD-<slug>.md
+```
+
+Frontmatter:
+```yaml
+---
+query: <testo della domanda>
+date: YYYY-MM-DD
+sources: [wiki/<file1>.md, wiki/<file2>.md]
+ephemeral: false
+---
+```
+
+Se `--ephemeral`: risposta solo in chat, nessun file scritto.
+
+### Fase 5 — Log
+
+Append `wiki/log.md`:
+```
+[YYYY-MM-DD HH:MM] query — "<slug>" → saved: wiki/query/YYYY-MM-DD-<slug>.md
+```
+o `→ ephemeral` se `--ephemeral`.
+
+## Regole
+
+- **No invention**: se la risposta non è nel wiki, dichiara il gap.
+- **Citation obbligatoria**: ogni affermazione fattuale cita la fonte wiki.
+- **Gap protocol**: se l'informazione mancante è rilevante → suggerisci apertura gap in `wiki/gaps.md`.
+- **Scope**: risponde solo a domande sulla factory/progetto. Domande generali su tecnologie → risposta da conoscenza LLM con disclaimer "non proveniente dal wiki".
+
+## Limitazioni Cursor
+
+- **Wiki search**: usa `@wiki/` mention per caricare i file rilevanti.
+- **Semantic search**: richiede `wiki_search.enabled: true` e Python con LanceDB installato.
+- **Persist**: crea il file con Write tool; verifica che `wiki/query/` esista.

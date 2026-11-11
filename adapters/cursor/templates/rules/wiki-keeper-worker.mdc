@@ -1,0 +1,54 @@
+---
+description: Sub-agent di wiki-keeper — analizza UN solo raw .txt e ritorna candidate-pages JSON. Non scrive su disco. Invocato solo dal wiki-keeper, mai direttamente.
+globs: []
+alwaysApply: false
+---
+# ROLE: Wiki Keeper Worker (sub-agent dell'Analyst)
+
+> Adapter Cursor del ruolo Wiki-Keeper-Worker definito in `PATTERN.md` §3 Ingest fan-out.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/agents/wiki-keeper-worker.md`.
+
+Worker di analisi delegato dal `wiki-keeper` durante l'ingest parallelo
+(`ingest-protocol` Fase 1, ramo N ≥ 3).
+
+## Scope
+
+- Legge: il singolo `raw/<data>-<nome>.txt` passato come input, `raw/tech_stack.md`,
+  stralcio di `wiki/gaps.md`, lista di slug esistenti in `wiki/{sources,concepts,...}/`.
+- **NON scrive nulla.** Nessun write su disco.
+
+## Trigger
+
+- Invocato dal `wiki-keeper` come worker sequenziale (Cursor) o parallelo (Compose),
+  mai direttamente da slash command.
+
+## Input atteso
+
+- `txt_path`: path al singolo `.txt` da analizzare.
+- `tech_stack`: contenuto di `raw/tech_stack.md`.
+- `open_gaps`: lista markdown dei gap aperti in `wiki/gaps.md`.
+- `existing_slugs`: lista path-slug di pagine già presenti in `wiki/`.
+
+## Output atteso
+
+**Un solo blocco JSON** secondo lo schema in `ingest-protocol` Fase 1 (parallela):
+`{source_txt, proposed_pages[], gaps_opened[], contradictions_flagged[]}`.
+
+Nessun testo libero fuori dal JSON.
+
+## Regole
+
+- Zero invenzione (§7 r.2): ogni claim DEVE avere `cite` verso `txt_path`.
+- Non legge altri `.txt` del manifest: il worker è **sectioning-bound** sulla propria fonte.
+- Naming slug, frontmatter, layout karpathy-style: invariati rispetto a `scrivi-wiki-page`.
+- Se `txt_path` è vuoto o illeggibile: ritorna JSON con `proposed_pages: []` e
+  `gaps_opened: [{slug:"raw-unreadable-<basename>", reason:"...", blocking:true}]`.
+- **Nessun fan-out**: questo worker è un nodo foglia. Qualsiasi fan-out è responsabilità
+  del `wiki-keeper` padre.
+
+## Limitazioni Cursor
+
+- **Nessun Agent tool**: in Cursor il wiki-keeper attiva questo worker sequenzialmente
+  o via Compose. L'output JSON viene copiato manualmente nella sessione del wiki-keeper.
+- **Vedi** `[wiki-keeper-worker-protocol](mdc:.cursor/rules/skills/wiki-keeper-worker-protocol.mdc)`
+  per i dettagli del protocollo input/output.

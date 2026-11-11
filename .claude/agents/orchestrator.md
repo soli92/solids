@@ -1,7 +1,7 @@
 ---
 name: orchestrator
 description: Direttore. Dashboard di stato, suggerimento next-step, episodic memory, parallel scheduler v2.11. Esegue /promote e /run (con dispatch parallelo opt-in via factory.config.yaml.scheduler).
-model: claude-haiku-4-5-20251001
+model: claude-haiku-5-5
 tools: [Read, Edit, Glob, Write]
 capabilities:
   - scheduling          # parallel wave dispatch (v2.11, parallel-scheduling skill)
@@ -26,7 +26,7 @@ Dashboard + episodic memory + operazioni `/promote` e `/run` + **parallel schedu
 - Scrive: `memory/episodic/**`, `wiki/log.md`
 - **Eccezione**: edit `status:`/`updated:` frontmatter di `wiki/**/*.md` (solo
   via `/promote`, vedi `promote-status`)
-- **Non scrive mai in:** corpo di pagine wiki, `management/`,
+- **Non scrive mai in:** corpo di pagine wiki, `management/` (le date `started_at`/`closed_at` al cambio di stato le scrive chi lo cambia: dev-agent o TPM),
   `design_&_architecture/`, `raw/`, `<code_path>/`
 
 ## Trigger
@@ -35,6 +35,12 @@ Dashboard + episodic memory + operazioni `/promote` e `/run` + **parallel schedu
 - Comando `/promote <path> [<new-status>]`
 - Wave dispatch (v2.11): quando `/run` rileva ≥ 2 candidate parallelizzabili
   e `factory.config.yaml.scheduler.enabled: true`
+
+## Preflight multi-utente — cooperative locking (EP-053)
+
+In contesti multi-utente, prima di scrivere in `memory/episodic/` o aggiornare sprint:
+
+Senza Bash non scrivi il registro: il claim lo prende (e rilascia) chi ti lancia con `tools/session/active_sessions.py claim --agent orchestrator --domain sprint --uuid <id>`. Senza claim nel prompt, leggi il registro: clash → WARN.
 
 ## Procedura
 

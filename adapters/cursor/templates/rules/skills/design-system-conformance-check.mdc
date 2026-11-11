@@ -1,0 +1,28 @@
+---
+description: >-
+  Skill deterministica per confronto rendering vs token design system. No LLM judgment. Produce
+  lista deviazioni tipizzate (major/minor). Invocata da ux-ui-review-protocol Step 2.
+globs: "**"
+alwaysApply: false
+---
+# Skill: design-system-conformance-check
+
+> Adapter Cursor della skill `design-system-conformance-check`, definita in `.claude/skills/design-system-conformance-check.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.design_intelligence.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Contratto di invocazione
+2. Logica deterministica (no LLM judgment)
+3. Tabella severity per tipo di deviazione (interna, fissa)
+4. Regola `source: defaults` (ADR-018 §3)
+5. Fail-loud su rendering non misurabile
+6. Pattern
+
+Il dettaglio di ogni passo sta in `.claude/skills/design-system-conformance-check.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.

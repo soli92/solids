@@ -1,13 +1,15 @@
 """
 curriculum_loader.py — CurriculumLoader (TSK-393, EP-045 US-164)
 
-Carica un curriculum YAML (schema v1.0, wiki/concepts/curriculum-schema.md)
-e inietta i nodi nel grafo dei prerequisiti dello StudentModel come seme
-iniziale del percorso di apprendimento.
+Upload a YAML resume (schema v1.0, wiki/concepts/curriculum-schema.md)
+and injects the nodes into the prerequisite graph of the StudentModel as a seed
+beginning of the learning path.
 
-Dipendenze: pyyaml (con fallback ImportError informativo se assente).
-La lettura avviene a ogni chiamata di load() — nessuna cache persistente (AC4).
-Schema atteso: schema_version "1.0", campo 'nodes' lista non vuota.
+Dependencies: pyyaml ​​(with informative ImportError fallback if absent).
+Reading occurs every time load() is called — no persistent cache (AC4).
+Expected schema: schema_version "1.0", field 'nodes' list not empty.
+
+
 """
 
 from __future__ import annotations
@@ -16,7 +18,8 @@ import os
 from pathlib import Path
 from typing import Any
 
-# PyYAML con fallback informativo se non disponibile
+# PyYAML with informative fallback if not available
+
 try:
     import yaml as _yaml_lib
 
@@ -86,7 +89,8 @@ class CurriculumLoader:
                 "il file curriculum non e' un dizionario YAML valido"
             )
 
-        # Valida schema_version
+        # Valid schema_version
+
         version = data.get("schema_version")
         if version not in self.SUPPORTED_VERSIONS:
             raise ValueError(
@@ -94,7 +98,8 @@ class CurriculumLoader:
                 f"Attese: {self.SUPPORTED_VERSIONS}"
             )
 
-        # Valida nodes: lista non vuota
+        # Validate nodes: non-empty list
+
         nodes = data.get("nodes")
         if not isinstance(nodes, list) or len(nodes) == 0:
             raise ValueError(
@@ -139,7 +144,8 @@ class CurriculumLoader:
         existing = student_model.get_node(node_id)
 
         if existing is None:
-            # Nodo nuovo: crea con mastery=0.0 e source_ref dal primo sources
+            # New node: create with mastery=0.0 and source_ref from the first sources
+
             sources: list[Any] = node_data.get("sources", [])
             source_ref: dict[str, str] = {"path": "", "version_hash": ""}
             if sources and isinstance(sources[0], dict):
@@ -152,8 +158,10 @@ class CurriculumLoader:
                 source_ref=source_ref,
             )
         else:
-            # Nodo esistente: aggiorna SOLO prerequisite_ids via upsert_node
-            # (upsert_node chiama dict.update(**fields), quindi tocca solo
+            # Existing node: ONLY update prerequisite_ids via upsert_node
+
+            # (upsert_node calls dict.update(**fields), then just tap
+
             # le chiavi esplicitamente passate — mastery/errors/next_review
             # rimangono invariati).
             student_model.upsert_node(node_id, prerequisite_ids=prereqs)
@@ -161,7 +169,7 @@ class CurriculumLoader:
         return True
 
     # ------------------------------------------------------------------
-    # Validazione riferimenti
+    # Validate references
     # ------------------------------------------------------------------
 
     def validate_refs(self, curriculum_root: str | None = None) -> list[str]:
@@ -238,7 +246,8 @@ class CurriculumLoader:
             warnings.append(f"Lettura curriculum fallita: {exc}")
             return {"loaded": loaded, "skipped": skipped, "warnings": warnings}
 
-        # AC6 — avvisi espliciti per source refs non validi (R-1 + R-2: non bloccanti)
+        # AC6 — explicit warnings for invalid source refs (R-1 + R-2: non-blocking)
+
         warnings.extend(self.validate_refs())
 
         nodes = data.get("nodes", [])
@@ -255,7 +264,7 @@ class CurriculumLoader:
 
             node_id = node_data.get("id")
 
-            # Regola 1 — unicita' degli identificatori (warning non bloccante)
+            # Rule 1 — uniqueness of identifiers (non-blocking warning)
             if node_id and node_id in seen_ids:
                 skipped += 1
                 warnings.append(

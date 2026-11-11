@@ -1,0 +1,24 @@
+---
+description: >-
+  Check lint su struttura pagine wiki — check-family wiki-structure
+globs: "wiki/**,management/**"
+alwaysApply: false
+---
+# Skill: lint-checks-wiki-structure
+
+> Adapter Cursor della skill `lint-checks-wiki-structure`, definita in `.claude/skills/lint-checks-wiki-structure.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. Check 1 — Orphan + wikilink (scan unico)
+2. Check 4 — Coerenza wiki ↔ kanban
+3. Check 4ag — Staleness Threshold Wiki Pages (WARNING, always-on — EP-031 segnale economico)
+4. Check 4af — Embedding Similarity Wiki vs PATTERN (INFO only, sperimentale — EP-031 research)
+
+Il dettaglio di ogni passo sta in `.claude/skills/lint-checks-wiki-structure.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Le famiglie sono moduli di `lint-checks`: si leggono su richiesta, non tutte insieme. E' la divulgazione progressiva della fonte, e su Cursor conta di piu' perche' la finestra di contesto e' l'unico posto in cui vivono le rule.
+- Il lint produce **solo report**: non corregge mai. Il fix e' `/heal`, ed e' un'altra cosa.

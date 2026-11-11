@@ -1,0 +1,24 @@
+---
+description: >-
+  Indice delle check-family del sistema modulare lint-checks
+globs: "wiki/**,management/**"
+alwaysApply: false
+---
+# Skill: lint-checks-index
+
+> Adapter Cursor della skill `lint-checks-index`, definita in `.claude/skills/lint-checks-index.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. Registry Check-Family
+2. Stato split
+3. Stato spine (EP-060 refactor pilot #8)
+4. Riferimenti
+
+Il dettaglio di ogni passo sta in `.claude/skills/lint-checks-index.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- E' l'indice: il file da cui partire, non uno da leggere per intero.
+- Il lint produce **solo report**: non corregge mai. Il fix e' `/heal`, ed e' un'altra cosa.

@@ -196,7 +196,7 @@ def main() -> int:
         print()
 
     print("NOTA: per il grafo dei riferimenti tra file (orfani, collisioni, path")
-    print(f"assenti, mismatch nome/filename) esegui: scripts/mappa_riferimenti.py {target}")
+    print(f"assenti, mismatch nome/filename) esegui: tools/refactor/mappa_riferimenti.py {target}")
     return 0
 
 

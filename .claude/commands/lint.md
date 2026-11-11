@@ -2,10 +2,10 @@
 description: Health check di wiki/ e management/kanban/. Solo report, mai auto-fix.
 ---
 
-Invoca l'agente [wiki-lint](mdc:.cursor/rules/wiki-lint.mdc) via `Agent`.
+Invoca l'agente `wiki-lint` via `Agent`.
 
 Argomenti opzionali:
-- nessun argomento → lint completo (i 4 check di [lint-checks](mdc:.cursor/skills/lint-checks/SKILL.md))
+- nessun argomento → lint completo (i 4 check di `/lint-checks`)
 - nome namespace (es. `concepts`, `kanban`) → lint scoped
 - `citation-audit` → audit completo delle citazioni (verifica che ogni `[^src: ...]` punti a file e sezione esistenti)
 

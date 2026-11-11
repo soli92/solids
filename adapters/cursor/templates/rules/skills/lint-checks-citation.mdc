@@ -1,0 +1,29 @@
+---
+description: >-
+  Check lint su citazioni, claim senza fonte, heal-eligible, output report — check-family citation
+globs: "wiki/**,management/**"
+alwaysApply: false
+---
+# Skill: lint-checks-citation
+
+> Adapter Cursor della skill `lint-checks-citation`, definita in `.claude/skills/lint-checks-citation.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. Check 2 — Claim senza fonte
+2. Citation audit (periodico)
+3. Classificazione `heal-eligible` (deterministica)
+4. Output report
+5. Riepilogo
+6. ERROR meccanici (heal-eligible)
+7. ERROR non meccanici (manuali)
+8. WARNING (igiene, mai heal-eligible)
+9. Log entry
+
+Il dettaglio di ogni passo sta in `.claude/skills/lint-checks-citation.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Le famiglie sono moduli di `lint-checks`: si leggono su richiesta, non tutte insieme. E' la divulgazione progressiva della fonte, e su Cursor conta di piu' perche' la finestra di contesto e' l'unico posto in cui vivono le rule.
+- Il lint produce **solo report**: non corregge mai. Il fix e' `/heal`, ed e' un'altra cosa.

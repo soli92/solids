@@ -1,0 +1,136 @@
+---
+description: Wiki Log Entry — template canonici per le entry di wiki/log.md per tutti i tipi di operazione (ingest, develop, query, promote, heal, lint, publish, wave, review, handoff).
+globs: "wiki/log.md"
+alwaysApply: false
+---
+# Skill: wiki-log-entry (PATTERN §6)
+
+> Adapter Cursor della skill `wiki-log-entry` definita in `.claude/skills/wiki-log-entry.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/wiki-log-entry.md`.
+
+Template canonici per append a `wiki/log.md`. Ogni agente/skill usa questo template
+per la propria entry di log. Formato invariante: `[YYYY-MM-DD HH:MM] <operation> — <detail>`.
+
+## Template per tipo di operazione
+
+### Ingest (wiki-keeper)
+
+```
+[YYYY-MM-DD HH:MM] ingest — <source_slug> → pages: N created, M updated
+```
+
+### Develop (dev-agent — da dev-handoff)
+
+```
+[YYYY-MM-DD HH:MM] develop — TSK-ZZZ (<layer>) → status: done | files: [<path1>, <path2>] | wave: <WAVE_ID>
+```
+
+### Query (wiki-query)
+
+```
+[YYYY-MM-DD HH:MM] query — "<query-slug>" → saved: wiki/query/YYYY-MM-DD-<slug>.md
+[YYYY-MM-DD HH:MM] query — "<query-slug>" → ephemeral
+```
+
+### Promote (promote-status)
+
+```
+[YYYY-MM-DD HH:MM] promote — wiki/<path>.md <old_status>→<new_status>
+```
+
+### Heal (heal-protocol)
+
+```
+[YYYY-MM-DD HH:MM] heal — iter=N fixed=N_fixed residual_errors=K
+```
+
+### Lint (wiki-lint)
+
+```
+[YYYY-MM-DD HH:MM] lint — report: wiki/lint-report-YYYY-MM-DD.md | errors: N | warnings: M
+```
+
+### Kanban Publish (github-publisher)
+
+```
+[YYYY-MM-DD HH:MM] kanban-publish — provider: github | pushed: N | skipped: M
+```
+
+### Wave Dispatch (orchestrator)
+
+```
+[YYYY-MM-DD HH:MM] wave — <WAVE_ID> dispatch: [TSK-A, TSK-B] level=N
+```
+
+### Code Review (code-reviewer)
+
+```
+[YYYY-MM-DD HH:MM] review — TSK-ZZZ iter=N verdict: pass|conditional|reject
+```
+
+### Propagate Resolution (propagate-resolution)
+
+```
+[YYYY-MM-DD HH:MM] propagate-resolution — Q_NNN closed → reconciled: US-XXX(ready), TSK-ZZZ(unblocked)
+[YYYY-MM-DD HH:MM] propagate-resolution — Q_NNN closed → reconcile-needed: US-XXX → marker
+```
+
+### A11y Review (a11y-specialist)
+
+```
+[YYYY-MM-DD HH:MM] a11y — <target> → verdict: pass|fail|conditional | critical: N
+```
+
+### UX/UI Review (ux-ui-reviewer)
+
+```
+[YYYY-MM-DD HH:MM] ux-ui-review — <target> → verdict: pass|fail|conditional
+```
+
+### Prototype Generated (prototype-generator)
+
+```
+[YYYY-MM-DD HH:MM] prototype — <US-id|TSK-id> → backend: html|react | output: <path>
+```
+
+### Tavola Rotonda (tavola-rotonda-moderatore)
+
+```
+[YYYY-MM-DD HH:MM] tavola-rotonda — session: <session_id> topic: "<slug>" → <motivo_stop> round: N
+```
+
+### Tutor Session (tutor)
+
+```
+[YYYY-MM-DD HH:MM] tutor — session_mode: sblocco|apprendimento query: "<slug>" → L1|L2|L3
+```
+
+### Semantic Drift Scan (wiki-lint)
+
+```
+[YYYY-MM-DD HH:MM] semantic-drift-scan — pages: N | stale: M | embedding_drift: K
+```
+
+### Graphify Sync (graphify-sync)
+
+```
+[YYYY-MM-DD HH:MM] graphify-sync — target: <slug> nodes: N edges: M → .graphify-state/...
+```
+
+### Factory Upgrade (/factory-upgrade)
+
+```
+[YYYY-MM-DD HH:MM] factory-upgrade — from: v2.XX to: v2.YY | applied: N delta | conflicts: M
+```
+
+## Regole
+
+- **Formato invariante**: `[YYYY-MM-DD HH:MM] <operation> — <detail>` (trattino em `—`)
+- **Append-only**: mai editare entry esistenti, sempre append in fondo al file
+- **Orario**: sempre UTC o ora locale esplicitata; consistente nella sessione
+- **Slug**: `<query-slug>` = primae 6 parole della query, kebab-case
+
+## Limitazioni Cursor
+
+- **Append**: usa Edit tool con `old_string` = ultima riga del file + `new_string` = ultima riga + nuova entry.
+  Oppure usa terminal: `echo "[YYYY-MM-DD HH:MM] ..." >> wiki/log.md`.

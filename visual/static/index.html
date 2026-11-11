@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plancia · attività della factory</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<a class="salta" href="#contenuto">Salta al contenuto</a>
+
+<!-- Regione live: ogni transizione di stato e' annunciata qui SENZA spostare il focus.
+     `polite` e non `assertive`: un annuncio che interrompe la lettura in corso informa
+     peggio di uno che aspetta il proprio turno. -->
+<p class="solo-lettori" role="status" aria-live="polite" id="annuncio"></p>
+
+<header class="testata">
+  <div class="testata-riga">
+    <!-- Decorativa: per una tecnologia assistiva NON esiste. Cio' che indica sta in
+         `#stato-frase`, che e' scritto sempre, anche a mascotte spenta. -->
+    <span id="mascotte" aria-hidden="true"></span>
+    <div class="testata-testo">
+      <h1>Plancia</h1>
+      <p class="occhiello">Attività della factory · sola lettura sui dati, ogni azione passa dalla sessione</p>
+      <p class="stato-frase" id="stato-frase"></p>
+    </div>
+  </div>
+  <dl class="identita" id="identita"></dl>
+</header>
+
+<main id="contenuto">
+
+  <section class="sezione" aria-labelledby="t-turno">
+    <div class="sezione-testa">
+      <h2 id="t-turno">Turno corrente</h2>
+      <p class="sezione-nota">Cosa sta facendo la factory adesso.</p>
+    </div>
+    <div id="turno" class="scheda"></div>
+    <form id="risposta" class="risposta" hidden>
+      <label for="risposta-testo" id="risposta-etichetta">Rispondi o prosegui la conversazione</label>
+      <div class="risposta-riga">
+        <input type="text" id="risposta-testo" name="risposta" autocomplete="off"
+               placeholder="scrivi qui la tua risposta">
+        <button type="submit">Invia risposta</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="sezione" aria-labelledby="t-comandi">
+    <div class="sezione-testa">
+      <h2 id="t-comandi">Comandi</h2>
+      <p class="sezione-nota" id="scrittura-stato">Verifica del runtime in corso…</p>
+    </div>
+
+    <h3 class="sotto">Avvia lavoro</h3>
+    <div id="azioni" class="pulsantiera"></div>
+
+    <!-- La conferma DESCRIVE la conseguenza. E' un dialogo nella pagina e non un
+         `confirm()` del browser, perche' deve essere leggibile da una tecnologia
+         assistiva e navigabile da tastiera. -->
+    <div id="conferma" class="conferma" role="alertdialog" aria-modal="false"
+         aria-labelledby="conferma-titolo" aria-describedby="conferma-testo" hidden>
+      <h3 id="conferma-titolo">Serve una conferma</h3>
+      <p id="conferma-testo"></p>
+      <div class="pulsantiera">
+        <button type="button" id="conferma-si" class="primario">Procedi</button>
+        <button type="button" id="conferma-no">Annulla</button>
+      </div>
+    </div>
+
+    <h3 class="sotto">Canali</h3>
+    <div class="pulsantiera">
+      <button type="button" id="voce-toggle" aria-pressed="false">Canale vocale</button>
+      <button type="button" id="mascotte-toggle" aria-pressed="true">Mascotte</button>
+    </div>
+    <p class="sezione-nota" id="voce-stato"></p>
+
+    <p id="concorrenza" class="avvertenza" hidden></p>
+  </section>
+
+  <section class="sezione" aria-labelledby="t-fonti">
+    <div class="sezione-testa">
+      <h2 id="t-fonti">Fonti</h2>
+      <p class="sezione-nota">Ogni misura dichiara da dove viene e quanto è vecchia.
+        Una fonte illeggibile dice «non osservabile», mai zero.</p>
+    </div>
+    <div id="riquadri" class="griglia"><p class="attesa">Lettura in corso…</p></div>
+  </section>
+
+</main>
+
+<footer class="pie">
+  <p id="aggiornamento">—</p>
+  <button type="button" id="ricarica">Aggiorna adesso</button>
+</footer>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

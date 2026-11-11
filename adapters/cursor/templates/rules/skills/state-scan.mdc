@@ -1,0 +1,86 @@
+---
+description: State Scan — snapshot dello stato corrente del kanban (8 step). Produce un report strutturato con sprint corrente, TSK attivi, blocchi, prossimi passi. Usato da orchestrator in /run.
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: state-scan (PATTERN §18)
+
+> Adapter Cursor della skill `state-scan` definita in `.claude/skills/state-scan.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/state-scan.md`.
+
+Produce uno snapshot strutturato del kanban corrente. Consumata da orchestrator nel `/run`.
+
+## 8 Step di scansione
+
+### Step 1 — Sprint corrente
+
+Identifica il numero dello sprint corrente (`sprint: NN` più alto con TSK `in-progress`
+o il più alto con TSK `todo`). Se nessun TSK attivo → sprint = max(sprint) dei TSK.
+
+### Step 2 — Epiche attive
+
+Lista di `EP-XXX` con `status: active`. Per ciascuna: titolo, US totali, US done.
+
+### Step 3 — TSK in-progress
+
+TSK con `status: in-progress`. Per ciascuno: id, layer, consumer, sprint, estimate, `updated:`.
+Segnala se `in-progress` da > 5 giorni senza `updated:` (staleness).
+
+### Step 4 — TSK todo (candidati wave)
+
+TSK `status: todo` + `consumer: agent` + nessun `blocked_by:` aperto + `depends_on:` tutti `done`.
+Questi sono i candidati per la prossima wave.
+
+### Step 5 — Blocchi
+
+- US `status: blocked` → elenca con Q hard associata
+- TSK `blocked_by: [Q_NNN]` → elenca con Q aperta
+- Q hard in `management/questions.md` → età in giorni
+
+### Step 6 — CQRL (v2.12, se abilitato)
+
+TSK `status: done` con `review_status: pending` → candidati per `/review`.
+TSK con `review_status: conditional` → loop non completato.
+
+### Step 7 — Marker reconcile-needed
+
+Leggi `wiki/log.md` (ultimi 100 entry). Surfacizza marker `reconcile-needed:` non risolti.
+
+### Step 8 — Next-step heuristics
+
+Suggerisce l'azione ottimale:
+- Se candidati wave > 0 → "Dispatch wave: [TSK-A, TSK-B, ...]"
+- Se blocchi > 0 → "Sblocca Q_NNN: [TSK/US bloccati]"
+- Se `review_status: pending` > 0 → "Esegui /review TSK-XXX"
+- Se tutto done → "Sprint N completo. Pianifica sprint N+1."
+
+## Output format
+
+```markdown
+## State Scan — Sprint NN (YYYY-MM-DD HH:MM)
+
+### Epiche attive
+| EP | Title | US tot | US done |
+|---|---|---|---|
+| EP-001 | Auth | 5 | 3 |
+
+### TSK in-progress
+| TSK | Layer | Sprint | Giorni attivo |
+|---|---|---|---|
+| TSK-042 | be | 12 | 2 |
+
+### Candidati wave (TSK todo)
+TSK-045 (be, P1), TSK-046 (fe, P1)
+
+### Blocchi
+- US-003: Q_007 (ALTO, 8 giorni)
+
+### Next step
+→ Dispatch wave: TSK-045, TSK-046
+```
+
+## Limitazioni Cursor
+
+- **Glob**: usa `@management/kanban/**` per caricare il contesto.
+- **Date diff**: calcola i giorni tramite `bash date` se necessario.
+- **Log scan**: usa `@wiki/log.md` per i marker.

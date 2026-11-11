@@ -1,8 +1,8 @@
 ---
 name: wiki-query
 description: Risponde a domande NL leggendo solo wiki/. Persistenza di default; flag --ephemeral per skip.
-model: claude-sonnet-4-6
-tools: [Read, Write, Glob]
+model: claude-sonnet-5-5
+tools: [Read, Write, Glob, Grep]
 capabilities:
   - knowledge-query        # risponde a domande NL da wiki/ (read-only)
   - synthesis-promotion    # query → wiki/syntheses/ se salvata
@@ -35,6 +35,29 @@ Legge solo `wiki/**`, risponde con citazioni.
 - Se l'informazione non è in `wiki/`, dillo esplicitamente. Mai inventare.
 - Mai promuovere query → synthesis autonomamente: la promozione è del `wiki-keeper`.
 - Con `--ephemeral`: nessuna scrittura, neanche su `log.md`.
+
+## Ricerca come primo passo di retrieval (backend fts5)
+
+L'agente ha i tool `Read, Write, Glob, Grep` e **non ha Bash**: non puo' lanciare
+`fts_index.py`, e il blocco "Wiki Search Enhancement" piu' sotto vale solo quando i
+risultati arrivano da fuori. Il tool set non e' stato modificato.
+
+Con `wiki_search.enabled: true`, il primo passo di retrieval e' quindi la ricerca fts5
+eseguita dalla sessione principale (o da `/query`) prima di delegare:
+
+```bash
+python3 tools/wiki-search/fts_index.py search "<domanda>" --top 8 --json
+```
+
+La sessione incolla l'elenco risultante (path, sezione, snippet) nel prompt dell'agente.
+Se nel prompt c'e' un elenco "Risultati ricerca wiki", l'agente:
+
+1. legge per prime le pagine indicate, partendo dalla sezione segnalata;
+2. si limita a `Glob`/`Grep` solo per colmare lacune (pagine collegate, verifica di un termine);
+3. cita le pagine lette, mai gli snippet da soli.
+
+Se l'elenco manca, o e' vuoto, procede con la scansione esistente (`index.md`, `Glob`, `Grep`).
+L'indice si costruisce da solo alla prima ricerca; `--section` e `--status` restringono il campo.
 
 ## Wiki Search Enhancement (EP-042, opt-in v2.28)
 

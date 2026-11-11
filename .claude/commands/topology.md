@@ -14,13 +14,13 @@ Argomenti utente: `$ARGUMENTS`
 Stampa una tabella read-only con:
 
 1. **Topologia dichiarata** (`factory.config.yaml.topology`)
-2. **Dev-agent presenti** (file in `.cursor/rules/*-dev.mdc` esistenti)
+2. **Dev-agent presenti** (file in `.claude/agents/*-dev.md` esistenti)
 3. **Routing attivo** (`factory.config.yaml.routing.{be,fe,db,qa,infra}`)
 4. **code_path** (con `(esterno al repo)` se assoluto fuori dal cwd del repo)
 5. **stack_mode** + summary di `stack:` (campi non vuoti)
 6. **Coerenza**: tre check
-   - Tutti i `routing.X: agent` hanno il file `<X>-dev.mdc`? (R1)
-   - Tutti i `<X>-dev.mdc` presenti hanno `routing.X: agent`? (R2)
+   - Tutti i `routing.X: agent` hanno il file `<X>-dev.md`? (R1)
+   - Tutti i `<X>-dev.md` presenti hanno `routing.X: agent`? (R2)
    - `topology:` è coerente con i file presenti? (R3)
    - Se uno fallisce, segnala in rosso e suggerisci fix.
 
@@ -38,8 +38,8 @@ Procedura:
 3. **STOP per conferma umana** — mostra il diff in chat, attendi OK.
 4. Su OK:
    - Crea i file agente mancanti (copia da template; per il template usa i
-     file `<X>-dev.mdc` già presenti come baseline, oppure scaffolda minimal).
-   - Rimuove (sposta in `.cursor/rules/.archive/`) i file da rimuovere.
+     file `<X>-dev.md` già presenti come baseline, oppure scaffolda minimal).
+   - Rimuove (sposta in `.claude/agents/.archive/`) i file da rimuovere.
      **MAI delete**: rimuovere = archivio, l'umano cancella se vuole.
    - Edita `factory.config.yaml`: `topology:` e `routing:` aggiornati.
    - Append a `wiki/log.md`:

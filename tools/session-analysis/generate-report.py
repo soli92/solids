@@ -18,6 +18,7 @@ CLI:
           [--session-id-short <id>]
           [--depth quick|full]
           [--span <descriptor>]
+          [--advisory <llm-advisory.json>]
           [--dry-run]
 
 Invariants enforced:
@@ -25,8 +26,15 @@ Invariants enforced:
   R-SAA-3: redaction applied before any write (absolute paths, emails, credentials)
   R-SAA-7: provenance field preserved and cited in ## Fix Proposti
   R-SAA-2: writes ONLY to <output-dir>/ — no network, no git, no .claude/ mutations
+  R-SAA-10: session_analysis.kill_criterion missing in factory.config.yaml →
+            kill_criterion_declared: false + WARNING in MD and JSON (non-blocking)
 
-stdlib-only: json, re, pathlib, sys, argparse, datetime, os
+--advisory: output of llm-advisory.py (depth full only). Its text goes ONLY into
+## Punti Aperti, marked "LLM advisory"; its token usage goes into ## Metriche Sessione
+and the JSON field llm_advisory. This script never calls the LLM itself: without
+--advisory the report is the deterministic one.
+
+stdlib-only: json, re, pathlib, sys, argparse, datetime, os (+ local redaction.py)
 """
 
 import sys
@@ -36,6 +44,14 @@ import pathlib
 import argparse
 import datetime
 import os
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from redaction import (  # noqa: E402  (shared R-SAA-3 patterns)
+    EMAIL_RE as _EMAIL_RE,
+    REPORT_STOP_PATTERNS as _STOP_PATTERNS,
+    redact_str as _redact_str,
+    redact_value as _redact_value,
+)
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -69,36 +85,8 @@ _SKILL_SLUG_PATTERNS = [
     (re.compile(r"budget", re.I), "parallel-scheduling"),
 ]
 
-# R-SAA-3 redaction regexes.
-_PATH_RE = re.compile(r"/Users/[^/\s\"'<>]+/")
-_EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
-_CRED_RE = re.compile(
-    r"(sk-[A-Za-z0-9\-]+|Bearer [A-Za-z0-9._\-]+|[A-Z_]{4,}_TOKEN=[^\s\"']+)"
-)
-
-
 # ── Redaction helpers ──────────────────────────────────────────────────────────
-
-def _redact_str(s: str) -> str:
-    """Apply R-SAA-3 redaction to a single string."""
-    if not isinstance(s, str):
-        return s
-    s = _PATH_RE.sub("/Users/USER/", s)
-    s = _EMAIL_RE.sub("user@example.com", s)
-    s = _CRED_RE.sub("[REDACTED_CREDENTIAL]", s)
-    return s
-
-
-def _redact_value(v):
-    """Recursively redact string values in any JSON-compatible structure."""
-    if isinstance(v, str):
-        return _redact_str(v)
-    if isinstance(v, dict):
-        return {k: _redact_value(vv) for k, vv in v.items()}
-    if isinstance(v, list):
-        return [_redact_value(item) for item in v]
-    return v
-
+# _redact_str / _redact_value and the regexes come from redaction.py.
 
 def _cap_evidence(excerpt: str, max_chars: int = 200) -> str:
     """Ensure evidence_excerpt is at most max_chars (R-SAA-3 invariant)."""
@@ -109,20 +97,84 @@ def _cap_evidence(excerpt: str, max_chars: int = 200) -> str:
 
 # ── Factory version reader ─────────────────────────────────────────────────────
 
+def _find_factory_config() -> "pathlib.Path | None":
+    """Return the first factory.config.yaml found walking up from this script."""
+    here = pathlib.Path(__file__).resolve().parent
+    for candidate in (here, here.parent, here.parent.parent, here.parent.parent.parent):
+        cfg = candidate / "factory.config.yaml"
+        if cfg.exists():
+            return cfg
+    return None
+
+
 def _read_factory_version() -> str:
     """
     Read pattern_version from factory.config.yaml by walking up from this script.
     Returns '2.41' as fallback if not found (fail-open, no crash).
     """
-    here = pathlib.Path(__file__).resolve().parent
-    for candidate in (here, here.parent, here.parent.parent, here.parent.parent.parent):
-        cfg = candidate / "factory.config.yaml"
-        if cfg.exists():
-            text = cfg.read_text(encoding="utf-8")
-            m = re.search(r'^pattern_version:\s*["\']?([0-9.]+)["\']?', text, re.MULTILINE)
-            if m:
-                return m.group(1)
+    cfg = _find_factory_config()
+    if cfg is not None:
+        text = cfg.read_text(encoding="utf-8")
+        # La chiave sta sotto `project:`, quindi e' indentata.
+        m = re.search(r'^\s*pattern_version:\s*["\']?([0-9.]+)["\']?', text, re.MULTILINE)
+        if m:
+            return m.group(1)
     return "2.41"  # documented fallback
+
+
+def _read_kill_criterion(cfg: "pathlib.Path | None") -> "tuple[bool, bool]":
+    """
+    R-SAA-10: return (declared, ref_present) for session_analysis.kill_criterion.
+
+    declared is True when the `kill_criterion` key under the top-level
+    `session_analysis:` block has a scalar value or a nested block. The
+    `kill_criterion_ref` key does not count as a declaration (R-SAA-10 names
+    `kill_criterion`); ref_present only lets the warning mention it.
+    Line-based parsing keeps the script stdlib-only. Missing config → (False, False).
+    """
+    if cfg is None or not cfg.exists():
+        return False, False
+    lines = cfg.read_text(encoding="utf-8").splitlines()
+    try:
+        start = next(i for i, l in enumerate(lines) if re.match(r"^session_analysis:\s*(#.*)?$", l))
+    except StopIteration:
+        return False, False
+
+    block = []
+    for line in lines[start + 1:]:
+        if line.strip() and not line.lstrip().startswith("#") and not line[0].isspace():
+            break  # next top-level key
+        block.append(line)
+
+    ref_present = any(re.match(r"^\s+kill_criterion_ref:\s*\S", l) for l in block)
+    for i, line in enumerate(block):
+        m = re.match(r"^(\s+)kill_criterion:(.*)$", line)
+        if not m:
+            continue
+        indent = len(m.group(1))
+        value = re.sub(r"\s+#.*$", "", m.group(2)).strip().strip("\"'")
+        if value and value not in ("null", "~"):
+            return True, ref_present
+        # Empty scalar: declared only if a nested, more indented block follows.
+        for nxt in block[i + 1:]:
+            if not nxt.strip() or nxt.lstrip().startswith("#"):
+                continue
+            return len(nxt) - len(nxt.lstrip()) > indent, ref_present
+        return False, ref_present
+    return False, ref_present
+
+
+def _kill_criterion_warning(ref_present: bool) -> str:
+    msg = (
+        "WARNING kill_criterion_declared: false — session_analysis.kill_criterion "
+        "non valorizzato in factory.config.yaml (R-SAA-10): manca la soglia di sunset."
+    )
+    if ref_present:
+        msg += (
+            " È presente session_analysis.kill_criterion_ref, che rimanda alla soglia "
+            "ma non la dichiara nel config."
+        )
+    return msg
 
 
 # ── Worst severity derivation ──────────────────────────────────────────────────
@@ -273,6 +325,7 @@ def _build_frontmatter(
     anomaly_count: int,
     worst_severity: str,
     schema_degraded: bool,
+    kill_criterion_declared: bool,
 ) -> str:
     lines = [
         "---",
@@ -289,6 +342,7 @@ def _build_frontmatter(
         f"ttl_days: {TTL_DAYS}",
         f"schema_version: {SCHEMA_VERSION}",
         f"schema_degraded: {str(schema_degraded).lower()}",
+        f"kill_criterion_declared: {str(kill_criterion_declared).lower()}",
         "---",
     ]
     return "\n".join(lines)
@@ -365,7 +419,7 @@ def _section_anomalie(anomalies: list) -> str:
     return header + "\n" + "\n".join(rows)
 
 
-def _section_metriche(metrics_data: dict, parsed_meta: dict) -> str:
+def _section_metriche(metrics_data: dict, parsed_meta: dict, advisory: "dict | None" = None) -> str:
     totals = metrics_data.get("session_totals") or {}
     eff = metrics_data.get("dispatch_efficiency") or {}
     per_model = metrics_data.get("per_model") or []
@@ -407,12 +461,16 @@ def _section_metriche(metrics_data: dict, parsed_meta: dict) -> str:
         f"| Modelli usati (top 5) | {models_str} | `per_model[].model_id` (metrics) |",
     ]
 
+    if advisory is not None:
+        lines += _advisory_metric_rows(advisory)
+
     schema_deg = parsed_meta.get("schema_degraded", False)
     if schema_deg:
         lines += [
             "",
             "> **WARNING**: schema_degraded = true nel metadata parsed. "
-            "Claude Code version non nel set SUPPORTED_CC_VERSIONS. "
+            "Claude Code version assente o non nel set SUPPORTED_CC_VERSIONS "
+            "(parse-transcript.py). "
             "Metriche potrebbero essere incomplete (R-SAA-9).",
         ]
 
@@ -454,7 +512,7 @@ def _section_fix_proposti(anomalies: list) -> str:
     return "\n".join(lines)
 
 
-def _section_punti_aperti(anomalies: list, anomaly_meta: dict) -> str:
+def _section_punti_aperti(anomalies: list, anomaly_meta: dict, advisory: "dict | None" = None) -> str:
     lines = ["## Punti Aperti", ""]
 
     # LLM advisory is permitted only here; v1 uses static content from
@@ -489,7 +547,119 @@ def _section_punti_aperti(anomalies: list, anomaly_meta: dict) -> str:
         for w in warnings:
             lines.append(f"- {w}")
 
+    if advisory is not None:
+        lines += [""] + _advisory_block(advisory)
+
     return "\n".join(lines)
+
+
+# ── LLM advisory rendering (--advisory, depth full) ───────────────────────────
+
+ADVISORY_TYPE = "session-analysis-llm-advisory"
+ADVISORY_MARKER = "LLM advisory"
+
+
+def _advisory_block(advisory: dict) -> list:
+    """Lines appended to ## Punti Aperti. The advisory text never goes elsewhere."""
+    trunc = advisory.get("truncation") or {}
+    budget = advisory.get("budget") or {}
+    lines = [
+        f"### {ADVISORY_MARKER}",
+        "",
+        f"> **{ADVISORY_MARKER}** — testo non deterministico generato da "
+        f"`{advisory.get('model', '?')}` (`llm-advisory.py`) sugli aggregati già redatti "
+        "di questo report (anomalie e metriche). Non è una misura e non ha provenance "
+        "R-SAA-7. Le azioni citate sono testuali e da valutare dall'operatore: "
+        "nessuna è auto-applicabile (R-SAA-6).",
+    ]
+    if trunc.get("input_truncated"):
+        lines.append(
+            f"> Input troncato per budget (`max_token_budget` = "
+            f"{budget.get('max_token_budget', '?')}): incluse "
+            f"{trunc.get('anomalies_included', '?')}/{trunc.get('anomalies_total', '?')} "
+            "anomalie, escluse quelle a severity più bassa."
+        )
+    if trunc.get("output_truncated"):
+        lines.append(
+            f"> Output troncato al limite di budget ({budget.get('output_cap_tokens', '?')} "
+            "token stimati)."
+        )
+    removed = advisory.get("commands_removed") or 0
+    if removed:
+        lines.append(
+            f"> Rimossi {removed} comandi o blocchi di codice dal testo del modello "
+            "(nessuna azione auto-applicabile ammessa)."
+        )
+    lines.append("")
+    for text_line in (advisory.get("text") or "").splitlines():
+        lines.append(f"> {text_line}" if text_line.strip() else ">")
+    lines += ["", f"_Fine {ADVISORY_MARKER}._"]
+    return lines
+
+
+def _advisory_metric_rows(advisory: dict) -> list:
+    """Rows for ## Metriche Sessione: real tokens of the advisory call."""
+    usage = advisory.get("usage") or {}
+    budget = advisory.get("budget") or {}
+    cost = advisory.get("total_cost_usd")
+    cost_str = f"${cost:.6f}" if isinstance(cost, (int, float)) else "n/a"
+    rows = [
+        f"| {ADVISORY_MARKER} — token input | {usage.get('input_tokens', 0):,} "
+        "| `llm_advisory.usage.input_tokens` (advisory) |",
+        f"| {ADVISORY_MARKER} — token output | {usage.get('output_tokens', 0):,} "
+        "| `llm_advisory.usage.output_tokens` (advisory) |",
+        f"| {ADVISORY_MARKER} — cache read | {usage.get('cache_read_input_tokens', 0):,} "
+        "| `llm_advisory.usage.cache_read_input_tokens` (advisory) |",
+        f"| {ADVISORY_MARKER} — cache write | {usage.get('cache_creation_input_tokens', 0):,} "
+        "| `llm_advisory.usage.cache_creation_input_tokens` (advisory) |",
+        f"| {ADVISORY_MARKER} — costo USD | {cost_str} | `llm_advisory.total_cost_usd` (advisory) |",
+        f"| {ADVISORY_MARKER} — budget (stima input / cap input / cap output) | "
+        f"{budget.get('input_estimate_tokens', '?')} / {budget.get('input_cap_tokens', '?')} / "
+        f"{budget.get('output_cap_tokens', '?')} su {budget.get('max_token_budget', '?')} "
+        "| `llm_advisory.budget` (advisory, stima ceil(caratteri/4)) |",
+    ]
+    lines = rows + [
+        "",
+        f"_Righe {ADVISORY_MARKER}: token reali dalla risposta JSON della CLI `claude -p`, "
+        "non dal transcript analizzato. Il budget limita il payload costruito dallo script "
+        "(stima) e l'output._",
+    ]
+    total_in = sum(
+        usage.get(k, 0) or 0
+        for k in ("input_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")
+    )
+    max_budget = budget.get("max_token_budget")
+    tok_out = usage.get("output_tokens", 0) or 0
+    if isinstance(max_budget, int) and total_in + tok_out > max_budget:
+        lines.append(
+            f"> **NOTA**: i token reali ({total_in:,} input incl. cache + {tok_out:,} output) "
+            f"superano `max_token_budget` ({max_budget}). L'input reale include l'overhead "
+            "della CLI rispetto alla stima; la CLI non espone un limite ai token generati, "
+            "quindi il cap di output tronca il testo riportato ma non i token consumati."
+        )
+    return lines
+
+
+def _load_advisory(path: str, session_id: str, depth: str) -> "tuple[dict | None, str]":
+    """Load and validate the llm-advisory.py output. Returns (advisory, error)."""
+    if depth != "full":
+        return None, "--advisory richiede --depth full (l'advisory LLM è solo depth full)"
+    try:
+        data = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
+    except Exception as exc:
+        return None, f"cannot read advisory json: {exc}"
+    if not isinstance(data, dict) or data.get("type") != ADVISORY_TYPE:
+        return None, f"advisory json non valido: type atteso {ADVISORY_TYPE!r}"
+    if data.get("marker") != ADVISORY_MARKER or data.get("deterministic") is not False:
+        return None, "advisory json non valido: marker o deterministic mancanti"
+    if not isinstance(data.get("text"), str) or not data["text"].strip():
+        return None, "advisory json non valido: text vuoto"
+    if data.get("session_id") != session_id:
+        return None, (
+            f"advisory json di un'altra sessione ({data.get('session_id')!r} "
+            f"invece di {session_id!r})"
+        )
+    return _redact_value(data), ""
 
 
 def _section_perimetro(parsed_meta: dict, anomaly_meta: dict, metrics_meta: dict) -> str:
@@ -546,6 +716,7 @@ def _section_provenienza_limiti(
     anomaly_meta: dict,
     parsed_meta: dict,
     factory_version: str,
+    report_warnings: list,
 ) -> str:
     cats_enabled = anomaly_meta.get("meta", {}).get("categories_enabled") or []
     cats_disabled = anomaly_meta.get("meta", {}).get("categories_disabled_reason") or {}
@@ -559,6 +730,14 @@ def _section_provenienza_limiti(
         "Questo report è deterministico nelle sue misurazioni, ma ha limiti espliciti "
         "che il lettore deve conoscere.**",
         "",
+    ]
+
+    if report_warnings:
+        lines += ["### Warning", ""]
+        lines += [f"> **{w}**  " for w in report_warnings]
+        lines.append("")
+
+    lines += [
         "### Categorie non abilitate e motivazione",
         "",
     ]
@@ -610,8 +789,8 @@ def _section_provenienza_limiti(
         lines.append(
             "- **CRITICO**: `schema_degraded: true` — il walker EP-062 ha operato "
             "in modalità best-effort. Dipendenza EP-062 walker riparato: TSK-549 DONE, "
-            "ma la versione Claude Code della sessione analizzata non era nel set "
-            "SUPPORTED_CC_VERSIONS. Risultati possibilmente incompleti."
+            "ma la versione Claude Code della sessione analizzata era assente o non nel set "
+            "SUPPORTED_CC_VERSIONS (parse-transcript.py). Risultati possibilmente incompleti."
         )
     else:
         lines.append(
@@ -641,6 +820,9 @@ def _build_markdown(
     anomaly_meta: dict,
     metrics_data: dict,
     parsed_data: dict,
+    kill_criterion_declared: bool,
+    report_warnings: list,
+    advisory: "dict | None" = None,
 ) -> str:
     parsed_meta = parsed_data.get("meta") or {}
     anomaly_summary = anomaly_meta.get("summary") or {"total": 0, "by_severity": {}, "by_category": {}}
@@ -655,6 +837,7 @@ def _build_markdown(
         _build_frontmatter(
             session_id, depth, span, generated_at,
             factory_version, anomaly_count, worst_sev, schema_deg,
+            kill_criterion_declared,
         ),
         "",
         f"# Session Analysis Report — {session_id}",
@@ -666,15 +849,15 @@ def _build_markdown(
         "",
         _section_anomalie(anomalies),
         "",
-        _section_metriche(metrics_data, parsed_meta),
+        _section_metriche(metrics_data, parsed_meta, advisory),
         "",
         _section_fix_proposti(anomalies),
         "",
-        _section_punti_aperti(anomalies, anomaly_meta),
+        _section_punti_aperti(anomalies, anomaly_meta, advisory),
         "",
         _section_perimetro(parsed_meta, anomaly_meta, metrics_meta),
         "",
-        _section_provenienza_limiti(anomaly_meta, parsed_meta, factory_version),
+        _section_provenienza_limiti(anomaly_meta, parsed_meta, factory_version, report_warnings),
         "",
     ]
     return "\n".join(parts)
@@ -691,6 +874,9 @@ def _build_json_report(
     anomalies: list,
     fleet_recs: list,
     session_metrics: dict,
+    kill_criterion_declared: bool,
+    report_warnings: list,
+    advisory: "dict | None" = None,
 ) -> dict:
     """
     Build SessionAnalysisReport conforming to schema-anomaly.json#SessionAnalysisReport.
@@ -719,6 +905,19 @@ def _build_json_report(
     report["ttl_days"] = TTL_DAYS
     if session_metrics:
         report["session_metrics"] = session_metrics
+    report["kill_criterion_declared"] = kill_criterion_declared  # R-SAA-10
+    if report_warnings:
+        report["warnings"] = list(report_warnings)
+    if advisory is not None:
+        # Marked non-deterministic; never feeds anomalies or fleet_recommendations.
+        report["llm_advisory"] = {
+            k: advisory[k]
+            for k in (
+                "marker", "deterministic", "model", "text", "usage", "total_cost_usd",
+                "budget", "truncation", "commands_removed",
+            )
+            if k in advisory
+        }
 
     return report
 
@@ -823,6 +1022,12 @@ def main() -> int:
         help="Print files to stdout instead of writing to disk",
     )
     ap.add_argument(
+        "--advisory",
+        default=None,
+        help="JSON produced by llm-advisory.py (requires --depth full): adds the "
+             "LLM advisory to ## Punti Aperti and its tokens to ## Metriche Sessione",
+    )
+    ap.add_argument(
         "--schema",
         default=None,
         help="Path to schema-anomaly.json for JSON validation (auto-discovered if omitted)",
@@ -862,11 +1067,39 @@ def main() -> int:
 
     session_id = raw_session_id
 
+    # ── LLM advisory (optional, depth full) ─────────────────────────────────────
+    advisory = None
+    if args.advisory:
+        advisory, adv_err = _load_advisory(args.advisory, session_id, args.depth)
+        if advisory is None:
+            print(f"ERROR: {adv_err}", file=sys.stderr)
+            return 1
+
     # ── Resolve span ────────────────────────────────────────────────────────────
     span = args.span or f"session-{session_id_short}"
 
     # ── Factory version ─────────────────────────────────────────────────────────
     factory_version = _read_factory_version()
+
+    # ── Report-level warnings (R-SAA-9, R-SAA-10, sources) ──────────────────────
+    # None of these blocks the write: they are surfaced in the MD and JSON report.
+    kill_criterion_declared, kill_ref_present = _read_kill_criterion(_find_factory_config())
+    report_warnings = []
+    if parsed_meta.get("subagent_files_found") == 0:
+        report_warnings.append(
+            "WARNING subagents: nessun file subagents/agent-*.jsonl trovato — "
+            "analisi degradata, solo JSONL principale."
+        )
+    if parsed_meta.get("schema_degraded"):
+        report_warnings.append(
+            f"WARNING schema_degraded: true — versione Claude Code "
+            f"`{parsed_meta.get('cc_version') or 'non rilevata'}` assente o non nel set "
+            "SUPPORTED_CC_VERSIONS di parse-transcript.py (R-SAA-9)."
+        )
+    if not kill_criterion_declared:
+        report_warnings.append(_kill_criterion_warning(kill_ref_present))
+    for w in report_warnings:
+        print(w, file=sys.stderr)
 
     # ── Timestamp ───────────────────────────────────────────────────────────────
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -901,6 +1134,9 @@ def main() -> int:
         anomalies=anomalies,
         fleet_recs=fleet_recs,
         session_metrics=session_metrics,
+        kill_criterion_declared=kill_criterion_declared,
+        report_warnings=report_warnings,
+        advisory=advisory,
     )
     # Redact JSON report string fields.
     json_report = _redact_value(json_report)
@@ -923,17 +1159,15 @@ def main() -> int:
         anomaly_meta=anomaly_data,
         metrics_data=metrics_data,
         parsed_data=parsed_data,
+        kill_criterion_declared=kill_criterion_declared,
+        report_warnings=report_warnings,
+        advisory=advisory,
     )
     # Redact markdown too (belt-and-suspenders after section builders).
     md_content = _redact_str(md_content)
 
     # ── R-SAA-3 final check ──────────────────────────────────────────────────────
     # Verify no personal paths or credentials survived redaction.
-    _STOP_PATTERNS = [
-        re.compile(r"/Users/(?!USER/)"),
-        re.compile(r"sk-[A-Za-z0-9\-]{10,}"),
-        re.compile(r"Bearer [A-Za-z0-9._\-]{10,}"),
-    ]
     combined_check = md_content + json.dumps(json_report, ensure_ascii=False)
     for pat in _STOP_PATTERNS:
         if pat.search(combined_check):
@@ -943,6 +1177,14 @@ def main() -> int:
                 file=sys.stderr,
             )
             return 2
+    # Emails: the only address allowed is the redaction placeholder.
+    if any(e != "user@example.com" for e in _EMAIL_RE.findall(combined_check)):
+        print(
+            "STOP (R-SAA-3): redaction incomplete — email address found in output. "
+            "Report NOT written.",
+            file=sys.stderr,
+        )
+        return 2
 
     # ── Build filenames ───────────────────────────────────────────────────────────
     base = _build_filename_base(date_str, session_id_short)

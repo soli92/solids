@@ -1,0 +1,32 @@
+---
+description: >-
+  Skill interna (PATTERN §16/§19, EP-006 US-023, ADR-010 + ADR-012 §C) — gate deterministico
+  pre-dispatch per TSK FE. Verifica le 4 condizioni (a)-(d) OR-aggregate (no LLM runtime) e
+  ritorna {passed, satisfied_by, message}. Invocata…
+globs: "**"
+alwaysApply: false
+---
+# Skill: oracle-precheck
+
+> Adapter Cursor della skill `oracle-precheck`, definita in `.claude/skills/oracle-precheck.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.fe_correctness.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Trigger
+2. 4 condizioni verificate (a)-(d) — OR aggregato
+3. Schema output
+4. Messaggio di blocco
+5. Logging
+6. Backward compat
+7. Test coverage suggerita
+8. Non in scope per questa skill
+
+Il dettaglio di ogni passo sta in `.claude/skills/oracle-precheck.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Playwright gira da terminale: identico. Cambia solo chi lo lancia.
+- Serve a non spendere un oracolo su un target che non si serve.

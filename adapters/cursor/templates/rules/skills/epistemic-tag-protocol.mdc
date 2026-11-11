@@ -1,0 +1,83 @@
+---
+description: Epistemic Tag Protocol — modello epistemico del tutor EP-045. Classifica L1 (eseguibile)/L2 (documentato)/L3 (giudizio). Guard INV-T1/T2/T3. Separazione Generator/Validator (P5). Safety layer obbligatorio del tutor.
+globs: []
+alwaysApply: false
+---
+# Skill: epistemic-tag-protocol (EP-045)
+
+> Adapter Cursor della skill `epistemic-tag-protocol` definita in `.claude/skills/epistemic-tag-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/epistemic-tag-protocol.md`.
+
+Safety layer del tutor EP-045. Classifica ogni affermazione prima di rispondere.
+
+## Classificazione L1/L2/L3
+
+| Livello | Trigger | Prerequisito |
+|---|---|---|
+| L1 Eseguibile | Query su comportamento osservabile di codice (output, effetti collaterali) | `sandbox_exec_tool` eseguito → output reale disponibile |
+| L2 Documentato | Query su concetti wiki, architettura, ADR, componenti codebase | `retrieval-protocol` ha prodotto `wiki_citation` o `code_citation` |
+| L3 Giudizio | Query su convenzioni team, pratiche non documentate, preferenze stilistiche | Nessuno (ma tag cautela obbligatorio) |
+
+## Guard
+
+### INV-T1 — L1 senza esecuzione sandbox
+
+Condizione: affermazione L1 MA `sandbox_exec_tool` non eseguito.
+```
+[REJECT:INV-T1] Affermazione L1 richiede esecuzione effettiva — vedi sandbox_exec_tool.
+```
+Non generare risposta speculativa. Se tool non disponibile → dichiara e proponi esecuzione locale.
+
+### INV-T2 — L2 senza citazione
+
+Condizione: affermazione L2 MA `retrieval-protocol` → `RETRIEVAL_NOT_FOUND`.
+```
+[REJECT:INV-T2] Questa informazione non è documentata nel wiki o nel codebase analizzato.
+```
+Emetti gap-record su `wiki/gaps.md`: `{concept, original_query, timestamp}`.
+
+### INV-T3 — L3 senza tag cautela
+
+Condizione: affermazione L3 senza tag `[L3:giudizio-team — ...]`.
+Tag obbligatorio e visibile. Non omissibile.
+
+## Formato tag
+
+**L1**: `[L1:exec — stdout: "<output sintetico max 80 char>"]`
+**L2 (wiki)**: `[L2:fonte — wiki/<path> §<section>]`
+**L2 (codebase)**: `[L2:fonte — <file>::<class>.<function>]`
+**L3**: `[L3:giudizio-team — <cautela max 80 char>]`
+
+Tag in coda alla risposta (non in apertura). Una risposta può avere più tag.
+
+## Separazione Generator/Validator (P5, modalità Apprendimento)
+
+**Fase Generator** (tool call 1):
+```
+Descrivi con parole tue cosa fa <concetto>.
+[GENERATOR:domanda-richiamo]
+```
+→ STOP. Attendi risposta studente.
+
+**Fase Validator** (tool call 2 separata):
+```
+<valutazione della risposta studente>
+[VALIDATOR:verifica]
+```
+
+**Invariante P5**: le due fasi NON possono essere nella stessa invocazione. Marker `[GENERATOR:...]` e `[VALIDATOR:...]` nello stesso tool call → violazione P5.
+
+## Flusso
+
+```
+Domanda studente
+ ├─ L1 → sandbox_exec_tool eseguito? SI→[L1:exec] / NO→REJECT:INV-T1
+ ├─ L2 → retrieval-protocol hit? SI→[L2:fonte] / NO→REJECT:INV-T2 + gap-record
+ └─ L3 → apponi sempre [L3:giudizio-team — ...] (tag obbligatorio)
+```
+
+## Limitazioni Cursor
+
+- **sandbox_exec_tool**: usa terminal integrato Cursor per eseguire codice Python. INV-T1 invariante: non emettere affermazioni speculative L1 senza output reale.
+- **retrieval-protocol**: usa `@wiki/` mention o `wiki-search-protocol` se abilitato.
+- **P5 strutturale**: in Cursor aprire due sessioni Chat separate (o due invocazioni distinte) per Generator e Validator.

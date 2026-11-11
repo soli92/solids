@@ -1,0 +1,94 @@
+---
+description: Dev Protocol — procedura completa per dev-agent che consuma un TSK (5 fasi + Fase 0 multi-repo). Single source of truth per Develop L4→L5. Gate preliminare, target resolution, VCS branch gate, DoD, handoff.
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: dev-protocol (PATTERN §3, v2.12)
+
+> Adapter Cursor della skill `dev-protocol` definita in `.claude/skills/dev-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/dev-protocol.md`.
+
+Procedura condivisa fra `be-dev`, `fe-dev`, `db-dev`, `qa-dev`. La specializzazione
+per layer vive nell'agente; questa skill è la spina dorsale comune.
+
+## Fase 0 — Gate preliminare + target resolution
+
+1. Leggi `factory.config.yaml`.
+2. Verifica: topologia ammette il tuo layer; `routing.<layer> == agent`; TSK ha `layer`, `consumer: agent`, `status: todo`, dipendenze chiuse.
+3. **Target resolution** (multi-repo v2.12):
+   - **Caso A** (single-repo): `code_path:` valorizzato → `resolved_code_path = factory.config.yaml.code_path`.
+   - **Caso B** (multi-repo `code_paths:` non vuoto):
+     - `target:` valorizzato → cerca entry per nome; ERROR se non trovata o layer non listato.
+     - `target:` assente → filtra entry per layer; ERROR se 0 o ≥2 candidati (ambiguità).
+   - Verifica accessibilità path.
+4. **Branch alignment gate** (opt-in v2.25, `vcs.branch_awareness.enabled: true`, solo submodule/sibling):
+   - Usa `[branch-resolver](mdc:.cursor/rules/skills/branch-resolver.mdc)` → `expected_branch`.
+   - Se mismatch: `block` → STOP con comando remediation; `warn` → WARNING e procedi.
+   - **MAI eseguire `git checkout` automatico** (R.B8).
+
+## Fase 1 — Preparazione contesto
+
+1. Leggi US riferita dal TSK.
+2. Leggi ADR/design citati.
+3. Apri pagine `wiki/` citate transitivamente.
+4. Leggi `raw/tech_stack.md` per vincoli.
+5. Esplora `<resolved_code_path>/**` per layout esistente.
+
+## Fase 2 — Handoff iniziale
+
+Edit TSK: `status: in-progress`, `updated: YYYY-MM-DD HH:MM`.
+
+## Fase 3 — Implementazione
+
+1. Implementa secondo Technical Specs del TSK.
+2. Atomicità: un TSK = un cambiamento coerente.
+3. Se TSK sotto-specificato:
+   - Gap KB → append `wiki/gaps.md`
+   - Decisione arch mancante → STOP, segnala (non improvvisare design)
+   - Bug pre-esistente fuori scope → segnala, non fixare opportunisticamente (PATTERN §7 r.8)
+
+## Fase 4 — Definition of Done
+
+- [ ] Codice compila / build passa
+- [ ] Test unitari passano
+- [ ] Test integrazione passano (se applicabile)
+- [ ] Documentazione inline minima
+- [ ] Nessun file fuori scope toccato
+
+**Fase 4-bis — Visual Verification** (opt-in `fe_correctness.enabled: true`, solo `layer: fe`):
+→ Invoca `visual-oracle-protocol`; verdict: `pass` → Fase 5; `conditional` → loop bounded; `reject` → gate umano.
+
+**Fase 4-ter — UX/UI Review** (opt-in `ux_ui.enabled: true`, solo `layer: fe`):
+→ Pre-condizione: `visual_status` non-pending (se `fe_correctness.enabled: true`). Invoca `ux-ui-reviewer`; stessa logica pass/conditional/reject.
+
+## Fase 5 — Handoff finale
+
+1. Edit TSK: `status: done`, `updated: YYYY-MM-DD HH:MM`.
+2. Invoca `[dev-handoff](mdc:.cursor/rules/skills/dev-handoff.mdc)` → entry `wiki/log.md`.
+3. Invoca `[vcs-handoff](mdc:.cursor/rules/skills/vcs-handoff.mdc)` → coordina commit per la topologia VCS del target risolto.
+4. Gate umano obbligatorio per ogni `git commit` (PATTERN §7 r.14).
+
+## Analytics Instrumentation (opt-in v2.19, `analytics.measurement.enabled: true` AND `analytics.dogfooding.enabled: true`)
+
+4 punti di iniezione via `tools/analytics/record-event.py`:
+- `state: started` (Fase 2: todo→in-progress)
+- `state: finished` (Fase 5: in-progress→done)
+- `state: blocked` (Fase 4: DoD fallisce)
+- `state: aborted` (TSK interrotto)
+
+Payload allowlist-compliant (ADR-040): mai contenuto file, prompt, env vars, segreti, PII.
+
+## Vincoli inviolabili
+
+- **Mai editare corpo del TSK** (solo `status:` e `updated:`).
+- **Mai scrivere su `wiki/**`** se non append a `wiki/log.md` e `wiki/gaps.md`.
+- **Mai scrivere su `design_&_architecture/`** (proprietà di Arch).
+- **Mai inventare endpoint, tabelle, classi** non specificati nel design.
+- **Standards verbatim** (PATTERN §11): SAML/OIDC/FHIR → implementa esattamente quelli.
+- **STOP se `code_path` non valorizzato**: mai scrivere "a indovinare".
+
+## Limitazioni Cursor
+
+- **multi-file**: usa Edit/Write sequenzialmente; no parallel tool calls.
+- **git commands**: usa terminal integrato Cursor per staging/commit; attendi gate umano.
+- **Analytics**: usa terminal `python3 tools/analytics/record-event.py --event '<payload>'`.

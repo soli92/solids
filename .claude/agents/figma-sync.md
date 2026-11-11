@@ -1,7 +1,7 @@
 ---
 name: figma-sync
 description: Estrae KB strutturata da un file Figma (Anthropic API + Figma MCP). Sub-agent Sync per la sorgente Figma. Scrive solo nel proprio scope di raw/.
-model: claude-haiku-4-5-20251001
+model: claude-haiku-5-5
 tools: [Read, Write, Edit, Glob, Bash]
 capabilities:
   - raw-sync               # scrive in raw/ (scope esclusivo)

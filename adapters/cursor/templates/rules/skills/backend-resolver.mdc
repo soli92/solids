@@ -1,0 +1,74 @@
+---
+description: >-
+  Backend Resolver — risolve il backend di prototipazione ottimale (EP-035). Due assi: ASSE 1
+  (intent→preferito) + ASSE 2 (availability probe). html sempre disponibile (INV-1). Read-only
+  pura funzione. Marker: BACKEND_RESOLVED/DEGRADED/UNAVAILABLE_STRICT.
+globs: []
+alwaysApply: false
+---
+# Skill: backend-resolver (EP-035, PATTERN §27)
+
+> Adapter Cursor della skill `backend-resolver` definita in `.claude/skills/backend-resolver.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/backend-resolver.md`.
+
+Pura funzione di risoluzione backend. Read-only (INV-2). Single source of truth per `prototype-generation-protocol` Fase 0 e `/prototype-status`.
+
+> **Gate INV-5**: attiva SOLO se `prototyping.enabled: true`.
+
+## ASSE 1 — Intent → backend preferito
+
+| Intent | Backend preferito |
+|---|---|
+| `"preview veloce"` | `html` |
+| `"componente production-ready"` | `react` |
+| `"file di design editabile"` | `figma` (poi `penpot` se figma N/A) |
+| `"auto"` | nessuna preferenza (segui fallback_chain) |
+| backend esplicito (`"html"`, `"react"`, ...) | il backend dichiarato |
+
+Override: se `prototyping_config.backend` ≠ `auto` → usa quello (ignora `intent`).
+
+## ASSE 2 — Availability probe
+
+| Backend | Probe | Disponibile se |
+|---|---|---|
+| `figma` | MCP server raggiungibile + OAuth attivo | server UP + auth valida |
+| `penpot` | MCP server raggiungibile | server UP |
+| `react` | `stack-detector` su code_path con `layers: fe` | framework FE trovato |
+| `html` | **sempre disponibile** (INV-1) | sempre `true` |
+
+## Algoritmo Step 4
+
+```
+Percorri fallback_chain in ordine:
+  SE asse2_probes[backend] == true:
+    SE auto puro → prendi il primo disponibile, STOP
+    SE backend == preferred_backend → RESOLVED
+    SE selected == null → salva come fallback (continua a cercare preferred)
+
+SE preferred non trovato → DEGRADED (con selected = primo disponibile)
+```
+
+## Marker output
+
+- **`BACKEND_RESOLVED: <backend>`** — preferred disponibile, nessun degrado.
+- **`BACKEND_DEGRADED: <pref>→<sel> (<motivo>)`** — preferred non disponibile, usa alternativo.
+- **`BACKEND_UNAVAILABLE_STRICT: <pref> (<motivo>)`** — `degrade_policy: strict`, STOP.
+
+`html` è sempre in fondo alla `fallback_chain` (aggiunto implicitamente se mancante). Mai `BACKEND_UNAVAILABLE_STRICT` se `html` nella chain.
+
+## Output schema
+
+```yaml
+selected_backend: html | react | figma | penpot
+marker: BACKEND_RESOLVED | BACKEND_DEGRADED | BACKEND_UNAVAILABLE_STRICT
+preferred_backend: <backend>
+degraded_from: <backend | null>
+reason: <stringa motivo>
+asse2_probes: {figma: bool, penpot: bool, react: bool, html: true}
+```
+
+## Limitazioni Cursor
+
+- **figma/penpot probe**: verifica MCP server con `@mcp figma status` se disponibile; altrimenti assumi `false` (non autenticato).
+- **react probe**: esegui `stack-detector` sul code_path con layer fe. In questo meta-framework (`code_paths: []`) → sempre `false` → degrada a html.
+- **INV-2**: mai eseguire OAuth, mai modificare config, mai checkout.

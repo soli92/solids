@@ -1,15 +1,15 @@
-# Skill: Backend Resolver
-
-> Adapter Cursor della skill `backend-resolver` definita in PATTERN.md.
->
-> Metadata originale — name: backend-resolver; epic_id: EP-035; pattern_version: 2.25. Descrizione: risolve il backend di prototipazione ottimale in due assi indipendenti — ASSE 1 (intent utente → backend preferito) e ASSE 2 (availability probe a runtime) — percorrendo la fallback_chain da config e scegliendo il primo backend che soddisfa (asse1 ∩ asse2). Single source of truth condivisa da prototype-generation-protocol (Fase 0) e /prototype-status (EP-035, PATTERN §26). Read-only, pura funzione.
-
-**Skill — backend-resolver**
+---
+name: backend-resolver
+description: Risolve il backend di prototipazione ottimale in due assi — ASSE 1 (intent → backend preferito) e ASSE 2 (availability probe runtime) — percorrendo la fallback_chain da config. Condivisa da prototype-generation-protocol e /prototype-status. Read-only, pura funzione.
+epic_id: EP-035
+pattern_version: "2.25"
+---
+# Skill — backend-resolver
 
 Pura funzione di risoluzione: dato l'intent utente e la configurazione `prototyping:` in
 `factory.config.yaml`, ritorna il **backend selezionato** insieme al marker esplicito di
 esito (`BACKEND_RESOLVED`, `BACKEND_DEGRADED`, oppure `BACKEND_UNAVAILABLE_STRICT`).
-E' la **single source of truth** (analogia R.B9 di EP-034): [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md)
+E' la **single source of truth** (analogia R.B9 di EP-034): `prototype-generation-protocol`
 (Fase 0) e `/prototype-status` la invocano entrambi, cosi' non esistono due logiche di
 risoluzione divergenti.
 
@@ -184,7 +184,7 @@ che il caller puo' mostrare all'utente o loggare nel wiki/log.md.
 Dopo il marker `BACKEND_DEGRADED`, il resolver procede con il backend selezionato
 (non si blocca). Il suggerimento di remediation (es. "per usare figma: autentica il
 connettore Figma MCP") e' opzionale ed e' responsabilita' del caller o del
-[prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) (Fase 0) includerlo nella risposta all'utente.
+`prototype-generation-protocol` (Fase 0) includerlo nella risposta all'utente.
 
 ### `BACKEND_UNAVAILABLE_STRICT`
 
@@ -328,16 +328,16 @@ degrade_policy: notify
 ## Cross-link
 
 - PATTERN §26 «Prototype Generation Layer» (candidato) — config block `prototyping:`.
-- Consumatori: [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) Fase 0, `/prototype-status`.
+- Consumatori: `prototype-generation-protocol` Fase 0, `/prototype-status`.
 - Analogia strutturale: `branch-resolver` (EP-034, PATTERN §15) — stesso pattern di
   risoluzione adattiva con marker espliciti; `publisher-protocol` (v2.10) — stesso split
   provider-agnostic + `*-mapping` provider-specific.
 - Dipendenze read-only: `stack-detector` (probe ASSE 2 per backend `react`),
   `figma-mapping` + `penpot-mapping` (dettagli probe MCP — non invocati direttamente qui,
   il caller li passa come booleani).
-- [react-mapping](mdc:.cursor/skills/react-mapping/SKILL.md) (EP-035 US-124) — skill provider-specific per il backend `react`:
+- `react-mapping` (EP-035 US-124) — skill provider-specific per il backend `react`:
   traduce spec/intent in componenti React + storie Storybook + fixture dati.
-  Invocata da [prototype-generation-protocol](mdc:.cursor/skills/prototype-generation-protocol/SKILL.md) Fase 2 quando `selected_backend == react`.
+  Invocata da `prototype-generation-protocol` Fase 2 quando `selected_backend == react`.
   In questo meta-framework (`code_paths: []`) non viene mai invocata — il probe ASSE 2
   restituisce `false` e il resolver degrada a `html` prima di raggiungerla.
 - Invarianti EP-035: INV-1 (`html` sempre disponibile), INV-2 (read-only, mai bloccare su

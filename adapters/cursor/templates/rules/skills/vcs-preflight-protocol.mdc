@@ -1,0 +1,22 @@
+---
+description: Snapshot read-only dello stato VCS (branch corrente vs atteso, detached HEAD, submodule non init, drift parent-ref) per ogni target code_paths. Tabella + remediation. Mai muta lo stato (EP-034 R.B7).
+globs: "factory.config.yaml, .gitmodules"
+alwaysApply: false
+---
+# Skill — vcs-preflight-protocol (PATTERN §15 §Branch Awareness Layer)
+
+> Adapter Cursor del protocollo definito in `PATTERN.md` §15 (Branch Awareness Layer, EP-034).
+> File equivalente Claude Code: `.claude/skills/vcs-preflight-protocol.md`.
+
+Produce uno snapshot read-only dello stato VCS di tutti i target, per rendere visibile «su
+quale branch sto / su quale devo stare» — focus submodule (problema dei due HEAD). 5 step:
+Bootstrap → raccolta stato read-only → expected branch via `branch-resolver` → verdict →
+tabella + remediation.
+
+**READ-ONLY assoluto (R.B7)**: `git status/branch/rev-parse/symbolic-ref/merge-base/ls-files/
+submodule status`. Mai `checkout`/`commit`/`fetch`/`reset`. Best-effort per-target (un target
+non-git non fa crashare lo snapshot). Non è un gate.
+
+## Traduzione tool (Cursor)
+
+- Comandi git read-only → Terminal embedded. Lettura config → `@factory.config.yaml`, `@.gitmodules`.

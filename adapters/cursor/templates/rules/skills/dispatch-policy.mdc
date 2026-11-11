@@ -1,0 +1,130 @@
+---
+description: >-
+  Dispatch Policy — contratto unico di dispatch condizionale (thin-orchestrator pattern v2.27). 8
+  sezioni: VCS Preflight §1, Oracle §2, A11y §3, UX/UI §4, Functional Oracle §5, Temporal §6, Fase
+  6 §7, Capability Advertisement §8.
+globs: []
+alwaysApply: false
+---
+# Skill: dispatch-policy (PATTERN §29, v2.27)
+
+> Adapter Cursor della skill `dispatch-policy` definita in `.claude/skills/dispatch-policy.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/dispatch-policy.md`.
+
+Contratto unico di dispatch condizionale. Riduce l'orchestrator da 523 a ~81 righe
+(thin-orchestrator pattern). Ogni decisione di routing è centralizzata qui.
+
+## §1 — VCS Preflight (v2.25, opt-in)
+
+**Attivo se**: `vcs.branch_awareness.enabled: true`
+
+```
+IF TSK ha target: multi-repo AND branch non dichiarato:
+  → esegui branch-resolver prima del dev-agent
+  → gate: "Conferma branch <X> per target <Y>?"
+ELSE:
+  → skip (no-op)
+```
+
+## §2 — Oracle Pre-Check (v2.17, opt-in)
+
+**Attivo se**: `fe_correctness.visual_oracle.enabled: true`
+
+```
+IF TSK layer: fe AND status: done:
+  → esegui visual-oracle-protocol (capture + compare)
+  → gate: se verdict FAIL → blocca done; routing a fe-dev per fix
+ELSE:
+  → skip (no-op)
+```
+
+## §3 — A11y Pre-Check (v2.18, opt-in)
+
+**Attivo se**: `a11y.enabled: true` AND `a11y.agent: true`
+
+```
+IF TSK layer: fe AND status: done:
+  → lancia a11y-specialist (scan WCAG 2.2 AA)
+  → gate: se critical > 0 → blocca done; routing a fe-dev
+ELSE:
+  → skip (no-op)
+```
+
+## §4 — UX/UI Pre-Check (v2.18, opt-in)
+
+**Attivo se**: `ux_ui.enabled: true` AND `ux_ui.agents.reviewer: true`
+
+```
+IF TSK layer: fe AND status: done AND (ui_design_spec: OR ux_ui_review_required: true):
+  → lancia ux-ui-reviewer (review artefatto)
+  → gate: se verdict fail → blocca done
+ELSE:
+  → skip (no-op)
+```
+
+## §5 — Functional Oracle (v2.20, opt-in)
+
+**Attivo se**: `fe_correctness.functional_oracle.enabled: true`
+
+```
+IF TSK layer: fe AND functional_acceptance_spec: valorizzato AND functional_status: pending|assente:
+  → lancia qa-dev in modalità functional-oracle-protocol
+  → gate: se functional_status: reject → blocca done
+ELSE:
+  → skip (no-op)
+```
+
+## §6 — Temporal Context (v2.30, opt-in)
+
+**Attivo se**: `temporal.estimate_protocol.enabled: true`
+
+```
+PRIMA di ogni dev-agent dispatch:
+  → esegui temporal-estimate-protocol (stima elapsed/progress)
+  → se ratio > escalate_time_ratio AND confidence < escalate_confidence_min:
+    → segnala in chat: "Task XL stimato oltre budget temporale"
+ELSE:
+  → skip (no-op)
+```
+
+## §7 — Fase 6 Suggestions (v2.24, always-on)
+
+**Attivo sempre** (non gated su flag):
+
+```
+DOPO ogni dev-agent completion:
+  → leggi output e contesto
+  → applica 6 regole push-based:
+    R1: TSK done con US non done → suggerisci altri TSK nella stessa US
+    R2: US done → suggerisci status: done della US
+    R3: Tutti TSK sprint done → suggerisci chiusura sprint
+    R4: Code path tocca tests/ → suggerisci /review
+    R5: TSK layer: fe done → suggerisci visual oracle se abilitato
+    R6: Sprint gap > 2 TSK in-progress → segnala parallelismo eccessivo
+```
+
+## §8 — Capability Advertisement (v2.27, always-on)
+
+**Attivo sempre** (parte del boot dell'orchestrator):
+
+```
+ALL'AVVIO di ogni sessione:
+  → leggi factory.config.yaml
+  → costruisci lista capability attive (enabled: true)
+  → emetti in chat: "Capability attive: [voice, wiki_search, ...]"
+  → suggerisci /help per dettagli
+```
+
+## Regole di applicazione
+
+- Le sezioni §1-§6 si applicano nell'ordine definito (pipeline sequenziale).
+- §7 si applica sempre post-completion, indipendentemente dalle altre sezioni.
+- §8 si applica solo al boot della sessione (non ad ogni TSK).
+- Un gate fallito in §1-§5 interrompe la pipeline per quel TSK (no short-circuit agli step successivi).
+
+## Limitazioni Cursor
+
+- **§1-§5**: i gate di approvazione avvengono come messaggi in chat (Cursor non ha
+  `TaskApproval` tool nativo).
+- **§7**: le suggestioni post-exec appaiono come commento al termine del task.
+- **§8**: emesso come prima risposta al caricamento della regola `.mdc`.

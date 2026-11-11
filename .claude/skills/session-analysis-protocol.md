@@ -5,11 +5,14 @@ description: >
   Protocollo 5 fasi per analisi critica post-hoc dell'attivita agentica di
   una sessione Claude Code chiusa. Determinism-first, LLM advisory. Solo
   out-of-band. Produce report dual md+JSON in raw/.
-owner: session-analyst (roadmap v2; v1: invocabile da qualsiasi agente su delega)
+owner: >-
+  session-analyst (roadmap v2; v1: invocabile da qualsiasi agente su delega)
 depends_on_tools:
   - tools/session-analysis/parse-transcript.py
   - tools/session-analysis/fleet-metrics.py
   - tools/session-analysis/detect-anomalies.py
+  - tools/session-analysis/generate-report.py
+  - tools/session-analysis/llm-advisory.py
 opt_in: session_analysis.enabled
 pattern_version: "2.41"
 epic: EP-061
@@ -269,15 +272,21 @@ schema_degraded: false
    `| ID | Categoria | Severity | Wave | Descrizione | Fix proposto |`
    Ogni riga include `pattern_eligible: si|no` e `evidence_count: N`.
 3. `## Metriche Sessione` — token in/out/cost (main + subagent separati),
-   latency summary, model tier usage.
+   latency summary, model tier usage. Se `analytics.cost_alert.enabled: true`, chiude la
+   sezione la riga di `python3 tools/analytics/cost_alert.py check --period session
+   --session-id <id>` (costo e soglia di sessione, note comprese; fail-open).
 4. `## Fix Proposti` — lista ordinata per severity, ogni fix con file da modificare
    + azione concreta + effort stimato.
 5. `## Punti Aperti` — anomalie non classificabili deterministicamente, richiedono
    giudizio umano.
-6. `## Limiti dell'Analisi` — obbligatorio (anti-compiacenza, R.SA-Critic interiorizzato):
+6. `## Perimetro analizzato` — cosa e' incluso ed escluso, categorie abilitate e disabilitate.
+7. `## Provenienza & limiti` — obbligatorio (anti-compiacenza, R.SA-Critic interiorizzato):
    documenta esplicitamente cosa questo report NON ha potuto rilevare (es. errori
    semantici nel contenuto tool_result, ragionamento scorretto dell'agente,
    side-effect esterni non tracciati).
+
+I titoli sono quelli che scrive `generate-report.py` (step 7 qui sotto): chi verifica un report
+cerca questi, non sinonimi.
 
 **Fleet-doctor handoff** (campo JSON):
 ```json
@@ -294,7 +303,9 @@ schema_degraded: false
 }
 ```
 
-Append `wiki/log.md`: una riga `develop | session-analysis done — raw/<filename>.md`.
+Append `wiki/log.md` (solo dopo la scrittura dei due file in `raw/`): entry
+`## [YYYY-MM-DD] develop | session-analysis done — raw/<filename>.md`. Passo di
+`/session-analysis` (Step 5: claim su `wiki/log.md`, append in coda, rilascio del claim).
 
 ### Gate
 
@@ -327,6 +338,7 @@ python3 tools/session-analysis/generate-report.py \
   [--session-id-short <id-8char>] \
   [--depth quick|full] \
   [--span <descriptor>] \
+  [--advisory <llm-advisory.json>] \
   [--dry-run]
 ```
 
@@ -384,6 +396,56 @@ python3 tools/session-analysis/generate-report.py \
 
 **`--dry-run`**: stampa entrambi i file su stdout senza scrivere su disco.
 
+### LLM advisory (solo `depth: full`)
+
+Componente separato, `tools/session-analysis/llm-advisory.py` (stdlib). `generate-report.py`
+non fa rete: riceve l'advisory come file (`--advisory`). Con `depth: quick` non si invoca.
+
+1. `generate-report.py ... --depth full --output-dir <tmp>` -> report base deterministico
+   in una directory temporanea (non in `raw/`).
+2. `llm-advisory.py <tmp>/<report>.json --depth full --output <tmp>/advisory.json`:
+   - gate: `--depth full`, `session_analysis.enabled: true`, input = report base di
+     `generate-report.py` con `depth: full` e senza `llm_advisory` (pipeline deterministica
+     completata);
+   - input: digest del report base gia' redatto (anomalie senza `evidence_excerpt`, campi
+     testuali capati a 160 char, `session_metrics`, warning), mai JSONL o `tool_result`;
+   - budget: `max_token_budget` diviso in cap output (1/4, min 64) e cap input (il resto),
+     stima `ceil(caratteri/4)`; oltre il cap si escludono le anomalie a severity piu' bassa
+     (troncamento dichiarato); se non ne entra neanche una -> SKIP;
+   - pre-scan R-SAA-3 sul payload esatto (`redaction.py`, `find_leaks(strict=True)`: path
+     utente anche in forma slug `-Users-<nome>-`, email, `sk-*`, `Bearer`, `*_TOKEN=`) ->
+     STOP senza chiamata;
+   - chiamata: `claude -p --output-format json --model <id> --system-prompt ... --tools ""
+     --no-session-persistence --disable-slash-commands --strict-mcp-config --max-budget-usd`,
+     cwd temporanea vuota, variabili `CLAUDE_*` della sessione padre rimosse. Modello:
+     `--model`, poi `session_analysis.advisory_model`, poi `models.routing.tier_fast` del
+     registro modelli (nessun ID cablato oltre al fallback di ultima istanza);
+   - output: redatto, ripulito da blocchi di codice e comandi (contati in `commands_removed`),
+     troncato al cap di output; token reali da `usage` della risposta.
+   - exit: `0` advisory scritto, `2` STOP R-SAA-3, `3` STOP gate, `4` SKIP con WARNING
+     (budget, nessuna anomalia, CLI assente o in errore), `1` errore d'uso.
+3. Solo con exit `0`: `generate-report.py ... --depth full --advisory <tmp>/advisory.json`
+   (+ `--output-dir raw/` o `--dry-run`). Il testo va SOLO in `## Punti Aperti`, sotto
+   `### LLM advisory` con preambolo «LLM advisory — testo non deterministico ... da valutare
+   dall'operatore»; i token reali e il budget vanno in `## Metriche Sessione` (righe
+   `LLM advisory — ...`, provenance `llm_advisory.*`); il JSON ha il campo `llm_advisory`
+   (`schema-anomaly.json#LlmAdvisory`). Le altre sezioni, `anomalies`,
+   `fleet_recommendations`, `ingest_eligible: false` e `wiki_ingest_policy` non cambiano.
+   Con exit `3`/`4` il report si genera senza `--advisory` (identico al deterministico);
+   con exit `2` non si salva in `raw/` senza conferma dell'operatore.
+
+Limite noto: la CLI non espone un tetto ai token generati; il cap di output tronca il testo
+riportato, non i token consumati, che compaiono cosi' come sono in `## Metriche Sessione`.
+Nessuna metrica proviene dall'LLM (R-SAA-7): l'advisory non alimenta `anomalies` ne'
+`fleet_recommendations`.
+
+### Retrospettiva (`/session-analysis --retro`)
+
+Passo del comando (Step 3-ter), non di un tool: condizionato a `engineering_practices.enabled`.
+La sessione principale applica la skill `pocock-retro` al report gia' generato e produce solo
+proposte (R-SAA-6), in chat e, con `--save`, nella sezione `## Retrospettiva` del markdown.
+Resta fuori da `anomalies`, `fleet_recommendations` e dall'advisory LLM; non e' una metrica.
+
 ### Invarianti applicabili
 - **R-SAA-2**: confinamento scrittura a `raw/` + append `wiki/log.md` — nient'altro.
 - **R-SAA-3**: redazione applicata e verificata prima di ogni scrittura su disco.
@@ -417,6 +479,9 @@ Referenza rapida. Le invarianti in **grassetto** sono enforce attivo da una fase
 - `tools/session-analysis/parse-transcript.py` — parser JSONL normalizzatore (TBD — TSK-551)
 - `tools/session-analysis/fleet-metrics.py` — calcolo metriche aggregate (TBD — TSK-553)
 - `tools/session-analysis/detect-anomalies.py` — rilevamento anomalie deterministico (TBD — TSK-554)
+- `tools/session-analysis/llm-advisory.py` — LLM advisory opzionale di Fase 4, solo `depth: full`
+- `tools/session-analysis/redaction.py` — pattern R-SAA-3 condivisi da generate-report e llm-advisory
 - `tools/analytics/harvest-session-tokens.py` — walker fan-in EP-062 (riparato TSK-549 DONE)
 - `management/kanban/EP-061-session-agentic-analyser/EP-061.md` — kill_criterion §23.8
 - `wiki/decisions/tavola-rotonda-c4e8f1b2-7a3d-4c96-b0e5-2d9f83a1c647-2026-09-08.md` — blackboard TR autoritativo (sintesi finale + 10 invarianti)
+- `raw/sessions/` — sorgente di artefatti session-log prodotti da `/session-close` (EP-069 US-313); R-SAA-8: questa skill li analizza solo out-of-band su sessioni chiuse, mai in-session.

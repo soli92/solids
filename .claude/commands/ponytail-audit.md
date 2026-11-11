@@ -1,5 +1,5 @@
 ---
-description: Scan YAGNI Decision Ladder sull'intero code_path (o sottoinsieme). Full-repo counterpart di /ponytail-review. Produce report in code_quality/reports/ letto da /ponytail-gain. Opt-in ponytail.enabled.
+description: Scan YAGNI Decision Ladder sull'intero code_path (o sottoinsieme). Full-repo counterpart di /ponytail-review. Produce report in code_quality/reports/ letto dalla riga `ponytail-gain` del token ledger. Opt-in ponytail.enabled.
 argument-hint: "[<path-glob>]"
 allowed-tools: Read, Bash, Glob, Write
 ---
@@ -29,5 +29,5 @@ Sintassi:
 ## Cross-link
 
 - Skill: `.claude/skills/ponytail-audit.md`
-- Comando affine: `/ponytail-review` (diff), `/ponytail-gain` (impatto aggregato)
+- Comando affine: `/ponytail-review` (diff). `ponytail-gain` = riga aggregata nel token ledger (`show-session-tokens.py`), non un comando a sé.
 - Concetto: `wiki/concepts/decision-ladder.md`

@@ -1,0 +1,32 @@
+---
+description: >-
+  Skill procedurale review UX/UI — 5 step ancorati alla rubrica anti-soggettività (Nielsen 10 +
+  dimensioni UI 6 + flusso 5). Capability opt-in v2.18, PATTERN §3 UX/UI Review.
+globs: "**"
+alwaysApply: false
+---
+# Skill: ux-ui-review-protocol
+
+> Adapter Cursor della skill `ux-ui-review-protocol`, definita in `.claude/skills/ux-ui-review-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.ux_ui.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Step 1 — Input Visivo
+2. Step 2 — Token + Design System
+3. Step 3 — Rubrica 3 Assi (core della review)
+4. Step 3-bis — Critic/Judge Design (condizionale, opt-in EP-019)
+5. Step 4 — Delega a11y
+6. Step 5 — Report Standard
+7. Esito della review (handoff Fase 4-ter, ADR-019)
+8. Vincoli del reviewer
+9. Fallback senza input visivo (modalità `no-visual` esplicita)
+
+Il dettaglio di ogni passo sta in `.claude/skills/ux-ui-review-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Nessuna auto-valutazione: chi produce l'artefatto non lo giudica. La separazione e' strutturale e vale su ogni adapter.
+- Ogni finding cita il `rubric_ref`: senza citazione e' un'opinione.

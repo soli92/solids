@@ -1,0 +1,184 @@
+# api-acceptance-spec.schema.yaml
+# version: 1.0
+#
+# SCHEMA dei casi di acceptance per le API di un servizio BE (gemello BE di acceptance-spec).
+# Non estende e non modifica .claude/schemas/acceptance-spec.schema.yaml (schema FE, Playwright):
+# vocabolario di fixture, scenario e asserzioni proprio, semantica del verdetto condivisa.
+#
+# Semantica del verdetto: ADR-065 §D (blocking/advisory, advisory_max) ed §E (spec assente = fail-loud,
+# scenario vuoto = skip dichiarato). Qui NON si ridefinisce: si cita.
+#   pass        - tutte le asserzioni `blocking` passano
+#   conditional - falliscono solo `advisory`, in numero <= thresholds.advisory_max
+#   reject      - fallisce almeno una `blocking`, oppure le `advisory` fallite superano advisory_max
+#   skip        - scenario: [] (dichiarato, mai pass)
+#
+# Separazione dei ruoli (ADR-065 §A): il framework possiede questo schema, il progetto possiede il contenuto.
+# Posizione dei file di contenuto: code_quality/acceptance/<servizio>/<caso>.api-acceptance.yaml
+#
+# Il documento e' un JSON Schema (draft 2020-12) scritto in YAML, leggibile da una macchina.
+# Vincoli non esprimibili nello schema (verificati dal test tests/test_api_acceptance_schema.py):
+#   - gli `id` di fixtures, scenario e assertions sono univoci nel proprio elenco;
+#   - ogni `assertions[].step` punta a un `scenario[].id`;
+#   - ogni `scenario[].uses_fixtures[]` punta a un `fixtures.*[].id`;
+#   - target.mode = http richiede target.base_url.
+#
+# Esempi nella stessa cartella: api-acceptance-spec.example.yaml (valido),
+# api-acceptance-spec.example.invalid.yaml (non valido, con i motivi in commento).
+
+$schema: https://json-schema.org/draft/2020-12/schema
+title: api-acceptance-spec
+type: object
+additionalProperties: false
+required: [id, service, target, fixtures, scenario, assertions, thresholds]
+properties:
+  id:
+    type: string
+    description: Identificativo univoco del caso, convenzione "<servizio>/<caso>".
+  service:
+    type: string
+    description: Nome del servizio sotto test.
+  target:
+    type: object
+    description: Come si raggiunge il servizio (approccio ibrido in-process / HTTP).
+    additionalProperties: false
+    required: [mode]
+    properties:
+      mode:
+        enum: [in_process, http]
+        description: >-
+          in_process = il test avvia l'applicazione nello stesso processo (es. MockMvc, inject di Fastify);
+          http = servizio avviato a parte e raggiunto in rete.
+      base_url:
+        type: string
+        description: Obbligatorio con mode http.
+      startup:
+        type: object
+        description: Avvio del servizio quando non e' gia' in esecuzione.
+        additionalProperties: false
+        required: [command, ready_path]
+        properties:
+          command:
+            type: string
+          ready_path:
+            type: string
+            description: Percorso HTTP da interrogare finche' non risponde 2xx.
+          ready_timeout_ms:
+            type: integer
+            minimum: 1
+  fixtures:
+    type: object
+    description: Dati di partenza. Di proprieta' del progetto.
+    additionalProperties: false
+    properties:
+      db:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [id, path]
+          properties:
+            id: {type: string}
+            path:
+              type: string
+              description: Script o file di dati relativo alla radice del progetto; se assente a runtime e' fail-loud.
+      stubs:
+        type: array
+        description: Stub delle dipendenze esterne (es. mapping WireMock).
+        items:
+          type: object
+          additionalProperties: false
+          required: [id, path]
+          properties:
+            id: {type: string}
+            path: {type: string}
+  scenario:
+    type: array
+    description: Richieste HTTP da eseguire in ordine. [] significa verdetto skip.
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, request]
+      properties:
+        id: {type: string}
+        uses_fixtures:
+          type: array
+          items: {type: string}
+        request:
+          type: object
+          additionalProperties: false
+          required: [method, path]
+          properties:
+            method:
+              enum: [GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS]
+            path:
+              type: string
+              description: Percorso con eventuali parametri gia' risolti, inizia con "/".
+            query:
+              type: object
+            headers:
+              type: object
+            body:
+              description: Corpo JSON della richiesta (qualunque tipo JSON).
+  assertions:
+    type: array
+    description: >-
+      Esiti da verificare, in quattro famiglie: status (status_equals, status_in),
+      schema OpenAPI (openapi_response_valid), header (header_equals, header_present, header_matches),
+      body (body_path_equals, body_path_matches, body_path_present).
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, step, severity, kind]
+      properties:
+        id: {type: string}
+        step:
+          type: string
+          description: Id dello step di scenario a cui si applica.
+        severity:
+          enum: [blocking, advisory]
+        kind:
+          enum:
+            - status_equals
+            - status_in
+            - openapi_response_valid
+            - header_equals
+            - header_present
+            - header_matches
+            - body_path_equals
+            - body_path_matches
+            - body_path_present
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+          description: status_equals.
+        statuses:
+          type: array
+          minItems: 1
+          items: {type: integer, minimum: 100, maximum: 599}
+          description: status_in.
+        openapi_spec:
+          type: string
+          description: openapi_response_valid, percorso del file OpenAPI relativo alla radice del progetto.
+        operation:
+          type: string
+          description: openapi_response_valid, operazione nel formato "<METODO> <path template>".
+        header:
+          type: string
+          description: header_equals, header_present, header_matches.
+        path:
+          type: string
+          description: body_path_*, JSONPath nel corpo della risposta (es. "$.items[0].id").
+        value:
+          description: header_equals e body_path_equals, valore atteso.
+        pattern:
+          type: string
+          description: header_matches e body_path_matches, espressione regolare.
+  thresholds:
+    type: object
+    additionalProperties: false
+    required: [advisory_max]
+    properties:
+      advisory_max:
+        type: integer
+        minimum: 0

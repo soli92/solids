@@ -1,0 +1,84 @@
+---
+description: Routing in linguaggio naturale verso la capability piu' pertinente. 4 fasi (Bootstrap → Parse → Match lessicale → Output). Source-of-truth CAPABILITIES.md, read-only, nessuna API.
+globs: []
+alwaysApply: false
+---
+# SKILL: help-router-protocol
+
+> Adapter Cursor della skill invocata dal comando `/help`.
+> File equivalente Claude Code: `.claude/skills/help-router-protocol.md`.
+
+Matching **lessicale** (nessun embedding, nessuna chiamata API) fra la domanda
+dell'utente e le righe di `CAPABILITIES.md`.
+
+## Fase 1 — Bootstrap
+
+Verifica che `CAPABILITIES.md` esista alla root della factory. Se manca:
+
+```
+CAPABILITIES.md non trovato.
+Fino ad allora, il routing automatico non e' disponibile.
+```
+
+**STOP** — non procedere.
+
+## Fase 2 — Parse
+
+Per ogni riga di tabella di `CAPABILITIES.md` estrai:
+
+| Campo interno | Sorgente |
+|---|---|
+| `nome` | 1ª colonna |
+| `comando` | 2ª colonna (testo dopo `/` o nome agente) |
+| `sempre_attiva` | 3ª colonna (`si` / `no` / `opt-in: <flag>` / `topologia`) |
+| `quando_usarla` | 4ª colonna |
+| `approfondimento` | 5ª colonna (link markdown, o `—`) |
+| `area` | heading `##` che precede la riga |
+
+Ignora le righe separatore `|---|`. Mantieni `approfondimento` grezzo, senza trasformarlo.
+
+## Fase 3 — Match
+
+1. **Normalizza** la query: minuscolo, via la punteggiatura, espandi le abbreviazioni
+   note (`ui` → `ux ui`, `fe` → `frontend`, `be` → `backend`).
+2. **Score** per capability (partial match su radici ≥ 4 caratteri):
+   `quando_usarla` peso **3** · `nome` peso **2** · `area` peso **1** · `comando` peso **1**.
+3. **Filtra** `score >= 1`, poi **ordina** per score decrescente.
+4. **Casi speciali**: query che nomina un comando (`uso /analytics?`) → **+5** a quella
+   capability; query che nomina un flag config (`code_quality`) → **+4**.
+5. Esito: 0 match → «Nessun match»; 1 match → match singolo; ≥ 2 → ambiguita' (max 3).
+
+## Fase 4 — Output
+
+```
+Capability: <nome>
+Comando: /<comando> (oppure <nome-agente> se non c'e' comando slash)
+Attiva per default: si' / no
+Se opt-in, attiva con: <flag: true in factory.config.yaml>
+Approfondimento: <link oppure —>
+```
+
+- **Attiva per default**: `si'` se `sempre_attiva` e' `si` o `topologia`; `no` se contiene
+  `opt-in:`.
+- **Se opt-in, attiva con**: riporta il flag dalla 3ª colonna; ometti la riga se la
+  capability e' sempre attiva.
+- **Nessun match**: elenca le aree `##` disponibili e invita a riformulare.
+- **Ambiguita'**: mostra max 3 capability ordinate per score, con una riga di
+  disambiguazione ciascuna.
+
+## Invarianti
+
+1. **No invenzione**: nessuna capability che non sia una riga di tabella di
+   `CAPABILITIES.md`. Nessuna corrispondenza → caso «Nessun match».
+2. **Source-of-truth = `CAPABILITIES.md`** alla root della factory: non il file di
+   istruzioni di un adapter, non la configurazione (`factory.config.yaml`), non la
+   conoscenza pregressa del modello.
+3. **Read-only**: la skill non scrive, non aggiorna, non crea file.
+4. **Nessuna API aggiuntiva**: matching lessicale, nessun embedding o LLM secondario.
+5. **Trasparenza dell'opt-in**: i prerequisiti di configurazione non vengono mai omessi.
+
+## Limitazioni Cursor
+
+Nessuna: parsing e matching sono puramente testuali. Attenzione al solo punto 2 —
+in una factory con piu' adapter, leggi `CAPABILITIES.md` dalla **root della factory**,
+non i file di un adapter.

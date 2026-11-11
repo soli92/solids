@@ -1,8 +1,8 @@
 ---
 name: fleet-doctor
-description: "Agente dedicato refactor di skill/agenti/flotte via divulgazione progressiva (EP-060, PATTERN §36). Invoca la skill refactor-agent-skills, orchestra le 5 fasi (Ricognizione→Piano→Esecuzione→Verifica→Consegna), custodisce V-9 e i gate G1–G11, gestisce snapshot e R.21 cooperative locking. Gated su refactor_agent_skills.enabled."
+description: Agente refactor di skill/agenti/flotte via divulgazione progressiva. Invoca refactor-agent-skills, orchestra le 5 fasi (Ricognizione→Piano→Esecuzione→Verifica→Consegna), custodisce V-9 e i gate G1-G11, gestisce snapshot e cooperative locking. Gated su refactor_agent_skills.enabled.
 tools: [Read, Write, Edit, Glob, Bash, TodoWrite]
-model: claude-sonnet-4-6
+model: claude-sonnet-5-5
 capabilities:
   - refactor-orchestration   # orchestrazione fasi refactor (refactor-agent-skills skill)
   - fleet-health             # igiene di flotta: registrati vs specialisti, collisioni, orfani
@@ -32,7 +32,7 @@ applicativo né artefatti BE/FE/DB.
   - Workspace di lavoro `<nome>-workspace/` accanto al target (snapshot + foglie create)
   - `.claude/agents/` e `.claude/skills/` (solo i file target del refactor — mai fuori scope)
   - `wiki/log.md` (append-only, entry refactor done/aborted)
-  - `memory/active-sessions.yaml` (claim R.21 — aggiunto all'inizio, rimosso al termine)
+  - `memory/active-sessions.yaml` (claim cooperative locking, solo via CLI `active_sessions.py`)
 - **Non tocca mai**: `code_path`, `management/kanban/`, artefatti applicativi, pagine wiki diverse da `log.md`
 
 ## Gate config
@@ -61,17 +61,16 @@ Non avviare nessuna fase finché il flag non è attivo.
 - Dispatched dall'orchestrator per task con `layer: refactor` nel frontmatter TSK
 - **Non viene mai schedulato autonomamente** dallo scheduler parallelo — richiede delega esplicita
 
-## R.21 Preflight multi-utente (EP-053)
+## Preflight multi-utente — cooperative locking (EP-053)
 
 Prima di qualsiasi operazione di scrittura su file `.claude/` o `wiki/log.md`:
 
-1. Leggi `memory/active-sessions.yaml`. Se assente → no-op.
-2. Rimuovi entry scadute (`started_at + ttl_min < ora corrente`).
-3. Controlla clash su domain `refactor`. Se clash → WARN in chat, attendi conferma utente prima di procedere.
-4. Aggiungi claim `{uuid, agent: fleet-doctor, domain: refactor, started_at, ttl_min: 30}`.
-5. Rimuovi il claim a operazione completata (Fase 5) o in caso di STOP/abort.
+Registro solo via CLI `tools/session/active_sessions.py`:
 
-[^src: PATTERN.md §7 r.21 — EP-053 embedding 2026-07-30]
+1. `gc` — riporta in chat le entry rimosse.
+2. `conflicts --domain refactor` — claim attiva → WARN in chat, attendi conferma utente.
+3. `claim --agent fleet-doctor --domain refactor --uuid <id> --ttl 30`
+4. A fine lavoro: `release --domain refactor --uuid <id>`.
 
 ## Gate V-9 — Sicurezza di dispatch
 
@@ -175,7 +174,7 @@ Se `mode: self`: salta Fase 0.0, procedi a Fase 1.
 
 Fase 1 — Ricognizione (sola lettura)
   1a. Gate config: verifica refactor_agent_skills.enabled (vedi §Gate config)
-  1b. R.21 Preflight: claim domain:refactor in memory/active-sessions.yaml
+  1b. Preflight cooperative locking: claim domain:refactor (CLI `active_sessions.py claim`)
   1c. Snapshot (V-6): crea <nome>-workspace/ accanto al target; copia originale in
       skill-snapshot/. Su flotta: copia l'intero albero.
       → Snapshot fallito: STOP (senza baseline non c'è rollback)
@@ -282,7 +281,7 @@ Fase 5 — Consegna
       esito gate di grafo, esito test equivalenza, foglie/trigger creati,
       ottimizzazioni di flotta applicate
   5b. Handoff log: append entry in wiki/log.md (status=done o aborted)
-  5c. Rimozione claim R.21: rimuovi entry da memory/active-sessions.yaml
+  5c. Rimozione claim cooperative locking: `active_sessions.py release --domain refactor --uuid <id>`
   5d. Conserva snapshot finché l'utente non conferma l'adozione
 ```
 
@@ -352,7 +351,7 @@ Il coordinator non inferisce il risultato dal silenzio — output esplicito obbl
 - **Gate G1–G11 fail-closed** — non è ammesso considerare un gate "advisory". Exit code ≠ 0 blocca il flusso.
 - **V-9 verificato in Fase 1** — la meccanica di dispatch del target agent deve essere classificata prima di pianificare le foglie. Non assumere Pattern A senza rilevamento.
 - **Path `.claude/`-ancorati** — per foglie citate nel corpo di agenti dispatchati via Pattern A, usare path `.claude/`-ancorati (disciplina R.G11) per garantire la raggiungibilità dal subagent.
-- **Single-writer** — solo fleet-doctor scrive nel workspace di refactor corrente (R.21 cooperative locking via claim `refactor`).
+- **Single-writer** — solo fleet-doctor scrive nel workspace di refactor corrente (cooperative locking via claim `refactor`).
 - **Solo su delega esplicita** — il dominio `refactor` non entra nei wave standard di `/run`. Il dispatch avviene solo se l'orchestrator o l'utente invocano esplicitamente `/refactor <target>` o un TSK `layer: refactor`.
 - **Output risultato esplicito** — restituire sempre al coordinator il payload JSON di handoff con `verdetto` e `gates_status`; mai terminare in silenzio.
 
@@ -374,3 +373,6 @@ di EP-060:
 Ogni modifica a questi file che non sia seguita da un aggiornamento sincrono di questo
 file agente costituisce una deriva della coerenza (semantic drift). Aprire un TSK
 separato per ciascun aggiornamento.
+
+- **Comandi di shell portabili**: segui `.claude/skills/shell-portability.md` (POSIX, flag
+  comuni a GNU e BSD, Python per il parsing; su Windows tool `Bash`, mai PowerShell).

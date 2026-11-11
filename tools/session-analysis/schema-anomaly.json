@@ -293,6 +293,50 @@
       "required": ["total_cost_approx", "agent_count"],
       "additionalProperties": false
     },
+    "LlmAdvisory": {
+      "type": "object",
+      "description": "Output di llm-advisory.py incluso nel report: testo interpretativo su aggregati redatti, marcato 'LLM advisory', con token reali della chiamata e budget applicato.",
+      "properties": {
+        "marker": { "type": "string", "const": "LLM advisory" },
+        "deterministic": { "type": "boolean", "const": false },
+        "model": { "type": "string" },
+        "text": { "type": "string", "minLength": 1 },
+        "usage": {
+          "type": "object",
+          "description": "Token reali dalla risposta JSON di claude -p.",
+          "properties": {
+            "input_tokens": { "type": "integer", "minimum": 0 },
+            "output_tokens": { "type": "integer", "minimum": 0 },
+            "cache_read_input_tokens": { "type": "integer", "minimum": 0 },
+            "cache_creation_input_tokens": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "total_cost_usd": { "type": ["number", "null"] },
+        "budget": {
+          "type": "object",
+          "description": "max_token_budget e ripartizione input/output; input_estimate_tokens = ceil(caratteri/4).",
+          "properties": {
+            "max_token_budget": { "type": "integer", "minimum": 1 },
+            "input_cap_tokens": { "type": "integer", "minimum": 0 },
+            "output_cap_tokens": { "type": "integer", "minimum": 0 },
+            "input_estimate_tokens": { "type": "integer", "minimum": 0 },
+            "estimate_method": { "type": "string" }
+          }
+        },
+        "truncation": {
+          "type": "object",
+          "properties": {
+            "anomalies_included": { "type": "integer", "minimum": 0 },
+            "anomalies_total": { "type": "integer", "minimum": 0 },
+            "input_truncated": { "type": "boolean" },
+            "output_truncated": { "type": "boolean" }
+          }
+        },
+        "commands_removed": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["marker", "deterministic", "model", "text", "usage", "budget"],
+      "additionalProperties": false
+    },
     "SessionAnalysisReport": {
       "type": "object",
       "description": "Root del JSON report generato da TSK-556 report generator. Aggrega anomalie, raccomandazioni fleet e metriche in un documento machine-readable e human-readable. Invariante R-SAA-5: ingest_eligible è sempre false (i report non vengono ingestiti nel wiki automaticamente). Politica wiki: incidents-only (solo anomalie critical o sessioni con anomaly_count > 0 vengono segnalate in wiki/incidents/).",
@@ -367,6 +411,21 @@
         "session_metrics": {
           "$ref": "#/$defs/SessionMetrics",
           "description": "Metriche chiave della sessione analizzata (mirror semplificato di fleet-metrics.py)."
+        },
+        "kill_criterion_declared": {
+          "type": "boolean",
+          "description": "R-SAA-10: false se session_analysis.kill_criterion non e valorizzato in factory.config.yaml. Non blocca la scrittura del report."
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Warning a livello di report: kill_criterion non dichiarato (R-SAA-10), schema degradato (R-SAA-9), subagents/ assente o vuota (analisi degradata)."
+        },
+        "llm_advisory": {
+          "$ref": "#/$defs/LlmAdvisory",
+          "description": "Presente solo con depth full e generate-report.py --advisory. Testo non deterministico: non alimenta anomalies ne fleet_recommendations (R-SAA-6, R-SAA-7)."
         }
       },
       "required": [

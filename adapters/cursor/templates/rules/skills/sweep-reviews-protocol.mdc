@@ -1,0 +1,33 @@
+---
+description: >-
+  Loop evaluator-optimizer SEMANTICO per la qualità di wiki/. Rileva e (con gate umano bulk)
+  risolve claim non supportati, wikilink dangling e deriva terminologica. Opt-in, bounded, gated.
+  Skill del wiki-keeper (EP-056 US-203).
+globs: "wiki/**"
+alwaysApply: false
+---
+# Skill: sweep-reviews-protocol
+
+> Adapter Cursor della skill `sweep-reviews-protocol`, definita in `.claude/skills/sweep-reviews-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.wiki_sweep.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Natura e distinzione (Accordo Round 2 TR-llmwiki-20260824)
+2. Chi può eseguirla
+3. Gate di attivazione
+4. Categorie di review item (whitelist semantica)
+5. Input
+6. Procedura (loop fino a max_iterations)
+7. Log entry (template `sweep`)
+8. [YYYY-MM-DD] sweep | esito=<closed|stuck|regression|max-iterations|user-rejected|no-items|empty-diff>
+9. Foundation read-only (stability window — Accordo Round 2)
+
+Il dettaglio di ogni passo sta in `.claude/skills/sweep-reviews-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Nessun fan-out nativo di sub-agenti (`profile: sequential`): dove la fonte dispatcha in parallelo, esegui in sequenza e aggrega a mano.
+- Loop bounded: il massimo di iterazioni e' quello della fonte, non va allargato perche' l'adapter e' sequenziale.

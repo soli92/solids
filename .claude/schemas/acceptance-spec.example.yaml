@@ -1,0 +1,144 @@
+# acceptance-spec.example.yaml
+# version: 1.0 — EP-018 ADR-065
+#
+# ESEMPIO ANNOTATO di acceptance-spec per il Functional Oracle.
+#
+# Caso: emulatore GBA (soli-boy) — flusso "carica ROM → avvia emulazione → verifica stato".
+# Ispirazione: ADR-065 §B (esempio canonico del framework).
+#
+# NOTA FONDAMENTALE (ADR-065):
+#   Il framework possiede questo SCHEMA (acceptance-spec.schema.yaml) e l'ENGINE
+#   di esecuzione/asserzione. Il progetto possiede il CONTENUTO (i valori qui sotto:
+#   path fixture, selettori, valori attesi, soglie). Questo file di esempio mostra
+#   la struttura attesa — il progetto lo copia in
+#   code_quality/acceptance/<app|tsk>.acceptance.yaml e lo valorizza con i propri dati.
+#
+# Posizione canonica nel progetto:
+#   code_quality/acceptance/emulator-boot.acceptance.yaml
+# Referenziato nel TSK con:
+#   functional_acceptance_spec: code_quality/acceptance/emulator-boot.acceptance.yaml
+#
+# Verdict semantics (ADR-065 §D):
+#   pass        — canvas-advancing + state-running + save-artifact passano (tutti blocking)
+#   conditional — no-console-error fallisce ma advisory_max: 1 permette 1 advisory fallita
+#   reject      — qualsiasi blocking fallisce OPPURE advisory fallite > 1
+
+# ============================================================
+# fixtures
+# Artefatti di input reali da caricare prima dello scenario.
+# Il progetto fornisce la ROM homebrew legale (ADR-066 §E per la gestione licenze).
+# ============================================================
+fixtures:
+  - id: test-rom
+    # ROM homebrew di test: deve essere un file .gba legale-per-i-test, di proprieta'
+    # del progetto o con licenza compatibile (ADR-066 §E).
+    path: packages/app/public/test-roms/homebrew-test.gba
+    load_via:
+      # L'app espone un <input type="file"> agganciato al data-test=rom-file-input
+      selector: "input[type=file][data-test=rom-file-input]"
+      action: set_input_files   # Playwright setInputFiles — injetta il file senza dialog OS
+
+# ============================================================
+# scenario
+# Sequenza di interazioni che simula il flusso «carica ROM → avvia emulazione».
+# I selettori usano la convenzione [data-test=<id>] per stabilita' (ADR-066 §B).
+# ============================================================
+scenario:
+  # Step 1: carica il fixture ROM tramite il selettore dichiarato in fixtures[].
+  - action: load_fixture
+    fixture_id: test-rom
+    id: step-load-rom
+
+  # Step 2: clicca il pulsante "Avvia" per iniziare l'emulazione.
+  - action: click
+    selector: "[data-test=load-rom]"
+    id: step-click-start
+
+  # Step 3: attendi che il canvas diventi visibile (timeout generoso per primo frame).
+  # timeout_ms: 10000 — l'emulatore puo' impiegare piu' del default (5000ms) per
+  # inizializzare WebAssembly + caricare la ROM.
+  - action: wait_for
+    selector: "canvas"
+    state: visible
+    timeout_ms: 10000
+    id: step-wait-canvas
+
+  # Step 4: pausa per lasciare avanzare l'emulazione di almeno N frame.
+  # 2000ms = ~120 frame a 60fps → sufficiente per canvas_pixel_variance con frames: 8.
+  - action: wait_ms
+    value: 2000
+    id: step-wait-advance
+
+  # Step 5 (opzionale): cattura screenshot per evidenza nel report.
+  # Prodotto in code_quality/reports/<TSK-id>-functional-iter-<N>/screenshots/.
+  - action: screenshot
+    id: evidence-emulator-running
+
+# ============================================================
+# assertions
+# Esiti OSSERVABILI da verificare dopo lo scenario.
+# 4 asserzioni totali: 3 blocking + 1 advisory.
+# ============================================================
+assertions:
+
+  # --- BLOCKING #1: il canvas mostra contenuto che cambia nel tempo ---
+  # kind: canvas_pixel_variance — primitiva domain-agnostic per app «a tela».
+  # Cattura 8 frame del canvas a intervalli di ~250ms (post wait_ms), calcola la
+  # varianza normalizzata pixel-by-pixel. min_variance: 0.02 significa che almeno
+  # il 2% dei pixel deve cambiare tra i frame — soglia robusta contro rumore ma
+  # sufficientemente bassa da non dipendere dal contenuto specifico della ROM.
+  # Semantica: «l'emulatore sta girando e produce output visivo», senza conoscere
+  # cosa sia la ROM (domain-agnostic — ADR-065 §C Rationale 2).
+  - id: canvas-advancing
+    severity: blocking
+    kind: canvas_pixel_variance
+    selector: "canvas"
+    min_variance: 0.02    # 0.0-1.0; consigliato 0.01-0.05 per emulatori GBA
+    frames: 8             # numero di frame campionati per il calcolo della varianza
+
+  # --- BLOCKING #2: l'attributo di stato dell'engine indica "running" ---
+  # kind: attr_equals — transizione di stato osservabile via data attribute.
+  # Il componente engine espone [data-test=engine][data-state=...] come contratto
+  # osservabile (ADR-066 §B: il progetto mantiene gli attributi data-test/data-state).
+  # Semantica: «il motore e' in stato running dopo il caricamento della ROM».
+  - id: state-running
+    severity: blocking
+    kind: attr_equals
+    selector: "[data-test=engine]"
+    attr: "data-state"
+    value: "running"
+
+  # --- BLOCKING #3: il save-state e' stato creato in IndexedDB ---
+  # kind: storage_key_present — artefatto creato nel data store del browser.
+  # Verifica che l'emulatore abbia creato almeno una chiave "savestate:*" in IDB.
+  # Copre il requisito «auto-save state all'avvio» senza accedere al dominio dell'app.
+  # store: idb — IndexedDB (alternativa: localStorage, sessionStorage, fs).
+  # key_glob: "savestate:*" — glob pattern; il progetto adatta il pattern al proprio
+  # schema di chiavi IDB.
+  - id: save-artifact
+    severity: blocking
+    kind: storage_key_present
+    store: idb
+    key_glob: "savestate:*"
+
+  # --- ADVISORY #1: nessun errore di console durante l'esecuzione ---
+  # kind: console_no_error — nessun parametro aggiuntivo richiesto.
+  # severity: advisory perche' alcuni warning/errori console non sono fatali per
+  # la funzionalita' (es. deprecation warning di librerie terze). Il progetto
+  # puo' promuovere a blocking se vuole zero-tolleranza.
+  # Con advisory_max: 1 (thresholds sotto): questa asserzione puo' fallire e
+  # il verdict rimane `conditional` (non `reject`).
+  - id: no-console-error
+    severity: advisory
+    kind: console_no_error
+
+# ============================================================
+# thresholds
+# Soglie numeriche per la semantica del verdict.
+# ============================================================
+thresholds:
+  # advisory_max: 1 — fino a 1 asserzione advisory fallita → verdict `conditional`.
+  # Con le asserzioni sopra (1 advisory: no-console-error), se console_no_error
+  # fallisce il verdict e' `conditional` (non `reject`).
+  # Se advisory_max fosse 0, anche console_no_error sarebbe di fatto blocking.
+  advisory_max: 1

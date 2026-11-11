@@ -1,0 +1,872 @@
+{
+  "timestamp": "2026-09-02T13:28:12Z",
+  "tsk": "TSK-505",
+  "queries_count": 50,
+  "summary": {
+    "mode": "real",
+    "model": "paraphrase-multilingual-MiniLM-L12-v2",
+    "index_sizes": {
+      "h2_section": 2340,
+      "ast_aware": 2320
+    },
+    "precision_at_3": {
+      "baseline_avg": 0.42,
+      "adr_c_avg": 0.42,
+      "delta_abs": 0.0,
+      "delta_pct": 0.0
+    },
+    "acc7_verdict": "NO-GO: delta < 10% — close EP-042 Phase 2 with ADR-C only"
+  },
+  "per_query": [
+    {
+      "query": "come funziona il compression layer a due assi",
+      "gt_pages": 12,
+      "baseline_top3": [
+        "concepts/factory-compression-layer.md",
+        "concepts/factory-compression-layer.md",
+        "concepts/factory-compression-layer.md"
+      ],
+      "adr_c_top3": [
+        "concepts/factory-compression-layer.md",
+        "concepts/factory-compression-layer.md",
+        "concepts/factory-compression-layer.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "quali sono le invarianti del tavola rotonda",
+      "gt_pages": 15,
+      "baseline_top3": [
+        "decisions/tavola-rotonda-TR-20260714-14-2026-07-14.md",
+        "lint/2026-06-04-v218-release-lint.md",
+        "getting-started/pattern-in-one-page.md"
+      ],
+      "adr_c_top3": [
+        "decisions/tavola-rotonda-TR-20260714-14-2026-07-14.md",
+        "lint/2026-06-04-v218-release-lint.md",
+        "getting-started/pattern-in-one-page.md"
+      ],
+      "baseline_p3": 0.333,
+      "adr_c_p3": 0.333,
+      "delta": 0.0
+    },
+    {
+      "query": "quando usare pattern-steal vs vendor-in",
+      "gt_pages": 2,
+      "baseline_top3": [
+        "concepts/routing.md",
+        "concepts/content-share-hub-pattern.md",
+        "concepts/supervisor-worker.md"
+      ],
+      "adr_c_top3": [
+        "concepts/routing.md",
+        "concepts/content-share-hub-pattern.md",
+        "concepts/supervisor-worker.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "come si configura il budget della tavola rotonda",
+      "gt_pages": 14,
+      "baseline_top3": [
+        "concepts/temporal-budget-governor.md",
+        "runbooks/temporal-budget-governor-runbook.md",
+        "concepts/temporal-budget-governor.md"
+      ],
+      "adr_c_top3": [
+        "concepts/temporal-budget-governor.md",
+        "runbooks/temporal-budget-governor-runbook.md",
+        "concepts/temporal-budget-governor.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "differenza tra wiki-keeper 2.0 e wiki-keeper originale",
+      "gt_pages": 0,
+      "baseline_top3": [
+        "runbooks/verifier-as-gate.md",
+        "guides/wiki-maintenance.md",
+        "concepts/two-phase-commit.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/verifier-as-gate.md",
+        "guides/wiki-maintenance.md",
+        "concepts/two-phase-commit.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "quali capability sono marcate SUNSET",
+      "gt_pages": 0,
+      "baseline_top3": [
+        "decisions/tavola-rotonda-benchmark-sessione-a-2026-07-06.md",
+        "guides/fe-feature-delivery.md",
+        "sources/2026-06-03-accessibility-testing-capability.md"
+      ],
+      "adr_c_top3": [
+        "decisions/tavola-rotonda-benchmark-sessione-a-2026-07-06.md",
+        "guides/fe-feature-delivery.md",
+        "sources/2026-06-03-accessibility-testing-capability.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "come funziona il parallel scheduler",
+      "gt_pages": 27,
+      "baseline_top3": [
+        "concepts/parallel-scheduler.md",
+        "concepts/parallel-scheduler.md",
+        "concepts/parallel-scheduler.md"
+      ],
+      "adr_c_top3": [
+        "concepts/parallel-scheduler.md",
+        "concepts/parallel-scheduler.md",
+        "concepts/parallel-scheduler.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "come si abilita wiki_search",
+      "gt_pages": 10,
+      "baseline_top3": [
+        "concepts/unified-multimodal-retrieval.md",
+        "index.md",
+        "sources/design-capability-formativa.md"
+      ],
+      "adr_c_top3": [
+        "concepts/unified-multimodal-retrieval.md",
+        "index.md",
+        "sources/design-capability-formativa.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "cosa fa il graphify sync",
+      "gt_pages": 18,
+      "baseline_top3": [
+        "runbooks/graphify-installation.md",
+        "concepts/temporal-knowledge-graph.md",
+        "concepts/knowledge-graph-codebase.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/graphify-installation.md",
+        "concepts/temporal-knowledge-graph.md",
+        "concepts/knowledge-graph-codebase.md"
+      ],
+      "baseline_p3": 0.667,
+      "adr_c_p3": 0.667,
+      "delta": 0.0
+    },
+    {
+      "query": "come si esegue un factory upgrade",
+      "gt_pages": 8,
+      "baseline_top3": [
+        "runbooks/factory-installer-runbook.md",
+        "concepts/backend-adaptive-prototyping.md",
+        "syntheses/doc-ux-shareability-diagnosis.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/factory-installer-runbook.md",
+        "concepts/backend-adaptive-prototyping.md",
+        "syntheses/doc-ux-shareability-diagnosis.md"
+      ],
+      "baseline_p3": 0.333,
+      "adr_c_p3": 0.333,
+      "delta": 0.0
+    },
+    {
+      "query": "che cos e la dispatch-policy",
+      "gt_pages": 4,
+      "baseline_top3": [
+        "concepts/factory-compression-layer.md",
+        "concepts/temporal-budget-governor.md",
+        "runbooks/temporal-budget-governor-runbook.md"
+      ],
+      "adr_c_top3": [
+        "concepts/factory-compression-layer.md",
+        "concepts/temporal-budget-governor.md",
+        "runbooks/temporal-budget-governor-runbook.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "come funziona il ponytail decision ladder",
+      "gt_pages": 7,
+      "baseline_top3": [
+        "concepts/ponytail.md",
+        "runbooks/ponytail-ab-study.md",
+        "runbooks/ponytail-ab-study.md"
+      ],
+      "adr_c_top3": [
+        "concepts/ponytail.md",
+        "runbooks/ponytail-ab-study.md",
+        "runbooks/ponytail-ab-study.md"
+      ],
+      "baseline_p3": 0.333,
+      "adr_c_p3": 0.333,
+      "delta": 0.0
+    },
+    {
+      "query": "differenza tra compression output e compression context",
+      "gt_pages": 6,
+      "baseline_top3": [
+        "concepts/factory-compression-layer.md",
+        "runbooks/migration-v214-fase2.md",
+        "entities/caveman.md"
+      ],
+      "adr_c_top3": [
+        "concepts/factory-compression-layer.md",
+        "runbooks/migration-v214-fase2.md",
+        "entities/caveman.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "come si configura il kanban publish",
+      "gt_pages": 25,
+      "baseline_top3": [
+        "runbooks/migration-v210.md",
+        "concepts/publisher-adapters.md",
+        "lint/2026-05-28-lint-report.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/migration-v210.md",
+        "concepts/publisher-adapters.md",
+        "lint/2026-05-28-lint-report.md"
+      ],
+      "baseline_p3": 0.667,
+      "adr_c_p3": 0.667,
+      "delta": 0.0
+    },
+    {
+      "query": "che cos e il token ledger",
+      "gt_pages": 19,
+      "baseline_top3": [
+        "concepts/design-token.md",
+        "concepts/design-token.md",
+        "concepts/cache-economics-prompt-caching.md"
+      ],
+      "adr_c_top3": [
+        "concepts/design-token.md",
+        "concepts/design-token.md",
+        "concepts/cache-economics-prompt-caching.md"
+      ],
+      "baseline_p3": 0.333,
+      "adr_c_p3": 0.333,
+      "delta": 0.0
+    },
+    {
+      "query": "come si crea una nuova user story",
+      "gt_pages": 13,
+      "baseline_top3": [
+        "concepts/prd-driven-autonomy.md",
+        "concepts/context-window-sizing.md",
+        "concepts/dependency-ordered-dag.md"
+      ],
+      "adr_c_top3": [
+        "concepts/prd-driven-autonomy.md",
+        "concepts/context-window-sizing.md",
+        "concepts/dependency-ordered-dag.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "quando invocare wiki-keeper per ingest",
+      "gt_pages": 8,
+      "baseline_top3": [
+        "gaps.md",
+        "syntheses/framework-v22-articolo.md",
+        "lint/2026-06-05-bmad-ingest-lint.md"
+      ],
+      "adr_c_top3": [
+        "gaps.md",
+        "syntheses/framework-v22-articolo.md",
+        "lint/2026-06-05-bmad-ingest-lint.md"
+      ],
+      "baseline_p3": 0.333,
+      "adr_c_p3": 0.333,
+      "delta": 0.0
+    },
+    {
+      "query": "come funziona il functional oracle",
+      "gt_pages": 6,
+      "baseline_top3": [
+        "concepts/correctness-oracle.md",
+        "guides/fe-feature-delivery.md",
+        "concepts/correctness-oracle.md"
+      ],
+      "adr_c_top3": [
+        "concepts/correctness-oracle.md",
+        "guides/fe-feature-delivery.md",
+        "concepts/correctness-oracle.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "come si avvia una tavola rotonda session",
+      "gt_pages": 5,
+      "baseline_top3": [
+        "sources/tavola-rotonda.md",
+        "decisions/tavola-rotonda-benchmark-sessione-a-2026-07-06.md",
+        "concepts/tavola-rotonda.md"
+      ],
+      "adr_c_top3": [
+        "sources/tavola-rotonda.md",
+        "decisions/tavola-rotonda-benchmark-sessione-a-2026-07-06.md",
+        "concepts/tavola-rotonda.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "cosa fa il release-manager nel factory",
+      "gt_pages": 0,
+      "baseline_top3": [
+        "runbooks/factory-installer-runbook.md",
+        "decisions/tavola-rotonda-e9d3b7f1-2c4a-4e8b-9f6d-3a5c7b1e2f8d-2026-07-17.md",
+        "decisions/tavola-rotonda-TR-20260714-14-2026-07-14.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/factory-installer-runbook.md",
+        "decisions/tavola-rotonda-e9d3b7f1-2c4a-4e8b-9f6d-3a5c7b1e2f8d-2026-07-17.md",
+        "decisions/tavola-rotonda-TR-20260714-14-2026-07-14.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "come si esegue il code review CQRL",
+      "gt_pages": 8,
+      "baseline_top3": [
+        "concepts/consistency-checker.md",
+        "lint/2026-05-27-lint-report-v212-followup.md",
+        "concepts/code-quality-review-layer.md"
+      ],
+      "adr_c_top3": [
+        "concepts/consistency-checker.md",
+        "lint/2026-05-27-lint-report-v212-followup.md",
+        "concepts/code-quality-review-layer.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "che cos e il semantic drift scan",
+      "gt_pages": 15,
+      "baseline_top3": [
+        "runbooks/semantic-drift-prerequisites.md",
+        "runbooks/semantic-drift-prerequisites.md",
+        "runbooks/semantic-drift-prerequisites.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/semantic-drift-prerequisites.md",
+        "runbooks/semantic-drift-prerequisites.md",
+        "runbooks/semantic-drift-prerequisites.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "come si gestisce un submodule VCS branch",
+      "gt_pages": 3,
+      "baseline_top3": [
+        "syntheses/vcs-and-code-path.md",
+        "syntheses/vcs-and-code-path.md",
+        "syntheses/vcs-and-code-path.md"
+      ],
+      "adr_c_top3": [
+        "syntheses/vcs-and-code-path.md",
+        "syntheses/vcs-and-code-path.md",
+        "syntheses/vcs-and-code-path.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "che cosa e l EP-054 code intelligence stack",
+      "gt_pages": 4,
+      "baseline_top3": [
+        "runbooks/code-intelligence.md",
+        "runbooks/code-intelligence.md",
+        "runbooks/code-intelligence.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/code-intelligence.md",
+        "runbooks/code-intelligence.md",
+        "runbooks/code-intelligence.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "come si usa il voice channel modulo",
+      "gt_pages": 4,
+      "baseline_top3": [
+        "runbooks/voice-channel-installation.md",
+        "concepts/voice-channel-factory.md",
+        "runbooks/voice-channel-installation.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/voice-channel-installation.md",
+        "concepts/voice-channel-factory.md",
+        "runbooks/voice-channel-installation.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "how to install graphify for code intelligence",
+      "gt_pages": 6,
+      "baseline_top3": [
+        "runbooks/code-intelligence.md",
+        "runbooks/graphify-installation.md",
+        "runbooks/graphify-installation.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/code-intelligence.md",
+        "runbooks/graphify-installation.md",
+        "runbooks/graphify-installation.md"
+      ],
+      "baseline_p3": 0.333,
+      "adr_c_p3": 0.333,
+      "delta": 0.0
+    },
+    {
+      "query": "what is the RRF fusion formula used in wiki search",
+      "gt_pages": 0,
+      "baseline_top3": [
+        "sources/2026-05-21-figma-extraction-agent.md",
+        "index.md",
+        "syntheses/e2e-factory-layer-architecture.md"
+      ],
+      "adr_c_top3": [
+        "sources/2026-05-21-figma-extraction-agent.md",
+        "index.md",
+        "syntheses/e2e-factory-layer-architecture.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "steps to create a new epic in the factory",
+      "gt_pages": 2,
+      "baseline_top3": [
+        "syntheses/doc-ux-shareability-diagnosis.md",
+        "syntheses/framework-v22-articolo.md",
+        "concepts/factory-premortem-integration.md"
+      ],
+      "adr_c_top3": [
+        "syntheses/doc-ux-shareability-diagnosis.md",
+        "syntheses/framework-v22-articolo.md",
+        "concepts/factory-premortem-integration.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "how does the parallel scheduler dispatch work",
+      "gt_pages": 27,
+      "baseline_top3": [
+        "concepts/parallel-scheduler.md",
+        "concepts/parallel-scheduler.md",
+        "concepts/parallel-scheduler.md"
+      ],
+      "adr_c_top3": [
+        "concepts/parallel-scheduler.md",
+        "concepts/parallel-scheduler.md",
+        "concepts/parallel-scheduler.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "wiki-search reindex command options",
+      "gt_pages": 0,
+      "baseline_top3": [
+        "concepts/unified-multimodal-retrieval.md",
+        "index.md",
+        "concepts/design-capability-formativa.md"
+      ],
+      "adr_c_top3": [
+        "concepts/unified-multimodal-retrieval.md",
+        "index.md",
+        "concepts/design-capability-formativa.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "what is the caveman protocol compression",
+      "gt_pages": 19,
+      "baseline_top3": [
+        "concepts/factory-compression-layer.md",
+        "concepts/token-compression.md",
+        "syntheses/token-reduction-tools.md"
+      ],
+      "adr_c_top3": [
+        "concepts/factory-compression-layer.md",
+        "concepts/token-compression.md",
+        "syntheses/token-reduction-tools.md"
+      ],
+      "baseline_p3": 0.667,
+      "adr_c_p3": 0.667,
+      "delta": 0.0
+    },
+    {
+      "query": "how to configure the code quality reviewer",
+      "gt_pages": 2,
+      "baseline_top3": [
+        "concepts/code-quality-review-layer.md",
+        "concepts/code-quality-review-layer.md",
+        "runbooks/code-quality-review-runbook.md"
+      ],
+      "adr_c_top3": [
+        "concepts/code-quality-review-layer.md",
+        "concepts/code-quality-review-layer.md",
+        "runbooks/code-quality-review-runbook.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "what does the consistency checker do in lint",
+      "gt_pages": 12,
+      "baseline_top3": [
+        "concepts/consistency-checker.md",
+        "runbooks/consistency-checker-runbook.md",
+        "runbooks/consistency-checker-runbook.md"
+      ],
+      "adr_c_top3": [
+        "concepts/consistency-checker.md",
+        "runbooks/consistency-checker-runbook.md",
+        "runbooks/consistency-checker-runbook.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "how to set up kanban publish to GitHub",
+      "gt_pages": 16,
+      "baseline_top3": [
+        "runbooks/migration-v210.md",
+        "runbooks/migration-v210.md",
+        "concepts/publisher-adapters.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/migration-v210.md",
+        "runbooks/migration-v210.md",
+        "concepts/publisher-adapters.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "what is the purpose of the premortem skill",
+      "gt_pages": 7,
+      "baseline_top3": [
+        "concepts/premortem-skill.md",
+        "concepts/premortem-skill.md",
+        "sources/premortem-skill-claude.md"
+      ],
+      "adr_c_top3": [
+        "concepts/premortem-skill.md",
+        "concepts/premortem-skill.md",
+        "sources/premortem-skill-claude.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "how does the dev-protocol checkpoint work",
+      "gt_pages": 2,
+      "baseline_top3": [
+        "concepts/prompt-chaining.md",
+        "syntheses/runtime-suggestions-proposal-comparison.md",
+        "concepts/prd-driven-autonomy.md"
+      ],
+      "adr_c_top3": [
+        "concepts/prompt-chaining.md",
+        "syntheses/runtime-suggestions-proposal-comparison.md",
+        "concepts/prd-driven-autonomy.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "what is pattern version 2.39 ponytail",
+      "gt_pages": 5,
+      "baseline_top3": [
+        "concepts/ponytail.md",
+        "runbooks/ponytail-ab-study.md",
+        "concepts/ponytail.md"
+      ],
+      "adr_c_top3": [
+        "concepts/ponytail.md",
+        "concepts/ponytail.md",
+        "concepts/ponytail.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "how to run a Tavola Rotonda session",
+      "gt_pages": 27,
+      "baseline_top3": [
+        "sources/2026-07-15-factory-guide-review-session-report.md",
+        "runbooks/tavola-rotonda.md",
+        "sources/tavola-rotonda.md"
+      ],
+      "adr_c_top3": [
+        "sources/2026-07-15-factory-guide-review-session-report.md",
+        "runbooks/tavola-rotonda.md",
+        "sources/tavola-rotonda.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "what are the R.WS invariants wiki search",
+      "gt_pages": 1,
+      "baseline_top3": [
+        "lint/2026-06-04-v218-release-lint.md",
+        "lint/2026-05-27-lint-report-v213-followup.md",
+        "concepts/unified-multimodal-retrieval.md"
+      ],
+      "adr_c_top3": [
+        "lint/2026-06-04-v218-release-lint.md",
+        "lint/2026-05-27-lint-report-v213-followup.md",
+        "concepts/unified-multimodal-retrieval.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "how to use the visual oracle fe-dev",
+      "gt_pages": 11,
+      "baseline_top3": [
+        "runbooks/visual-oracle-installation.md",
+        "guides/fe-feature-delivery.md",
+        "guides/fe-feature-delivery.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/visual-oracle-installation.md",
+        "guides/fe-feature-delivery.md",
+        "guides/fe-feature-delivery.md"
+      ],
+      "baseline_p3": 0.667,
+      "adr_c_p3": 0.667,
+      "delta": 0.0
+    },
+    {
+      "query": "what is the token ledger analytics show session",
+      "gt_pages": 5,
+      "baseline_top3": [
+        "concepts/cache-economics-prompt-caching.md",
+        "decisions/tavola-rotonda-benchmark-sessione-a-2026-07-06.md",
+        "runbooks/analytics-pricing-runbook.md"
+      ],
+      "adr_c_top3": [
+        "concepts/cache-economics-prompt-caching.md",
+        "decisions/tavola-rotonda-benchmark-sessione-a-2026-07-06.md",
+        "runbooks/analytics-pricing-runbook.md"
+      ],
+      "baseline_p3": 0.333,
+      "adr_c_p3": 0.333,
+      "delta": 0.0
+    },
+    {
+      "query": "how to promote a wiki page status",
+      "gt_pages": 16,
+      "baseline_top3": [
+        "sources/content-share-integration-spec.md",
+        "concepts/visibility-tagging.md",
+        "guides/wiki-maintenance.md"
+      ],
+      "adr_c_top3": [
+        "sources/content-share-integration-spec.md",
+        "concepts/visibility-tagging.md",
+        "guides/wiki-maintenance.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "what is the YAGNI ladder in ponytail decision",
+      "gt_pages": 8,
+      "baseline_top3": [
+        "concepts/decision-ladder.md",
+        "concepts/ponytail.md",
+        "concepts/ponytail.md"
+      ],
+      "adr_c_top3": [
+        "concepts/decision-ladder.md",
+        "concepts/ponytail.md",
+        "concepts/ponytail.md"
+      ],
+      "baseline_p3": 1.0,
+      "adr_c_p3": 1.0,
+      "delta": 0.0
+    },
+    {
+      "query": "how does the heal protocol work on lint errors",
+      "gt_pages": 9,
+      "baseline_top3": [
+        "lint/2026-08-28-lint-report.md",
+        "lint/2026-06-03-kanban-scope-lint-report.md",
+        "lint/2026-06-04-task-analytics-complete-lint.md"
+      ],
+      "adr_c_top3": [
+        "lint/2026-08-28-lint-report.md",
+        "lint/2026-06-03-kanban-scope-lint-report.md",
+        "lint/2026-06-04-task-analytics-complete-lint.md"
+      ],
+      "baseline_p3": 0.333,
+      "adr_c_p3": 0.333,
+      "delta": 0.0
+    },
+    {
+      "query": "how to configure compression output caveman",
+      "gt_pages": 1,
+      "baseline_top3": [
+        "concepts/factory-compression-layer.md",
+        "concepts/factory-compression-layer.md",
+        "concepts/factory-compression-layer.md"
+      ],
+      "adr_c_top3": [
+        "concepts/factory-compression-layer.md",
+        "concepts/factory-compression-layer.md",
+        "concepts/factory-compression-layer.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "what is the factory topology hybrid-fe-agents",
+      "gt_pages": 12,
+      "baseline_top3": [
+        "concepts/hybrid-topology-enterprise.md",
+        "syntheses/agentic-workflow-patterns.md",
+        "concepts/hybrid-topology-enterprise.md"
+      ],
+      "adr_c_top3": [
+        "concepts/hybrid-topology-enterprise.md",
+        "syntheses/agentic-workflow-patterns.md",
+        "concepts/hybrid-topology-enterprise.md"
+      ],
+      "baseline_p3": 0.667,
+      "adr_c_p3": 0.667,
+      "delta": 0.0
+    },
+    {
+      "query": "how to run the benchmark for wiki search precision",
+      "gt_pages": 2,
+      "baseline_top3": [
+        "concepts/design-capability-formativa.md",
+        "sources/design-capability-formativa.md",
+        "index.md"
+      ],
+      "adr_c_top3": [
+        "concepts/design-capability-formativa.md",
+        "sources/design-capability-formativa.md",
+        "index.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "what are the code intelligence L1 L2 L3 layers",
+      "gt_pages": 1,
+      "baseline_top3": [
+        "runbooks/code-intelligence.md",
+        "runbooks/code-intelligence.md",
+        "sources/2026-07-17-analisi-factory-v233-tavola-rotonda.md"
+      ],
+      "adr_c_top3": [
+        "runbooks/code-intelligence.md",
+        "runbooks/code-intelligence.md",
+        "sources/2026-07-17-analisi-factory-v233-tavola-rotonda.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "how to sync a PDF document with sync-docs",
+      "gt_pages": 2,
+      "baseline_top3": [
+        "concepts/sync-adapters.md",
+        "concepts/sync-adapters.md",
+        "concepts/sync-adapters.md"
+      ],
+      "adr_c_top3": [
+        "concepts/sync-adapters.md",
+        "concepts/sync-adapters.md",
+        "concepts/sync-adapters.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    },
+    {
+      "query": "what is the purpose of the factory-bootstrap meta-prompt",
+      "gt_pages": 2,
+      "baseline_top3": [
+        "guides/new-project.md",
+        "runbooks/bootstrap-record-2026-05-14.md",
+        "sources/2026-07-15-factory-guide-review-session-report.md"
+      ],
+      "adr_c_top3": [
+        "guides/new-project.md",
+        "runbooks/bootstrap-record-2026-05-14.md",
+        "sources/2026-07-15-factory-guide-review-session-report.md"
+      ],
+      "baseline_p3": 0.0,
+      "adr_c_p3": 0.0,
+      "delta": 0.0
+    }
+  ]
+}

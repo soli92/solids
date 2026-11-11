@@ -1,10 +1,10 @@
-# Skill: Ingest Protocol
-
-> Adapter Cursor della skill `ingest-protocol` definita in PATTERN.md.
-
+---
+name: ingest-protocol
+description: Protocollo ReAct di Ingest per il wiki-keeper. 6 fasi (+1.ter Piano CoT EP-056) con branch parallelo su N ≥ 3 raw e ramo strutturato su .kb.json (v2.9).
+---
 # Protocollo di Ingest
 
-Riferimenti: [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md), [wiki-log-entry](mdc:.cursor/skills/wiki-log-entry/SKILL.md), [wiki-gap-protocol](mdc:.cursor/skills/wiki-gap-protocol/SKILL.md), [scrivi-wiki-page](mdc:.cursor/skills/scrivi-wiki-page/SKILL.md),
+Riferimenti: `citation-rules`, `wiki-log-entry`, `wiki-gap-protocol`, `scrivi-wiki-page`,
 PATTERN §16 (sync adapters multi-sorgente, v2.9).
 
 **Shape dei raw (v2.9)**: il manifest può contenere entries con `source: pdf` (artefatto
@@ -14,7 +14,7 @@ manifest (assenza → `pdf` per retrocompatibilità).
 
 **Branch parallelo**: se al termine di Fase 0 il manifest ha **N ≥ 3** nuovi artefatti
 da ingerire (qualunque source), l'analisi (Fase 1) si esegue in modalità **parallela**
-delegando a worker subordinati ([wiki-keeper-worker](mdc:.cursor/rules/wiki-keeper-worker.mdc)); altrimenti seriale. La fase di
+delegando a worker subordinati (`wiki-keeper-worker`); altrimenti seriale. La fase di
 merge (1.bis) è eseguita solo nel ramo parallelo. Scrittura, indice e log restano
 serializzati in entrambi i rami.
 
@@ -32,7 +32,7 @@ qui perché la conferma esplicita arriva comunque alla Fase 2 (proposta).
 - `Glob raw/**/*.{txt,md,kb.json}` + Read `raw/.extraction-manifest.json`
 - `Glob wiki/**/*.md` per sapere cosa c'è già
 - Read ultimo `memory/episodic/*.md` per continuità con run precedente
-- **Read `wiki/gaps.md`** (vedi [wiki-gap-protocol](mdc:.cursor/skills/wiki-gap-protocol/SKILL.md)): se ci sono gap aperti, mostra
+- **Read `wiki/gaps.md`** (vedi `wiki-gap-protocol`): se ci sono gap aperti, mostra
   in chat la lista e proponi di colmarli prima o insieme al nuovo ingest. Attendi
   conferma esplicita su quali gap affrontare.
 - Per ogni entry del manifest, determina lo `source` (`pdf` se mancante).
@@ -81,8 +81,8 @@ Vai a **Fase 2**.
 
 ## Fase 1 (parallela, N ≥ 3) — Analisi delegata
 
-Invoca **in parallelo** `min(N, scheduler.max_parallel)` sub-agent [wiki-keeper-worker](mdc:.cursor/rules/wiki-keeper-worker.mdc)
-(adapter Cursor: invocazione dell'agente worker per ciascun raw). Se
+Invoca **in parallelo** `min(N, scheduler.max_parallel)` sub-agent `wiki-keeper-worker`
+(adapter Claude Code: tool-call `Agent` multipli nello stesso turno). Se
 `N > scheduler.max_parallel`, processa i raw in **chunk seriali** di `max_parallel`
 worker ciascuno (rispetto R.S3 di §18); fra un chunk e il successivo non c'è merge
 intermedio — il merge (Fase 1.bis) avviene su tutto l'insieme dei JSON ritornati.
@@ -111,7 +111,7 @@ Ogni worker DEVE rispondere **un solo blocco JSON** (schema):
 ```
 
 Vincoli del worker: legge solo `primary_path` + `tech_stack` + `open_gaps` + slug
-esistenti; non scrive file (output = solo il JSON); applica [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md) su ogni
+esistenti; non scrive file (output = solo il JSON); applica `citation-rules` su ogni
 `claim` (per `source: figma` usa la grammatica JSON v2.9, vedi PATTERN §6); su slug
 esistente ambiguo lascia il proprio e segnala in `wikilinks_out`. Per `source: figma`
 il worker segue la mappatura schema-driven definita sopra (Fase 1 seriale, ramo Figma)
@@ -122,7 +122,7 @@ retry; al secondo fallimento "raw non ingerito" + report in Fase 2.
 
 ## Fase 1.bis — Merge (solo ramo parallelo)
 
-Il [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) principale riceve gli N JSON e produce un piano unificato:
+Il `wiki-keeper` principale riceve gli N JSON e produce un piano unificato:
 
 1. **Slug collision**: se due worker propongono lo stesso `path` con `type` compatibile →
    fonde le `proposed_pages` in una sola: `sources[]` = unione, `claims[]` = unione
@@ -139,6 +139,29 @@ Il [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) principale riceve gli N JSON
    contenuti contraddicono, applica regola §10 (sezione `## Contradictions` non-distruttiva).
 5. **Contradictions flagged**: ogni entry → append `## Contradictions` alla pagina target (mai overwrite).
 
+## Fase 1.ter — Piano di pagine (CoT esplicito) (EP-056 US-202)
+
+Prima di proporre, il `wiki-keeper` sintetizza un **piano di pagine esplicito** a partire
+dai `plan_reasoning` dei worker (ramo parallelo) o dalla propria analisi (ramo seriale,
+dove il piano è prodotto inline — nessun worker). Il piano è un artefatto di ragionamento
+in-memory (mostrato in Fase 2, non necessariamente persistito) con quattro output:
+
+1. **Ordine di scrittura** — ordinamento topologico sul grafo dei wikilink: le pagine
+   referenziate vengono scritte prima delle pagine che le referenziano. Riduce i wikilink
+   dangling temporanei durante la Fase 3.
+2. **Grafo wikilink** — costruisci l'insieme dei `[[X]]` proposti; ogni `X` non risolvibile
+   verso pagina esistente o proposta è marcato **dangling** → candidato gap (Fase 3) o item
+   `dangling-concept` per sweep-reviews (EP-056 US-203, se `wiki_sweep.enabled`).
+3. **Coerenza terminologica** — se `wiki/purpose.md` esiste (EP-055), allinea titoli e termini
+   a `priority_entity_types` + `domain`; annota i termini divergenti come candidati
+   `terminology-drift` per sweep-reviews.
+4. **Claim → citazione** — elenca i claim che necessitano di `[^src:]`; quelli senza fonte
+   robusta diventano gap in Fase 3 (`wiki-gap-protocol`).
+
+Il piano rende la generazione (Fase 3) un'operazione su input strutturato, non su raw amorfo
+(razionale a/b/c, TR-llmwiki-20260824). **Nessun nuovo file obbligatorio**: il piano vive nel
+riepilogo di Fase 2. Backward-compat: ramo seriale (N<3) produce lo stesso piano inline.
+
 ## Fase 2 — Proposta (STOP)
 
 Mostra in chat:
@@ -153,6 +176,7 @@ Figure referenziate: F
 Gap identificati (prima passata): G
 Slug collisions risolte: C (lista)
 Contradictions flagged: X (lista)
+Piano CoT: <M> pagine, ordine di scrittura definito, <D> dangling, <Cl> claim da citare
 Worker falliti dopo retry: W (lista, se ramo parallel)
 Procedo?
 ```
@@ -161,9 +185,9 @@ Procedo?
 
 ## Fase 3 — Scrittura
 
-- Per ogni pagina nel piano: usa [scrivi-wiki-page](mdc:.cursor/skills/scrivi-wiki-page/SKILL.md). **Una alla volta**, sul [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) principale.
-- Per ogni claim senza fonte robusta: apri un gap secondo [wiki-gap-protocol](mdc:.cursor/skills/wiki-gap-protocol/SKILL.md).
-- Citazioni e wikilink: secondo [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md).
+- Per ogni pagina nel piano: usa `scrivi-wiki-page`. **Una alla volta**, sul `wiki-keeper` principale.
+- Per ogni claim senza fonte robusta: apri un gap secondo `wiki-gap-protocol`.
+- Citazioni e wikilink: secondo `citation-rules`.
 - **Touch many small files**: un ingest sano produce 5–15 piccole pagine, non
   una mega-pagina.
 
@@ -173,7 +197,7 @@ Regenera `wiki/index.md` da `Glob wiki/**/*.md` (escludi `log.md`, `query/`, `li
 
 ## Fase 5 — Log entry (OBBLIGATORIA)
 
-Append **una sola** entry a `wiki/log.md` secondo [wiki-log-entry](mdc:.cursor/skills/wiki-log-entry/SKILL.md) (template `ingest`).
+Append **una sola** entry a `wiki/log.md` secondo `wiki-log-entry` (template `ingest`).
 Se ramo parallel: l'entry include il campo `parallel_workers: N` e la lista delle slug
 collisions risolte. Per ogni gap chiuso, applica il template `gap-closed`. **Mai una
 entry per worker.**
@@ -197,7 +221,8 @@ Se risultano file modified o untracked nelle directory `wiki/` e `raw/`:
 
 **Motivazione**: ogni ingest deve chiudersi con un repository in stato committato.
 Modifiche non committate a `wiki/` e `raw/` rischiano di essere sovrascritte o di
-creare conflitti in sessioni successive. (ACC-05 TR-20260714-14)
+creare conflitti in sessioni successive. (ACC-05 TR-20260714-14: ingest-protocol +
+vcs-handoff integrato.)
 
 ## Regola di concorrenza
 

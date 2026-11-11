@@ -25,6 +25,8 @@ Sintassi:
    - Se `status` ≠ `done` → ABORT «Review applicabile solo a TSK done; status attuale: <X>».
    - Se `review_status ∈ {passed, rejected}` → mostra il report più recente e chiedi
      «TSK già in stato <X>. Re-invocare review (`--force`)? [y/N]».
+   - Costi in token (`dispatch-policy` §13): `cost_alert.py check --gate`; con una riga `⚠`
+     chiedi conferma prima del punto 3 (una volta per sessione e per alert).
 3. Invoca l'agent `code-reviewer` (Claude Code `Agent` con `subagent_type: code-reviewer`)
    passando come prompt:
    - `tsk_id: <id>`

@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-sprint-progress.py — segnale burndown del sprint corrente.
-Basato su event store EP-009 con fallback automatico a conteggio kanban.
+sprint-progress.py — burndown signal of the current sprint.
+Based on EP-009 event store with automatic kanban counting fallback.
 
-USO:
+USE:
   python3 tools/analytics/sprint-progress.py [sprint_id] [--json]
 
-ARGOMENTI:
-  sprint_id  (opzionale, int) — sprint da analizzare.
-             Default: legge sprint_current: da management/kanban/sprint.md.
-  --json     Output machine-readable JSON invece del formato rich text.
+TOPICS:
+  sprint_id (optional, int) — sprint to parse.
+             Default: read sprint_current: from management/kanban/sprint.md.
+  --json Output machine-readable JSON instead of rich text format.
 
-DIPENDENZE: solo stdlib Python (json, pathlib, datetime, statistics, re, sys, argparse).
-PyYAML usato se disponibile per il parsing di factory.config.yaml, con fallback regex.
+DEPENDENCES: Python stdlib only (json, pathlib, datetime, statistics, re, sys, argparse).
+Used PyYAML if available for parsing factory.config.yaml, with regex fallback.
 """
 import sys
 import json
@@ -25,7 +25,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 
 # ---------------------------------------------------------------------------
-# Costanti
+# Constants
 # ---------------------------------------------------------------------------
 
 SEP = "━" * 43  # ━━━━...
@@ -52,13 +52,13 @@ def find_project_dir() -> pathlib.Path:
 
 
 # ---------------------------------------------------------------------------
-# Lettura sprint_current
+# Read sprint_current
 # ---------------------------------------------------------------------------
 
 def read_sprint_current(project_dir: pathlib.Path) -> Optional[int]:
     """
-    Legge sprint_current: da management/kanban/sprint.md via regex.
-    Ritorna None se il file non esiste o il campo non è presente.
+    Read sprint_current from management/kanban/sprint.md via regex.
+    Returns None if the file does not exist or the field is missing.
     """
     sprint_md = project_dir / "management" / "kanban" / "sprint.md"
     try:
@@ -72,7 +72,7 @@ def read_sprint_current(project_dir: pathlib.Path) -> Optional[int]:
 
 
 # ---------------------------------------------------------------------------
-# Lettura factory.config.yaml
+# Read factory.config.yaml
 # ---------------------------------------------------------------------------
 
 def load_config(project_dir: pathlib.Path) -> Dict[str, Any]:
@@ -96,7 +96,7 @@ def load_config(project_dir: pathlib.Path) -> Dict[str, Any]:
     except OSError:
         return cfg
 
-    # Tentativo con PyYAML
+    # Trying PyYAML
     try:
         import yaml  # type: ignore
         data = yaml.safe_load(text)
@@ -120,7 +120,7 @@ def load_config(project_dir: pathlib.Path) -> Dict[str, Any]:
             cfg["velocity_rolling_days"] = int(m_vrd.group(1))
         except ValueError:
             pass
-    # estimate_protocol.enabled in blocco annidato
+    # estimate_protocol.enabled in nested block
     m_ep = re.search(
         r"estimate_protocol\s*:\s*\n(?:\s+\w[^:]+:\s*[^\n]+\n)*\s+enabled\s*:\s*(true|false)",
         text,
@@ -237,7 +237,7 @@ def load_events(
             except json.JSONDecodeError:
                 continue
 
-            # Filtra solo eventi con sprint field
+            # Filter only events with sprint fields
             rec_sprint = rec.get("sprint")
             if rec_sprint is None:
                 continue
@@ -307,11 +307,11 @@ def compute_velocity_and_uncertainty(
     today = datetime.datetime.now(tz=datetime.timezone.utc)
     days_elapsed = max(
         (today - first_event_ts).total_seconds() / 86400,
-        0.5,  # minimo mezzo giorno per evitare divisione per zero
+        0.5,  # minimum half-day to avoid division by zero
     )
     velocity = done_count / days_elapsed
 
-    # Rolling variance: raccogli timestamps finished degli ultimi rolling_days
+    # Rolling variance: collect finished timestamps of the latest rolling_days
     cutoff = today - datetime.timedelta(days=rolling_days)
     daily_done: Dict[str, int] = {}
 
@@ -413,12 +413,12 @@ def check_xl_outliers(
             continue
         estimate = fm.get("estimate", "").upper()
         status = fm.get("status", "").lower()
-        if estimate != "XL" or status != "in-progress":
+        if estimate != "XL" or status not in ("in-progress", "in_progress"):
             continue
 
         task_id = fm.get("id", tsk_path.stem)
 
-        # Cerca timestamp 'started' nell'event store per calcolare elapsed
+        # Search timestamp 'started' in the event store to calculate elapsed
         elapsed_h: Optional[float] = None
         if events_dir.exists():
             for jsonl_file in sorted(events_dir.glob("*.jsonl")):
@@ -446,7 +446,7 @@ def check_xl_outliers(
                     except (ValueError, AttributeError):
                         pass
 
-        # Baseline stima temporale XL: ~8h di effort
+        # Baseline time estimate XL: ~8h of effort
         xl_hours_baseline = 8.0
         time_ratio: Optional[float] = None
         confidence: float = 0.3
@@ -531,7 +531,7 @@ def format_rich(data: Dict[str, Any]) -> str:
         )
         lines.append(SEP)
 
-    # Sezione XL outliers (solo se estimate_protocol_enabled e outlier presenti)
+    # XL outliers section (only if estimate_protocol_enabled and outliers present)
     xl_outliers = data.get("xl_outliers") or []
     if xl_outliers:
         lines.append("TSK XL outlier (stima temporale):")
@@ -594,7 +594,7 @@ def main() -> int:
         )
         return 1
 
-    # Carica configurazione (graceful fallback se file/PyYAML assenti)
+    # Load configuration (graceful fallback if files/PyYAML missing)
     cfg = load_config(project_dir)
     rolling_days: int = cfg["velocity_rolling_days"]
     estimate_protocol_enabled: bool = cfg["estimate_protocol_enabled"]
@@ -602,7 +602,7 @@ def main() -> int:
     # --- Tenta event store ---
     task_states, first_event_ts = load_events(project_dir, sprint_id)
 
-    # Carica sempre lista kanban per il totale TSK del sprint
+    # Always upload kanban list for sprint TSK total
     kanban_tasks = load_kanban_tasks(project_dir, sprint_id)
 
     source: str
@@ -620,7 +620,7 @@ def main() -> int:
         in_progress_ids = [tid for tid, st in task_states.items() if st == "in-progress"]
 
         if kanban_tasks:
-            # Combina: i task kanban sono la source-of-truth dell'elenco completo
+            # Combine: Kanban tasks are the source-of-truth of the complete list
             done_count = sum(
                 1 for t in kanban_tasks
                 if t["id"] in done_ids or t["status"] == "done"
@@ -637,7 +637,7 @@ def main() -> int:
         total = max(len(kanban_tasks), done_count + in_progress_count)
         todo_count = max(0, total - done_count - in_progress_count)
 
-        # Velocity (solo se ci sono task done)
+        # Velocity (only if there are tasks done)
         if done_count > 0:
             events_dir = project_dir / "analytics" / "events"
             velocity, uncertainty = compute_velocity_and_uncertainty(
@@ -661,7 +661,7 @@ def main() -> int:
             st = t["status"]
             if st == "done":
                 done_count += 1
-            elif st == "in-progress":
+            elif st in ("in-progress", "in_progress"):
                 in_progress_count += 1
             else:
                 todo_count += 1
@@ -669,7 +669,7 @@ def main() -> int:
     total = done_count + in_progress_count + todo_count
     completion_pct: float = (done_count / total * 100.0) if total > 0 else 0.0
 
-    # XL outliers (solo se estimate_protocol_enabled)
+    # XL outliers (only if estimate_protocol_enabled)
     xl_outliers = check_xl_outliers(project_dir, sprint_id, estimate_protocol_enabled)
 
     now_iso = (
@@ -693,7 +693,7 @@ def main() -> int:
             round(proj_unc, 2) if proj_unc is not None else None
         ),
         "xl_outliers": xl_outliers,
-        # Campo interno, non incluso nel --json output
+        # Internal field, not included in --json output
         "_rolling_days": rolling_days,
     }
 

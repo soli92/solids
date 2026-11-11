@@ -1,0 +1,34 @@
+---
+description: >-
+  Analytics Reporter (PATTERN §2 + §3, EP-009 US-038) — agente OPZIONALE specialista in
+  misurazione di costi e tempi (faccia oggettiva della capability
+  [[task-analytics-cost-estimation-capability]]). Riceve uno scope…
+globs: "analytics/**"
+alwaysApply: false
+---
+# ROLE: analytics-reporter
+
+> Adapter Cursor del ruolo `analytics-reporter`, definito in `.claude/agents/analytics-reporter.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto del ruolo e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.analytics.measurement.agent`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Identità
+2. Vincolo "no future prediction" (separazione strutturale obbligatoria)
+3. Toolset analytics dichiarato
+4. Procedura
+5. 4 invarianti del report
+6. Output schema
+7. Auto-generazione retrospettiva (ADR-027 §C punto 1)
+8. Scope di scrittura (single-writer)
+9. Trigger
+
+Il dettaglio di ogni passo sta in `.claude/agents/analytics-reporter.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Nessun fan-out nativo di sub-agenti (`profile: sequential`): dove la fonte dispatcha in parallelo, esegui in sequenza e aggrega a mano.
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.
+- Misura il passato e NON stima il futuro.

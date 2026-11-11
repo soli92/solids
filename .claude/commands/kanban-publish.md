@@ -46,7 +46,7 @@ richiede campi obbligatori non valorizzati (target, auth_env, mapping), chiede
 in chat in modalità conversazionale e li scrive nel file. **Mai** scrive il
 token: solo il **nome** della variabile d'ambiente.
 
-Coerenza: se il sub-agent `<provider>-publisher` non esiste in `.cursor/rules/`,
+Coerenza: se il sub-agent `<provider>-publisher` non esiste in `.claude/agents/`,
 emit ERROR «Provider <provider> non scaffoldato in questo adapter. Esegui
 factory-bootstrap con `kanban_publish.provider=<provider>` oppure scaffolda
 manualmente seguendo PATTERN §17 §Contratto».
@@ -54,7 +54,7 @@ manualmente seguendo PATTERN §17 §Contratto».
 ### `run [filter]`
 
 Invoca il sub-agent `<provider>-publisher` letto da config. L'agente esegue
-la skill [publisher-protocol](mdc:.cursor/skills/publisher-protocol/SKILL.md) 5 fasi:
+`publisher-protocol` 5 fasi:
 
 1. **Bootstrap** — verifica auth, config, prerequisiti CLI.
 2. **Discovery** — `Glob` di EP/US/TSK/sprint da `management/kanban/`.
@@ -83,7 +83,7 @@ publisher prima di committarsi.
 
 - `factory.config.yaml.kanban_publish.provider ≠ none`.
 - Variabile d'ambiente `<auth_env>` settata.
-- Sub-agent `<provider>-publisher` presente in `.cursor/rules/`.
+- Sub-agent `<provider>-publisher.md` presente in `.claude/agents/`.
 - Provider-specific CLI installato e autenticato:
   - GitHub: `gh` (https://cli.github.com/) + `gh auth login` fatto.
   - GitLab: `glab` (placeholder v2.10, non implementato).
@@ -102,5 +102,5 @@ Ogni EP/US/TSK con `external_id: <provider>:<id>` viene UPDATE; senza
 - Mai pubblicare > `batch_limit` (default 10) senza secondo gate.
 - Token solo da variabile d'ambiente; mai committato.
 
-Vedi la skill [publisher-protocol](mdc:.cursor/skills/publisher-protocol/SKILL.md) per la procedura completa, PATTERN §17 per il
+Vedi `publisher-protocol` per la procedura completa, PATTERN §17 per il
 contratto «Publisher adapters».

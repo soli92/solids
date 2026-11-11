@@ -1,13 +1,15 @@
 """
-sandbox_exec_tool.py — subprocess isolato per esecuzione snippet Python.
+sandbox_exec_tool.py — isolated subprocess for Python snippet execution.
 
-Tool che abilita le asserzioni L1 del tutor: esegue il codice e riporta
-l'output reale (exit_code, stdout, stderr, elapsed_ms, timed_out).
+Tool that enables the tutor's L1 assertions: runs the code and reports
+the actual output (exit_code, stdout, stderr, elapsed_ms, timed_out).
 
-Solo stdlib Python 3.10+. Nessuna dipendenza esterna.
+Python 3.10+ stdlib only. No external dependencies.
 
 Mini-CLI:
     echo "print('hello')" | python3 tools/tutor/sandbox_exec_tool.py
+
+
 """
 
 from __future__ import annotations
@@ -19,7 +21,8 @@ import tempfile
 import time
 from pathlib import Path
 
-# Limite assoluto non overridabile per timeout_s
+# Non-overridable absolute limit for timeout_s
+
 _MAX_TIMEOUT_S: float = 30.0
 _MAX_STDOUT_CHARS: int = 4096
 _MAX_STDERR_CHARS: int = 1024
@@ -36,7 +39,8 @@ def _get_repo_root() -> Path:
     for candidate in [current, *current.parents]:
         if (candidate / ".git").exists() or (candidate / "factory.config.yaml").exists():
             return candidate
-    # Fallback al CWD se non trovato
+    # Fallback to CWD if not found
+
     return current
 
 
@@ -69,10 +73,12 @@ def execute_snippet(
             "timed_out": bool,
         }
     """
-    # Clamp silenzioso del timeout al massimo consentito
+    # Silent clamp of timeout to maximum allowed
+
     effective_timeout = min(float(timeout_s), _MAX_TIMEOUT_S)
 
-    # Directory di lavoro
+    # Work directory
+
     cwd = Path(working_dir).resolve() if working_dir else _get_repo_root()
 
     tmp_path: Path | None = None
@@ -83,7 +89,8 @@ def execute_snippet(
     timed_out: bool = False
 
     try:
-        # 1. Scrive il codice in file temporaneo
+        # 1. Write the code to temporary file
+
         with tempfile.NamedTemporaryFile(
             mode="w",
             suffix=".py",
@@ -93,7 +100,8 @@ def execute_snippet(
             tmp_file.write(code)
             tmp_path = Path(tmp_file.name)
 
-        # 2. Esegue il subprocess con timeout
+        # 2. Execute the subprocess with timeout
+
         t_start = time.monotonic()
         try:
             result = subprocess.run(
@@ -104,7 +112,8 @@ def execute_snippet(
             )
             elapsed_ms = (time.monotonic() - t_start) * 1000.0
 
-            # 3. Cattura output
+            # 3. Capture output
+
             exit_code = result.returncode
             raw_stdout = result.stdout.decode("utf-8", errors="replace")
             raw_stderr = result.stderr.decode("utf-8", errors="replace")
@@ -121,7 +130,8 @@ def execute_snippet(
             stderr_text = "TIMEOUT"
 
     finally:
-        # 5. Cleanup file temporaneo — nessun leak
+        # 5. Temporary file cleanup — no leaks
+
         if tmp_path is not None and tmp_path.exists():
             try:
                 tmp_path.unlink()
@@ -138,7 +148,7 @@ def execute_snippet(
 
 
 if __name__ == "__main__":
-    # Mini-CLI: legge codice da stdin e stampa il risultato JSON.
+    # Mini-CLI: Read code from stdin and print the JSON result.
     # Utilizzo:
     #   echo "print('hello')" | python3 tools/tutor/sandbox_exec_tool.py
     code_input = sys.stdin.read()

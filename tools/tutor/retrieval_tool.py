@@ -195,43 +195,124 @@ def _nearest_scope(
 # ---------------------------------------------------------------------------
 
 
-def _ep042_enabled(repo_root: str = ".") -> bool:
+def _flag(content: str, blocco: str, chiave: str) -> bool | None:
+    """Legge `blocco:` → `  chiave: true|false` senza pyyaml. `None` se assente.
+
+    `None` e `False` sono cose diverse: «non dichiarato» e «dichiarato spento» portano
+    a messaggi diversi verso l'utente, e collassarli produce la stessa ambiguita' di uno
+    zero al posto di «non lo so».
     """
-    Return True if `wiki_search.enabled` is `true` in factory.config.yaml.
-
-    Parsed with stdlib only (no pyyaml). Falls back to False on missing file,
-    parse error, or absent key.
-
-    Called internally by search_wiki to select the retrieval branch (AC6).
-    """
-    config_path = Path(repo_root) / "factory.config.yaml"
-    try:
-        content = config_path.read_text(encoding="utf-8")
-    except OSError:
-        return False
-
-    # Locate the wiki_search: block in the YAML (top-level key).
-    idx = content.find("wiki_search:")
+    idx = content.find(f"{blocco}:")
     if idx == -1:
-        return False
-
-    # Take the text immediately after "wiki_search:" and scan for "enabled:".
-    # Stop scanning when we encounter a new top-level key (unindented non-empty
-    # non-comment line), which signals we have left the wiki_search block.
-    snippet = content[idx + len("wiki_search:"):]
-    for line in snippet.splitlines():
+        return None
+    for line in content[idx + len(blocco) + 1:].splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
             continue
-        # A new top-level YAML key starts at column 0 (no leading whitespace).
-        if re.match(r"^[A-Za-z_]", line):
+        if re.match(r"^[A-Za-z_]", line):      # nuova chiave top-level: blocco finito
             break
-        # Match indented "enabled: true|false" (comment suffix allowed).
-        m = re.match(r"\s+enabled\s*:\s*(true|false)", line)
+        m = re.match(rf"\s+{chiave}\s*:\s*(true|false)", line)
         if m:
             return m.group(1).lower() == "true"
+    return None
 
-    return False
+
+def retrieval_gate(repo_root: str = ".") -> tuple[bool, str | None]:
+    """(il retrieval semantico e' attivo, ragione se no) — US-175, TSK-675.
+
+    **Doppio gate.** Il retrieval semantico nel tutor sta all'incrocio di due capability
+    indipendenti, e serve che siano accese ENTRAMBE:
+
+      - `capability_formativa.enabled` — senza tutor non c'e' nessuno che interroghi;
+      - `wiki_search.enabled` — senza indice non c'e' niente da interrogare;
+
+    piu' l'interruttore dell'integrazione, `capability_formativa.wiki_search_integration`,
+    che esiste perche' avere le due capability accese non implica volerle collegate.
+
+    A gate chiuso il tutor si comporta **esattamente come prima di questa storia**: usa il
+    contenuto del nodo di curriculum e il grep, e non cerca l'indice. La ragione viene
+    restituita e non scartata: un retrieval che non parte senza dire perche' e'
+    indistinguibile da un retrieval che non trova nulla.
+    """
+    try:
+        content = (Path(repo_root) / "factory.config.yaml").read_text(encoding="utf-8")
+    except OSError:
+        return False, "factory.config.yaml non leggibile"
+
+    integrazione = _flag(content, "capability_formativa", "wiki_search_integration")
+    if integrazione is not True:
+        return False, ("capability_formativa.wiki_search_integration non e' attivo"
+                       if integrazione is False else
+                       "capability_formativa.wiki_search_integration non e' dichiarato")
+
+    for blocco, chiave, cosa in (
+        ("capability_formativa", "enabled", "la capability formativa e' spenta"),
+        ("wiki_search", "enabled", "wiki_search e' spento: nessun indice da interrogare"),
+    ):
+        if _flag(content, blocco, chiave) is not True:
+            return False, cosa
+    return True, None
+
+
+def _ep042_enabled(repo_root: str = ".") -> bool:
+    """Compatibilita': i chiamanti storici leggevano questo. Ora risponde il doppio gate.
+
+    Prima bastava `wiki_search.enabled`, e il tutor interrogava l'indice anche con
+    l'integrazione dichiarata `false` in configurazione — cioe' il flag
+    `capability_formativa.wiki_search_integration` non governava niente.
+    """
+    attivo, _ = retrieval_gate(repo_root)
+    return attivo
+
+
+#: Ultime degradazioni del retrieval semantico, in memoria. Serve a rispondere alla
+#: domanda «perche' la risposta e' piu' povera del previsto», che senza questo registro
+#: non ha risposta: il grep funziona, quindi nulla fallisce e nulla viene detto.
+_DEGRADAZIONI: list[dict] = []
+
+
+def _degradazione(ragione: str, *, gate: bool = False) -> None:
+    _DEGRADAZIONI.append({
+        "ragione": ragione,
+        "tipo": "gate-chiuso" if gate else "indice-non-utilizzabile",
+        "quando": datetime.now(timezone.utc).isoformat(),
+    })
+    del _DEGRADAZIONI[:-20]
+
+
+def ultima_degradazione() -> dict | None:
+    """L'ultima ragione per cui il retrieval semantico non e' stato usato. `None` se
+    e' stato usato, o se non e' mai stato tentato."""
+    return _DEGRADAZIONI[-1] if _DEGRADAZIONI else None
+
+
+def verifica_citazioni(citazioni: list[dict], repo_root: str = ".") -> list[dict]:
+    """Scarta le citazioni il cui `source` non esiste su disco (US-175, TSK-677).
+
+    Una risposta piu' ricca ma non verificabile e' peggio di una piu' povera: il tutor ha
+    tag epistemici L1/L2/L3 proprio per non far passare per sapere cio' che e' inferenza,
+    e una citazione che non risolve e' un'inferenza travestita da fonte.
+
+    Il rischio e' concreto sul ramo semantico: l'indice puo' essere piu' vecchio del wiki
+    e restituire pagine **rinominate o cancellate** — e in quel caso il tutor citerebbe
+    con sicurezza un file che non esiste piu'. Il grep non ha questo problema perche'
+    legge il disco; l'indice si', ed e' la ragione per cui questo filtro esiste.
+
+    Lo scarto e' registrato come degradazione: una citazione persa in silenzio fa
+    sembrare povero il retrieval invece che stantio l'indice.
+    """
+    radice = Path(repo_root)
+    valide, scartate = [], []
+    for c in citazioni:
+        origine = c.get("source", "")
+        if origine and (radice / origine).is_file():
+            valide.append(c)
+        else:
+            scartate.append(origine or "<senza source>")
+    if scartate:
+        _degradazione(f"{len(scartate)} citazioni scartate perche' il file non esiste "
+                      f"(indice piu' vecchio del wiki?): {', '.join(scartate[:3])}")
+    return valide
 
 
 def search_wiki(query: str, repo_root: str = ".") -> list[dict]:
@@ -288,9 +369,12 @@ def search_wiki(query: str, repo_root: str = ".") -> list[dict]:
                 break
         return results
 
-    if _ep042_enabled(repo_root):
-        # EP-042 ON — attempt wiki-search-protocol CLI.
-        # If the subprocess call fails for any reason, degrade to grep (AC6).
+    attivo, ragione = retrieval_gate(repo_root)
+    if attivo:
+        # Gate aperto — si tenta l'indice semantico, e se non risponde si degrada al grep
+        # DICHIARANDOLO. `wiki_search.enabled: true` non garantisce che l'indice esista:
+        # va costruito con `/wiki-search reindex`, e un tutor che tace la differenza fa
+        # sembrare povero il corpus quando invece manca l'indice (TSK-676).
         try:
             result = subprocess.run(
                 [
@@ -321,12 +405,27 @@ def search_wiki(query: str, repo_root: str = ".") -> list[dict]:
                     if excerpt:
                         citation["excerpt"] = excerpt
                     citations.append(citation)
+                verificate = verifica_citazioni(citations, repo_root)
+                if verificate:
+                    return verificate
                 if citations:
-                    return citations
-        except Exception:
-            pass  # degrade to grep
+                    # L'indice ha risposto, ma tutte le pagine che nomina sono sparite.
+                    # Non e' «nessun risultato»: e' un indice stantio, e va detto.
+                    _degradazione("l'indice ha risposto ma nessuna pagina citata esiste "
+                                  "piu': ricostruiscilo con `/wiki-search reindex`")
+            _degradazione(
+                "l'indice semantico non ha restituito risultati utilizzabili")
+        except FileNotFoundError:
+            _degradazione("l'indice non e' stato costruito: `/wiki-search reindex`")
+        except subprocess.TimeoutExpired:
+            _degradazione("l'indice non ha risposto entro 30s")
+        except Exception as problema:      # noqa: BLE001 — un guasto e' un dato
+            _degradazione(f"{type(problema).__name__}: {problema}")
+    elif ragione:
+        _degradazione(ragione, gate=True)
 
-    # EP-042 off — or EP-042 on but CLI unavailable/failed.
+    # Gate chiuso, oppure aperto ma indice non utilizzabile: si torna al grep, che e'
+    # esattamente il comportamento precedente a questa storia (R.WS1, fallback garantito).
     return _grep_fallback()
 
 

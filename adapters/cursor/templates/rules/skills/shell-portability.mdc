@@ -1,0 +1,27 @@
+---
+description: Portabilità dei comandi di shell (POSIX, flag comuni GNU/BSD). Vale per ogni comando lanciato nel Terminal.
+alwaysApply: true
+---
+# Skill — Shell Portability
+
+> Adapter Cursor. File equivalente Claude Code: `.claude/skills/shell-portability.md` (regole complete e tabella BSD).
+
+Skill e script della factory assumono una shell POSIX. Ambienti raccomandati: Linux, macOS,
+WSL2 (su Windows, con il repo clonato in `~/`, non sotto `/mnt/c`). Git Bash funziona ma è
+fragile; PowerShell non è supportato.
+
+**Su Windows** il Terminal dell'agente usa il profilo predefinito dell'editor, di solito
+PowerShell. Prima di lanciare comandi della factory imposta in settings
+`"terminal.integrated.defaultProfile.windows": "Git Bash"` (oppure apri la cartella da WSL).
+Se il Terminal risponde con sintassi PowerShell, fermati e segnalalo invece di tradurre i comandi.
+
+Regole minime (dettaglio e tabella BSD nel file di riferimento):
+- solo flag comuni a GNU e BSD: niente `sed -i` senza suffisso, `date -d`, `grep -P`, `readlink -f`;
+- parsing di JSON, date o output non banali in Python, non con catene `awk`/`sed`;
+- path con `/`, variabili sempre quotate (`design_&_architecture/` contiene `&`);
+- fine riga LF; `$'\r': command not found` indica CRLF (`git config core.autocrlf input`);
+- niente comandi interattivi (`git rebase -i`, `git add -i`, editor).
+
+**Nomi di file portabili**: caratteri illegali su Windows (`< > : " | ? *`) nei nomi di file
+rendono impossibile il `git clone`. Check: `python3 tools/lint/check-portable-paths.py`
+(exit 0 = OK, exit 1 = violazioni con dettaglio).

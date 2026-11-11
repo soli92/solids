@@ -1,6 +1,6 @@
 ---
 name: ponytail-audit
-description: "Scan YAGNI Decision Ladder sull'intero code_path (o sottoinsieme via glob). Full-repo counterpart di /ponytail-review. Produce report in code_quality/reports/ e alimenta /ponytail-gain. Opt-in EP-057."
+description: "Scan YAGNI Decision Ladder sull'intero code_path (o sottoinsieme via glob). Full-repo counterpart di /ponytail-review. Produce report in code_quality/reports/ e alimenta la riga `ponytail-gain` del token ledger. Opt-in EP-057."
 status: stable
 epic_id: EP-057
 pattern_version: "2.39-candidate"
@@ -80,7 +80,7 @@ file scansionati: <N>   candidati: <M>   saving stimato: ~<K> righe
 ```
 
 I campi `files_scanned`, `candidates`, `estimated_saving_lines` nel frontmatter sono letti da
-`/ponytail-gain` (tool `show-session-tokens.py`).
+la riga `ponytail-gain` del token ledger (tool `show-session-tokens.py`).
 
 ## Invariante R.PY1
 
@@ -92,4 +92,4 @@ trust-boundary. Non applica mai le semplificazioni — le cataloga soltanto (rea
 - Scala canonica: `.claude/skills/code-review-protocol.md §Passata 5`
 - Concetto: `wiki/concepts/decision-ladder.md`, `wiki/concepts/ponytail.md`
 - Comando: `.claude/commands/ponytail-audit.md`
-- Consumer del report: `/ponytail-gain` (riga nel token ledger), companion `/ponytail-review` (diff)
+- Consumer del report: `ponytail-gain` (riga nel token ledger), companion `/ponytail-review` (diff)

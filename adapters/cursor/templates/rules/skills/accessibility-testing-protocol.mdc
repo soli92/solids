@@ -1,0 +1,113 @@
+---
+description: Skill procedurale a11y — 5 step (Adapter Detect → run_a11y_scan → Severity+WCAG mapping → Manual Checks → Report Standard). Capability opt-in EP-007, PATTERN §3 «Accessibility Scan». Mai dichiarare conformita'.
+globs: []
+alwaysApply: false
+---
+# SKILL: accessibility-testing-protocol — scan WCAG 2.2 AA in 5 step
+
+> Adapter Cursor della skill definita in PATTERN.md §3 (operazione opzionale
+> «Accessibility Scan»). File equivalente Claude Code:
+> `.claude/skills/accessibility-testing-protocol.md`.
+> Consumata da [a11y-specialist](mdc:.cursor/rules/a11y-specialist.mdc),
+> [fe-dev](mdc:.cursor/rules/fe-dev.mdc), [qa-dev](mdc:.cursor/rules/qa-dev.mdc)
+> (ADR-014: nessun owner unico).
+
+> **Gate**: attiva solo con `factory.config.yaml.a11y.enabled: true`. A capability spenta
+> la skill e' no-op.
+
+## Regola di neutralita' (architrave, ADR-016 §G)
+
+Lo scan automatico copre solo una frazione dei criteri WCAG. Questa skill **non dichiara
+mai conformita'** e **non usa «0 errori» come proxy di conformita'**. La sezione
+Manual Checks **non e' mai vuota**.
+
+## Step 1 — Adapter Detect
+
+Input: `target` (URL, path build, file componente, o target non-web), `include_interactive`.
+
+```
+if target is URL http/https AND server raggiungibile:  adapter = "live"
+elif build/preview disponibile localmente:             adapter = "local-server"
+elif file componente isolato AND harness disponibile:  adapter = "component-harness"
+elif target mobile / React Native / non-web:           adapter = "fallback-non-web"
+else:                                                  adapter = "static-review"
+```
+
+Completamento: `adapter` risolto a uno dei 5 valori.
+
+## Step 2 — Invoke run_a11y_scan
+
+Invoca `run_a11y_scan` (`tools/a11y/a11y-scan.sh`) con
+`{target, standard: "wcag22aa", include_interactive}`.
+
+**Fail-loud se il tool manca** (messaggio verbatim):
+
+> Tool `run_a11y_scan` mancante: vedi US-025 / wiki/runbooks/accessibility-testing-runbook.md §Setup dipendenze
+
+Riusa l'infrastruttura Playwright del visual oracle (ADR-008) se gia' installata.
+Output: JSON grezzo (`summary`, `automated_findings`, `manual_checks`, `positive_findings`).
+
+## Step 3 — Severity + WCAG mapping
+
+- **Critical** — blocca l'uso per una categoria di utenti (contenuto non raggiungibile da
+  tastiera, immagine essenziale senza alt, form non completabile da screen reader).
+- **Major** — ostacolo serio ma aggirabile (contrasto insufficiente 1.4.3, label mancante,
+  heading di pagina assente).
+- **Minor** — attrito o best practice (ordine heading, ridondanza ARIA, landmark mancante).
+
+Ogni finding porta criterio WCAG (es. `"1.4.3"`) + fix concreto suggerito →
+`{id, severity, wcag, location, description, suggested_fix}`.
+
+## Step 4 — Manual Checks compilation
+
+Compila i check manuali residui per WCAG 2.2 AA (focus order, color meaning, timing,
+reflow, target size, …), ciascuno col criterio di riferimento.
+
+- **INVARIANTE**: anche con `automated_findings` vuota, questa sezione **non e' mai vuota**.
+- Lo `status` e' **sempre `to_verify`**: un check manuale non eseguito non e' un check passato.
+
+## Step 5 — Report Standard
+
+```json
+{
+  "target": "<url o path>",
+  "standard": "wcag22aa",
+  "summary": { "critical": 0, "major": 0, "minor": 0, "manual_checks": 1 },
+  "automated_findings": [
+    { "id": "color-contrast", "severity": "Major", "wcag": "1.4.3",
+      "location": "...", "description": "...", "suggested_fix": "..." }
+  ],
+  "manual_checks": [
+    { "wcag": "1.3.1", "item": "Verify semantic structure end-to-end", "status": "to_verify" }
+  ],
+  "positive_findings": []
+}
+```
+
+Formula obbligatoria (verbatim) quando non emergono errori automatici:
+
+> Nessun errore automatico rilevato; restano N verifiche manuali
+
+con **N ≥ 1 sempre**. Storage side-channel:
+`code_quality/reports/<TSK-id>-a11y-iter-<N>.{json,md}` (ADR-016 §E).
+
+## Fallback mobile / non-web (ADR-015)
+
+1. `summary.coverage_note: "mobile/non-web target — copertura ridotta, motore web non applicato"`.
+2. Review statica del sorgente: label accessibili, `accessibilityRole`, ordine di focus
+   (`accessibilityViewIsModal`, `importantForAccessibility`), contrasto da design token.
+3. Raccomanda strumenti nativi (Accessibility Scanner Android, Accessibility Inspector iOS)
+   come `manual_checks` con criterio WCAG + `status: to_verify`.
+4. `automated_findings: []` ma `manual_checks` popolato (copertura automatica 0% → 100% manuale).
+
+## Fallback contenuto autenticato
+
+Preferisci staging con bypass; altrimenti utente di test dedicato con step di login
+nell'adapter Playwright (`page.fill()` + `page.click()`) e
+`summary.auth_note: "scan eseguita su sessione autenticata"`.
+
+## Limitazioni Cursor
+
+- `run_a11y_scan` e' uno script (`tools/a11y/a11y-scan.sh`) eseguito dal terminale
+  integrato: nessuna differenza rispetto a Claude Code.
+- Se Playwright non e' installato, **non** simulare lo scan: applica il fail-loud dello Step 2.

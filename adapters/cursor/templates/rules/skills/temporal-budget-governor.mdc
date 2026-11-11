@@ -1,0 +1,78 @@
+---
+description: >-
+  Temporal Budget Governor — bound economico per loop evaluator-optimizer (EP-014, v2.19). Opt-in.
+  Read-only sul wave plan. Comunica un verdict (non lo esegue). 5 verdetti:
+  proseguire/downgrade/escalate/replan/hard-stop.
+globs: []
+alwaysApply: false
+---
+# Skill: temporal-budget-governor (EP-014, v2.19)
+
+> Adapter Cursor della skill `temporal-budget-governor` definita in `.claude/skills/temporal-budget-governor.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/temporal-budget-governor.md`.
+
+2° asse di terminazione del loop evaluator-optimizer — bound economico.
+Complementa `max_iterations` strutturale. Comunica un verdict, non lo esegue (separation of concerns).
+
+> **Gate**: `factory.config.yaml.temporal.budget.enabled: true`. Default `false` = no-op.
+
+## Cascata 4-livelli bootstrap (ADR-045)
+
+1. PERT seed EP-010 (p85 per-layer, se `analytics.estimation.enabled: true`)
+2. Baseline EP-013 (`analytics/reports/baseline/`, se `analytics.dogfooding.enabled: true`)
+3. Fallback fisso `bootstrap.wave_default_tokens` (default 100_000)
+4. **Degraded mode**: nessuna fonte → verdict `disabled` + WARNING in `wiki/log.md`
+
+## Step 1 — Read context
+
+Legge dal wave plan §18.6: `token_budget`, `elapsed`, `estimated_remaining`, `bootstrap_mode`.
+
+## Step 2 — Calcolo ratio
+
+```
+usage_ratio = elapsed_tokens / token_budget
+projected_total = elapsed_tokens / progress_ratio  # se progress_ratio > 0
+```
+
+## Step 3 — Verdict (5 livelli, ADR-043)
+
+| Verdict | Condizione |
+|---|---|
+| `proseguire` | `usage_ratio < warn_threshold (0.7)` |
+| `downgrade` | `0.7 ≤ usage_ratio < escalate_threshold (0.9)` → usa modello tier_fast |
+| `escalate` | `0.9 ≤ usage_ratio < hard_stop_threshold (1.0)` → gate umano |
+| `replan` | `projected_total > 2× budget` con progresso < 50% → suggerisci scomposizione TSK |
+| `hard-stop` | `usage_ratio ≥ 1.0` → STOP obbligatorio; non proseguire l'iterazione |
+
+**Precedenza assoluta**: `hard-stop > escalate > replan > downgrade > proseguire`.
+
+## Output
+
+```yaml
+governor_decision:
+  verdict: proseguire | downgrade | escalate | replan | hard-stop | disabled
+  usage_ratio: float
+  projected_total_tokens: integer | null
+  rationale: string           # sempre non vuota
+  recommended_action: string  # descrizione specifica per il chiamante
+```
+
+## Degraded mode (livello 4)
+
+```
+[temporal-budget-governor:degraded] wave=<id> ts=<ISO>
+  reason: no_source_available
+  enforcement: DISABLED
+  recommendation: "Configure temporal.budget.bootstrap.wave_default_tokens or enable EP-010/EP-013"
+```
+
+## Complementarietà con temporal-estimate-protocol
+
+Il governor ha **precedenza assoluta** sulla stima temporale (EP-043):
+- `hard-stop` → termina senza leggere `temporal_estimate`
+- `escalate/replan` → `temporal_estimate` è informativo aggiuntivo
+
+## Limitazioni Cursor
+
+- **token count**: in Cursor non ci sono dati token reali durante l'esecuzione. Usa il Token Ledger (`show-session-tokens.py`) per approssimare il consumo.
+- **wave plan**: non disponibile in Cursor; usa stime manuali per `elapsed_tokens`.

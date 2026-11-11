@@ -1,0 +1,82 @@
+---
+description: Tavola Rotonda Protocol — 5 fasi Setup→Posizioni→Confronto→Convergenza→Sintesi (EP-039, PATTERN §28). Invarianti R.TR1 (isolamento Fase 1 anti-groupthink) + R.TR2 (single-writer blackboard). Solo su invocazione esplicita (R.P3-TR).
+globs: "wiki/decisions/**"
+alwaysApply: false
+---
+# Skill: tavola-rotonda-protocol (EP-039, PATTERN §28)
+
+> Adapter Cursor della skill `tavola-rotonda-protocol` definita in `.claude/skills/tavola-rotonda-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/tavola-rotonda-protocol.md`.
+
+Protocollo a 5 fasi per la Tavola Rotonda. Eseguito da `tavola-rotonda-moderatore`.
+
+> **Gate R.P3-TR**: solo su `/tavola-rotonda` esplicita. Mai autoattivato da `/run`.
+
+## Invarianti globali
+
+- **R.TR1 (anti-groupthink)**: Fase 1 — ogni agente riceve SOLO il problema riformulato, i criteri e il proprio ruolo. MAI il blackboard o le posizioni degli altri.
+  - **Violazione**: se moderatore condivide posizioni in anticipo → riavvio obbligatorio da Fase 0.
+- **R.TR2 (single-writer blackboard)**: solo `tavola-rotonda-moderatore` scrive il file blackboard.
+- **R.TR3 (budget obbligatorio)**: STOP senza `budget.max_cost_usd` esplicito.
+- **R.TR4 (Critico obbligatorio)**: STOP se nessun agente disponibile per ruolo Critico.
+- **R.TR5 (registro decisioni obbligatorio)**: Fase 4 produce sempre registro (anche in stallo/budget).
+
+## Blackboard schema (ADR-EP039-001)
+
+```yaml
+---
+session_id: <uuid-v4>
+topic: <topic, max 120 char>
+moderatore: tavola-rotonda-moderatore
+partecipanti: [<slug-1>, ...]
+critico: <slug o "rotation">
+round_corrente: 0
+max_round: N
+stato: setup
+started_at: <ISO-8601 UTC>
+---
+## Posizioni Fase 1
+## Accordi (congelati)
+## Punti Aperti
+```
+
+## Fase 0 — Setup
+
+1. Crea file blackboard `wiki/decisions/tavola-rotonda-<session_id>-<YYYY-MM-DD>.md`.
+2. Seleziona partecipanti + Critico.
+3. Verifica gate (R.TR3, R.TR4).
+4. Riformula il problema in 2-3 frasi neutre.
+
+## Fase 1 — Posizioni (R.TR1 isolamento)
+
+Per ogni partecipante in sessione isolata:
+1. Input: problema riformulato + criteri + ruolo assegnato.
+2. Chiedi posizione iniziale sul topic.
+3. Trascrivi verbatim nel blackboard.
+
+## Fase 2 — Confronto (loop, max max_round)
+
+1. Condividi le posizioni (post Fase 1 completata).
+2. Ogni partecipante può rispondere alle posizioni altrui.
+3. Il Critico sfida le posizioni dominanti (anti-compiacenza).
+4. Aggiorna `## Accordi` (punti condivisi) e `## Punti Aperti`.
+
+## Fase 3 — Convergenza (condizioni di stop)
+
+In ordine di priorità:
+1. `## Punti Aperti = ∅` → `motivo: consenso`
+2. `round_corrente >= max_round` → `motivo: max_round`
+3. Costo ≥ `budget.max_cost_usd` → `motivo: budget_esaurito`
+4. Stallo (2 round consecutivi senza nuovi accordi) → `motivo: stallo`
+
+## Fase 4 — Sintesi
+
+1. Produci registro decisioni in `wiki/syntheses/tavola-rotonda-<session_id>-sintesi.md`.
+2. Aggiorna blackboard: `stato: terminata`.
+3. Append `wiki/log.md`: `[YYYY-MM-DD HH:MM] tavola-rotonda — session: <id> → <motivo> round: N`
+
+## Limitazioni Cursor
+
+- **Fan-out parallelo**: non disponibile. Fase 1 eseguita sequenzialmente (N sessioni Cursor separate o Compose).
+- **Isolamento Fase 1**: R.TR1 garantito aprendo sessioni Cursor separate senza contesto condiviso del blackboard.
+- **TodoWrite**: non disponibile. Usa checklist markdown nel blackboard.

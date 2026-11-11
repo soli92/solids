@@ -1,17 +1,19 @@
 """tools/tutor/tests/test_retrieval_loop.py — Test loop retrieval practice (TSK-390).
 
-5 test case che coprono l'Acceptance Criterion AC7 di US-163 e le invarianti L-1/L-3:
+5 test cases covering US-163 Acceptance Criterion AC7 and L-1/L-3 invariants:
 
-  Test 1 (AC4+AC7): mastery_after > mastery_before su risposta corretta
-  Test 2 (AC4+AC7): mastery_after <= mastery_before e errore registrato su risposta errata
-  Test 3 (AC5+AC7): next_review(correct=True) > next_review(correct=False) per stesso nodo
-  Test 4 (AC6/L-1): loop schedula sempre anche con correct=None (L3 epistemico)
-  Test 5 (AC2/L-3): question_generator e answer_evaluator sono moduli distinti
+  Test 1 (AC4+AC7): mastery_after > mastery_before on correct answer
+  Test 2 (AC4+AC7): mastery_after <= mastery_before and error logged on wrong answer
+  Test 3 (AC5+AC7): next_review(correct=True) > next_review(correct=False) for same node
+  Test 4 (AC6/L-1): loop schedule always even with correct=None (epistemic L3)
+  Test 5 (AC2/L-3): question_generator and answer_evaluator are separate modules
 
-Framework: pytest + stdlib + unittest.mock. Nessuna dipendenza esterna.
-Fixture: tmp_path (pytest built-in) per isolamento filesystem per-test.
+Framework: pytest + stdlib + unittest.mock. No external dependencies.
+Fixture: tmp_path (pytest built-in) for per-test filesystem isolation.
 
 [^src: management/kanban/EP-045-capability-formativa/US-163-loop-retrieval-practice/TSK-390-test-retrieval-loop.md]
+
+
 """
 from __future__ import annotations
 
@@ -24,7 +26,8 @@ from tools.tutor.student_model import StudentModel
 
 
 # ---------------------------------------------------------------------------
-# Helper — context manager che patcha tools.tutor.retrieval_loop.evaluate_answer
+# Helper — context manager that patches tools.tutor.retrieval_loop.evaluate_answer
+
 # ---------------------------------------------------------------------------
 
 @contextmanager
@@ -70,7 +73,8 @@ def test_mastery_increases_on_correct(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Test 2 — AC4 + AC7: mastery non aumenta ed errore registrato su risposta errata
+# Test 2 — AC4 + AC7: mastery does not increase and error recorded on incorrect answer
+
 # ---------------------------------------------------------------------------
 
 def test_mastery_decreases_on_wrong(tmp_path):
@@ -138,7 +142,8 @@ def test_schedules_differ_correct_vs_wrong(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Test 4 — AC6 / INVARIANTE L-1: loop schedula sempre anche con correct=None
+# Test 4 — AC6 / INVARIANT L-1: loop schedule always even with correct=None
+
 # ---------------------------------------------------------------------------
 
 def test_loop_always_schedules(tmp_path):
@@ -164,7 +169,7 @@ def test_loop_always_schedules(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Test 5 — AC2 / INVARIANTE L-3: Generatore e Valutatore sono moduli distinti
+# Test 5 — AC2 / INVARIANT L-3: Generator and Evaluator are distinct modules
 # ---------------------------------------------------------------------------
 
 def test_generator_and_evaluator_are_separate_modules():

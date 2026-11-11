@@ -1,0 +1,32 @@
+---
+description: >-
+  Skill 5-fasi per il pattern LLM-Generator Separation (EP-019). Riceve spec parametrica dal
+  fe-dev (YAML name/type/props/variants/theme_tokens), risolve il generatore deterministico
+  configurato (plop|yeoman), invoca run-generator.sh,…
+globs: "**"
+alwaysApply: false
+---
+# Skill: llm-generator-separation-protocol
+
+> Adapter Cursor della skill `llm-generator-separation-protocol`, definita in `.claude/skills/llm-generator-separation-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.design_intelligence.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Costanti
+2. Fase 1 — Bootstrap
+3. Fase 2 — Receive spec
+4. Fase 3 — Resolve generator
+5. Fase 4 — Invoke tool
+6. Fase 5 — Collect output
+7. Output schema della skill
+8. Vincoli enforced
+9. Pattern
+
+Il dettaglio di ogni passo sta in `.claude/skills/llm-generator-separation-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- La separazione fra chi decide e chi genera e' strutturale: collassarla perde la ragione della skill.

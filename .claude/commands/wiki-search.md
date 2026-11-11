@@ -6,8 +6,37 @@ description: Ricerca ibrida nel wiki (semantic + FTS) tramite HybridSearcher. By
 ---
 
 Comando della capability [[hybrid-wiki-search-capability]] (EP-042, opt-in). Invoca
-`HybridSearcher` direttamente — bypassa l'agente [wiki-query](mdc:.cursor/rules/wiki-query.mdc) e la sintesi LLM. Utile
+`HybridSearcher` direttamente — bypassa l'agente `wiki-query` e la sintesi LLM. Utile
 per testare l'indice in isolamento, debug di query, e aggiornamento dell'indice.
+
+## Backend: fts5 (default senza dipendenze) e hybrid
+
+Il blocco `wiki_search.backend` di `factory.config.yaml` sceglie il motore:
+
+| Valore | Comportamento |
+|---|---|
+| `auto` (default) | `hybrid` se `lancedb` e `sentence-transformers` sono installati, altrimenti `fts5` |
+| `fts5` | SQLite FTS5, solo libreria standard di Python: nessuna installazione |
+| `hybrid` | vector + full-text con RRF, come descritto sotto: invariato |
+
+Il backend `fts5` tiene l'indice in `.wiki-search/fts.sqlite` (non versionato, vedi `.gitignore`).
+Un record per ogni sezione H2; il ranking BM25 pesa di piu' il titolo e l'heading del corpo; i
+termini cercano anche per prefisso e ignorano accenti e maiuscole ("attivita" trova "attività").
+Tutti i termini devono comparire; se non c'e' nessun risultato la ricerca ripete con "almeno uno".
+
+```bash
+python3 tools/wiki-search/fts_index.py search "<query>" [--top N] [--section decisions] [--status approved] [--json]
+python3 tools/wiki-search/fts_index.py build [--full]    # incrementale per hash della pagina; --full ricostruisce
+python3 tools/wiki-search/fts_index.py status
+```
+
+Se l'indice non esiste, `search` lo costruisce prima di rispondere: su una wiki di circa
+mille pagine servono pochi secondi. Dopo modifiche alla wiki
+usa `build` oppure `search --refresh`; solo le pagine cambiate vengono reindicizzate.
+
+Con backend `fts5`, `/wiki-search <query>` esegue `fts_index.py search`. `--section` e `--status`
+corrispondono ai filtri; `--mode` vale solo per `hybrid`. `reindex` e `status` si traducono in
+`build` e `status` dello stesso script. Le istruzioni seguenti descrivono il backend `hybrid`.
 
 ## Sintassi
 
@@ -270,8 +299,8 @@ I sotto-comandi `status` e la ricerca diretta non producono entry in `wiki/log.m
 
 - `tools/wiki-search/searcher.py` — implementazione `HybridSearcher` (EP-042, TSK-312)
 - `tools/wiki-search/update-index.py` — CLI incrementale (EP-042, TSK-315)
-- [wiki-search-protocol](mdc:.cursor/skills/wiki-search-protocol/SKILL.md) — contratto thin-skill per agenti (TSK-318)
-- [wiki-query](mdc:.cursor/rules/wiki-query.mdc) §Wiki Search Enhancement — agente che usa la skill
+- `.claude/skills/wiki-search-protocol.md` — contratto thin-skill per agenti (TSK-318)
+- `.claude/agents/wiki-query.md` §Wiki Search Enhancement — agente che usa la skill
 - `factory.config.yaml` blocco `wiki_search:` — configurazione del layer (TSK-319)
-- `PATTERN.md §31` — Hybrid Wiki Search Layer (TSK-320)
+- `PATTERN-capabilities.md §31` — Hybrid Wiki Search Layer (TSK-320)
 - `wiki/runbooks/wiki-search-installation.md` — prerequisiti installazione

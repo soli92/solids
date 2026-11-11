@@ -1,15 +1,11 @@
-# Skill: Semantic Drift Scan Protocol
-
-> Adapter Cursor della skill `semantic-drift-scan-protocol` definita in PATTERN.md.
-
-Metadata skill (originale):
-```yaml
+---
 name: semantic-drift-scan-protocol
 description: "Esegue il semantic drift scan sulla wiki (Check 4af, EP-031 US-108). Sperimentale — opt-in."
 status: experimental
 epic_id: EP-031
 pattern_version: "2.23-candidate"
-```
+---
+# Skill — semantic-drift-scan-protocol
 
 Procedura sperimentale per il semantic drift scan dell'intera wiki rispetto al
 PATTERN.md (Check 4af, EP-031 US-108). Invocata dal comando `/semantic-drift-scan`.

@@ -1,0 +1,21 @@
+---
+description: >-
+  Check lint su EP/US/TSK frontmatter e struttura kanban — check-family kanban
+globs: "wiki/**,management/**"
+alwaysApply: false
+---
+# Skill: lint-checks-kanban
+
+> Adapter Cursor della skill `lint-checks-kanban`, definita in `.claude/skills/lint-checks-kanban.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. Check 3 — Integrità kanban
+
+Il dettaglio di ogni passo sta in `.claude/skills/lint-checks-kanban.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Le famiglie sono moduli di `lint-checks`: si leggono su richiesta, non tutte insieme. E' la divulgazione progressiva della fonte, e su Cursor conta di piu' perche' la finestra di contesto e' l'unico posto in cui vivono le rule.
+- Il lint produce **solo report**: non corregge mai. Il fix e' `/heal`, ed e' un'altra cosa.

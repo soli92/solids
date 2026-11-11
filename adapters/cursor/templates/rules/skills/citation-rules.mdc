@@ -1,0 +1,86 @@
+---
+description: Grammatica canonica delle citazioni e dei wikilink. Riferimento unico per ogni rule che scrive in wiki/, management/, design_&_architecture/.
+globs: []
+alwaysApply: false
+---
+# SKILL: citation-rules (canonica)
+
+> Adapter Cursor della skill definita in PATTERN.md §6 (grammatica delle citazioni).
+> File equivalente Claude Code: `.claude/skills/citation-rules.md`.
+> **Single source of truth** della grammatica citazioni: tutte le altre rule
+> (`scrivi-*`, `ingest-protocol`, `lint-checks`, `query-protocol`) rimandano qui.
+
+## Forme
+
+| Forma | Quando | Esempio |
+|---|---|---|
+| `[^src: <path>.{md,txt} §<sez>]` | Fonte testuale (raw o wiki) su claim ≥ 20 parole; `<sez>` e' un header markdown del file citato | `[^src: raw/2026-05-15-spid.txt §Autenticazione]` |
+| `[^src: <path>.kb.json §<dotted-path>]` | Fonte strutturata JSON (v2.9) | `[^src: raw/2026-05-21-figma-ABC.kb.json §screens[0]]` |
+| `[[<slug>]]` | Link interno wiki, senza estensione e senza `../` | `[[oidc]]`, `[[circuit-breaker]]` |
+| `[^code: <path>:<line>]` | Citazione codice (solo factory, non progetto host) | `[^code: .cursor/rules/wiki-keeper.mdc:15]` |
+
+### Grammatica `<dotted-path>` per JSON
+
+Solo notazioni leggibili a mano: **vietati** JSONPath (`$.`), JMESPath e wildcard.
+
+- Chiavi punto-separate: `§project.name`, `§tokens.colors`
+- Indice positivo per array: `§screens[0]`, `§flows[2].steps[0]`
+- Selettore per chiave: `§components[name=Button]`, `§screens[id=42]`
+- Combinazioni: `§screens[id=42].components[0]`
+
+Valida se: il file esiste, e' JSON parsabile e il path raggiunge un nodo esistente.
+
+## Quando una citazione e' obbligatoria
+
+Per ogni **claim non triviale**:
+
+- frase affermativa di **≥ 20 parole**, oppure
+- frase che asserisce un fatto verificabile (nome, numero, data, standard, decisione), oppure
+- frase che cita uno standard normativo (SPID, OIDC, OAuth2, SAML, eIDAS, FHIR, GDPR, HL7,
+  ISO/IEC, RFC numerati).
+
+**Esenzioni**: header markdown, voci di TODO/checklist, frontmatter YAML, blocchi di codice,
+frasi imperative del template.
+
+## Disciplina cascade (per layer, PATTERN §1)
+
+| Layer | Cita |
+|---|---|
+| `wiki/` | `raw/<file>.txt §<sez>` |
+| `management/kanban/EP-*/` | `wiki/<file>.md §<sez>` |
+| `management/kanban/EP-*/US-*/` | `wiki/<file>.md §<sez>` |
+| `design_&_architecture/` | `management/kanban/EP-*/US-*/US-*.md §<sez>` |
+| `management/kanban/**/TSK-*.md` | `design_&_architecture/<file>.md §<sez>` o US/ADR |
+
+Regola **cascade**: ogni ruolo cita la layer immediatamente sopra di se', **anche se ha
+letto la wiki** per contesto. `lead-architect` puo' aprire `wiki/concepts/oidc.md` per
+capire cosa significa OIDC, ma nell'ADR cita la user story, non il concept.
+
+## Wikilink
+
+- Slug **senza estensione** e **senza path**: `[[oidc]]`, mai `[[wiki/concepts/oidc.md]]`.
+- Lowercase, `-` come separatore, case-sensitive.
+- Wikilink che non risolve a un file esistente = `ERROR broken-link`
+  ([lint-checks](mdc:.cursor/rules/skills/lint-checks.mdc) Check 1).
+
+## Anti-pattern (vietati)
+
+| Anti-pattern | Perche' | Correzione |
+|---|---|---|
+| Path relativo `../../concepts/foo.md` | Si rompe al refactor della cartella | Usa `[[foo]]` |
+| Citazione su frase < 20 parole non normativa | Rumore | Ometti |
+| Citazione fonte inventata | Viola §7 r.2 «zero invenzione» | Usa `wiki/gaps.md` |
+| Citazione cross-cascade (ADR che cita un concept) | Rompe la cascade | Cita la layer sopra |
+| `[^src: ...]` senza `§<sezione>` | Claim non verificabile | Aggiungi sempre la sezione |
+
+## Verifica
+
+`wiki-lint` (Check 2) controlla: claim ≥ 20 parole con citazione adiacente (entro 3 righe);
+path citato esistente; sezione `§<sez>` presente nel file citato. Violazioni:
+**WARNING unsourced-claim** o **ERROR broken-citation**.
+
+## Limitazioni Cursor
+
+Nessuna: la grammatica e' testuale e indipendente dal runtime. In Cursor i riferimenti
+fra rule usano `[nome](mdc:.cursor/rules/...)`, ma i **wikilink negli artefatti**
+(`wiki/`, `management/`) restano `[[slug]]` — non convertirli in link `mdc:`.

@@ -9,7 +9,7 @@ Argomento richiesto: `<figma-url>` oppure `<file_key>` (alfanumerico). Esempi:
 /figma-sync ABC123
 ```
 
-Invoca l'agente [figma-sync](mdc:.cursor/rules/figma-sync.mdc). L'agente:
+Invoca l'agente `figma-sync` via `Agent`. L'agente:
 
 1. Verifica `ANTHROPIC_API_KEY` in env (ABORT se assente).
 2. Mostra in chat il piano di estrazione (file_key, manifest key, output path)
@@ -22,10 +22,10 @@ Invoca l'agente [figma-sync](mdc:.cursor/rules/figma-sync.mdc). L'agente:
 5. Propone la KB finale e attende conferma esplicita prima di scrivere.
 6. Scrive `raw/<data>-figma-<file_key>.kb.json` + companion stub per ogni frame
    significativo in `raw/images/` + entry in `raw/.extraction-manifest.json`.
-7. Suggerisce di invocare [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) per l'ingest L1→L2 (mai automatico).
+7. Suggerisce di invocare `wiki-keeper` per l'ingest L1→L2 (mai automatico).
 
 Prerequisito: l'utente deve aver configurato l'accesso Figma MCP (auth lato
 server `https://mcp.figma.com/mcp`) prima di invocare il comando.
 
-Vedi la skill [figma-extraction-protocol](mdc:.cursor/skills/figma-extraction-protocol/SKILL.md) per la procedura completa, PATTERN §16 per il
+Vedi `figma-extraction-protocol` per la procedura completa, PATTERN §16 per il
 contratto «sync adapters».

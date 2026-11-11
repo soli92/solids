@@ -1,7 +1,7 @@
 ---
 name: wiki-keeper-worker
 description: Sub-agent di wiki-keeper. Analizza UN solo raw .txt e ritorna candidate-pages JSON. Non scrive su disco.
-model: claude-sonnet-4-6
+model: claude-sonnet-5-5
 tools: [Read, Glob]
 capabilities:
   - ingest-analysis        # analisi UN solo raw .txt (sectioning-bound)
@@ -36,6 +36,12 @@ Worker di analisi delegato dal `wiki-keeper` durante l'ingest parallelo
 `{source_txt, proposed_pages[], gaps_opened[], contradictions_flagged[]}`.
 
 Nessun testo libero fuori dal JSON.
+
+## Preflight multi-utente — cooperative locking (EP-053)
+
+Worker sub-agent read-only: non scrive in `wiki/` (lo fa il parent wiki-keeper).
+Il preflight di cooperative locking è gestito dal parent — questo worker non deve accedere ad
+`memory/active-sessions.yaml` autonomamente.
 
 ## Regole
 

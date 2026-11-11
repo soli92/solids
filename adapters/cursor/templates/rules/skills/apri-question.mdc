@@ -1,0 +1,82 @@
+---
+description: >-
+  Apri Question — template Q_NNN per management/questions.md. Bloccante hard (blocca US) o soft
+  (pending_clarification). Effetti collaterali: aggiorna US/TSK blocked_by o
+  pending_clarification.
+globs: "management/**"
+alwaysApply: false
+---
+# Skill: apri-question (PATTERN §7 r.9, v2.6)
+
+> Adapter Cursor della skill `apri-question` definita in `.claude/skills/apri-question.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/apri-question.md`.
+
+Template per aprire una question bloccante in `management/questions.md`.
+
+## Path
+
+`management/questions.md` — file unico, append nella sezione `[APERTE]`.
+
+Se il file non esiste, crealo con header:
+```markdown
+---
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+status: open
+---
+# Questions — <Progetto>
+
+## [APERTE]
+
+## [RISOLTE]
+```
+
+## Entry da aggiungere
+
+```markdown
+### Q_NNN — <titolo conciso>
+**Origine:** [[<pagina-wiki>]]
+**Tipo:** Requisito incompleto | Logica ambigua | Conflitto business
+**Impatto:** ALTO | MEDIO | BASSO
+**Bloccante:** hard | soft   <!-- default hard se omesso -->
+**Domanda:** <testo>
+**Epiche bloccate:** EP-XXX
+**Storie bloccate:** US-YYY
+[^src: wiki/<file>.md §<sez>]
+
+---
+```
+
+## `Bloccante:` — granularità del gate L4 (v2.6, PATTERN §7 r.9)
+
+| Tipo | Effetto | Quando usarlo |
+|---|---|---|
+| `hard` (default) | Blocca Arch+TPM sulle US dipendenti. `status: blocked`, `blocked_by: [Q_NNN]` | La risposta cambia in modo non-additivo architettura, contratti, standard normativi, schema dati |
+| `soft` | Arch progetta annotando `pending_clarification: [Q_NNN]` nell'ADR; TPM taskizza US non dipendenti da Q hard | La risposta affina una scelta già presa o impatta solo edge-case |
+
+Regola pratica: se la Q invalida un ADR già accettato o cambia uno standard tenant-driven → `hard`. Altrimenti → `soft`.
+
+## Aggiornamento del file
+
+- **ID Q_NNN**: sequenziale globale (Q_001, Q_002, ...). Controlla l'ultimo ID esistente.
+- **Append** nella sezione `## [APERTE]` (dopo l'ultima Q presente).
+- Set `status: open` nel frontmatter + `updated: YYYY-MM-DD`.
+- Frontmatter `status: open` resta finché esiste almeno una Q in `[APERTE]`.
+
+## Effetti collaterali (obbligatori)
+
+1. Per ogni US in `Storie bloccate`:
+   - Q `hard`: `status: blocked` + `blocked_by: [Q_NNN]`
+   - Q `soft`: nessun cambio status + `pending_clarification: [Q_NNN]`
+
+2. Quando Q passa a `[RISOLTE]`:
+   - Aggiungi `**Data risoluzione:**`, `**Decisione:**`, `**Epiche/Storie sbloccate:**`
+   - Rimuovi `Q_NNN` da `blocked_by`/`pending_clarification` di tutte le storie impattate
+   - Se lista risultante vuota → `status: ready`
+   - Se la riconciliazione non avviene contestualmente → usa `[propagate-resolution](mdc:.cursor/rules/skills/propagate-resolution.mdc)` + marker `reconcile-needed` in `wiki/log.md`
+
+## Limitazioni Cursor
+
+- **Glob**: usa `@management/questions.md` per leggere il file e trovare l'ultimo ID Q_NNN.
+- **Multi-file edit**: aggiorna `questions.md` + le US impattate in sequenza.
+- **Numerazione**: controlla l'ID più alto in `[APERTE]` + `[RISOLTE]` per assegnare il prossimo.

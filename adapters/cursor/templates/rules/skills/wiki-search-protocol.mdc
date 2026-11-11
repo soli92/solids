@@ -1,0 +1,80 @@
+---
+description: >-
+  Wiki Search Protocol — ricerca semantica ibrida (vector+FTS+RRF) sul wiki (EP-042, v2.29).
+  Opt-in. Thin-skill: logica in tools/wiki-search/searcher.py. Read-only (R.WS3). Fallback
+  garantito (R.WS1).
+globs: "wiki/**"
+alwaysApply: false
+---
+# Skill: wiki-search-protocol (EP-042, v2.29, PATTERN §31)
+
+> Adapter Cursor della skill `wiki-search-protocol` definita in `.claude/skills/wiki-search-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/wiki-search-protocol.md`.
+
+Ricerca semantica ibrida (vector+FTS con RRF) sul wiki. Thin-skill: logica in `tools/wiki-search/searcher.py`.
+
+> **Gate**: `wiki_search.enabled: true` AND indice `.wiki-search/index.lance` presente.
+
+## Input
+
+| Parametro | Tipo | Default | Descrizione |
+|---|---|---|---|
+| `query` | string | — | Testo libero |
+| `mode` | enum | `hybrid` | `hybrid` \| `fts` \| `vector` |
+| `filters` | dict | `{}` | Push-down su metadati frontmatter |
+| `top_k` | int | da config (def. 5) | Numero risultati |
+
+## Output
+
+**Nominale** (indice disponibile):
+```json
+{
+  "results": [
+    {"path": "wiki/concepts/foo.md", "title": "Foo", "section": "## Bar", "score": 0.87, "snippet": "...", "type": "concept", "status": "approved"}
+  ],
+  "fallback": false
+}
+```
+
+**Fallback** (precondizione non soddisfatta):
+```json
+{"results": [], "fallback": true}
+```
+
+## Precondizione (entrambe obbligatorie)
+
+1. `factory.config.yaml.wiki_search.enabled: true`
+2. Indice `.wiki-search/index.lance` esiste (creato da `/wiki-search reindex`)
+
+## Procedura di invocazione
+
+```bash
+python3 tools/wiki-search/searcher.py --query "<query>" --mode hybrid --top-k 5
+```
+
+**R.WS1 (fallback garantito)**: se indice assente o `enabled: false` → risposta `{"fallback": true}`, caller usa scansione lineare di `wiki/`.
+**R.WS3 (read-only)**: questa skill non scrive sull'indice. Solo `/wiki-search reindex` aggiorna l'indice.
+
+## Config rilevante
+
+```yaml
+wiki_search:
+  enabled: false          # default
+  embedding_model: paraphrase-multilingual-MiniLM-L12-v2
+  mode: hybrid
+  top_k: 5
+  exclude_types: [meta]
+```
+
+## Dipendenze
+
+- `lancedb` (`pip install lancedb`)
+- `sentence-transformers` (`pip install sentence-transformers`)
+
+Importate SOLO se `wiki_search.enabled: true` (R.WS2).
+
+## Limitazioni Cursor
+
+- **Python**: usa terminal integrato `python3 tools/wiki-search/searcher.py`.
+- **Indice**: esegui `python3 tools/wiki-search/indexer.py --full` per costruire l'indice la prima volta.
+- **Semantic fallback**: se indice non disponibile, usa `@wiki/` mention per scansione lineare.

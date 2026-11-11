@@ -1,12 +1,14 @@
-# Skill: Scaffolding Protocol
+---
+id: scaffolding-protocol
+version: "1.0"
+scope: tutor EP-045 — scala di scaffolding adattivo
+invoked_by: tutor.md dopo student_model_read (Step 3 loop Apprendimento)
+description: >-
+  Scala di scaffolding adattivo del tutor a tre livelli: L1 worked example (mastery sotto 0.4), L2 esempio con buchi (0.4-0.7), L3 problema autonomo (da 0.7 in su). Gestisce lettura mastery dallo Student Model e calibrazione della domanda in modalita' Apprendimento.
+---
+# Scaffolding Protocol (EP-045)
 
-> Adapter Cursor della skill `scaffolding-protocol` definita in PATTERN.md.
->
-> Metadata originale — id: scaffolding-protocol; version: 1.0; scope: tutor EP-045 — scala di scaffolding adattivo; invoked_by: `tutor` dopo student_model_read (Step 3 loop Apprendimento). Descrizione: definisce la scala di scaffolding adattivo del tutor EP-045 a tre livelli basati sulla stima di padronanza (mastery) del nodo di competenza corrente. Implementa la "zona di sviluppo prossimale": Livello 1 worked example per mastery < 0.4, Livello 2 esempio con buchi per 0.4..0.7, Livello 3 problema autonomo per mastery >= 0.7. Gestisce la lettura mastery dallo Student Model, la calibrazione della domanda di richiamo in modalita' Apprendimento e il default per nodi assenti.
-
-**Scaffolding Protocol (EP-045)**
-
-Skill invocata da `tutor` (agente tutor) dopo aver ricevuto la mastery del nodo corrente da
+Skill invocata da `tutor.md` dopo aver ricevuto la mastery del nodo corrente da
 `student_model_read`. Determina il livello di scaffolding da applicare alla risposta
 e, in modalita' Apprendimento, calibra la tipologia di domanda di richiamo in base
 al livello.
@@ -15,8 +17,8 @@ Il protocollo implementa il principio della zona di sviluppo prossimale del desi
 EP-045: non fornire troppo supporto quando lo studente gia' padroneggia il concetto
 (demotivante) ne' troppo poco quando non lo padroneggia ancora (bloccante).
 
-Riferimenti: [session-mode-protocol](mdc:.cursor/skills/session-mode-protocol/SKILL.md) (loop Apprendimento Step 3-4, P5),
-[epistemic-tag-protocol](mdc:.cursor/skills/epistemic-tag-protocol/SKILL.md) (classificazione L1/L2/L3, INV-T4), INV-T4 (`tutor`),
+Riferimenti: `session-mode-protocol` (loop Apprendimento Step 3-4, P5),
+`epistemic-tag-protocol` (classificazione L1/L2/L3, INV-T4), INV-T4 (`tutor.md`),
 US-162/TSK-357 (Student Model — prerequisito operativo a regime).
 
 ---
@@ -143,7 +145,7 @@ note: "mastery 0.55 → Livello 2 (guided_practice); nodo 'list-comprehension' p
 ## Calibrazione domanda di richiamo
 
 Applicabile **solo in modalita' Apprendimento** (`session_mode = Apprendimento`,
-come determinato da [session-mode-protocol](mdc:.cursor/skills/session-mode-protocol/SKILL.md)). In modalita' Sblocco questa sezione
+come determinato da `session-mode-protocol`). In modalita' Sblocco questa sezione
 non viene eseguita.
 
 La domanda di richiamo (Fase Generator, Step 4 del loop) e' calibrata in base al
@@ -162,7 +164,7 @@ Esempi di pattern:
 - "In quale riga dell'esempio viene effettuato il controllo `Y`?"
 - "Vero o falso: il comportamento di `Z` in questo caso e' `W`?"
 
-**Marker richiesto**: `[GENERATOR:domanda-richiamo]` (applicato da [epistemic-tag-protocol](mdc:.cursor/skills/epistemic-tag-protocol/SKILL.md)
+**Marker richiesto**: `[GENERATOR:domanda-richiamo]` (applicato da `epistemic-tag-protocol`
 §Separazione Generator/Validator P5).
 
 ---

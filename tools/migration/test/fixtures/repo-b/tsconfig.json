@@ -1,0 +1,4 @@
+{
+  // alias come in un progetto reale
+  "compilerOptions": { "baseUrl": ".", "paths": { "@/*": ["./src/*"] } },
+}

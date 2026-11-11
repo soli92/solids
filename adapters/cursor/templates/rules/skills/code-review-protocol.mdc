@@ -1,0 +1,77 @@
+---
+description: >-
+  Code Review Protocol — CQRL review qualitativa post-Develop (PATTERN §19, v2.12). 5 fasi:
+  Bootstrap → Stack detection → 3 Passate parallele → Aggregator → Router. Gated su
+  code_quality.enabled.
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: code-review-protocol (PATTERN §19, v2.12)
+
+> Adapter Cursor della skill `code-review-protocol` definita in `.claude/skills/code-review-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/code-review-protocol.md`.
+
+Protocollo di review qualitativa post-Develop. Sub-skill: `stack-detector`, `feedback-router`.
+
+> **Gate**: `factory.config.yaml.code_quality.enabled: true`. Default `false` = no-op.
+
+## Fase 0 — Bootstrap
+
+1. Verifica `code_quality.enabled: true` (ABORT altrimenti).
+2. Leggi TSK target: `review_status ∈ {pending, conditional}`, `review_iter < max_iterations`.
+3. **Precondizione visual oracle** (opt-in, solo `layer: fe` + `fe_correctness.enabled: true`):
+   - `visual_status != pass` → ABORT: "Visual oracle non ancora passato."
+4. **Precondizione UX/UI** (opt-in, soft, solo `layer: fe` + `ux_ui.enabled: true`):
+   - `ux_ui_status NOT IN [pass, skip]` → nota informativa (non ABORT).
+
+## Fase 1 — Stack Detection
+
+Invoca `[stack-detector](mdc:.cursor/rules/skills/stack-detector.mdc)` → `{language, framework, ruleset_id, confidence}`.
+
+Azioni per confidence:
+- `≥ 0.6` → carica regole da `code_quality/rules/<tier>/<ruleset_id>*/`
+- `0.3-0.6` → usa solo regole language-level + WARNING
+- `< 0.3` → segnala in chat + richiedi input umano
+
+## Fasi 2-3 — 3 Passate + Aggregator
+
+**3 passate** (eseguite sequenzialmente in Cursor, in parallelo in Claude Code):
+
+| Passata | Focus | Tipi finding |
+|---|---|---|
+| 1 Idiomaticity | Convenzioni linguaggio/framework | style, naming, patterns attesi |
+| 2 Design | Struttura, accoppiamento, responsabilità | design, architecture |
+| 3 Robustness | Error handling, edge case, sicurezza | security, robustness |
+
+Output ogni passata: `[{rule_id, severity: critical|high|medium|low, file, lines, snippet, expected_fix, acceptance_criteria}]`.
+
+**Aggregator** (Fase 3): de-duplica, aggrega metriche, calcola verdict:
+- `pass`: 0 high/critical + pass_rate_warn ≤ 5%
+- `conditional`: ≥1 finding medium+ ma no critical o rejection conditions
+- `reject`: critical finding non risolvibile in 1 iter O `review_iter == max_iterations` O no-progress O regression
+
+Cap: `MAX_FINDINGS_PER_PASS = 30`. Oltre: segnala "review theater suspect".
+
+## Fase 4 — Report
+
+Scrive `code_quality/reports/<TSK-id>-iter-<N>.{json,md}`.
+
+Schema JSON: `{tsk_id, iter, verdict, stack_descriptor, findings[], pass_rate, false_positive_rate, timestamp}`.
+
+## Fase 5 — Router
+
+Invoca `[feedback-router](mdc:.cursor/rules/skills/feedback-router.mdc)` con il report.
+
+## Loop exhausted
+
+Se `review_iter == max_iterations` e verdict ≠ pass → forza `reject` con marker `loop_exhausted`. Gate umano (PATTERN §7 r.16).
+
+## Digest aggregato
+
+Al primo run del lunedì: aggiorna `code_quality/reports/_digests/<dev-agent>-<YYYY-WW>.md` + `memory/semantic/dev-<layer>-recurring-issues.md` (top 3 pattern ricorrenti per dev-agent).
+
+## Limitazioni Cursor
+
+- **Passate sequenziali**: in Cursor non c'è tool parallelo. Esegui le 3 passate in sequenza.
+- **context window**: per file grandi, usa `@<file>` mention con chunks.
+- **Aggregator**: calcola manualmente il verdict dai 3 output di passata.

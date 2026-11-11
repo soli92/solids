@@ -83,7 +83,7 @@ configurazione dei 6 canali in modalità conversazionale.
 
 ### `dry-run --payload="<text>" [--channel=<C>] [--profile=<P>] [--chain-depth=<D>]`
 
-Test offline della compressione. Invoca [caveman-protocol](mdc:.cursor/skills/caveman-protocol/SKILL.md) §Fase 2-3 (Identify
+Test offline della compressione. Invoca `caveman-protocol §Fase 2-3` (Identify
 Channel + Apply Compression) **senza** scrivere `wiki/log.md` né side-effects.
 
 Output:
@@ -133,6 +133,6 @@ stesso comando non duplica nulla. `show` e `dry-run` sono read-only.
 - Mai modifica di `cross_factory: on` senza doppia conferma (R.C4).
 - Token di compressione/install: mai committati nel repo; l'install è manuale.
 
-Vedi la skill [caveman-protocol](mdc:.cursor/skills/caveman-protocol/SKILL.md) per la procedura completa, PATTERN §20 per il
+Vedi `caveman-protocol` per la procedura completa, PATTERN §20 per il
 contratto «Output Compression Layer», [[factory-compression-layer]] per il
 design rationale.

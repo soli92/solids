@@ -25,6 +25,7 @@ Argomenti utente: `$ARGUMENTS`
    - `layer: fe`  → invoca `fe-dev`
    - `layer: db`  → invoca `db-dev`
    - `layer: qa`  → invoca `qa-dev`
+   - `layer: docs` → invoca `docs-dev` (documentazione, skill, agenti, config; v2.19)
    - `layer: infra` → nessun dev-agent disponibile (per ora); STOP e segnala.
    - Se l'agente richiesto non esiste in `.claude/agents/`, STOP: la topologia
      non lo include. Suggerisci di aggiungerlo (vedi `/topology`).
@@ -48,6 +49,28 @@ Argomenti utente: `$ARGUMENTS`
      - File toccati (count o lista compatta)
      - DoD pass / partial
      - Link al commit (se applicabile) o all'entry log.md
+
+6. **Verifica di chiusura** *(dopo `status: done`; informativa, mai bloccante)*
+
+   **6a — Review CQRL non eseguita.** Il dispatch automatico del Code Quality Review Layer
+   (PATTERN §19) lo fa l'orchestrator su `/run`: invocando `/dev` direttamente l'orchestrator
+   non c'e', e un TSK eleggibile resta con `review_status: pending` senza che il code-reviewer
+   parta. Il TSK e' eleggibile se ha `review_status: pending` (Fase 4-quater di `dev-protocol`
+   con `code_quality.trigger_default`, oppure scritto da chi ha creato il TSK) e il suo layer e'
+   in `code_quality.router.layer_filter` (assente = tutti). In quel caso segnala:
+
+   > **CQRL — review non eseguita.** `<TSK-id>` (layer `<layer>`) e' eleggibile al Code Quality
+   > Review Layer, ma su `/dev` il dispatch automatico non avviene. Per lanciarla: **`/review <TSK-id>`**
+
+   Altrimenti nessun messaggio.
+
+   **6b — Roll-up della storia.** Conta i TSK della stessa US con stato non di chiusura,
+   escluso quello appena chiuso. Se sono 0:
+
+   > **Roll-up disponibile.** `<TSK-id>` era l'ultimo TSK aperto di `<US-id>`: US ed epica possono
+   > essere riconciliate (product-manager). Nessuna modifica automatica: il roll-up si propone.
+
+   Se restano TSK aperti, nessun messaggio (niente avviso a ogni chiusura).
 
 ## Vincoli
 

@@ -1,5 +1,6 @@
 ---
-description: Invoca estimation-analyst su uno scope (project/sprint/capacity/sales) per stima costi e tempi enterprise (EP-010 US-043). Stima il futuro (intervallo + confidenza + assunzioni + contingency), NON misura il passato. Flag --from-kanban, --review-accuracy, --aggregate-accuracy, --ephemeral. Fallback skill project-estimation (PERT-only se no storico).
+description: >-
+  Invoca estimation-analyst per stima costi e tempi enterprise (scope: project/sprint/capacity/sales). Output: intervallo + confidenza + contingency. Stima il futuro, NON misura il passato. Flag: --from-kanban, --review-accuracy, --ephemeral. Fallback: project-estimation PERT-only.
 argument-hint: <scope> [--method=rcf|pert|monte-carlo|hybrid|auto] [--contingency-pct=N] [--audience=executive|project] [--review-accuracy=<estimate_id>] [--aggregate-accuracy] [--output=<path>] [--ephemeral] [--similarity=high|medium|low] [--critical-path=<DAG-source>]
 allowed-tools: Read, Write, Edit, Glob, Bash
 ---
@@ -7,7 +8,7 @@ allowed-tools: Read, Write, Edit, Glob, Bash
 Comando della capability [[task-analytics-cost-estimation-capability]] (faccia **Stima**,
 EP-010). Delega la stima end-to-end (decomponi scope → recupera reference class → applica
 RCF + PERT + Monte Carlo → intervallo + confidenza + assunzioni + contingency + split)
-all'agente [estimation-analyst](mdc:.cursor/rules/estimation-analyst.mdc). **Stima il futuro, NON misura il passato**: per audit
+all'agente `estimation-analyst`. **Stima il futuro, NON misura il passato**: per audit
 consuntivo usa `/analytics` (`analytics-reporter`, EP-009).
 
 Faccia speculare di `/analytics`. Riferimenti architetturali: EP-010
@@ -70,11 +71,12 @@ Per scope inline esplicito è ammesso anche `--scope='[{"name":...,"O":..,"M":..
    - `--from-brief=<path.md>` → carica il brief.
    - Se `--review-accuracy` è passato → salta alla modalità retrospettiva (§ dedicata).
 3. **Invocazione** (con fallback):
-   - Se [estimation-analyst](mdc:.cursor/rules/estimation-analyst.mdc) è scaffoldato **e**
-     `analytics.estimation.agent: true` → invoca l'agente `estimation-analyst` passando `scope`,
-     `method`, `contingency_pct`, `audience`, `similarity`, `critical_path`, `ephemeral`.
+   - Se `.claude/agents/estimation-analyst.md` è scaffoldato **e**
+     `analytics.estimation.agent: true` → invoca l'agente `estimation-analyst` (Claude Code
+     `Agent` con `subagent_type: estimation-analyst`) passando `scope`, `method`,
+     `contingency_pct`, `audience`, `similarity`, `critical_path`, `ephemeral`.
    - **Fallback**: se l'agente non è scaffoldato (file assente) o `agent: false`, ma la skill
-     [project-estimation](mdc:.cursor/skills/project-estimation/SKILL.md) (US-040) è presente → esegui la skill direttamente via
+     `project-estimation` (US-040) è presente → esegui la skill direttamente via
      orchestrator/tpm (chi è attivo nella topologia). La capability di stima resta disponibile
      come skill anche senza agente dedicato (PATTERN §3, albero Tool/Skill/Agente).
    - Se né agente né skill esistono → ABORT «Capability estimation non scaffoldata».
@@ -107,7 +109,7 @@ measurement, o passare lo scope esplicito (`--scope-file` / `--from-brief`).
 1. Carica la stima storica `analytics/reports/estimates/...` con quel `estimate_id`. Se non
    esiste → ABORT «estimate_id non trovato».
 2. Invoca la **misurazione effettiva** della faccia Misurazione (EP-009 US-035, via
-   `analytics-reporter` / skill [cost-and-time-analytics](mdc:.cursor/skills/cost-and-time-analytics/SKILL.md)) sul progetto chiuso collegato.
+   `analytics-reporter` / skill `cost-and-time-analytics`) sul progetto chiuso collegato.
 3. Produce/rigenera `analytics/reports/accuracy/<estimate_id>.{json,md}`
    (`type: accuracy_retrospective`, schema ADR-024 §F / ADR-027 §C): confronto P50/P85 stima vs
    valore reale, `delta`, `verdict`, `lessons_learned`, `calibration_signals`.
@@ -115,7 +117,7 @@ measurement, o passare lo scope esplicito (`--scope-file` / `--from-brief`).
    `--force` per ri-generare).
 
 Nota: il retrospettivo è **single-writer della faccia Misurazione** (skill
-[cost-and-time-analytics](mdc:.cursor/skills/cost-and-time-analytics/SKILL.md) / `analytics-reporter`, ADR-027 §C/§E). `estimation-analyst` fornisce
+`cost-and-time-analytics` / `analytics-reporter`, ADR-027 §C/§E). `estimation-analyst` fornisce
 la stima storica come input + può delegare l'invocazione; non produce una nuova stima
 forward-looking (il vincolo no-past resta intatto: qui si confronta con un actual già misurato).
 
@@ -166,8 +168,8 @@ file, input per il calibration loop, cross-link [[learning-accumulation]]).
 ## Prerequisiti
 
 - `factory.config.yaml.analytics.estimation.enabled: true`.
-- Per la via agente: `analytics.estimation.agent: true` + [estimation-analyst](mdc:.cursor/rules/estimation-analyst.mdc).
-- Per la via fallback: skill [project-estimation](mdc:.cursor/skills/project-estimation/SKILL.md) (US-040) presente + topology con
+- Per la via agente: `analytics.estimation.agent: true` + `.claude/agents/estimation-analyst.md`.
+- Per la via fallback: skill `project-estimation` (US-040) presente + topology con
   orchestrator/tpm attivo.
 - Per `--from-kanban`: `analytics.measurement.enabled: true` (EP-009 attiva).
 - `analytics/pricing.yaml` / `analytics/rates.yaml` presenti (tariffe mai hardcoded).
@@ -185,5 +187,5 @@ file, input per il calibration loop, cross-link [[learning-accumulation]]).
 - L'agente non modifica il corpo dei TSK: al massimo il campo frontmatter `estimate_id:` del TSK
   target (+ `updated:`), single-writer (ADR-027 §G).
 
-Vedi [estimation-analyst](mdc:.cursor/rules/estimation-analyst.mdc), skill [project-estimation](mdc:.cursor/skills/project-estimation/SKILL.md), EP-010, ADR-025/027 e
+Vedi `.claude/agents/estimation-analyst.md`, skill `project-estimation`, EP-010, ADR-025/027 e
 [[task-analytics-cost-estimation-capability]] per il contratto completo.

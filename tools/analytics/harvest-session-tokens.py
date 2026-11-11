@@ -12,8 +12,9 @@ USE:
   echo '<hook-json>' | harvest-session-tokens.py --from-hook [--dry-run]
 
 WHAT IT DOES (deterministic, no LLM):
-  - JSONL parse; for each type=assistant line with message.usage, add the 4 token-kinds
-    aggregating by (model, scope). Scope attribution (TSK-545 walker fan-in):
+  - JSONL parse; type=assistant lines with message.usage are grouped by message.id (one API
+    response spans several lines, one per content block: see parse_transcript), then the 4
+    token-kinds are added aggregating by (model, scope). Scope attribution (TSK-545 walker fan-in):
       * file location takes priority over isSidechain (CC 2.1.258+ compat)
       * main JSONL → scope determined by isSidechain (backward compat fallback)
       * subagents/agent-*.jsonl → scope "subagent" always (file-location wins)
@@ -29,6 +30,10 @@ LIMITS (honest):
   - the transcript exposes the tokens per MESSAGE, not per TSK: the aggregation is per session/scope,
     not for kanban task_id. Per-TSK granularity would require correlating develop markers.
   - the cost is calculated with compute-agentic-cost.sh ONLY if the `model` is in analytics/pricing.yaml.
+  - subagents/ output_tokens is a lower bound when a response has only its streaming lines
+    (no final line with stop_reason): the transcript then holds the message_start count
+    (a few tokens). Input and cache fields are exact. Rare up to 2.1.281 (~1-2% of subagent
+    responses), the norm on 2.1.289 (~80%): that is why 2.1.289 stays out of the supported set.
 
 
 """
@@ -46,6 +51,17 @@ SUPPORTED_CC_VERSIONS = {
     "2.1.258",  # empirically verified in TR-c4e8f1b2 (2026-09-08)
     "2.1.257",  # structurally identical to 2.1.258, no format change observed
     "2.1.256",  # structurally identical to 2.1.258, no format change observed
+    # Verified 2026-10-07 on one real transcript per version (main + subagents/): totals per
+    # (scope, model) equal to an independent count keeping the last line per message.id.
+    # 2.1.258 and 2.1.263 re-checked the same way after the per-message.id dedup.
+    "2.1.266",  # verified 2026-10-07, independent per-message.id count (52 subagent files)
+    "2.1.270",  # verified 2026-10-07, independent per-message.id count (80 subagent files)
+    "2.1.274",  # verified 2026-10-07, independent per-message.id count (17 subagent files)
+    "2.1.278",  # verified 2026-10-07, independent per-message.id count (45 subagent files)
+    "2.1.280",  # verified 2026-10-07, independent per-message.id count (1 subagent file)
+    "2.1.281",  # verified 2026-10-07, independent per-message.id count (21 subagent files)
+    # 2.1.289 not added: parsing matches the independent count, but most subagent responses
+    # lack their final line, so subagent output_tokens is undercounted (see LIMITS).
 }
 
 
@@ -74,16 +90,33 @@ def detect_cc_version(transcript_path):
     return None
 # ------------------------------------------------------------------------------
 
-def parse_transcript(path, force_scope=None):
-    """Ritorna dict: (model, scope) -> {input,output,cache_read,cache_write, msgs, last_ts}.
+def parse_responses(path, force_scope=None):
+    """Ritorna la lista delle risposte API del transcript, una per message.id:
+    [model, scope, (input, output, cache_read, cache_write, cache_write_1h), last_ts].
+
+    cache_write e' il totale scritto in cache; cache_write_1h la parte scritta con TTL di
+    un'ora (usage.cache_creation.ephemeral_1h_input_tokens), che costa 2x l'input invece
+    di 1.25x. Il resto (cache_write - cache_write_1h) e' a TTL 5 minuti.
 
     force_scope: se None, determina scope via isSidechain (backward compat per old CC).
                  se "main" o "subagent", forza lo scope per tutte le righe (file-location wins,
                  TSK-545). isSidechain diventa fallback, NON fonte primaria.
     """
-    agg = {}
+    # Claude Code writes one JSONL line per content block (thinking/text/tool_use) of the
+    # same API response, each carrying message.usage. In the main transcript the usage is
+    # repeated identical on every line; in subagents/ the earlier lines are streaming
+    # partials whose output_tokens grows up to the final value (input and cache fields are
+    # fixed from message_start). Summing every line counted each response 2-3 times.
+    # One response = one message.id: keep, per id, the max of each field (= final value).
+    # Lines without message.id are counted one by one, as before.
+    per_msg = {}
+    anon = 0
     with open(path, encoding="utf-8") as fh:
         for line in fh:
+            # solo le righe con la chiave "usage" possono contare: le altre (tool_result,
+            # prompt, metadati) sono la maggioranza e decodificarle era il costo principale
+            if '"usage"' not in line:
+                continue
             line = line.strip()
             if not line:
                 continue
@@ -104,16 +137,45 @@ def parse_transcript(path, force_scope=None):
             else:
                 scope = "subagent" if d.get("isSidechain") else "main"
             ts = d.get("timestamp") or ""
-            k = (model, scope)
-            a = agg.setdefault(k, {"input": 0, "output": 0, "cache_read": 0,
-                                   "cache_write": 0, "msgs": 0, "last_ts": ""})
-            a["input"]       += int(usage.get("input_tokens", 0) or 0)
-            a["output"]      += int(usage.get("output_tokens", 0) or 0)
-            a["cache_read"]  += int(usage.get("cache_read_input_tokens", 0) or 0)
-            a["cache_write"] += int(usage.get("cache_creation_input_tokens", 0) or 0)
-            a["msgs"]        += 1
-            if ts > a["last_ts"]:
-                a["last_ts"] = ts
+            creation = usage.get("cache_creation") or {}
+            vals = (int(usage.get("input_tokens", 0) or 0),
+                    int(usage.get("output_tokens", 0) or 0),
+                    int(usage.get("cache_read_input_tokens", 0) or 0),
+                    int(usage.get("cache_creation_input_tokens", 0) or 0),
+                    int(creation.get("ephemeral_1h_input_tokens", 0) or 0))
+            mid = msg.get("id")
+            if not mid:
+                mid = ("anon", anon)
+                anon += 1
+            prev = per_msg.get(mid)
+            if prev is None:
+                per_msg[mid] = [model, scope, vals, ts]
+            else:
+                prev[2] = tuple(max(x, y) for x, y in zip(prev[2], vals))
+                if ts > prev[3]:
+                    prev[3] = ts
+    return list(per_msg.values())
+
+
+def parse_transcript(path, force_scope=None):
+    """Ritorna dict: (model, scope) -> {input,output,cache_read,cache_write,cache_write_1h,
+    msgs, last_ts}.
+
+    force_scope: vedi parse_responses.
+    """
+    agg = {}
+    for model, scope, vals, ts in parse_responses(path, force_scope):
+        a = agg.setdefault((model, scope), {"input": 0, "output": 0, "cache_read": 0,
+                                            "cache_write": 0, "cache_write_1h": 0,
+                                            "msgs": 0, "last_ts": ""})
+        a["input"]       += vals[0]
+        a["output"]      += vals[1]
+        a["cache_read"]  += vals[2]
+        a["cache_write"] += vals[3]
+        a["cache_write_1h"] += vals[4]
+        a["msgs"]        += 1
+        if ts > a["last_ts"]:
+            a["last_ts"] = ts
     return agg
 
 
@@ -161,7 +223,7 @@ def fan_in_parse(transcript):
             if k not in merged:
                 merged[k] = dict(data)
             else:
-                for field in ("input", "output", "cache_read", "cache_write", "msgs"):
+                for field in ("input", "output", "cache_read", "cache_write", "cache_write_1h", "msgs"):
                     merged[k][field] += data[field]
                 if data["last_ts"] > merged[k]["last_ts"]:
                     merged[k]["last_ts"] = data["last_ts"]
@@ -191,6 +253,7 @@ def build_event(session_id, model, scope, a, project_id):
         "tokens": {
             "input": a["input"], "output": a["output"],
             "cache_read": a["cache_read"], "cache_write": a["cache_write"],
+            "cache_write_1h": a["cache_write_1h"],
         },
         "model": model,
         "tool_calls": [],

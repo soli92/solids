@@ -1,19 +1,21 @@
-# Skill: Session Mode Protocol
+---
+id: session-mode-protocol
+version: "1.0"
+scope: tutor EP-045 — modalita' di sessione Sblocco vs Apprendimento
+invoked_by: tutor.md
+description: >-
+  Definisce le due modalita' del tutor: Sblocco (risposta diretta) e Apprendimento (loop retrieval practice con separazione Generator/Validator). Gestisce il contratto di dichiarazione all'avvio, lo stato SESSION_MODE e l'aggiornamento dello Student Model. Invocata da tutor.md.
+---
+# Session Mode Protocol (EP-045)
 
-> Adapter Cursor della skill `session-mode-protocol` definita in PATTERN.md.
->
-> Metadata originale — id: session-mode-protocol; version: 1.0; scope: tutor EP-045 — modalita' di sessione Sblocco vs Apprendimento; invoked_by: `tutor` (agente tutor). Descrizione: definisce le due modalita' di interazione del tutor EP-045: Sblocco (risposta diretta senza domande di richiamo) e Apprendimento (loop di retrieval practice con separazione Generator/Validator, principio P5). Gestisce il contratto di dichiarazione all'avvio sessione, lo stato SESSION_MODE e l'aggiornamento dello Student Model al termine di ogni ciclo Apprendimento.
-
-**Session Mode Protocol (EP-045)**
-
-Skill invocata da `tutor` (agente tutor) all'avvio di ogni sessione e all'inizio di ogni
+Skill invocata da `tutor.md` all'avvio di ogni sessione e all'inizio di ogni
 risposta per determinare il regime di interazione attivo. La modalita' dichiarata
 dallo studente governa interamente il comportamento del tutor per tutta la
 sessione, salvo re-dichiarazione esplicita.
 
-Riferimenti: [epistemic-tag-protocol](mdc:.cursor/skills/epistemic-tag-protocol/SKILL.md) (classificazione L1/L2/L3 e principio P5
+Riferimenti: `epistemic-tag-protocol` (classificazione L1/L2/L3 e principio P5
 con marker `[GENERATOR:domanda-richiamo]`/`[VALIDATOR:verifica]`),
-[scaffolding-protocol](mdc:.cursor/skills/scaffolding-protocol/SKILL.md) (lettura mastery → livello scaffolding), US-161 §AC5,
+`scaffolding-protocol` (lettura mastery → livello scaffolding), US-161 §AC5,
 US-162/TSK-357 (`student_model_write`).
 
 ---
@@ -75,7 +77,7 @@ sopra) oppure non risponde al prompt di apertura entro 1 turno.
 ### Comportamento
 
 - Il tutor risponde **direttamente** alla query, senza domande di richiamo intermedie.
-- Il tag epistemico (L1/L2/L3) viene applicato normalmente via [epistemic-tag-protocol](mdc:.cursor/skills/epistemic-tag-protocol/SKILL.md).
+- Il tag epistemico (L1/L2/L3) viene applicato normalmente via `epistemic-tag-protocol`.
 - Lo scaffolding e' semplificato: nessuna domanda di richiamo pre-risposta; il
   tutor fornisce la risposta completa dal primo turno.
 - La Fase Generator e la Fase Validator (P5) **non vengono invocate** in modalita'
@@ -199,7 +201,7 @@ essere eseguite nella stessa tool call. Il contratto e' applicato indipendenteme
 dalla richiesta dello studente — non e' opt-in per il tutor.
 
 Per la specifica completa dei marker, il contratto strutturale della tabella
-proprieta' e gli esempi verbatim, vedi [epistemic-tag-protocol](mdc:.cursor/skills/epistemic-tag-protocol/SKILL.md) §Separazione
+proprieta' e gli esempi verbatim, vedi `epistemic-tag-protocol` §Separazione
 Generator/Validator (P5).
 
 ### Fase Generator (Step 4 del loop)

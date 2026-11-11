@@ -1,10 +1,10 @@
-# Skill: Query Protocol
-
-> Adapter Cursor della skill `query-protocol` definita in PATTERN.md.
-
+---
+name: query-protocol
+description: Protocollo del wiki-query (index → candidate pages → synthesize → persist | ephemeral). Simmetrico a ingest-protocol.
+---
 # Protocollo di Query
 
-Riferimenti: [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md) (ogni risposta è citata), [wiki-log-entry](mdc:.cursor/skills/wiki-log-entry/SKILL.md)
+Riferimenti: `citation-rules` (ogni risposta è citata), `wiki-log-entry`
 (template `query`).
 
 ## Fase 0 — Bootstrap
@@ -43,7 +43,7 @@ Componi la risposta seguendo questa struttura:
 ```
 
 Regole:
-- Ogni asserzione cita secondo [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md) (`[^src: wiki/<file>.md §<sez>]`
+- Ogni asserzione cita secondo `citation-rules` (`[^src: wiki/<file>.md §<sez>]`
   o `[[<pagina>]]`).
 - **Se l'informazione non è in `wiki/`**: dillo esplicitamente. Mai inventare,
   mai cercare in `raw/` o altrove (il wiki-query ha scope di lettura ristretto
@@ -58,7 +58,7 @@ Con flag `--ephemeral`: rispondi solo in chat, **non** scrivere alcun file
 
 ## Fase 4 — Log entry
 
-Append a `wiki/log.md` secondo [wiki-log-entry](mdc:.cursor/skills/wiki-log-entry/SKILL.md) (template `query`). Skippa se
+Append a `wiki/log.md` secondo `wiki-log-entry` (template `query`). Skippa se
 `--ephemeral`.
 
 ## Fase 5 — Proposta synthesis (opzionale)
@@ -72,11 +72,11 @@ wiki/syntheses/<question-slug>.md? (Richiede invocazione di wiki-keeper.)
 ```
 
 **Non promuovere mai autonomamente.** La promozione query → synthesis è
-operazione semantica e va eseguita dal [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc).
+operazione semantica e va eseguita dal `wiki-keeper`.
 
 ## Scope di lettura (inviolabile)
 
-[wiki-query](mdc:.cursor/rules/wiki-query.mdc) legge **solo** `wiki/**/*.md`. Mai:
+`wiki-query` legge **solo** `wiki/**/*.md`. Mai:
 
 - `raw/**` (rompe il grounding sulla wiki)
 - `management/**` (rompe la cascade)
@@ -91,7 +91,7 @@ la wiki documenta su <topic>: ..."
 
 | Anti-pattern | Correzione |
 |---|---|
-| Leggere `raw/` per "verificare" la wiki | Vietato. Se la wiki ha un gap, segnalalo via [wiki-gap-protocol](mdc:.cursor/skills/wiki-gap-protocol/SKILL.md). |
-| Rispondere senza citazione | Vietato. Vedi [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md). |
-| Promuovere query → synthesis autonomamente | Vietato. Proponi all'umano, lascia agire [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc). |
+| Leggere `raw/` per "verificare" la wiki | Vietato. Se la wiki ha un gap, segnalalo via `wiki-gap-protocol`. |
+| Rispondere senza citazione | Vietato. Vedi `citation-rules`. |
+| Promuovere query → synthesis autonomamente | Vietato. Proponi all'umano, lascia agire `wiki-keeper`. |
 | Inventare la risposta se la wiki tace | Vietato. Dillo esplicitamente. |

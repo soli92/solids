@@ -1,7 +1,7 @@
 ---
 name: ui-designer
 description: Agente designer di prodotto. Produce wireframe/spec/flussi/copy con rationale esplicito. A11y by design. Nessun auto-eval dell'output.
-model: claude-sonnet-4-6
+model: claude-sonnet-5-5
 tools: [Bash, Read, Grep, Glob, Write]   # ADR-064: binding adapter Claude Code. `render_component` (preview OPZIONALE, US-031) si esegue via `Bash` se esiste un harness/backing, con fallback testuale; `read_file`/`list_dir` (nomi astratti PATTERN) si bindano ai nativi `Read`/`Glob`. Con i soli nomi fantasma il designer aveva ZERO tool callable (non poteva leggere brief/design system). `Write` serve a scrivere il deliverable. Mapping nella §«Toolset dichiarato».
 capabilities:
   - ui-design              # wireframe, spec, flussi, copy con rationale esplicito

@@ -1,0 +1,97 @@
+---
+description: >-
+  Premortem Protocol — analisi rischio via prospective hindsight (PATTERN §3, v2.16). 5 fasi:
+  Context → Frame → Raw → Deep-Dives → Sintesi. Output Risk Registry con tassonomia Tigers/Paper
+  Tigers/Elephants. Opt-in totale, trigger manuale.
+globs: []
+alwaysApply: false
+---
+# Skill: premortem-protocol (PATTERN §3, v2.16)
+
+> Adapter Cursor della skill `premortem-protocol` definita in `.claude/skills/premortem-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/premortem-protocol.md`.
+
+Analisi del rischio via prospective hindsight. Sempre opt-in (R.P3), mai automatica.
+
+## Quando attivarla
+
+- Prima di un PATTERN bump major
+- Prima di promote di un'epica `high-impact` draft → review
+- Prima di promote di un design doc con touchpoint cross-cutting
+- Prima di una migrazione architetturale importante
+- Prima di qualsiasi assunzione chiave non verificabile a priori
+
+## 5 Fasi
+
+### Fase 1 — Context Gathering
+
+1. Leggi il target (EP, US, TSK, wiki-page, o descrizione libera).
+2. Leggi ADR correlati, design doc, wiki pages citate.
+3. Identifica: obiettivo dichiarato, stakeholder, timeline, vincoli.
+
+### Fase 2 — Frame Setting (prospective hindsight)
+
+Prompt al LLM (internamente):
+> "Immagina di essere nel futuro: il piano è fallito in modo clamoroso. Descrivi in 5-10 bullet cosa è andato storto, come se stessi spiegando il post-mortem."
+
+Genera 5-10 failure mode candidati. Non filtrare in questa fase.
+
+### Fase 3 — Raw Premortem
+
+Espandi ogni failure mode con:
+- Causa radice
+- Probability (H/M/L)
+- Impact se accade (H/M/L)
+- Early warning signal
+- Mitigation possibile
+
+### Fase 4 — Parallel Deep-Dives (opzionale)
+
+Per i failure mode con probability H + impact H:
+- Deep-dive separato per ogni failure mode con più dettaglio.
+- Analisi dei punti di no-return.
+- Identificazione di precondizioni che lo rendono inevitabile.
+
+### Fase 5 — Sintesi Risk Registry
+
+Produce output strutturato con tassonomia:
+
+**Tigers**: rischi reali ad alta probability + alto impact → richiedono mitigazione attiva.
+**Paper Tigers**: sembrano pericolosi ma probability bassa o controllabile.
+**Elephants**: rischi evidenti ma spesso non discussi (taboo, politica, complessità sistemica).
+
+```markdown
+# Risk Registry — <target>
+## Tigers
+| Failure Mode | Probability | Impact | Warning Signal | Mitigation |
+|---|---|---|---|---|
+| ... | H | H | ... | ... |
+
+## Paper Tigers
+...
+
+## Elephants
+...
+
+## Raccomandazioni
+1. <action concreta per mitigare Tiger #1>
+2. ...
+```
+
+Salva in `code_quality/reports/_adhoc/premortem-<target-slug>-<YYYY-MM-DD>.md`.
+
+Append `wiki/log.md`:
+```
+[YYYY-MM-DD HH:MM] premortem — <target> → tigers: N paper-tigers: M elephants: K
+```
+
+## Regole
+
+- **Mai automatica**: solo trigger esplicito `/premortem`.
+- **No nuova invariante §7**: questa skill non aggiunge invarianti globali.
+- **Output suggeritivo**: il Risk Registry è un input per il decision-maker, non un blocco automatico.
+
+## Limitazioni Cursor
+
+- **Deep-dives**: esegui le Fasi 3-4 in sessioni separate se il contesto è molto lungo.
+- **Parallel**: le Deep-Dives possono essere eseguite sequenzialmente in Cursor.

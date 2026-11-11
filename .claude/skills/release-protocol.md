@@ -1,6 +1,10 @@
 ---
 name: release-protocol
-description: Orchestrazione processo di release in 4 fasi (Preparazione → Validazione → Tag → Post-release). Skill fat che chiama release-validation-gate come step atomico senza ridefinirne i criteri. Gate umano Fase 3 NON bypassabile. Tecnologia-agnostica. [^src: US-225 EP-059 — TSK-519 analisi comparativa 2026-09-02]
+description: >-
+  Orchestrazione processo di release in 4 fasi (Preparazione → Validazione → Tag → Post-release).
+  Skill fat che chiama release-validation-gate come step atomico senza ridefinirne i criteri. Gate
+  umano Fase 3 NON bypassabile. Tecnologia-agnostica. [^src: US-225 EP-059 — TSK-519 analisi
+  comparativa 2026-09-02]
 ---
 # Skill: release-protocol
 
@@ -60,98 +64,10 @@ description: Orchestrazione processo di release in 4 fasi (Preparazione → Vali
 > Scopo: aggiornare gli artefatti di release (CHANGELOG, config, meta-prompts, CLAUDE.md)
 > prima della validazione. Idempotenza: verifica che ogni artefatto non sia già aggiornato.
 
-### Step 1.1 — CHANGELOG.md
-
-```
-Azione:
-  - Apri CHANGELOG.md.
-  - Verifica se esiste già la sezione `## v<version>` (o `## v<X.Y.Z>`).
-  - SE già presente → log "CHANGELOG.md: sezione v<version> già presente. Skip." e prosegui.
-  - SE assente → aggiungi in testa (dopo header principale) la sezione:
-
-    ## v<version>
-    <!-- data: <YYYY-MM-DD> -->
-
-    ### Nuovi EP / feature
-    - <EP-NNN> <titolo> — <descrizione breve>
-
-    ### US completate
-    - US-NNN <titolo>
-
-    ### Bugfix / tech-debt
-    - <descrizione>
-
-    ### Dipendenze e breaking changes
-    - <nessuna | descrizione>
-
-    ## Validation evidence (v<version>)
-    <!-- sezione compilata dalla release-validation-gate in Fase 2 -->
-
-  Nota: la sezione `## Validation evidence` è richiesta dalla skill `release-validation-gate`
-  (Step 5 CHANGELOG validation, ADR-034 §A). Anche se lasciata come placeholder in Fase 1,
-  deve essere compilata prima di invocare la validation gate (Fase 2).
-```
-
-### Step 1.2 — pattern_version in factory.config.yaml
-
-```
-Azione:
-  - Leggi factory.config.yaml.pattern_version.
-  - SE già impostato a v<version> → log "pattern_version già corretto. Skip." e prosegui.
-  - SE assente o impostato a versione diversa:
-    - Aggiorna il campo: `pattern_version: v<version>`
-    - Log: "factory.config.yaml: pattern_version aggiornato a v<version>."
-
-Nota: SSOT — il campo pattern_version deve essere coerente con il tag che verrà creato.
-```
-
-### Step 1.3 — Entry meta-prompts/
-
-```
-Azione:
-  - Verifica se esiste la directory meta-prompts/v<major>-<minor>/ (es. meta-prompts/v2-40/).
-  - SE esiste già → log "meta-prompts/v<X>-<Y>/ già presente. Skip." e prosegui.
-  - SE assente:
-    - Identifica la directory della versione precedente (ultima presente in meta-prompts/).
-    - Crea meta-prompts/v<X>-<Y>/factory-bootstrap.md con il contenuto:
-        extends: ../v<prev-X>-<prev-Y>/factory-bootstrap.md
-        ## Delta v<version>
-        <!-- Lista dei cambiamenti rispetto alla versione precedente: -->
-        - EP-NNN <titolo>: <breve descrizione impatto sul bootstrap>
-        [Aggiungere una riga per ogni EP incluso in questa release]
-    - Log: "meta-prompts/v<X>-<Y>/factory-bootstrap.md creato."
-
-Nota: il file usa il pattern `extends:` della catena delta (CLAUDE.md §Meta-prompt versioning).
-```
-
-### Step 1.4 — CLAUDE.md §Meta-prompt versioning
-
-```
-Azione:
-  - Apri CLAUDE.md.
-  - Trova la sezione `## Meta-prompt versioning`.
-  - Verifica se la versione v<version> è già dichiarata come "corrente" (current).
-  - SE già aggiornata → log "CLAUDE.md: versione v<version> già corrente. Skip." e prosegui.
-  - SE non aggiornata:
-    - Aggiorna la riga current: cambia la versione precedente da "current" a "previous".
-    - Aggiungi la nuova riga per v<version> come "current":
-        - [`meta-prompts/v<X>-<Y>/factory-bootstrap.md`](...) — **current** (<descrizione delta>)
-    - Log: "CLAUDE.md: §Meta-prompt versioning aggiornato a v<version> come corrente."
-```
-
-### Step 1.5 — Checkpoint Fase 1
-
-```
-Al termine degli step 1.1..1.4:
-  - Verifica che tutti e 4 gli artefatti siano aggiornati (o già corretti).
-  - Log complessivo:
-    "Fase 1 completata. Artefatti verificati/aggiornati:
-     ✓ CHANGELOG.md (sezione v<version>)
-     ✓ factory.config.yaml (pattern_version: v<version>)
-     ✓ meta-prompts/v<X>-<Y>/factory-bootstrap.md
-     ✓ CLAUDE.md (Meta-prompt versioning)"
-  - Procedi a Fase 2.
-```
+**Leggi obbligatoriamente** `.claude/skills/references/release-protocol/fase1-preparazione.md`
+all'ingresso di questa fase — se il file manca, STOP e segnala.
+Contiene: Step 1.1 (CHANGELOG.md), Step 1.2 (pattern_version), Step 1.3 (meta-prompts/),
+Step 1.4 (CLAUDE.md heading + README.md §Available versions), Step 1.5 (Checkpoint).
 
 ## Fase 2 — Validazione
 
@@ -280,73 +196,10 @@ SE tag e push riusciti:
 > Scopo: aggiornare la memoria di progetto con la milestone completata.
 > Idempotenza: verificare che le entry non siano già presenti prima di appendere.
 
-### Step 4.1 — sprint.md milestone
-
-```
-Azione:
-  - Apri management/kanban/sprint.md (o file sprint corrente se percorso diverso).
-  - Verifica se la release v<version> è già annotata come milestone completata.
-  - SE già presente → log "sprint.md: milestone v<version> già annotata. Skip." e prosegui.
-  - SE assente → appendi in fondo alla sezione del sprint corrente:
-      ## Milestone completata — v<version>
-      - data: <YYYY-MM-DD>
-      - tag: v<version>
-      - validation_verdict: <pass | bypass | gate-disabled>
-      - gate_report: validation/release-gates/v<version>/GATE-REPORT.md
-```
-
-### Step 4.2 — memory/episodic/ entry release
-
-```
-Azione:
-  - Crea (o aggiorna se già esiste) memory/episodic/release-<version>.md con:
-
-      ---
-      type: release
-      version: v<version>
-      date: <YYYY-MM-DD>
-      validation_verdict: <pass | bypass | gate-disabled>
-      gate_report: validation/release-gates/v<version>/GATE-REPORT.md
-      tag_pushed: true
-      actor: <git user o "unknown">
-      ---
-
-      ## Release v<version>
-
-      - EP inclusi: <lista EP dalla sezione CHANGELOG>
-      - Validation verdict: <pass | bypass | gate-disabled>
-      - Gate umano: confermato dall'utente
-      - GATE-REPORT: validation/release-gates/v<version>/GATE-REPORT.md
-
-  SE il file esiste già (idempotenza) → verifica che `tag_pushed` sia `true`; se mancante
-  aggiunge il campo; se già corretto → skip.
-```
-
-### Step 4.3 — wiki/log.md entry (append-only)
-
-```
-Azione: append a wiki/log.md (append-only, mai sovrascrivere righe esistenti).
-
-Entry formato:
-  <ISO-8601> develop release-protocol version=v<version> verdict=<pass|bypass|gate-disabled> \
-  gate_report=validation/release-gates/v<version>/GATE-REPORT.md actor=<git-user|agent>
-
-SE la riga per v<version> è già presente in wiki/log.md (idempotenza):
-  - log "wiki/log.md: entry v<version> già presente. Skip."
-  - non appendere duplicati.
-```
-
-### Step 4.4 — Checkpoint Fase 4 e chiusura
-
-```
-Log finale:
-  "Fase 4 completata. Release v<version> conclusa.
-   ✓ management/kanban/sprint.md — milestone annotata
-   ✓ memory/episodic/release-<version>.md — entry creata/verificata
-   ✓ wiki/log.md — entry appesa
-
-   Release v<version> completata con successo. Tag: v<version> su origin."
-```
+**Leggi obbligatoriamente** `.claude/skills/references/release-protocol/fase4-post-release.md`
+all'ingresso di questa fase — se il file manca, STOP e segnala.
+Contiene: Step 4.1 (sprint.md milestone), Step 4.2 (memory/episodic/),
+Step 4.3 (wiki/log.md entry append-only), Step 4.4 (Checkpoint e chiusura).
 
 ## Diagramma flusso complessivo
 
@@ -358,7 +211,7 @@ Fase 1 — Preparazione (idempotente)
   ├─ CHANGELOG.md sezione v<version>
   ├─ factory.config.yaml pattern_version
   ├─ meta-prompts/v<X>-<Y>/factory-bootstrap.md
-  └─ CLAUDE.md §Meta-prompt versioning
+  └─ CLAUDE.md heading + meta-prompts/README.md §Available versions
        ↓
 Fase 2 — Validazione
   └─ invoke release-validation-gate --apply --version=v<version>
@@ -407,11 +260,18 @@ invoke release-protocol --version=2.40.0 --start-phase=3
 > `--start-phase=<N>` è un hint; la skill verifica idempotenza all'ingresso di ogni fase
 > indipendentemente da questo flag (R.RP2).
 
+## Gate locali (opzione worktree-gate)
+
+Per check pre-tag su SHA immutabile: vedi `.claude/skills/worktree-gate.md`
+(invarianti R.WG1-R.WG5, cleanup garantito). Opzione del manutentore, non requisito;
+`release-protocol` non la invoca automaticamente.
+
 ## Skill correlate
 
 - [release-validation-gate](.claude/skills/release-validation-gate.md) — delegata in Fase 2 (CHECKs)
 - [dev-handoff](.claude/skills/dev-handoff.md) — pattern append wiki/log.md
 - [vcs-handoff](.claude/skills/vcs-handoff.md) — pattern VCS post-commit
+- [worktree-gate](.claude/skills/worktree-gate.md) — gate locali su SHA immutabile (opzione per pre-tag check)
 
 [^src: US-225 EP-059 — TSK-520 creazione release-protocol generalizzato 2026-09-02]
 [^src: TSK-519 analisi comparativa release-protocol (portale) vs release-validation-gate (soli)]

@@ -73,10 +73,10 @@ Fail-closed, exit ≠ 0 se violati:
 - **G9 Riferimenti risolti.** Ogni nome-agente, handoff, membership, path di
   dispatch e path interno citato risolve a un file esistente. Un handoff verso un
   nome ignoto = FAIL.
-- **G10 Nessun orfano/irraggiungibile.** Ogni agente è raggiungibile da almeno un
-  punto d'ingresso (indice di flotta o orchestratore registrato). Un agente che
-  nessuno cita e nessuno dispatcha è contesto morto: se esisteva già prima, si
-  segnala; se lo introduce il refactor, è un errore.
+- **G10 Nessun orfano/irraggiungibile.** Ogni agente o unita' top-level e' raggiungibile da almeno un
+  punto d'ingresso (indice di flotta o orchestratore registrato). Un agente o una skill che
+  nessuno cita e nessuno dispatcha e' contesto morto: se esisteva gia' prima, si
+  segnala; se lo introduce il refactor, e' un errore. Scope esteso a unita' top-level — TSK-652/US-277.
 - **G11 Sicurezza di dispatch (V-9).** Per un agente dispatchato per iniezione,
   ogni foglia citata dal corpo (in qualunque cartella: `references/`, `assets/`,
   sottocartelle) deve essere **raggiungibile dal subagent iniettato**, la cui

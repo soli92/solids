@@ -1,0 +1,29 @@
+---
+description: >-
+  Skill procedurale per il sondaggio funzionale approfondito di un componente o flusso. Riceve
+  (target, scenario, ac), identifica gli stati rilevanti, formula le verifiche per ognuno, genera
+  l'acceptance-spec e delega l'esecuzione a…
+globs: "**"
+alwaysApply: false
+---
+# Skill: deep-functional-probe
+
+> Adapter Cursor della skill `deep-functional-probe`, definita in `.claude/skills/deep-functional-probe.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Struttura (dalla fonte)
+
+1. Prerequisiti
+2. Interfaccia di input
+3. Procedura di probe (5 passi)
+4. Struttura output
+5. Vincolo sola-lettura (dichiarazione esplicita)
+6. Pattern di riferimento
+7. ADR di riferimento
+
+Il dettaglio di ogni passo sta in `.claude/skills/deep-functional-probe.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.
+- Nessun fan-out nativo di sub-agenti (`profile: sequential`): dove la fonte dispatcha in parallelo, esegui in sequenza e aggrega a mano.

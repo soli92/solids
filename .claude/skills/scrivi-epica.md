@@ -1,10 +1,10 @@
-# Skill: Scrivi Epica
-
-> Adapter Cursor della skill `scrivi-epica` definita in PATTERN.md.
-
+---
+name: scrivi-epica
+description: Template e regole per scrivere una EP-XXX.md.
+---
 # Procedura per scrivere un'epica
 
-Riferimenti: [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md) (cascade: l'epica cita la wiki).
+Riferimenti: `citation-rules` (cascade: l'epica cita la wiki).
 
 ## Path
 
@@ -18,7 +18,7 @@ Slug: lowercase, spazi→`-`, rimuovi `()/'`, max 40 char.
 ---
 id: EP-XXX
 title: <titolo>
-status: defined | in-progress | done
+status: defined | in_progress | done
 priority: high | medium | low
 confidence: XX%
 confidence_rationale: <1-2 frasi>
@@ -38,8 +38,8 @@ Se aggiungi `risk_classification:`, vedi PATTERN §5 per lo schema completo (opt
   scheduler a livello roadmap (PATTERN §18). Due epiche con `depends_on`
   disgiunti possono essere lavorate da team/agenti diversi in parallelo.
   Una epica con `depends_on` non vuoto e qualche EP referenziata `defined` o
-  `in-progress` resta `defined`; transita a `in-progress` quando le sue
-  prerequisite sono almeno `in-progress`.
+  `in_progress` resta `defined`; transita a `in_progress` quando le sue
+  prerequisite sono almeno `in_progress`.
 
 ## Corpo
 
@@ -70,4 +70,4 @@ Se aggiungi `risk_classification:`, vedi PATTERN §5 per lo schema completo (opt
 - Confidence è obbligatorio. Score < 50% → epica in `roadmap.md` come Release 1.1+.
 - Nessun tech detail: niente "Spring Boot", "PostgreSQL". Quella è materia di
   `lead-architect`.
-- Citazioni: vedi [citation-rules](mdc:.cursor/skills/citation-rules/SKILL.md) (cascade L3 → wiki).
+- Citazioni: vedi `citation-rules` (cascade L3 → wiki).

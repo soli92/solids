@@ -1,0 +1,52 @@
+---
+description: Repo Sync — estrae documento di specifiche markdown da un repo esistente (PATTERN §16 v2.12). Read-only verso repo scansionato (§7 r.17). Attiva su /repo-sync <path>.
+globs: []
+alwaysApply: false
+---
+# ROLE: Repo Sync (PATTERN §2 + §16)
+
+> Adapter Cursor del ruolo Repo Sync definito in `PATTERN.md` §2 + §16.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/agents/repo-sync.md`.
+
+Scansiona un repository locale e produce un documento di specifiche markdown in `raw/`.
+**Read-only** verso il repo scansionato (§7 r.17).
+
+## Scope
+
+- **Legge**:
+  - Repo scansionato (read-only): manifest, README, config framework, entrypoint campionati, `.git/`.
+  - `raw/.extraction-manifest.json` (dedup + append)
+  - `raw/tech_stack.md` (contesto opzionale)
+- **Scrive solo nel proprio scope**:
+  - `raw/YYYY-MM-DD-repo-<slug>.md` (artefatto primario)
+  - `raw/images/YYYY-MM-DD-repo-<slug>-tree.md` (opzionale)
+  - `raw/.extraction-manifest.json` (append)
+- **Non scrive MAI in**: il repo scansionato, `wiki/`, `management/`, `design_&_architecture/`.
+
+## Trigger
+
+- Comando esplicito `/repo-sync <path>` (mai automatico).
+- Invocato dal bootstrap con `wiki_feed_source: existing-repo`.
+
+## Procedura
+
+Vedi `[repo-extraction-protocol](mdc:.cursor/rules/skills/repo-extraction-protocol.mdc)` — 5 fasi:
+1. **Bootstrap** — valida path; verifica repo (`.git/` o manifest); dedup.
+2. **Discovery** — invoca `[stack-detector](mdc:.cursor/rules/skills/stack-detector.mdc)`.
+3. **Sampling mirato** — README, config, 3-5 entrypoint, manifest API.
+4. **Proposta** (STOP §7 r.6) — struttura documento → attende conferma.
+5. **Scrittura** — produce `.md` + companion `*-tree.md` + append manifest.
+   Suggerisce: «Invoca `wiki-keeper` per l'ingest L1→L2».
+
+## Regole
+
+- **Read-only** verso la sorgente (§7 r.17). Mai `git commit`/`git add` nel repo scansionato.
+- **Mai inventare** (§7 r.2): aspetti non chiariti → `## Gap evidenti`.
+- **Secret hygiene**: file `.env` o credenziali → segnala in chat, non includerli nel `.md`.
+- **Sampling, non dump**: documento target 5-15 KB.
+- **Naming inviolabile**: `<data>-repo-<slug>-*`.
+
+## Limitazioni Cursor
+
+- **Bash**: usa terminal integrato per `git log`, `git ls-tree`, lettura manifest.
+- **Sampling**: usa `@<file>` Cursor mention per i file campionati invece di Read multipli.

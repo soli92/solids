@@ -64,3 +64,11 @@ updated: 2026-07-17
 2026-07-17 | wiki-keeper | integrate | wiki/concepts/design-principles.md | Integrati docs/principles.mdx: testo autoritativo diretto per tutti e 6 i principi, riferimento a WCAG/MD3/HIG per principio A11y.
 2026-07-17 | wiki-keeper | update | wiki/index.md | Aggiunte 4 nuove pagine concepts (development-history, registry-model-1, shadcn-integration, roadmap) + sezione Concepts/Foundations con 7 pagine. Aggiornata lista sources frontmatter.
 2026-07-17 | wiki-keeper | close-gap | wiki/gaps.md | Chiusi: GAP-002 (AI_LOG.md ingested → development-history.md), GAP-004 (MDX foundations ingested), GAP-005 (registry-model-1.md + shadcn-integration.md ingested).
+
+## [2026-11-11] upgrade | factory 2.42 → 2.45 (+ EP-090 dal branch feat/ep-090-mestiere-ui del master)
+
+- **entry_type**: upgrade
+- **trigger**: richiesta del maintainer: aggiornare all'ultima versione e abilitare le capability per testare EP-090
+- **sources**: `tools/factory-upgrade-apply.py --meta-source <master>` (COPY 793, REPLACE 5, CONFLICT 148); backup `.factory-upgrade-backup/2.42-to-2.45-20261111-1511/`
+- **files touched**: `.claude/`, `tools/`, `schemas/`, `adapters/cursor/templates/`, `PATTERN*.md`, `factory.config.yaml`
+- **note**: i 150 conflitti NON erano personalizzazioni: 76 versioni upstream vecchie (blob presenti nella storia del master) e 74 conversioni Cursor dello scaffold v2.33 (`mdc:.cursor/...` dentro `.claude/`). Sostituiti dal master, originali in `conflitti/` del backup. Righe locali del PATTERN (40): testo upstream v2.27-v2.37, nessuna nota propria. Re-dry-run: COPY 0 REPLACE 0 CONFLICT 0. Accese: `topology: custom`, `ui_craft.*`, `code_quality.enabled`, `fe_correctness.functional_oracle.enabled`, `prototyping.enabled` + `variants: 3`. 6 ERROR di lint preesistenti (wiki content-share, EP-001).

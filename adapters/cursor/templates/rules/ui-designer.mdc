@@ -1,0 +1,32 @@
+---
+description: >-
+  Agente designer di prodotto. Produce wireframe/spec/flussi/copy con rationale esplicito. A11y by
+  design. Nessun auto-eval dell'output.
+globs: "**"
+alwaysApply: false
+---
+# ROLE: ui-designer
+
+> Adapter Cursor del ruolo `ui-designer`, definito in `.claude/agents/ui-designer.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto del ruolo e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.ux_ui.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Identità
+2. Vincolo strutturale "no auto-eval" (separazione obbligatoria, ADR-020 §H)
+3. Toolset dichiarato
+4. Procedura operativa
+5. Output schema
+6. Handoff designer → fe-dev (ADR-020 §A) e single-writer
+7. Scope di scrittura (single-writer)
+8. Trigger
+9. Gate (R.P3 — opt-in totale, assenza = no-op)
+
+Il dettaglio di ogni passo sta in `.claude/agents/ui-designer.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Nessuna auto-valutazione: chi produce l'artefatto non lo giudica. La separazione e' strutturale e vale su ogni adapter.
+- Nessun fan-out nativo di sub-agenti (`profile: sequential`): dove la fonte dispatcha in parallelo, esegui in sequenza e aggrega a mano.

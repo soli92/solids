@@ -1,0 +1,30 @@
+---
+description: >-
+  Protocollo L2 del Code Intelligence Stack (§33.3). Chunking symbol-level via tree-sitter: estrae
+  funzioni, classi e interfacce come unità atomiche per embedding e retrieval semantico preciso.
+globs: "**"
+alwaysApply: false
+---
+# Skill: code-chunk-protocol
+
+> Adapter Cursor della skill `code-chunk-protocol`, definita in `.claude/skills/code-chunk-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.code_intelligence.l2_semantic.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Fase 0 — Prerequisite Check
+2. Fase 1 — Language Detection e Parse
+3. Fase 2 — Produzione Chunk JSON
+4. Fase 3 — Incremental Update
+5. Vincoli
+6. Tool di esecuzione
+7. Integrazione
+
+Il dettaglio di ogni passo sta in `.claude/skills/code-chunk-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- L2 e L3 dipendono da tool esterni (LanceDB, graphify) invocati da terminale: **identici** su Cursor. Cambia solo l'agente che li chiama, non il risultato.
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.

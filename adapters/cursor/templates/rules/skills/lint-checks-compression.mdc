@@ -1,0 +1,15 @@
+---
+description: >-
+  Check lint su Compression Layer e Temporal Awareness — check-family compression
+globs: "wiki/**,management/**"
+alwaysApply: false
+---
+# Skill: lint-checks-compression
+
+> Adapter Cursor della skill `lint-checks-compression`, definita in `.claude/skills/lint-checks-compression.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+## Limitazioni Cursor
+
+- Le famiglie sono moduli di `lint-checks`: si leggono su richiesta, non tutte insieme. E' la divulgazione progressiva della fonte, e su Cursor conta di piu' perche' la finestra di contesto e' l'unico posto in cui vivono le rule.
+- Il lint produce **solo report**: non corregge mai. Il fix e' `/heal`, ed e' un'altra cosa.

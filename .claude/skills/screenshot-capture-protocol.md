@@ -1,7 +1,7 @@
-# Skill: Screenshot Capture Protocol
-
-> Adapter Cursor della skill `screenshot-capture-protocol` definita in PATTERN.md. Riferimenti agent → `.cursor/rules/<name>.mdc`; skill → `.cursor/skills/<name>/SKILL.md`.
-
+---
+name: screenshot-capture-protocol
+description: Skill condivisa per cattura screenshot Playwright multi-viewport. Invocata da visual-oracle-protocol (EP-005) e ux-ui-review-protocol (EP-008). No MCP, Bash via Playwright (ADR-008/ADR-017).
+---
 # Protocollo Screenshot Capture — cattura Playwright condivisa multi-viewport
 
 Skill **interna condivisa** (single source of truth) per la cattura di screenshot di un

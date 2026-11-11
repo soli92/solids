@@ -1,20 +1,19 @@
-# Skill: Complexity Budget Check
-
-> Adapter Cursor della skill `complexity-budget-check` definita in PATTERN.md.
-
-Metadata skill (originale):
-```yaml
+---
 id: complexity-budget-check
 version: v2.19
 capability: EP-016
 pattern_ref: PATTERN §23
 adr: [ADR-052, ADR-053, ADR-056]
-```
+superseded_by: tools/fleet-observer/observe.py --load
+description: Misura il complexity budget di PATTERN.md a 5 step (conta sezioni ##, calcola delta, applica regola N:1 PATTERN §23.1) per tenere sostenibile il contesto. Emette verdict pass/warn/fail informativo. Invocata da Lint Check 4v e dal meta-comando /complexity-budget check.
+---
+
+# Skill: complexity-budget-check
 
 > Misura il complexity budget di `PATTERN.md` per una versione target: conta le sezioni
 > `##` top-level, calcola il delta vs la versione precedente, applica la **regola N:1**
 > (PATTERN §23.1, default N=3), emette un report e logga la telemetria EP-013.
-> 5 step deterministici. Invocata sia da **Lint Check 4v** ([lint-checks](mdc:.cursor/skills/lint-checks/SKILL.md), gated
+> 5 step deterministici. Invocata sia da **Lint Check 4v** (`lint-checks.md`, gated
 > `complexity_budget.required_on_release: true`) sia dal meta-comando `/complexity-budget check`.
 
 **Verdict semantico — mai enforcement duro.** L'esito è `pass` / `warn` / `fail` / `skipped`;
@@ -23,10 +22,12 @@ totale, ADR-056 §A). `fail` è solo un livello di severità informativa più al
 
 ## Step 1 — Read PATTERN
 
-Leggi `PATTERN.md` e conta le sezioni top-level `##`:
+Leggi `PATTERN.md` **e i moduli della sua tabella `## Moduli`** (US-319: §12+ vivono in
+`PATTERN-<nome>.md`; elenco via `tools/lint/pattern_modules.py`, mai un glob) e conta le
+sezioni top-level `##` sull'insieme:
 
 - **Include**: tutti i `## §X — <titolo>` e `## <titolo>` senza namespace.
-- **Esclude (whitelist, ADR-052 §C)**: TOC/index, esempi inline, `## Storia roadmap`,
+- **Esclude (whitelist, ADR-052 §C)**: TOC/index (inclusa la tabella `## Moduli` dell'indice), esempi inline, `## Storia roadmap`,
   `## Fonti`, `## Note`, e `## §23` stessa (self-referential per design, ADR-052 §C §F).
 - **Output**: `sections_current = int`, `sections_list = [slug, ...]`.
 
@@ -171,6 +172,6 @@ event:
 - **PATTERN §3** entry «Complexity Budget & Deprecations» (op. canonica, ADR-056 §G).
 - **ADR-052** (regola N:1 + whitelist esclusioni), **ADR-053** (`/pattern-view`),
   **ADR-056** (governance combinata lint + meta-comando, §B pseudocode).
-- **Comando** `/complexity-budget`.
-- **Lint Check 4v** ([lint-checks](mdc:.cursor/skills/lint-checks/SKILL.md), WARNING-only, gated).
+- **Comando** `/complexity-budget` (`.claude/commands/complexity-budget.md`).
+- **Lint Check 4v** (`.claude/skills/lint-checks.md`, WARNING-only, gated).
 - **Runbook** `wiki/runbooks/complexity-budget-runbook.md`.

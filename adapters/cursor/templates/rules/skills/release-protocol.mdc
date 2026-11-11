@@ -1,0 +1,33 @@
+---
+description: >-
+  Orchestrazione processo di release in 4 fasi (Preparazione → Validazione → Tag → Post-release).
+  Skill fat che chiama release-validation-gate come step atomico senza ridefinirne i criteri. Gate
+  umano Fase 3 NON bypassabile.…
+globs: "management/kanban/**"
+alwaysApply: false
+---
+# Skill: release-protocol
+
+> Adapter Cursor della skill `release-protocol`, definita in `.claude/skills/release-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.release_governance.battle_test_gate.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Invarianti locali
+2. Boot check
+3. Fase 1 — Preparazione
+4. Fase 2 — Validazione
+5. Fase 3 — Tag [GATE UMANO OBBLIGATORIO — NON BYPASSABILE]
+6. Fase 4 — Post-release
+7. Diagramma flusso complessivo
+8. Regole operative
+9. Invocazione
+
+Il dettaglio di ogni passo sta in `.claude/skills/release-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Il gate non tagga mai da solo (R.P1).
+- I tool deterministici sotto `tools/` sono invocati da terminale e si comportano in modo identico: la differenza sta solo nell'agente che li chiama.

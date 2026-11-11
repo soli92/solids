@@ -1,18 +1,14 @@
-# Skill: Graphify Extraction Protocol
-
-> Adapter Cursor della skill `graphify-extraction-protocol` definita in PATTERN.md.
-
-Metadata skill (originale):
-```yaml
+---
 name: graphify-extraction-protocol
 description: Protocollo provider-agnostic per estrazione knowledge graph da code_path via Graphify (PATTERN §16 + §20.10, v2.14 Fase 2). 5 fasi (Bootstrap → Discovery → Build Graph → Side-channel write → Log). Output raw/ + .graphify-state/ side-channel.
-```
+---
+# Protocollo Graphify Extraction
 
 Riferimenti: PATTERN §16 «Sync adapters» (4° adapter), §20.10 (Context Compression
 Layer), §20.11 (R.G1–R.G6 invarianti), §7 r.17 (sync read-only verso la sorgente),
 [[graphify]] (entity product), [[factory-compression-layer]] (design doc).
 
-Questa skill è invocata dall'agent [graphify-sync](mdc:.cursor/rules/graphify-sync.mdc) (§2 + §16). Definisce le 5 fasi
+Questa skill è invocata dall'agent `graphify-sync` (§2 + §16). Definisce le 5 fasi
 che ogni estrazione di knowledge graph deve seguire. Provider-bound a [[graphify]]:
 supporta sia la variante Python (`graphifyy` PyPI) sia la variante TypeScript
 (`graphify-ts` npm). La selezione del binario avviene in Fase 1.
@@ -253,13 +249,13 @@ In CI con `ci_strategy.mode: cache-with-fallback`:
 - **L1 read-only** (§7 r.1): solo `graphify-sync` scrive in `raw/*-graph-*.md` e
   `.graphify-state/**`.
 - **Sync read-only verso la sorgente** (§7 r.17): mai modificare il `<code_path>`
-  scansionato. Mai aggiungere `factory.config.yaml`, `.cursor/`, o file
+  scansionato. Mai aggiungere `factory.config.yaml`, `.claude/`, o file
   infrastrutturali alla sorgente.
 - **Side-channel write-restricted** (R.G5): nessun altro agent scrive in
   `.graphify-state/**`.
 - **Filesystem single source of truth** (R.G1): graph è view derivata, mai authoritative.
 - **Confidence preserved**: il graph mantiene i tag EXTRACTED/INFERRED/AMBIGUOUS;
-  il filtering per ruolo agent (R.G2) avviene downstream nel [parallel-scheduling](mdc:.cursor/skills/parallel-scheduling/SKILL.md).
+  il filtering per ruolo agent (R.G2) avviene downstream nel `parallel-scheduling`.
 - **Mai chiamate network non documentate**: solo l'API LLM per il pass semantico
   (se `graphify-cloud`). Mai chiamate a Neo4j auto (richiede flag esplicito).
 - **Secret hygiene**: applica `gitignore_patterns` da config. Secret rilevati
@@ -276,5 +272,5 @@ In CI con `ci_strategy.mode: cache-with-fallback`:
 5. `raw/.extraction-manifest.json` — entry appended
 6. `wiki/log.md` — entry appended
 
-Vedi [graphify-sync](mdc:.cursor/rules/graphify-sync.mdc) agent per il contratto completo, PATTERN §20.10 per il context
+Vedi `graphify-sync` agent per il contratto completo, PATTERN §20.10 per il context
 axis del Compression Layer, [[factory-compression-layer]] per il design rationale.

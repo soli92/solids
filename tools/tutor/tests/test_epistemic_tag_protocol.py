@@ -1,22 +1,24 @@
 """
-test_epistemic_tag_protocol.py — 7 test per le invarianti epistemiche del tutor (US-161).
+test_epistemic_tag_protocol.py — 7 tests for tutor epistemic invariants (US-161).
 
-Copre gli AC di US-161 verificabili senza wiring completo con lo Student Model
-(AC4 e AC5 dipendono da US-162, testati in TSK-362):
+Covers US-161 ACs testable without full wiring with the Student Model
+(AC4 and AC5 depend on US-162, tested in TSK-362):
 
-  Test 1 (AC1): L1 valido — exec_output presente + tag [L1:exec] → valid=True
-  Test 2 (AC1): Guard INV-T1 — exec_output=None → valid=False, reason "esecuzione effettiva richiesta"
-  Test 3 (AC2): L2 valido — citations non vuota + tag [L2:fonte] → valid=True
-  Test 4 (AC2): Guard INV-T2 — citations=[] → valid=False, reason "citazione alla fonte richiesta"
-  Test 5 (AC3): L3 valido — tag [L3:giudizio-team] presente → valid=True
-  Test 6 (AC3): Guard INV-T3 — tag assente → valid=False, reason "tag [L3:giudizio-team] richiesto"
-  Test 7 (AC6): execute_snippet("print(2+2)") → stdout="4\\n", exit_code=0 — output REALE, no mock
+  Test 1 (AC1): L1 valid — exec_output present + tag [L1:exec] → valid=True
+  Test 2 (AC1): Guard INV-T1 — exec_output=None → valid=False, reason "actual execution requested"
+  Test 3 (AC2): L2 valid — citations not empty + tag [L2:source] → valid=True
+  Test 4 (AC2): Guard INV-T2 — citations=[] → valid=False, reason "source citation required"
+  Test 5 (AC3): L3 valid — tag [L3:team-judgment] present → valid=True
+  Test 6 (AC3): Guard INV-T3 — tag absent → valid=False, reason "tag [L3:judgment-team] required"
+  Test 7 (AC6): execute_snippet("print(2+2)") → stdout="4\\n", exit_code=0 — REAL output, no mock
 
-Framework: pytest + stdlib. Nessuna dipendenza esterna.
-Test 7 invoca execute_snippet REALE (subprocess isolato) — nessun mock.
+Framework: pytest + stdlib. No external dependencies.
+Test 7 invokes REAL execute_snippet (isolated subprocess) — no mocks.
 
 [^src: management/kanban/EP-045-capability-formativa/US-161-tutor-modello-epistemico/TSK-355-test-invarianti-epistemiche.md]
 [^src: .claude/skills/epistemic-tag-protocol.md §Guard]
+
+
 """
 from __future__ import annotations
 
@@ -25,7 +27,8 @@ from tools.tutor.sandbox_exec_tool import execute_snippet
 
 
 # ---------------------------------------------------------------------------
-# Test 1 — AC1: L1 valido con exec_output presente
+# Test 1 — AC1: Valid L1 with exec_output present
+
 # ---------------------------------------------------------------------------
 
 def test_l1_valid_with_exec_output() -> None:
@@ -65,7 +68,8 @@ def test_l1_guard_without_exec_output() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Test 3 — AC2: L2 valido con citazioni presenti
+# Test 3 — AC2: valid L2 with citations present
+
 # ---------------------------------------------------------------------------
 
 def test_l2_valid_with_citations() -> None:
@@ -101,7 +105,7 @@ def test_l2_guard_without_citations() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Test 5 — AC3: L3 valido con tag cautela presente
+# Test 5 — AC3: Valid L3 with caution tag present
 # ---------------------------------------------------------------------------
 
 def test_l3_valid_with_tag() -> None:
@@ -132,7 +136,7 @@ def test_l3_guard_without_tag() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Test 7 — AC6: sandbox exec produce output reale (no mock)
+# Test 7 — AC6: sandbox exec produces real output (no mock)
 # ---------------------------------------------------------------------------
 
 def test_sandbox_exec_produces_real_output() -> None:

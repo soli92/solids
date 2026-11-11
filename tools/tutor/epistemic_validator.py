@@ -1,11 +1,11 @@
 """
-epistemic_validator.py — Guard Python per il modello epistemico del tutor (EP-045).
+epistemic_validator.py — Guard Python for tutor epistemic model (EP-045).
 
-Implementa le 3 funzioni di validazione corrispondenti ai guard INV-T1, INV-T2, INV-T3
-definiti in `.claude/skills/epistemic-tag-protocol.md`.
+Implements the 3 validation functions corresponding to the guards INV-T1, INV-T2, INV-T3
+defined in `.claude/skills/epistemic-tag-protocol.md`.
 
-Usato da tools/tutor/tests/test_epistemic_tag_protocol.py (TSK-355).
-Solo stdlib. Nessuna dipendenza esterna.
+Used by tools/tutor/tests/test_epistemic_tag_protocol.py (TSK-355).
+stdlib only. No external dependencies.
 
 [^src: .claude/skills/epistemic-tag-protocol.md §Guard]
 [^src: management/kanban/EP-045-capability-formativa/US-161-tutor-modello-epistemico/TSK-355-test-invarianti-epistemiche.md §Technical Specs]

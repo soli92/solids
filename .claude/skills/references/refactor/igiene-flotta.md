@@ -9,7 +9,7 @@ Fase 1.4, non si applicano di sorpresa).
 Regola trasversale: nessuna di queste tocca il `name` o la `description` di
 un'unità senza dichiararlo, perché sono trigger e contratti (V-3). Le collisioni
 di description si **segnalano**; la loro riscrittura è ottimizzazione di
-triggering, da fare col loop di skill-creator, non un refactor conservativo.
+triggering, fuori dall'ambito di questa skill, non un refactor conservativo.
 
 ## 1. Registrati vs specialisti (costo di schema)
 
@@ -40,16 +40,16 @@ riconosciute e lasciate stare.
   sovrapposizione lessicale. Distingui volute da accidentali leggendo i due
   frontmatter.
 - **Proponi**: per le accidentali, segnala la collisione all'utente come debito
-  di triggering. **Non** riscrivere le description qui (V-3): annota il caso per
-  il passo di description-optimization di skill-creator.
+  di triggering. **Non** riscrivere le description qui (V-3): annota il caso, e
+  annota che nel repo non esiste un esecutore di description-optimization.
 
 ## 3. Agenti orfani e irraggiungibili
 
 Un agente che nessuno cita nell'indice, in nessuna membership e in nessun
 orchestratore è contesto morto: occupa spazio nel repo e confonde chi legge.
 
-- **Rileva**: G10 / report della mappa (nessun arco entrante; irraggiungibile dai
-  punti d'ingresso).
+- **Rileva**: G10 / report della mappa (nessun arco entrante nel tier dispatch; irraggiungibile dai
+  punti d'ingresso). Scope esteso a unita' top-level (skill, agenti) non solo foglie — TSK-652/US-277.
 - **Proponi**: due esiti possibili, mai silenziosi — (a) **collegarlo** se
   l'orfano è un esecutore utile dimenticato (aggiungi membership/handoff
   nell'indice); (b) **segnalarlo per rimozione** se è morto. La rimozione la

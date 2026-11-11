@@ -11,7 +11,7 @@ Sintassi:
 /ponytail-review <branch>        → diff vs default-branch
 /ponytail-review <file-path>     → diff del singolo file
 /ponytail-review --staged        → diff staged corrente
-/ponytail-review <target> --save → salva report in code_quality/reports/ (alimenta /ponytail-gain)
+/ponytail-review <target> --save → salva report in code_quality/reports/ (alimenta la riga `ponytail-gain` del token ledger)
 ```
 
 ## Comportamento

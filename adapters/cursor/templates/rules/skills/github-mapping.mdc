@@ -1,0 +1,112 @@
+---
+description: GitHub Mapping — skill provider-specific per github-publisher (PATTERN §17, v2.10). Definisce come EP/US/TSK diventano Milestone/Issue/Label e i comandi gh CLI esatti. Invocata da publisher-protocol Fase 4.
+globs: []
+alwaysApply: false
+---
+# Skill: github-mapping (PATTERN §17, v2.10)
+
+> Adapter Cursor della skill `github-mapping` definita in `.claude/skills/github-mapping.md`.
+> Costrutto: Cursor rule `.mdc`. File equivalente Claude Code: `.claude/skills/github-mapping.md`.
+
+Mapping provider-specific GitHub. Invocata da `publisher-protocol` Fase 4.
+
+## Auth check (Fase 1 di publisher-protocol)
+
+```bash
+gh auth status
+gh repo view <target> --json viewerPermission
+```
+
+`viewerPermission` richiesto: `ADMIN | MAINTAIN | WRITE`. Altrimenti WARNING.
+
+## Mapping artefatti
+
+### Epica (default `epic_to: milestone`)
+
+**GitHub Milestone**: `EP-XXX: <title>`, descrizione = body markdown (troncato 10k).
+Stato: `open` se in-progress/todo; `closed` se done.
+
+Alternativa `epic_to: issue-label`: Issue con label `kanban:epic`.
+
+### User Story (default `story_to: issue-label`)
+
+**GitHub Issue**: `US-YYY: <title>`, body markdown.
+Label: `kanban:story` + `role:<role>` + `priority:<level>`.
+Milestone: epica genitore.
+
+### Task (default `task_to: issue-label`)
+
+**GitHub Issue**: `TSK-ZZZ: <title>`, body markdown.
+Label: `kanban:task` + `layer:<layer>` + `consumer:<consumer>` + `priority:<level>` + `estimate:<n>`.
+
+### Sprint (default `sprint_to: milestone`)
+
+**GitHub Milestone**: `Sprint NN`, descrizione = sezione sprint.
+
+## Body template
+
+Ogni artefatto include:
+1. **Header blockquote**: metadati Factory (layer, consumer, priority, estimate, citazione)
+2. **Body verbatim** del file locale
+3. **Footer**: mirror push-only + source-of-truth reference
+
+Wikilink `[[slug]]` → lasciati testuali + nota HTML comment.
+
+## Comandi gh CLI
+
+### CREATE — Epica come Milestone
+
+```bash
+gh api repos/<target>/milestones --method POST \
+   --field title="EP-XXX: <title>" \
+   --field description="$(cat /tmp/factory-publish-EP-XXX.md)" \
+   --field state="open"
+# → external_id: github:milestone-<num>
+```
+
+### CREATE — Story/Task come Issue
+
+```bash
+gh issue create --repo <target> \
+   --title "US-YYY: <title>" \
+   --body-file /tmp/factory-publish-US-YYY.md \
+   --label "kanban:story,role:cittadino,priority:high" \
+   --milestone "<milestone-title>"
+# → external_id: github:<num>
+```
+
+### UPDATE
+
+```bash
+gh issue edit <num> --repo <target> --body-file /tmp/... --add-label "..." --remove-label "..."
+gh api repos/<target>/milestones/<num> --method PATCH --field state="open|closed"
+```
+
+### State sync (done → close)
+
+```bash
+gh issue close <num> --repo <target> --reason completed
+```
+
+## Pre-flight labels
+
+Prima della prima Fase 4:
+```bash
+gh label create "kanban:epic" --color "B60205" --force
+gh label create "kanban:story" --color "0E8A16" --force
+gh label create "kanban:task" --color "1D76DB" --force
+gh label create "layer:be" --color "5319E7" --force
+# ... (layer:fe, layer:db, layer:qa, layer:infra)
+```
+
+## Rate limit e sicurezza
+
+- Rate limit: 5000 req/h; sleep 1s tra operazioni.
+- Token (`GH_TOKEN`) mai loggato. Body files `/tmp/factory-publish-*.md` cancellati dopo Fase 4.
+- Scope token minimo: `repo:issues:write` + `repo:metadata:read`.
+
+## Limitazioni Cursor
+
+- **Terminal**: tutti i comandi `gh` via terminal integrato.
+- **Body files**: crea file temporanei in `/tmp/factory-publish-*.md` con Write, poi usa nel comando.
+- **Rate limit**: aggiungi `sleep 1` nel terminal tra operazioni consecutive.

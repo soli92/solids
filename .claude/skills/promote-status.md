@@ -1,16 +1,16 @@
-# Skill: Promote Status
-
-> Adapter Cursor della skill `promote-status` definita in PATTERN.md.
-
+---
+name: promote-status
+description: Procedura canonica per la transizione di status delle pagine wiki (draft → review → approved). Eccezione di scrittura su wiki/, riservata all'orchestrator.
+---
 # Operazione `/promote` (canonica)
 
-Riferimenti: [wiki-log-entry](mdc:.cursor/skills/wiki-log-entry/SKILL.md) (template `promote`), `PATTERN.md §3` (operazione
+Riferimenti: `wiki-log-entry` (template `promote`), `PATTERN.md §3` (operazione
 canonica) e `§10` (eccezione di scrittura su wiki/).
 
 ## Chi può eseguirla
 
-**Solo l'[orchestrator](mdc:.cursor/rules/orchestrator.mdc).** È l'unica eccezione strutturata in cui un agente
-diverso da [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc) modifica il frontmatter di una pagina wiki/. La
+**Solo l'orchestrator.** È l'unica eccezione strutturata in cui un agente
+diverso da `wiki-keeper` modifica il frontmatter di una pagina wiki/. La
 modifica è **meccanica** e ristretta a 2 campi: `status:` e `updated:`.
 
 ## Trigger
@@ -40,7 +40,7 @@ naturale (`draft → review` o `review → approved`).
 4. **Edit meccanico**: cambia **solo** i campi `status:` e `updated:`
    (= oggi, YYYY-MM-DD) nel frontmatter YAML. **Mai toccare il corpo della
    pagina.** Mai toccare altri campi (`type`, `sources`, `tags`, `created`).
-5. Append a `wiki/log.md` secondo [wiki-log-entry](mdc:.cursor/skills/wiki-log-entry/SKILL.md) (template `promote`):
+5. Append a `wiki/log.md` secondo `wiki-log-entry` (template `promote`):
    ```
    [YYYY-MM-DD HH:MM] promote — <path> <old-status> → <new-status> — files touched: 1
    ```
@@ -49,7 +49,7 @@ naturale (`draft → review` o `review → approved`).
 
 - Path non esiste → rifiuta, suggerisci `Glob` per verificare.
 - `status:` corrente non trovato nel frontmatter → rifiuta, indica all'umano di
-  contattare [wiki-keeper](mdc:.cursor/rules/wiki-keeper.mdc).
+  contattare `wiki-keeper`.
 - Transizione illegale → rifiuta, mostra il passo intermedio richiesto.
 - Pagina è un `log.md`, `gaps.md`, `index.md` o file in `query/`/`lint/`:
   rifiuta, queste pagine non hanno ciclo di status.

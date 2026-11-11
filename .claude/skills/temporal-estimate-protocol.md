@@ -1,9 +1,4 @@
-# Skill: Temporal Estimate Protocol
-
-> Adapter Cursor della skill `temporal-estimate-protocol` definita in PATTERN.md.
-
-Metadata skill (originale):
-```yaml
+---
 name: temporal-estimate-protocol
 description: Stima adattiva del tempo rimanente da progresso osservato (Layer 3 — Generative Time Model semplificato, EP-043)
 version: v2.30-candidate
@@ -11,9 +6,11 @@ capability: EP-043
 opt_in: temporal.estimate_protocol.enabled
 depends_on_skill: temporal-budget-governor
 pattern_refs: [generative-time-model, circuit-breaker, evaluator-optimizer]
-```
+---
 
-> **Layer 3 — Generative Time Model semplificato**: stima adattiva del tempo rimanente da progresso osservato a runtime. Complementa [temporal-budget-governor](mdc:.cursor/skills/temporal-budget-governor/SKILL.md) (vincolo economico) con una stima temporale basata su velocità osservata. Comunica un payload strutturato `temporal_estimate`, **non lo esegue** (separation of concerns). [[generative-time-model]] applicato al coordinamento real-time multi-agente.
+# Skill: temporal-estimate-protocol
+
+> **Layer 3 — Generative Time Model semplificato**: stima adattiva del tempo rimanente da progresso osservato a runtime. Complementa `temporal-budget-governor` (vincolo economico) con una stima temporale basata su velocità osservata. Comunica un payload strutturato `temporal_estimate`, **non lo esegue** (separation of concerns). [[generative-time-model]] applicato al coordinamento real-time multi-agente.
 
 Riferimenti: `wiki/syntheses/temporal-awareness-multiagent-patterns.md §Layer 3 — Coordinazione real-time`, `factory.config.yaml.temporal.estimate_protocol.*`, `temporal-budget-governor` (ordine di invocazione).
 
@@ -246,7 +243,7 @@ In questo caso il flag è attivo ma mancano i dati minimi per produrre una stima
 
 ### Ordine di invocazione
 
-La skill [temporal-budget-governor](mdc:.cursor/skills/temporal-budget-governor/SKILL.md) e `temporal-estimate-protocol` affrontano due dimensioni ortogonali del tempo:
+La skill `temporal-budget-governor` e `temporal-estimate-protocol` affrontano due dimensioni ortogonali del tempo:
 
 | Skill | Dimensione | Input primario | Output |
 |-------|------------|----------------|--------|

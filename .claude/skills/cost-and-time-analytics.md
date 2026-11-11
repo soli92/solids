@@ -1,34 +1,29 @@
-# Skill: Cost And Time Analytics
-
-> Adapter Cursor della skill `cost-and-time-analytics` definita in PATTERN.md.
-
-Metadata skill (originale):
-```yaml
+---
 name: cost-and-time-analytics
 description: Skill procedurale Task Analytics — 5 step (Scope → Lettura Eventi + resolution model_id → Calcolo Costi + Metriche Temporali → Colli di Bottiglia + Trend → Report Standard). Orchestra i tool analytics deterministici (no MCP). Capability opt-in EP-009, PATTERN §3 Cost/Time Report.
-```
-
+---
 # Protocollo Cost & Time Analytics — analisi costi e tempi in 5 step
 
 Skill procedurale fondante della capability Task Analytics — Measurement (EP-009): incapsula
 la conoscenza operativa per orchestrare i tool deterministici di EP-009 e produrre un report
-costi/tempi nello schema standard. È caricabile al bisogno da [orchestrator](mdc:.cursor/rules/orchestrator.mdc), [tpm](mdc:.cursor/rules/tpm.mdc),
-`qa-dev` e [analytics-reporter](mdc:.cursor/rules/analytics-reporter.mdc) — istanza del pattern [[thin-agents-fat-skills-refactor]]:
+costi/tempi nello schema standard. È caricabile al bisogno da `orchestrator`, `tpm`,
+`qa-dev` e `analytics-reporter` — istanza del pattern [[thin-agents-fat-skills-refactor]]:
 la procedura vive nella skill (fat), i tool restano puri trasformatori deterministici e gli
 agenti restano thin senza duplicare l'orchestrazione.
 
 La skill **orchestra**, i tool **calcolano** (ADR-023 §B). Le formule di costo vivono nei
-tool (`compute-agentic-cost.sh`, `compute-human-cost.sh`); la resolution `model_id`, il
+tool (`compute-agentic-cost.py`, `compute-human-cost.py`); la resolution `model_id`, il
 mascheramento privacy, la composizione del report e la validation dello schema vivono qui.
 
 È un'**operazione opzionale** (PATTERN.md §3 «Cost/Time Report»), attiva solo con la
 capability EP-009 abilitata (`analytics.measurement.enabled: true`). A capability spenta la
 skill è no-op: la sua assenza non produce ERROR di lint (R.P3 opt-in totale).
 
-Tool orchestrati (Bash standalone in `tools/analytics/`, ADR-023 §A, no MCP):
-`analyze-timeline.sh` (US-035), `compute-agentic-cost.sh` (US-034),
-`compute-human-cost.sh` (US-034), `generate-report.sh` (US-037). Sorgente eventi:
-`record-event.sh` (US-033, instrumentazione a monte).
+Tool orchestrati (Python standalone in `tools/analytics/`, ADR-023 §A, no MCP; i `.sh` omonimi
+restano come rimandi per i chiamanti storici, US-327):
+`analyze-timeline.py` (US-035), `compute-agentic-cost.py` (US-034),
+`compute-human-cost.py` (US-034), `generate-report.py` (US-037). Sorgente eventi:
+`record-event.py` (US-033, instrumentazione a monte).
 
 Riferimenti: ADR-022 (schema `pricing.yaml`/`rates.yaml` + resolution `model_id` §D),
 ADR-023 (registrazione tool §A + policy dati N>=5 §C + `actors_map` §D + `rate_basis`
@@ -60,7 +55,7 @@ periodo non determinabile) → **chiedere chiarimento prima di procedere, non in
 
 **Tool invocato**: nessuno (passo cognitivo).
 
-**Output prodotto**: oggetto `scope` completo + filtro derivato per `analyze-timeline.sh`.
+**Output prodotto**: oggetto `scope` completo + filtro derivato per `analyze-timeline.py`.
 
 **Criterio di completamento**: i 4 elementi di scope sono risolti (o esplicitamente
 defaultati) e l'`audience` è uno dei 3 valori ammessi.
@@ -73,11 +68,11 @@ defaultati) e l'`audience` è uno dei 3 valori ammessi.
 
 **Input atteso**: filtro derivato dallo Step 1.
 
-**Tool invocato**: `analyze-timeline.sh` (US-035) sul filtro derivato dallo scope.
+**Tool invocato**: `analyze-timeline.py` (US-035) sul filtro derivato dallo scope.
 
 ```
-bash tools/analytics/analyze-timeline.sh \
-     --filter '<scope-derived>' --output json
+python3 tools/analytics/analyze-timeline.py \
+     --filter '<scope-derived>' [--group-by task_type|layer|actor_type|actor_id|state]
 ```
 
 **Azione**:
@@ -86,7 +81,7 @@ bash tools/analytics/analyze-timeline.sh \
   azionabile (verbatim):
 
   > Event store vuoto per il filtro specificato. Suggerimenti: (a) ampliare il periodo,
-  > (b) verificare che `record_task_event` sia attivo (US-033 / `tools/analytics/record-event.sh`).
+  > (b) verificare che `record_task_event` sia attivo (US-033 / `tools/analytics/record-event.py`).
 
   Senza eventi non si analizza: l'instrumentazione a monte è prerequisito (US-033).
 
@@ -123,16 +118,16 @@ risolto (o fail-loud esplicito su modello/ruolo sconosciuto).
 **Tool invocati** (in parallelo o sequenziale — decisione di scheduling intra-skill):
 
 ```
-bash tools/analytics/compute-agentic-cost.sh \
-     --events '<agent-events>' --pricing analytics/pricing.yaml --output json
-bash tools/analytics/compute-human-cost.sh \
-     --events '<human-events>' --rates analytics/rates.yaml --output json
+python3 tools/analytics/compute-agentic-cost.py \
+     --filter '<scope-derived>' --pricing analytics/pricing.yaml [--pricing-as-of YYYY-MM-DD]
+python3 tools/analytics/compute-human-cost.py \
+     --filter '<scope-derived>' --rates analytics/rates.yaml [--audience executive|project|operativa]
 ```
 
-- `compute-agentic-cost.sh` (US-034) → costo agentico aggregato + breakdown per modello e
+- `compute-agentic-cost.py` (US-034) → costo agentico aggregato + breakdown per modello e
   token kind.
-- `compute-human-cost.sh` (US-034) → costo umano aggregato + breakdown per ruolo.
-- Metriche temporali: già prodotte da `analyze-timeline.sh` allo Step 2.
+- `compute-human-cost.py` (US-034) → costo umano aggregato + breakdown per ruolo.
+- Metriche temporali: già prodotte da `analyze-timeline.py` allo Step 2.
 
 **Azione** — calcola i derivati:
 - `TCO = costo_agentico + costo_umano (+ overhead se applicabile)`.
@@ -200,11 +195,11 @@ trend dichiarata, almeno le metriche cost-per-X dei task_type presenti nello sco
 
 **Input atteso**: output aggregato degli Step 2-4 + `scope.audience` dallo Step 1.
 
-**Tool invocato**: `generate-report.sh` (US-037) con l'audience.
+**Tool invocato**: `generate-report.py` (US-037) con l'audience.
 
 ```
-bash tools/analytics/generate-report.sh \
-     --payload '<aggregated>' --audience '<scope.audience>' --output json
+python3 tools/analytics/generate-report.py \
+     --scope '<scope>' --audience '<scope.audience>' [--format md|json|md+json]
 ```
 
 **Azione** — emetti il report nello **schema standard ADR-024 §A** (`type: cost_time_report`),
@@ -256,7 +251,7 @@ fail-loud su shape non coerente con `type`).
 ## Vincoli della skill (enforced)
 
 - **NON stima il futuro**: se il caller chiede «quanto durerà / quanto costerà?» → **declina**
-  e suggerisci EP-010 (skill [project-estimation](mdc:.cursor/skills/project-estimation/SKILL.md) / agente [estimation-analyst](mdc:.cursor/rules/estimation-analyst.mdc)). La
+  e suggerisci EP-010 (skill `project-estimation` / agente `estimation-analyst`). La
   misurazione (passato) e la stima (futuro) sono strutturalmente separate.
 - **NON inventa eventi mancanti**: garbage-in-garbage-out è un limite documentato, non
   risolvibile dalla skill. Gap nell'event store si dichiarano (Step 5 invariante #4), non si
@@ -290,10 +285,10 @@ Se non c'è `estimate_id` collegato o non tutti i TSK sono done → nessuna auto
 ## Pattern
 
 - Istanza di [[thin-agents-fat-skills-refactor]]: la procedura di orchestrazione vive qui (fat
-  skill), consumata da più agenti thin ([orchestrator](mdc:.cursor/rules/orchestrator.mdc), [tpm](mdc:.cursor/rules/tpm.mdc), `qa-dev`, [analytics-reporter](mdc:.cursor/rules/analytics-reporter.mdc)),
-  allineandosi a EP-007 US-024 ([accessibility-testing-protocol](mdc:.cursor/skills/accessibility-testing-protocol/SKILL.md)) e EP-008 US-028. La skill
-  orchestra + interpreta; i tool (`compute-agentic-cost.sh`, `compute-human-cost.sh`,
-  `analyze-timeline.sh`, `generate-report.sh`) restano puri trasformatori deterministici
+  skill), consumata da più agenti thin (`orchestrator`, `tpm`, `qa-dev`, `analytics-reporter`),
+  allineandosi a EP-007 US-024 (`accessibility-testing-protocol`) e EP-008 US-028. La skill
+  orchestra + interpreta; i tool (`compute-agentic-cost.py`, `compute-human-cost.py`,
+  `analyze-timeline.py`, `generate-report.py`) restano puri trasformatori deterministici
   (ADR-023 §B).
 - PATTERN.md §3 — operazione opzionale «Cost/Time Report» con invarianti di trasparenza
   (`rate_basis` esplicito ADR-023 §E) + aggregazione minima N>=5 (ADR-023 §C).
@@ -312,7 +307,7 @@ SE gate false: step SKIP.
 
 **Action**:
 1. Legge tutti gli eventi in `analytics/events/` prodotti dai run della versione target.
-2. Invoca `analyze-timeline.sh` per produrre P50/P85/P95 per layer.
+2. Invoca `analyze-timeline.py` per produrre P50/P85/P95 per layer.
 3. Aggrega token consumption per capability (da campo `task_type`).
 4. Calcola wave parallelism efficacy dagli eventi `wave_started`/`wave_completed`.
 5. Identifica outlier (elapsed_ms > P95*2).

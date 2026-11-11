@@ -1,7 +1,7 @@
-# Skill: Help Router Protocol
-
-> Adapter Cursor della skill `help-router-protocol` definita in PATTERN.md.
-
+---
+name: help-router-protocol
+description: Protocollo per il comando /help. Riceve una domanda in linguaggio naturale, legge CAPABILITIES.md come fonte di verita', applica matching lessicale e restituisce la capability rilevante con comando, prerequisiti e link approfondimento.
+---
 # Protocollo — help-router (capability routing in linguaggio naturale)
 
 Skill sottostante al comando `/help`. Riceve una **query in linguaggio naturale**
@@ -281,7 +281,7 @@ Approfondimento: wiki/concepts/task-analytics-cost-estimation-capability.md · w
 
 ## Cross-reference
 
-- Invocata da: `/help`
+- Invocata da: `.claude/commands/help.md`
 - Fonte di verita': `CAPABILITIES.md` (root del repo)
 - US: US-113 (EP-032)
 - Pattern: `CAPABILITIES.md` come capability registry leggibile a runtime

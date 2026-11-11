@@ -1,0 +1,33 @@
+---
+description: >-
+  Loop di verifica visiva per TSK FE — 5 fasi (Bootstrap → Render → Screenshot → Critica →
+  Diff+Loop). Istanza del pattern evaluator-optimizer. Opt-in via fe_correctness.enabled.
+globs: "**"
+alwaysApply: false
+---
+# Skill: visual-oracle-protocol
+
+> Adapter Cursor della skill `visual-oracle-protocol`, definita in `.claude/skills/visual-oracle-protocol.md`.
+> Costrutto: Cursor rule `.mdc`. Il contenuto della skill e' quello della fonte: cambiano i nomi dei tool e i path di riferimento, non le regole.
+
+> **Gate**: `factory.config.yaml.fe_correctness.enabled`. A flag spento: no-op.
+
+## Struttura (dalla fonte)
+
+1. Prerequisiti
+2. Costanti
+3. Fase 1 — Bootstrap
+4. Fase 2 — Render Headless
+5. Fase 3 — Screenshot Multi-Viewport/Tema
+6. Fase 3-bis — Structured Checks (opt-in)
+7. Fase 4 — Critica Visiva
+8. Fase 5 — Diff Azionabile + Loop bounded
+9. Schema Report
+
+Il dettaglio di ogni passo sta in `.claude/skills/visual-oracle-protocol.md`: questo template ne porta il contratto, non ne duplica il testo — una seconda copia diverge dalla prima al primo ritocco.
+
+## Limitazioni Cursor
+
+- Playwright gira da terminale: identico. Cambia solo chi lo lancia.
+- Nessun fan-out nativo di sub-agenti (`profile: sequential`): dove la fonte dispatcha in parallelo, esegui in sequenza e aggrega a mano.
+- Nessuna auto-valutazione: chi produce l'artefatto non lo giudica. La separazione e' strutturale e vale su ogni adapter.
