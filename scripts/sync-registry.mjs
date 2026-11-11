@@ -79,7 +79,7 @@ const registry = {
       type: "registry:lib",
       title: "SoliDS utils",
       description: "Helper cn() (clsx + tailwind-merge).",
-      dependencies: ["clsx", "tailwind-merge"],
+      dependencies: ["clsx", "tailwind-merge@^3.0.0"],
       files: [{ path: "registry/solids/utils/utils.ts", type: "registry:lib" }],
     },
     {
@@ -109,6 +109,7 @@ const registry = {
         "Tutti i componenti UI + hooks installabili in un colpo. Richiede @solids/solids-utils. Dipendenze npm come da package.json del DS.",
       registryDependencies: ["@solids/solids-utils", "@solids/solids-icons"],
       dependencies: deps,
+      css: { '@import "tw-animate-css"': {} },
       files: blockFiles,
     },
   ],

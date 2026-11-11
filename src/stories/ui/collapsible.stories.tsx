@@ -8,7 +8,7 @@ export default meta;
 
 export const ConTrigger: StoryObj = {
   render: () => (
-    <Collapsible className="w-[320px] space-y-2">
+    <Collapsible className="w-[320px] [&>:not([hidden])~:not([hidden])]:mt-2">
       <CollapsibleTrigger asChild>
         <Button variant="outline">Mostra / nascondi</Button>
       </CollapsibleTrigger>

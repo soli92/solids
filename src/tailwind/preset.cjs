@@ -1,6 +1,12 @@
 /**
  * SoliDS — Tailwind preset (shadcn/ui + token bridge).
- * Install: tailwindcss, tailwindcss-animate, @soli92/solids.
+ *
+ * LEGACY: for Tailwind CSS v3 only. Tailwind v4 projects use the CSS-first entry
+ * instead: `@import "@soli92/solids/css/tailwind.css"` (see docs/shadcn-integration.md).
+ * This preset stays published as `@soli92/solids/tailwind-preset` for existing v3
+ * consumers; it receives no new features.
+ *
+ * Install: tailwindcss@3, tailwindcss-animate, @soli92/solids.
  * In tailwind.config: presets: [require("@soli92/solids/tailwind-preset")].
  * In globals.css: import SoliDS index.css, then Tailwind layers.
  */

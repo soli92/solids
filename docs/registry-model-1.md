@@ -11,19 +11,18 @@ In questo modello i componenti UI **stanno nel progetto applicativo** (cartelle 
 1. **Dipendenze fondazione**
 
    ```bash
-   npm install @soli92/solids tailwindcss tailwindcss-animate
+   npm install @soli92/solids tailwindcss tw-animate-css
    ```
 
-2. **CSS globale** — in `globals.css` (o equivalente): prima SoliDS, poi Tailwind.
+2. **CSS globale** — in `globals.css` (o equivalente), Tailwind v4 poi SoliDS.
 
    ```css
-   @import "@soli92/solids/css/index.css";
-   @tailwind base;
-   @tailwind components;
-   @tailwind utilities;
+   @import "tailwindcss";
+   @import "@soli92/solids/css/tailwind.css";
+   @import "tw-animate-css";
    ```
 
-3. **Tailwind** — usa il preset SoliDS (vedi [README](../README.md) o [shadcn-integration](./shadcn-integration.md)).
+3. **Tailwind** — già configurato dall'import `css/tailwind.css` (Tailwind v4). I componenti del registry usano classi v4 e `tailwind-merge@3`. Per Tailwind v3 resta il preset legacy: vedi [shadcn-integration](./shadcn-integration.md).
 
 4. **shadcn init** nel progetto
 

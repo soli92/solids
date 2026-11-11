@@ -19,7 +19,7 @@ Contesto operativo per assistenti AI: **[`AGENTS.md`](./AGENTS.md)**. SoliDS è 
 | **[`docs/shadcn-integration.md`](./docs/shadcn-integration.md)** | Integrazione completa Tailwind + shadcn/ui + temi |
 | **[`docs/registry-model-1.md`](./docs/registry-model-1.md)** | Registry `@solids`, `registry/r/`, CLI `shadcn add` |
 
-In sviluppo, dopo `npm install`: `npm run storybook` avvia la documentazione su `localhost` (prima viene rigenerato il CSS Tailwind di anteprima con `build:storybook-css`).
+In sviluppo, dopo `npm install`: `npm run storybook` avvia la documentazione su `localhost` (prima viene rigenerato `dist/`; il CSS Tailwind v4 di anteprima è compilato da Vite con `@tailwindcss/vite`).
 
 ### Node e npm
 
@@ -55,7 +55,22 @@ npm install @soli92/solids
 
 ### Con Tailwind + shadcn/ui (Next.js, Vite…)
 
-**Consigliato:** usa il **preset Tailwind** del pacchetto così tema, colori shadcn, font e shadow restano allineati ai token in un solo punto.
+**Tailwind CSS v4 (consigliato)** — ingresso CSS-first: token, colori shadcn, sidebar, radius, shadow, font e variante `dark:` (tutti i `data-theme` scuri) in un solo import.
+
+```css
+/* globals.css */
+@import "tailwindcss";
+@import "@soli92/solids/css/tailwind.css";
+@import "tw-animate-css";
+```
+
+```bash
+npm install tailwindcss @tailwindcss/postcss tw-animate-css   # oppure @tailwindcss/vite
+```
+
+`css/tailwind.css` include già `index.css`: non importarlo a parte. Dettagli e note di migrazione: [docs/shadcn-integration.md](./docs/shadcn-integration.md).
+
+**Tailwind CSS v3 (legacy)** — il **preset** resta pubblicato (`@soli92/solids/tailwind-preset`) per i progetti esistenti, senza nuove funzionalità:
 
 ```css
 /* globals.css */
@@ -74,7 +89,7 @@ module.exports = {
 };
 ```
 
-Serve anche `tailwindcss-animate` (dipendenza tipica di shadcn):
+Serve anche `tailwindcss-animate` (solo v3):
 
 ```bash
 npm install tailwindcss-animate
@@ -110,7 +125,7 @@ import { IconHome, IconSearch } from "@soli92/solids/icons"; // icone SoliDS
 import workspaceIconsIndex from "@soli92/solids/brand-assets/workspace-icons-normalized"; // index typed
 ```
 
-Preset Tailwind (shadcn): `require("@soli92/solids/tailwind-preset")` nel `tailwind.config`.
+Tailwind v4: `@import "@soli92/solids/css/tailwind.css"`. Preset Tailwind v3 (legacy): `require("@soli92/solids/tailwind-preset")` nel `tailwind.config`.
 
 Asset statici principali:
 
@@ -259,7 +274,7 @@ npm run release
 npm run registry:build
 ```
 
-Per Storybook, il CSS Tailwind viene precompilato in `.storybook/preview-tw.built.css` (file ignorato da git) dallo script `build:storybook-css`.
+Per Storybook, il CSS Tailwind v4 è compilato al volo dal plugin `@tailwindcss/vite` a partire da `.storybook/preview.css` (che importa `dist/css/tailwind.css`: lancia prima `npm run build`).
 
 ### Release, versioning e changelog
 
@@ -272,7 +287,7 @@ Su push a **`main`**, il workflow GitHub **Release** esegue **semantic-release**
 SoliDS resta **agnostico**: i componenti UI vivono nelle tue app (modello shadcn: codice in repo, non solo in `node_modules`). Il flusso consigliato:
 
 1. **Token e CSS** — `@soli92/solids` (`index.css` + opzionale solo layer).
-2. **Tailwind** — `presets: [require("@soli92/solids/tailwind-preset")]` + `tailwindcss-animate`.
+2. **Tailwind** — v4: `@import "@soli92/solids/css/tailwind.css"` + `tw-animate-css`; v3 (legacy): `presets: [require("@soli92/solids/tailwind-preset")]` + `tailwindcss-animate`.
 3. **shadcn/ui** — `npx shadcn@latest init` e `add` per ogni blocco (Radix + CVA + le tue classi).
 4. **Tema** — `data-theme` / `next-themes` come in [docs/shadcn-integration.md](./docs/shadcn-integration.md).
 

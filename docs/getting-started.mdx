@@ -41,6 +41,19 @@ Con **next-themes**, usa `attribute="data-theme"` e valori come in `docs/shadcn-
 
 ## 4. Tailwind + shadcn (opzionale ma consigliato)
 
+**Tailwind CSS v4 (consigliato)** — configurazione CSS-first, nessun `tailwind.config`:
+
+```css
+/* globals.css */
+@import "tailwindcss";
+@import "@soli92/solids/css/tailwind.css";
+@import "tw-animate-css";
+```
+
+`css/tailwind.css` include già i token (`index.css`, dentro `@layer base`), il bridge `@theme inline` (colori shadcn, sidebar, radius, shadow, font, keyframe accordion) e la variante `dark:` per `.dark` e per tutti i temi scuri (`data-theme`). Non importare anche `css/index.css`. Installa `tailwindcss`, `tw-animate-css` e il plugin del tuo bundler (`@tailwindcss/postcss` o `@tailwindcss/vite`).
+
+**Tailwind CSS v3 (legacy)** — il preset resta pubblicato per i progetti esistenti:
+
 ```js
 // tailwind.config.cjs (o .js)
 module.exports = {

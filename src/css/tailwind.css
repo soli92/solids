@@ -1,0 +1,152 @@
+/*
+ * SoliDS — Tailwind CSS v4 entry (CSS-first)
+ * -------------------------------------------
+ * One import for token CSS (variables, themes, shadcn mapping, base, utilities)
+ * plus the Tailwind theme bridge (`@theme inline`) and the dark variant.
+ *
+ *   @import "tailwindcss";
+ *   @import "@soli92/solids/css/tailwind.css";
+ *   @import "tw-animate-css";
+ *
+ * `tw-animate-css` provides animate-in, fade-in, zoom-in, slide-in-from-* used by
+ * the overlay components; install it next to tailwindcss.
+ *
+ * Do not import `css/index.css` as well: this file already pulls it in, inside
+ * `@layer base`, so Tailwind utilities (e.g. `outline-hidden`) can override the
+ * global focus ring from base.css. The same stylesheet imported unlayered would
+ * win over every utility.
+ *
+ * Tailwind v3 projects keep using `@soli92/solids/tailwind-preset` (legacy).
+ */
+
+@import "./index.css" layer(base);
+
+/* ─── Dark variant ─────────────────────────────────────────
+ * Same set of selectors as the legacy preset `darkMode` option: `.dark`
+ * plus every theme that ships a dark color scheme.
+ */
+@custom-variant dark (
+  &:is(
+    .dark *,
+    [data-theme="dark"] *,
+    [data-theme="cyberpunk"] *,
+    [data-theme="90s-party"] *,
+    [data-theme="steampunk"] *,
+    [data-theme="captain-america"] *,
+    [data-theme="ichigo"] *,
+    [data-theme="inuyasha"] *,
+    [data-theme="sasuke"] *,
+    [data-theme="vegeta"] *,
+    [data-theme="zoro"] *
+  )
+);
+
+/* ─── Theme bridge ─────────────────────────────────────────
+ * `inline` keeps utilities pointing at the runtime variables
+ * (`var(--primary)`), so every [data-theme] override keeps working.
+ * The radius and shadow scales are SoliDS tokens: `rounded-md` and
+ * `shadow-md` mean exactly what they meant with the v3 preset.
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Full colors (not HSL triplets): never wrap in hsl(). */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-sd-primary: var(--sd-color-primary-default);
+  --color-sd-success: var(--sd-color-intent-success);
+  --color-sd-warning: var(--sd-color-intent-warning);
+  --color-sd-danger: var(--sd-color-intent-danger);
+  --color-sd-info: var(--sd-color-intent-info);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --shadow-xs: var(--sd-shadow-xs);
+  --shadow-sm: var(--sd-shadow-sm);
+  --shadow-md: var(--sd-shadow-md);
+  --shadow-lg: var(--sd-shadow-lg);
+  --shadow-xl: var(--sd-shadow-xl);
+
+  --font-sans: var(--sd-font-body), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: var(--sd-font-heading), ui-serif, Georgia, Cambria,
+    "Times New Roman", Times, serif;
+  --font-heading: var(--sd-font-heading), ui-serif, Georgia, Cambria,
+    "Times New Roman", Times, serif;
+  --font-mono: var(--sd-font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+/* ─── Tailwind v3 → v4 compatibility ───────────────────────
+ * v4 changed two preflight defaults the components were written against:
+ * the border color (currentColor instead of gray-200) and the cursor on
+ * buttons (default instead of pointer).
+ */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}

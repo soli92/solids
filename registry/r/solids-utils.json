@@ -5,7 +5,7 @@
   "description": "Helper cn() (clsx + tailwind-merge).",
   "dependencies": [
     "clsx",
-    "tailwind-merge"
+    "tailwind-merge@^3.0.0"
   ],
   "files": [
     {

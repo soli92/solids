@@ -1,0 +1,10 @@
+/*
+ * Storybook preview stylesheet: Tailwind v4 (compiled by @tailwindcss/vite)
+ * on top of the built SoliDS entry. `npm run build` must run first.
+ */
+@import "tailwindcss";
+@import "../dist/css/tailwind.css";
+@import "tw-animate-css";
+
+@source "../src";
+@source "./";

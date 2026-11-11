@@ -6,8 +6,7 @@ import { Toaster } from "../src/components/ui/toaster";
 import { TooltipProvider } from "../src/components/ui/tooltip";
 import { Toaster as SonnerToaster } from "sonner";
 
-import "../dist/css/index.css";
-import "./preview-tw.built.css";
+import "./preview.css";
 
 const STORAGE_KEY = "solids:sb:theme";
 

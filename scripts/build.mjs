@@ -11,6 +11,7 @@
  *   dist/css/base.css                — base resets / global styles
  *   dist/css/utilities.css           — utility classes
  *   dist/css/index.css               — entrypoint that @imports all of the above
+ *   dist/css/tailwind.css            — Tailwind v4 entry (index.css in @layer base + @theme bridge)
  */
 
 import {
@@ -181,6 +182,7 @@ const main = () => {
   cpSync(join(SRC, "css", "shadcn.css"), join(DIST, "css", "shadcn.css"));
   cpSync(join(SRC, "css", "base.css"), join(DIST, "css", "base.css"));
   cpSync(join(SRC, "css", "utilities.css"), join(DIST, "css", "utilities.css"));
+  cpSync(join(SRC, "css", "tailwind.css"), join(DIST, "css", "tailwind.css"));
 
   cpSync(join(SRC, "tailwind", "preset.cjs"), join(DIST, "tailwind", "preset.cjs"));
   transpileTs(join(SRC, "icons", "solids-icon.tsx"), join(DIST, "icons", "solids-icon.js"));
@@ -260,7 +262,8 @@ const main = () => {
   console.log(`   dist/brand-assets/workspace-icons/**/*.{svg,png}`);
   console.log(`   dist/brand-assets/workspace-icons-normalized/soli-icon-*`);
   console.log(`   dist/brand-assets/workspace-icons-normalized/index.{js,d.ts,json}`);
-  console.log(`   dist/tailwind/preset.cjs`);
+  console.log(`   dist/css/tailwind.css (Tailwind v4 entry)`);
+  console.log(`   dist/tailwind/preset.cjs (legacy, Tailwind v3)`);
 };
 
 main();

@@ -89,7 +89,7 @@ function LogoLoaderOverlay({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[var(--sd-z-modal,60)] flex flex-col items-center justify-center gap-3",
+        "fixed inset-0 z-(--sd-z-modal,60) flex flex-col items-center justify-center gap-3",
         className
       )}
       style={{

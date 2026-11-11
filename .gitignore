@@ -4,7 +4,6 @@ dist
 npm-debug.log*
 .env
 debug-storybook.log
-.storybook/preview-tw.built.css
 storybook-static
 
 # LLM Wiki template
