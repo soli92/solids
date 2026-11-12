@@ -1,3 +1,34 @@
+# [2.0.0](https://github.com/soli92/solids/compare/v1.15.1...v2.0.0) (2026-11-12)
+
+
+* feat(registry)!: registry per Tailwind v4, fix di motion e caso peggiore, getInitials ([c10044d](https://github.com/soli92/solids/commit/c10044d7bbef3e6f7196066134c28e2fd81bfceb))
+
+
+### Bug Fixes
+
+* **code-search:** cross-link a code-search-protocol.md (skill inesistente) → wiki-search-protocol.md §5 ([18d5966](https://github.com/soli92/solids/commit/18d596646b59cd07cc562e610812ab432ba4545a))
+* **item:** caso peggiore della lista membri (overflow, avatar, badge, iniziali, BiDi) ([3ac1473](https://github.com/soli92/solids/commit/3ac1473cdc63be8f7cac215e7472a86550aa88dd))
+* **motion:** easing forte unico, reduced-motion gentile, focus statico ([eaedd5f](https://github.com/soli92/solids/commit/eaedd5f89dfe93c25e345a4945d17b9aa4df182d))
+* **theme:** contrasto AA del tema scuro per primary e destructive ([9c63940](https://github.com/soli92/solids/commit/9c6394011276c53230e1236cd229bd15aa225675)), closes [#3B82F6](https://github.com/soli92/solids/issues/3B82F6) [#60A5FA](https://github.com/soli92/solids/issues/60A5FA) [#93C5FD](https://github.com/soli92/solids/issues/93C5FD) [#BFDBFE](https://github.com/soli92/solids/issues/BFDBFE) [#DC2626](https://github.com/soli92/solids/issues/DC2626) [#F87171](https://github.com/soli92/solids/issues/F87171) [#0C0E12](https://github.com/soli92/solids/issues/0C0E12)
+
+
+### Features
+
+* **tailwind:** migrazione a Tailwind CSS v4 (ingresso CSS-first, preset v3 legacy) ([2ddd9b7](https://github.com/soli92/solids/commit/2ddd9b76406fcbb5f469fc53da3547e079725f7f))
+
+
+### BREAKING CHANGES
+
+* i componenti del registry (solids-ui, solids-button,
+solids-utils) usano la sintassi di Tailwind CSS v4 (outline-hidden,
+w-(--var), in-data-*) e richiedono tailwind-merge@^3 e tw-animate-css.
+I progetti su Tailwind v3 restano sul preset legacy
+(@soli92/solids/tailwind-preset) e su una versione 1.x del registry.
+Il pacchetto npm e' additivo: nuovo export ./css/tailwind.css,
+preset e CSS esistenti invariati.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
 ## [1.15.1](https://github.com/soli92/solids/compare/v1.15.0...v1.15.1) (2026-07-17)
 
 
