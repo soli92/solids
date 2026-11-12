@@ -69,3 +69,13 @@ Poi `npx shadcn@latest add …` con gli item del registry `@solids`. Guida: `doc
 - **Online (sempre aggiornato con le release npm):** [soli92.github.io/solids](https://soli92.github.io/solids/) — nella sidebar trovi **Foundations** (colori, spacing, tipografia, radius, temi, token), le pagine **Getting Started**, **Design Principles**, **Roadmap** e le story **SoliDS / UI** (componenti di esempio).
 - **In locale** (clone di [github.com/soli92/solids](https://github.com/soli92/solids)): `npm install`, poi `npm run storybook`. Smoke CI-style: `npm test` (esegue `build` + `build-storybook`). Il deploy su GitHub Pages è gestito dalla CI dopo `semantic-release`; per un fork, configura *Pages* su *GitHub Actions* (vedi [README](https://github.com/soli92/solids/blob/main/README.md#documentazione)).
 - **Guide in markdown nel repo:** [`shadcn-integration.md`](https://github.com/soli92/solids/blob/main/docs/shadcn-integration.md) e [`registry-model-1.md`](https://github.com/soli92/solids/blob/main/docs/registry-model-1.md).
+
+## 6. Dati reali: cosa resta al consumatore
+
+`Item`, `Avatar` e `Badge` reggono stringhe lunghe, senza spazi, in lingue e direzioni miste (`min-w-0`, `overflow-wrap:anywhere`, `dir="auto"` sovrascrivibile su `ItemTitle` e `ItemDescription`, `object-cover` sull'immagine dell'avatar, badge su una riga). Se a 320px o a zoom 200% il contenuto non ci sta, va a capo l'intera riga delle azioni, mai il testo del badge. Il resto è del consumatore, per scelta:
+
+- **Descrizioni troncate:** `ItemDescription` usa `line-clamp-2`. Il valore intero va esposto dal consumatore, ad esempio `<ItemDescription title={email}>`.
+- **Nome mancante:** il componente non inventa un titolo. Usa un valore di ripiego (es. l'email) come `ItemTitle`.
+- **Iniziali:** `getInitials(nome, max = 2)` da `src/lib/initials.ts` lavora sui grafemi (emoji intere, apostrofi, CJK, arabo) e restituisce `""` se il nome è vuoto: il ripiego (`?`, icona) lo sceglie chi chiama.
+- **Plurale:** `Intl.PluralRules` (`1 membro`, `2 membri`), non una stringa cablata.
+- **Liste lunghe:** il DS non virtualizza. Con migliaia di righe, paginare o virtualizzare.

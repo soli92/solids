@@ -12,6 +12,7 @@ import {
   ItemSeparator,
   ItemTitle,
 } from "@/components/ui/item";
+import { getInitials } from "@/lib/initials";
 import { MODALITA, dati, type DatiModalita, type Membro } from "./lista-membri.fixtures";
 
 /**
@@ -19,27 +20,34 @@ import { MODALITA, dati, type DatiModalita, type Membro } from "./lista-membri.f
  * Il toggle Demo / Caso peggiore / Vuoto / Uno / 1.000 righe e' SOLO dev: l'arg `dati`
  * (pannello Controls, oppure URL `&args=dati:peggiore`). Il componente non lo conosce:
  * la fixture si sceglie qui, al confine dei dati.
+ *
+ * Responsabilita' del consumatore, non del DS: titolo di ripiego (qui l'email) se il nome
+ * manca, iniziali con `getInitials`, plurale con `Intl.PluralRules`, `title=` per il valore
+ * intero di una descrizione troncata a 2 righe, paginazione/virtualizzazione delle liste lunghe.
  */
 type Props = { dati: DatiModalita };
 
-function iniziali(nome: string): string {
-  // Implementazione volutamente ingenua, tipica di un consumatore.
-  return nome.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase();
+const plurale = new Intl.PluralRules("it");
+const ETICHETTA_MEMBRI: Partial<Record<Intl.LDMLPluralRule, string>> = { one: "membro", other: "membri" };
+function conteggio(n: number): string {
+  return `${n} ${ETICHETTA_MEMBRI[plurale.select(n)] ?? "membri"}`;
 }
 
 function Riga({ m }: { m: Membro }) {
+  // Il DS non inventa un titolo: se il nome manca, il consumatore usa l'email.
+  const titolo = m.nome?.trim() || m.email;
   return (
     <Item variant="outline" size="sm" data-testid="riga-membro">
       <ItemMedia>
         <Avatar>
           {m.avatarUrl ? <AvatarImage src={m.avatarUrl} alt="" /> : null}
-          <AvatarFallback>{m.nome ? iniziali(m.nome) : "?"}</AvatarFallback>
+          <AvatarFallback>{getInitials(titolo) || "?"}</AvatarFallback>
         </Avatar>
       </ItemMedia>
       <ItemContent>
-        <ItemTitle>{m.nome}</ItemTitle>
-        <ItemDescription>{m.email}</ItemDescription>
-        {m.ruolo ? <ItemDescription>{m.ruolo}</ItemDescription> : null}
+        <ItemTitle>{titolo}</ItemTitle>
+        {m.nome?.trim() ? <ItemDescription title={m.email}>{m.email}</ItemDescription> : null}
+        {m.ruolo ? <ItemDescription title={m.ruolo}>{m.ruolo}</ItemDescription> : null}
       </ItemContent>
       <ItemActions>
         <Badge variant={m.stato === "scaduto" || m.stato === "sospeso" ? "destructive" : m.stato === "invitato" ? "secondary" : "default"}>
@@ -55,7 +63,7 @@ function ListaMembri({ dati: modalita }: Props) {
   return (
     <div data-testid="lista-membri" data-modalita={modalita} className="w-full max-w-[480px]">
       <h3 className="mb-2 text-sm font-semibold" data-testid="intestazione">
-        {righe.length} membri
+        {conteggio(righe.length)}
       </h3>
       {righe.length === 0 ? (
         <p data-testid="vuoto" className="text-sm text-muted-foreground">Nessun membro.</p>

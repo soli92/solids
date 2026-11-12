@@ -18,4 +18,23 @@ Stati validati via DOM (`data-modalita`, numero righe, intestazione) in `metrich
 
 Ha retto (non toccare): escape letterale di `<script>`/`&amp;`/`**`; CJK e arabo; diacritici vietnamiti (`ĐT`, nessun taglio); nome di una lettera; avatar 404 -> fallback delle iniziali di pari dimensione (40x40 ovunque); tema scuro (nessun overflow); duplicati; vuoto (stato «Nessun membro»); nessun errore JS in nessuno stato.
 Toggle: story `SoliDS/Esempi/Lista membri (caso peggiore)`, arg `dati` (5 stati). Verificato a vista/DOM: 600, 320, 200% font, dark, RTL.
-Fix non applicati: report prima della correzione.
+Fix applicati: vedi la sezione seguente.
+
+## Dopo i fix (2026-11-12)
+
+Rerun su `storybook-static` (stessa fixture, stessi stati e misure del primo run; chrome-headless-shell). Screenshot in `dopo/`, misure in `dopo/metriche.json`. Asserzioni DOM su ogni stato: elementi oltre il bordo della card = 0 (`totalOver: 0`, anche 320, root 32px, dark, RTL), nessun errore JS, nessun overflow del documento.
+Correzione in corsa: `min-w-0` + `overflow-wrap:anywhere` da soli facevano collassare ItemContent a un carattere per riga accanto a un badge largo (riga 2 a 320: 707px di altezza) invece di mandare a capo le azioni. ItemContent ora ha `flex-[1_1_12rem]`: sotto quella larghezza utile va a capo l'intera riga actions.
+
+| # | Esito | Misura |
+|---|---|---|
+| 1 | risolta | `totalOver = 0` a root 32px e a 320; email lunga spezzata dentro la card |
+| 2 | lato consumatore | `line-clamp-2` resta; la story espone il valore intero con `title=` (`title=` nel codice della story, non asserito nel DOM); nota in `docs/getting-started.mdx` |
+| 3 | risolta | `AvatarImage` `object-fit: cover` (riga 0, tutti gli stati) |
+| 4 | risolta | badge 1 riga in tutte le righe (altezza 22px, 42px a 200%); a 320 e a 200% `actionsWrapped = true` su 12/12 righe (a capo l'intera riga, coerente); a 600 nessuna riga a capo; demo 320/600 con le stesse altezze di prima (127/95) |
+| 5 | lato consumatore | nessun fallback nel componente; la story usa l'email come titolo (`titleEmpty = false` su 12/12) |
+| 6 | risolta (helper in `src/lib/initials.ts`) | `🦊 Volpe` -> `🦊V`; `scripts/initials-test.mjs`: `initials: ok` (emoji, ZWJ, D'Alessandro, una lettera, vuota, spazi multipli, CJK, arabo) |
+| 7 | risolta | `dir="auto"` presente su ItemTitle/ItemDescription in tutte le righe, sovrascrivibile |
+| 8 | lato consumatore | nessuna virtualizzazione nel DS (1.284 righe: 13.972 nodi, 461 ms headless); nota docs: paginare o virtualizzare |
+| 9 | lato consumatore | story con `Intl.PluralRules`: `1 membro`, `0 membri`, `1284 membri`; nota docs |
+
+Demo normale prima/dopo: altezze e larghezze identiche a 600 e 320 (metriche); i PNG non sono byte-identici (il primo run usava un altro binario Chrome, non verificato come causa). 
