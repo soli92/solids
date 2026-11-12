@@ -41,11 +41,11 @@
       "info-border":      "#1e3a8a"
     },
     "primary": {
-      "default":    "#3B82F6",
-      "hover":      "#60A5FA",
-      "active":     "#93C5FD",
+      "default":    "#60A5FA",
+      "hover":      "#93C5FD",
+      "active":     "#BFDBFE",
       "subtle":     "#0c1a3a",
-      "foreground": "#FFFFFF"
+      "foreground": "#0C0E12"
     },
     "secondary": {
       "default":    "#252B38",
@@ -62,14 +62,14 @@
       "foreground": "#F9FAFB"
     },
     "destructive": {
-      "default":    "#DC2626",
-      "foreground": "#FFFFFF"
+      "default":    "#F87171",
+      "foreground": "#0C0E12"
     },
     "icon": {
       "default":    "#F9FAFB",
       "muted":      "#9CA3AF",
       "primary":    "#60A5FA",
-      "on-primary": "#FFFFFF"
+      "on-primary": "#0C0E12"
     }
   },
   "font": {
