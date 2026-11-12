@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "solids-utils",
   "title": "SoliDS utils",
-  "description": "Helper cn() (clsx + tailwind-merge).",
+  "description": "Helper cn() (clsx + tailwind-merge) e getInitials() (grafemi con Intl.Segmenter).",
   "dependencies": [
     "clsx",
     "tailwind-merge@^3.0.0"
@@ -11,6 +11,11 @@
     {
       "path": "registry/solids/utils/utils.ts",
       "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\nexport function cn(...inputs: ClassValue[]) {\n  return twMerge(clsx(inputs));\n}\n",
+      "type": "registry:lib"
+    },
+    {
+      "path": "registry/solids/utils/initials.ts",
+      "content": "/**\n * Iniziali di un nome per l'AvatarFallback.\n *\n * Lavora sui grafemi (Intl.Segmenter), non sui code unit: un'emoji, una sequenza\n * ZWJ o una lettera con segni combinati contano come un solo carattere.\n * Senza Intl.Segmenter ricade su Array.from (code point).\n * Restituisce \"\" se il nome e' vuoto: il fallback (\"?\", icona) lo sceglie il chiamante.\n */\nconst segmenter =\n  typeof Intl !== \"undefined\" && \"Segmenter\" in Intl\n    ? new Intl.Segmenter(undefined, { granularity: \"grapheme\" })\n    : null\n\nfunction graphemes(text: string): string[] {\n  return segmenter\n    ? Array.from(segmenter.segment(text), (s) => s.segment)\n    : Array.from(text)\n}\n\nfunction isLetterLike(g: string): boolean {\n  return /[\\p{L}\\p{N}\\p{Extended_Pictographic}]/u.test(g)\n}\n\nexport function getInitials(nome: string, max = 2): string {\n  const parole = (nome ?? \"\").trim().split(/\\s+/).filter(Boolean)\n  const iniziali: string[] = []\n  for (const parola of parole) {\n    const primo = graphemes(parola).find(isLetterLike)\n    if (primo) iniziali.push(primo)\n  }\n  let out = iniziali\n  // Una sola parola senza spazi (es. CJK): le prime lettere stesse.\n  if (out.length === 1 && max > 1) {\n    out = graphemes(parole.find((p) => graphemes(p).some(isLetterLike)) ?? \"\")\n      .filter(isLetterLike)\n      .slice(0, max)\n  }\n  return out.slice(0, max).join(\"\").toLocaleUpperCase()\n}\n",
       "type": "registry:lib"
     }
   ],

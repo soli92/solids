@@ -7,7 +7,7 @@
       "name": "solids-utils",
       "type": "registry:lib",
       "title": "SoliDS utils",
-      "description": "Helper cn() (clsx + tailwind-merge).",
+      "description": "Helper cn() (clsx + tailwind-merge) e getInitials() (grafemi con Intl.Segmenter).",
       "dependencies": [
         "clsx",
         "tailwind-merge@^3.0.0"
@@ -15,6 +15,10 @@
       "files": [
         {
           "path": "registry/solids/utils/utils.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/solids/utils/initials.ts",
           "type": "registry:lib"
         }
       ]

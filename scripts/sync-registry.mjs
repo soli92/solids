@@ -22,6 +22,7 @@ rmSync(REG, { recursive: true, force: true });
 mkdirSync(join(REG, "utils"), { recursive: true });
 
 cpSync(join(ROOT, "src", "lib", "utils.ts"), join(REG, "utils", "utils.ts"));
+cpSync(join(ROOT, "src", "lib", "initials.ts"), join(REG, "utils", "initials.ts"));
 
 const hooksSrc = join(ROOT, "src", "hooks");
 const hooksDest = join(REG, "hooks");
@@ -78,9 +79,12 @@ const registry = {
       name: "solids-utils",
       type: "registry:lib",
       title: "SoliDS utils",
-      description: "Helper cn() (clsx + tailwind-merge).",
+      description: "Helper cn() (clsx + tailwind-merge) e getInitials() (grafemi con Intl.Segmenter).",
       dependencies: ["clsx", "tailwind-merge@^3.0.0"],
-      files: [{ path: "registry/solids/utils/utils.ts", type: "registry:lib" }],
+      files: [
+        { path: "registry/solids/utils/utils.ts", type: "registry:lib" },
+        { path: "registry/solids/utils/initials.ts", type: "registry:lib" },
+      ],
     },
     {
       name: "solids-button",
