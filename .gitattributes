@@ -1,0 +1,22 @@
+# Merge policy della factory — TR-9b4e7c02 M0 (2026-09-17)
+#
+# `management/kanban/sprint.md` e' un ibrido: corpo GENERATO dall'agente `tpm`
+# (PATTERN §8 «view generata») + frontmatter CURATO a mano (`pattern_version`,
+# `sprint_current`, `sprint_lookahead`, `milestone`) che la procedura di release
+# aggiorna e che Check 4am valida. Non e' quindi eliminabile da git: lo stato
+# curato deve restare versionato e revisionabile.
+#
+# Il rischio reale non e' il conflitto: e' il merge SILENZIOSO. Git fonde senza
+# marker due modifiche a righe diverse dello stesso file, e su una board
+# rigenerata da due sessioni indipendenti questo produce una view coerente
+# nella forma e falsa nel contenuto. `-merge` disabilita l'auto-merge: ogni
+# modifica concorrente diventa un conflitto esplicito da risolvere rigenerando.
+#
+# Principio applicato: un non-adottante deve fallire RUMOROSAMENTE, non in
+# silenzio (TR-9b4e7c02, risoluzione di PA-30).
+management/kanban/sprint.md -merge
+
+# wiki/log.md e' append-only: due branch che aggiungono voci in coda si fondono senza
+# conflitto con il driver `factory-log-union` (tools/wiki/log_union_driver.py), registrato
+# in locale da tools/vcs/install_factory_hooks.py. Senza driver git usa il merge standard.
+wiki/log.md merge=factory-log-union

@@ -47,3 +47,15 @@ def test_file_non_dichiarato(tmp_path):
     r = run("--vendor", str(copia))
     assert r.returncode == 1
     assert "non dichiarato: extra.md" in r.stdout
+
+
+def test_all_senza_cartella_vendor_niente_traceback(tmp_path):
+    """Derivata aggiornata prima di EP-090: vendor/ assente -> messaggio ed exit 1, non un crash."""
+    tools = tmp_path / "tools" / "pocock"
+    tools.mkdir(parents=True)
+    shutil.copy(SCRIPT, tools / "verify_vendor.py")
+    r = subprocess.run([sys.executable, str(tools / "verify_vendor.py"), "--all"],
+                       capture_output=True, text=True)
+    assert r.returncode == 1
+    assert "Traceback" not in r.stderr
+    assert "vendor/ assente" in r.stdout

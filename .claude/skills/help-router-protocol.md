@@ -23,9 +23,10 @@ Verifica la precondizione strutturale prima di qualsiasi elaborazione.
    relativo alla root della factory).
 2. Se il file **non esiste**:
    ```
-   CAPABILITIES.md non trovato.
-   Eseguire prima la sequenza US-110 (TSK-210 + TSK-211) per produrre il documento.
-   Fino ad allora, il routing automatico non e' disponibile.
+   CAPABILITIES.md non trovato alla radice della factory.
+   Il routing automatico non e' disponibile. Per crearlo, dal clone del meta-framework:
+     python3 tools/factory-upgrade-apply.py <questa-factory> --dry-run   (poi --apply)
+   che aggiunge la versione per derivata se il file manca.
    ```
    STOP — non procedere oltre.
 3. Se il file esiste, continua alla Fase 2.

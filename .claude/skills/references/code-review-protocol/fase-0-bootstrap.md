@@ -76,7 +76,7 @@ Leggere `code_quality.router.layer_filter` da `factory.config.yaml`.
 
 ## Fase 1 — Stack Detection
 
-Invoca skill [`stack-detector`](../stack-detector.md) con `files_in_scope` + path radice
+Invoca skill [`stack-detector`](../../stack-detector.md) con `files_in_scope` + path radice
 del progetto. Output: `stack_descriptor` (schema §19.2).
 
 Se `stack_descriptor.confidence < code_quality.thresholds.confidence_min` (default 0.6):

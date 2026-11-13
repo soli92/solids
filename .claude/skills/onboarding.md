@@ -111,16 +111,19 @@ _Il testo viene letto da `PATTERN.md §7` — si aggiorna automaticamente._
 
 ### Passo 4 — Sezione statica: passo successivo
 
-Appendi **sempre** questa sezione statica al report, senza modifiche:
+Appendi **sempre** questa sezione statica al report. Le righe marcate `[se esiste]` puntano a
+documenti del meta-framework (QUICKSTART.md e `wiki/getting-started/` non si copiano nelle
+factory derivate, seed v2-45 §2): includile solo se il file esiste, e togli il marcatore.
 
 ```
 ## Sezione 4 — Passo successivo
 
 → Verifica ambiente: /init-check (PASS/WARN/FAIL — READY/PARTIAL/BLOCKED)
-→ Quick start: QUICKSTART.md
-→ Pattern in una pagina: wiki/getting-started/pattern-in-one-page.md
-→ Installer / bootstrap: wiki/getting-started/factory-installer-quickstart.md
 → Capability router: /help <domanda> (fonte: CAPABILITIES.md)
+→ Istruzioni del progetto: CLAUDE.md
+→ Quick start: QUICKSTART.md                                                  [se esiste]
+→ Pattern in una pagina: wiki/getting-started/pattern-in-one-page.md           [se esiste]
+→ Installer / bootstrap: wiki/getting-started/factory-installer-quickstart.md  [se esiste]
 ```
 
 ---

@@ -64,6 +64,6 @@ produce codice direttamente (comportamento v2.20 invariato). La skill
 `llm-generator-separation-protocol` non viene invocata, `run-generator.sh` non viene
 eseguito. L'assenza di skill/tool non produce ERROR di lint (opt-in totale, R.P3).
 
-Cross-link: [ADR-069](../../../design_&_architecture/decisions/ADR-069.md),
-[ADR-068](../../../design_&_architecture/decisions/ADR-068.md),
-[US-075](../../../management/kanban/EP-019-design-intelligence-layer/US-075-llm-generator-separation-opt-in-pipeline-fe-dev/US-075.md).
+Cross-link: ADR-069,
+ADR-068,
+US-075.

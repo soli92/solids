@@ -1,8 +1,8 @@
-factory:
+# SoliDS — Design system React (@soli92/solids)
+project:
   name: solids-design-system
-  description: "SoliDS — Design system React (@soli92/solids)"
 
-pattern_version: "2.45"
+pattern_version: "2.46"
 topology: custom   # EP-090 test 2026-11-11: dev-agent presenti dopo l'upgrade 2.45; routing fe/docs: agent
 
 code_paths:
@@ -101,10 +101,6 @@ code_intelligence:
     enabled: false                            # tree-sitter + nomic-embed + LanceDB
   l3_impact:
     enabled: false                            # graphify blast radius Fase 0.bis dev-protocol
-
-# Semantic Purpose Layer (v2.38, EP-055, PATTERN §34)
-wiki_purpose:
-  enabled: false                              # opt-in wiki/purpose.md consumato da wiki-keeper
 
 # Wiki Sweep — semantic quality pass (v2.38, EP-056, PATTERN §35)
 wiki_sweep:

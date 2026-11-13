@@ -6,7 +6,7 @@ description: Viste filtrate in sola lettura del PATTERN per profilo di adozione 
 
 Comando di sola lettura che filtra il PATTERN (indice `PATTERN.md` + moduli, US-319) per profilo via i tag
 `<!-- profiles: ... -->` (applicati il 2026-06-08, TSK-123; mappatura in
-[`wiki/runbooks/adoption-profiles-runbook.md`](../../wiki/runbooks/adoption-profiles-runbook.md)
+`wiki/runbooks/adoption-profiles-runbook.md`
 e scheda canonica `PATTERN §23.7`).
 
 Capability opt-in v2.19 (EP-016, ADR-053). Read-only: non modifica MAI `PATTERN.md`.
@@ -50,6 +50,6 @@ Capability opt-in v2.19 (EP-016, ADR-053). Read-only: non modifica MAI `PATTERN.
 
 ## Cross-link
 
-- Mappatura profili + decisione: [`wiki/runbooks/adoption-profiles-runbook.md`](../../wiki/runbooks/adoption-profiles-runbook.md)
+- Mappatura profili + decisione: `wiki/runbooks/adoption-profiles-runbook.md`
 - PATTERN §23.5 (scheda profili) + §23 (Complexity Budget) — ADR-052/053/054.
 - EP-017 PATTERN-in-1-pagina (TSK-131): il profilo `minimal` ne è la base.

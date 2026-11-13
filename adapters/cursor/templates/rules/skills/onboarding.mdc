@@ -52,15 +52,17 @@ ciascuna.
 
 ## Passo 4 — Sezione 4 statica «Passo successivo»
 
-Appendi **sempre**, senza modifiche:
+Appendi **sempre**. Le righe `[se esiste]` puntano a documenti del meta-framework, che le
+factory derivate non hanno: includile solo se il file esiste, e togli il marcatore.
 
 ```
 ## Sezione 4 — Passo successivo
 
-→ Quick start: QUICKSTART.md
-→ Pattern in una pagina: wiki/getting-started/pattern-in-one-page.md
-→ Installer / bootstrap: wiki/getting-started/factory-installer-quickstart.md
 → Capability router: /help <domanda> (fonte: CAPABILITIES.md)
+→ Istruzioni del progetto: CLAUDE.md
+→ Quick start: QUICKSTART.md                                                  [se esiste]
+→ Pattern in una pagina: wiki/getting-started/pattern-in-one-page.md           [se esiste]
+→ Installer / bootstrap: wiki/getting-started/factory-installer-quickstart.md  [se esiste]
 ```
 
 ## Vincoli

@@ -499,7 +499,7 @@ impossibile da ottenere con un singolo agente o con una pipeline a layer fissi.
 - Il costo di una sessione (5-15x un task normale) e' sproporzionato all'impatto della
   decisione.
 
-Vedi il decision tree completo: [`wiki/runbooks/tavola-rotonda.md`](wiki/runbooks/tavola-rotonda.md).
+Vedi il decision tree completo: `wiki/runbooks/tavola-rotonda.md`.
 
 ### §28.2 — Componenti
 

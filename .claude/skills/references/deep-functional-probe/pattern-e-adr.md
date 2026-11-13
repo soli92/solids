@@ -38,10 +38,10 @@ e aggregare i verdetti nel chiamante.
 
 | ADR | Rilevanza per questa skill |
 |---|---|
-| [`ADR-065`](../../design_&_architecture/decisions/ADR-065.md) | Schema acceptance-spec — 4 sezioni obbligatorie; 8 primitive domain-agnostic; semantica blocking/advisory; fail-loud su spec assente |
-| [`ADR-066`](../../design_&_architecture/decisions/ADR-066.md) | Delega runtime a `interaction-drive-protocol`; ordering nel cascade |
-| [`ADR-067`](../../design_&_architecture/decisions/ADR-067.md) | Verdict deterministico; critic LLM solo advisory; loop bounded |
-| [`ADR-063`](../../design_&_architecture/decisions/ADR-063.md) | Evidence-provenance obbligatoria per ogni finding — nessuna osservazione senza artefatto reale |
+| `ADR-065` | Schema acceptance-spec — 4 sezioni obbligatorie; 8 primitive domain-agnostic; semantica blocking/advisory; fail-loud su spec assente |
+| `ADR-066` | Delega runtime a `interaction-drive-protocol`; ordering nel cascade |
+| `ADR-067` | Verdict deterministico; critic LLM solo advisory; loop bounded |
+| `ADR-063` | Evidence-provenance obbligatoria per ogni finding — nessuna osservazione senza artefatto reale |
 
 [^src: design_&_architecture/decisions/ADR-065.md §A §C §E]
 [^src: design_&_architecture/decisions/ADR-063.md §B]

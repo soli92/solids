@@ -13,7 +13,7 @@ description: >-
 
 Canale visivo della factory: l'implementazione del canale che il contratto
 `FactoryRuntime` dichiara e che finora era «stdout strutturato in MVP»
-([`voice-channel-factory`](../../wiki/concepts/voice-channel-factory.md) §Interfaccia FactoryRuntime).
+(`voice-channel-factory` §Interfaccia FactoryRuntime).
 
 **La plancia non è uno scrittore.** Non modifica `wiki/`, non modifica
 `management/kanban/`, non cambia nessun `status:`, non scrive in `analytics/`. Le azioni

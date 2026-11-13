@@ -20,13 +20,13 @@ Fase 1 (Serve) + Fase 2 (Load Fixture) + Fase 3 (Drive Scenario) + Fase 4 (Asser
 Fase 5 (Diff+Loop bounded).
 
 Riferimenti ADR:
-[`ADR-064`](../../design_&_architecture/decisions/ADR-064.md) (app-lifecycle serve +
+`ADR-064` (app-lifecycle serve +
 tool callability binding),
-[`ADR-065`](../../design_&_architecture/decisions/ADR-065.md) (acceptance-spec: schema
+`ADR-065` (acceptance-spec: schema
 framework, contenuto progetto, fail-loud §E),
-[`ADR-066`](../../design_&_architecture/decisions/ADR-066.md) (delega interazione a
+`ADR-066` (delega interazione a
 `interaction-drive-protocol`, runtime condiviso),
-[`ADR-067`](../../design_&_architecture/decisions/ADR-067.md) (esecutore = `qa-dev`,
+`ADR-067` (esecutore = `qa-dev`,
 verdict deterministico, critic LLM advisory).
 
 Sub-skill / cross-link: invocata dal comando standalone `/functional-oracle <TSK-id|app>`

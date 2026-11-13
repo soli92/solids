@@ -27,7 +27,7 @@ Riferimenti: ADR-020 (schema EP-008 consolidato — handoff designer → fe-dev 
 `ui_design_spec:`, config block `ux_ui:`, deliverable single-shot), ADR-017 (riuso infra
 screenshot + `render_component` come **snippet inline** in questa skill con fallback
 testuale, NON skill autonoma), ADR-018 (cascata default Design System). Runbook narrativo
-source-of-truth: [`wiki/runbooks/ux-ui-design-runbook.md`](../../wiki/runbooks/ux-ui-design-runbook.md).
+source-of-truth: `wiki/runbooks/ux-ui-design-runbook.md`.
 Wiki: [[ux-ui-review-design-capability]], [[ux-ui-rubric-anti-subjectivity]].
 
 [^src: management/kanban/EP-008-ux-ui-review-design-capability/US-029-skill-ux-ui-design-protocol/US-029.md §Business Rules]

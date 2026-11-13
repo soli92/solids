@@ -19,7 +19,7 @@ design system). **Niente finding "a sensazione".** Le domande aperte → `open_q
 
 Riferimenti: ADR-017 (riuso single-source infra screenshot), ADR-018 (default fallback DS),
 ADR-019 (ordering pipeline), ADR-020 (schema consolidato), ADR-063 (anti-fabbricazione).
-Runbook: [`wiki/runbooks/ux-ui-review-runbook.md`](../../wiki/runbooks/ux-ui-review-runbook.md).
+Runbook: `wiki/runbooks/ux-ui-review-runbook.md`.
 
 [^src: management/kanban/EP-008-ux-ui-review-design-capability/US-028-skill-ux-ui-review-protocol/US-028.md §Business Rules]
 

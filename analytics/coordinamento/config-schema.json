@@ -1,0 +1,214 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "$id": "analytics/coordinamento/config-schema.json",
+ "title": "Config operatore — Report PM deterministico (EP-070)",
+ "description": "Schema dei file config-<operatore>.json in analytics/coordinamento/ letti da tools/coordinamento/. Obbligatori: versione_schema, kanban_root, progetti, obiettivi, stati. Tutto il dominio (persone, progetti, colori, strumenti dei prompt) sta qui, non nel codice. Sezioni, ondate e window sono opzionali: un obiettivo senza sezioni si misura per epica.",
+ "type": "object",
+ "required": ["versione_schema", "kanban_root", "progetti", "obiettivi", "stati"],
+ "additionalProperties": true,
+ "properties": {
+  "versione_schema": {"type": "string", "description": "Versione dello schema della config (es. '1.1')."},
+  "factory_root": {
+   "type": "string",
+   "description": "Root della factory. Relativo (default '.') = rispetto alla root del repository git che contiene la config. Un path assoluto e' ammesso per leggere un'altra factory in sola lettura (smoke), non va committato."
+  },
+  "kanban_root": {"type": "string", "description": "Cartella del kanban relativa alla factory_root (es. 'management/kanban')."},
+  "progetti": {
+   "type": "array",
+   "description": "Progetti del report (sotto-obiettivi del portafoglio).",
+   "items": {
+    "type": "object",
+    "required": ["id", "nome"],
+    "properties": {
+     "id": {"type": "string"},
+     "nome": {"type": "string"},
+     "tipo": {"type": "string"},
+     "repository_ids": {"type": "array", "items": {"type": "string"}},
+     "dipende_da": {"type": "array", "items": {"type": "string"}},
+     "tono": {"type": "string", "description": "Nome di un colore della palette (blu, verde, ambra, ink, rosso, o uno definito in vista_pm.palette). Assente o ignoto = palette in ordine."}
+    },
+    "additionalProperties": true
+   }
+  },
+  "repository": {
+   "type": "array",
+   "description": "(Opzionale) Repository dei progetti.",
+   "items": {
+    "type": "object",
+    "properties": {
+     "id": {"type": "string"},
+     "percorso": {"type": "string"},
+     "branch_base": {"type": "string"},
+     "prefissi_kanban": {"type": "array", "items": {"type": "string"}, "description": "Prefissi di namespace degli ID (es. 'XX' in XX-EP-020). Lista vuota per un kanban senza prefissi: allora ogni epica aperta fuori perimetro e' candidata e il progetto di un TSK si ricava solo dall'epica."}
+    },
+    "additionalProperties": true
+   }
+  },
+  "obiettivi": {
+   "type": "array",
+   "description": "Obiettivi con data target e perimetro (epiche). Le epiche si indicano per ID; la cartella si riconosce dall'ID iniziale, con o senza slug.",
+   "items": {
+    "type": "object",
+    "required": ["id", "nome", "data_target"],
+    "properties": {
+     "id": {"type": "string"},
+     "nome": {"type": "string"},
+     "descrizione": {"type": "string"},
+     "data_target": {"type": "string", "format": "date"},
+     "data_inizio": {"type": "string", "format": "date"},
+     "tipo": {"type": "string", "description": "'interno' | 'esterno' (esterno = tratteggiato, non misurato se senza perimetro)."},
+     "owner": {"type": "string"},
+     "ambiente_rilascio": {"type": "string", "description": "(Opzionale) Ambiente in cui avvengono i rilasci delle sezioni dell'obiettivo (es. 'preprod'): la vista scrive «rilascio in <ambiente>». Default: 'test'."},
+     "perimetro": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "required": ["progetto_id", "selettore"],
+       "properties": {
+        "progetto_id": {"type": "string"},
+        "selettore": {"type": "object", "properties": {"epiche": {"type": "array", "items": {"type": "string"}}}},
+        "repository": {"type": "array"},
+        "sotto_obiettivi": {"type": "object", "properties": {"etichetta": {"type": ["string", "null"]}, "sezioni": {"type": "array", "items": {"type": "string"}}}}
+       },
+       "additionalProperties": true
+      }
+     },
+     "sezioni": {
+      "type": "array",
+      "description": "(Opzionale) Sezioni dell'obiettivo: gruppi di US. Senza sezioni l'obiettivo si misura per epica.",
+      "items": {
+       "type": "object",
+       "required": ["id", "nome", "us"],
+       "properties": {
+        "id": {"type": "string"},
+        "nome": {"type": "string"},
+        "us": {"type": "array", "items": {"type": "string"}},
+        "tsk": {"type": "array", "items": {"type": "string"}, "description": "(Opzionale) Sotto-perimetro: la sezione contiene SOLO questi TSK, che escono dalla sezione della loro US; le `us` servono al piano e alle date."},
+        "sottoperimetro": {"type": "string", "description": "(Opzionale) Tipo di lavoro della sezione: sviluppo, configurazione (TSK di rilascio, ambiente, utenze, allineamento: nella vista «Infra · rilascio») o test; altri valori sono accettati e mostrati come scritti. aggrega.py ne ricava per obiettivo per_sottoperimetro; mai dedotto da titoli o path."},
+        "stato": {"type": "string", "enum": ["attiva", "anticipabile", "congelata"]},
+        "ondata": {"type": "string", "description": "(Opzionale) Etichetta di ondata, mostrata senza interpretarla."},
+        "fino_a": {"type": "object", "properties": {"obiettivo": {"type": "string"}}},
+        "rilascio": {"type": "object", "properties": {"data": {"type": "string", "format": "date"}, "tsk": {"type": "string"}}},
+        "calendario": {"type": "object", "properties": {"avvio": {"type": ["string", "null"]}, "pronta_entro": {"type": ["string", "null"]}}}
+       },
+       "additionalProperties": true
+      }
+     },
+     "us_ricetta": {"type": "array", "items": {"type": "string"}, "description": "US di istruzioni per tipo di intervento: escluse dal controllo us_non_mappata."},
+     "us_fuori_sezione": {"type": "array", "items": {"type": "string"}, "description": "US reali ma non legate a una sezione."},
+     "classifica_us": {"type": "boolean", "description": "(Opzionale) Se true il controllo segnala le US non mappate. Default: true se l'obiettivo ha sezioni o liste us_*, false altrimenti."}
+    },
+    "additionalProperties": true
+   }
+  },
+  "stati": {
+   "type": "object",
+   "description": "Valori del campo status per categoria (confronto senza maiuscole/minuscole). La tabella deve essere disgiunta: verifica_l0 lo controlla.",
+   "required": ["fatto", "chiuso_senza_esito", "in_corso", "da_fare", "sospeso", "bloccato"],
+   "additionalProperties": {"type": "array", "items": {"type": "string"}},
+   "properties": {
+    "fatto": {"type": "array", "items": {"type": "string"}},
+    "chiuso_senza_esito": {"type": "array", "items": {"type": "string"}},
+    "in_corso": {"type": "array", "items": {"type": "string"}},
+    "da_fare": {"type": "array", "items": {"type": "string"}},
+    "sospeso": {"type": "array", "items": {"type": "string"}},
+    "bloccato": {"type": "array", "items": {"type": "string"}}
+   }
+  },
+  "team": {
+   "type": "array",
+   "description": "(Opzionale) Persone riconosciute nel campo owner dei TSK (per nome o alias).",
+   "items": {
+    "type": "object",
+    "required": ["id", "nome"],
+    "properties": {
+     "id": {"type": "string"},
+     "nome": {"type": "string"},
+     "alias": {"type": "array", "items": {"type": "string"}},
+     "nota": {"type": "string"},
+     "impegno_pct": {"type": "number"},
+     "competenze": {
+      "type": "object",
+      "description": "(Opzionale) Usato da pianifica.py: se presente, layer (radice, es. 'fe', 'qa') su cui la persona puo' ricevere proposte di owner.",
+      "properties": {"layer": {"type": "array", "items": {"type": "string"}}},
+      "additionalProperties": true
+     },
+     "assenze": {
+      "type": "array",
+      "description": "(Opzionale) Usato da pianifica.py: periodi di assenza (estremi inclusi) sottratti alla capacita' nell'orizzonte.",
+      "items": {
+       "type": "object",
+       "required": ["dal"],
+       "properties": {"dal": {"type": "string", "format": "date"}, "al": {"type": "string", "format": "date"}}
+      }
+     }
+    },
+    "additionalProperties": true
+   }
+  },
+  "owner_non_persona": {"type": "array", "items": {"type": "string"}, "description": "Valori di owner che non sono persone ('da designare', ruoli): gruppo «Da designare»."},
+  "owner_agente": {"type": "array", "items": {"type": "string"}, "description": "Valori di owner che sono tipi di agente: gruppo «Agenti», nessun avviso."},
+  "epic_owner_default": {
+   "type": "array",
+   "description": "(Opzionale) Owner suggerito per epica, solo come proposta al tpm (mai scritto nel kanban dagli script).",
+   "items": {"type": "object", "required": ["epic_id", "owner", "approved_by", "valid_until"],
+             "properties": {"epic_id": {"type": "string"}, "owner": {"type": "string"}, "approved_by": {"type": "string"}, "valid_until": {"type": "string", "format": "date"}}}
+  },
+  "epiche_escluse": {"type": "array", "items": {"type": "string"}, "description": "Epiche escluse dal controllo epica_candidata."},
+  "vista_pm": {
+   "type": "object",
+   "properties": {
+    "obiettivo_predefinito_id": {"type": "string"},
+    "titolo": {"type": "string"},
+    "piano": {"type": "array", "items": {"type": "object", "properties": {"campo": {"type": "string"}, "etichetta": {"type": "string"}}}},
+    "soglia_collo_sezioni": {"type": "integer"},
+    "soglia_giorni_scadenza": {"type": "integer"},
+    "palette": {"type": "object", "description": "Colori aggiuntivi o ridefiniti: {\"nome\": [\"pieno\", \"tinta\"]} (valori CSS).",
+                "additionalProperties": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 2}}
+   },
+   "additionalProperties": true
+  },
+  "file_grandi": {
+   "type": "object",
+   "description": "(Opzionale) File di testo grandi citati nei prompt di verifica.",
+   "properties": {"soglia": {"type": "integer"}, "escludi": {"type": "array", "items": {"type": "string"}}}
+  },
+  "prompt_verifica": {
+   "type": "object",
+   "description": "(Opzionale) Strumenti citati nei prompt «Chiedi una verifica». Default: strumenti di questa factory.",
+   "properties": {
+    "modifica": {"type": "string", "description": "Strumento di modifica di default (tpm)."},
+    "fonti_esterne": {"type": "string", "description": "Fonti fuori dalla factory citate in NON VERIFICABILE."},
+    "strumenti": {"type": "object", "additionalProperties": {"type": "object", "properties": {"verifica": {"type": "string"}, "modifica": {"type": "string"}}}}
+   }
+  },
+  "report": {"type": "object", "properties": {"cartella_uscite": {"type": "string"}}},
+  "pianificazione": {
+   "type": "object",
+   "description": "(Opzionale) Parametri di tools/coordinamento/pianifica.py (classifica di priorita' e proposta di owner). Obbligatorio solo per lanciare la pianificazione: senza, lo script esce con codice 2.",
+   "required": ["persone_assegnabili", "orizzonte_giorni_lavorativi", "dimensione_predefinita", "punti_priorita", "fasce_urgenza", "punti_sblocco_per_tsk"],
+   "properties": {
+    "persone_assegnabili": {"type": "array", "items": {"type": "string"}, "minItems": 1, "description": "id del team che possono ricevere proposte di owner."},
+    "persone_da_riassegnare": {"type": "array", "items": {"type": "string"}, "description": "id del team i cui TSK da fare vanno trattati come senza owner."},
+    "referente_bloccanti": {"type": "string", "description": "id del team a cui proporre i TSK bloccati senza owner."},
+    "orizzonte_giorni_lavorativi": {"type": "integer", "minimum": 1, "description": "Giorni lavorativi da --oggi su cui si calcolano capacita' e carico."},
+    "dimensioni_giorni": {"type": "object", "additionalProperties": {"type": "number", "exclusiveMinimum": 0}, "description": "Taglia (size/estimate/estimated_size) -> giorni. Obbligatoria, salvo che velocity_config punti a una config di /velocity con la tabella `giorni`: in quel caso viene da li'."},
+    "velocity_config": {"type": "string", "description": "(Opzionale) Path, relativo alla radice della factory, di una config di /velocity (es. analytics/velocity/config.example.json). Fornisce la tabella taglia -> giorni se dimensioni_giorni manca e abilita la velocity misurata per persona, riportata come dato di confronto (le proposte restano sulla capacita' nominale). La velocity legge il kanban del working tree e la storia git corrente, non --ref: e' dichiarata in provenienza. Senza questa chiave l'output non cambia."},
+    "velocity_misurata": {"type": "boolean", "description": "Con velocity_config: false = solo la tabella taglia -> giorni, nessuna velocity misurata (default true)."},
+    "dimensione_predefinita": {"type": "string", "description": "Taglia usata per i TSK senza stima (con avviso); deve essere una chiave di dimensioni_giorni."},
+    "dimensione_minima_giorni": {"type": "number", "exclusiveMinimum": 0, "description": "Minimo del denominatore del punteggio (default: la taglia piu' piccola)."},
+    "punti_priorita": {"type": "object", "additionalProperties": {"type": "number"}, "description": "priority del TSK -> punti."},
+    "fasce_urgenza": {
+     "type": "array",
+     "description": "Fasce di urgenza: la prima con giorni lavorativi alla scadenza <= entro_giorni assegna i punti.",
+     "items": {"type": "object", "required": ["entro_giorni", "punti"], "properties": {"entro_giorni": {"type": "integer"}, "punti": {"type": "number"}}}
+    },
+    "punti_sblocco_per_tsk": {"type": "number", "description": "Punti per ogni TSK aperto che dipende dal TSK."},
+    "includi_owner_agente": {"type": "boolean", "description": "Se true, i TSK con owner di tipo agente ricevono proposte di owner persona (default false)."},
+    "festivi": {"type": "array", "items": {"type": "string", "format": "date"}, "description": "Giorni non lavorativi oltre ai fine settimana."}
+   },
+   "additionalProperties": true
+  },
+  "aggiornato": {"type": "string", "description": "Timestamp ISO 8601 dell'ultimo aggiornamento (lo scrive applica_config.py)."}
+ }
+}

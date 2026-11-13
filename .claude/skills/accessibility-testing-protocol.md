@@ -21,7 +21,7 @@ capability EP-007 abilitata. A capability spenta la skill è no-op (R.P3 opt-in 
 Riferimenti: ADR-014 (3 modalità d'uso: `qa-dev` post-Develop / `fe-dev` inline /
 `a11y-specialist` standalone — no owner unico), ADR-015 (fallback mobile/non-web inline),
 ADR-016 (regola di neutralità + config block + Check 4o). Runbook narrativo source-of-truth:
-[`wiki/runbooks/accessibility-testing-runbook.md`](../../wiki/runbooks/accessibility-testing-runbook.md).
+`wiki/runbooks/accessibility-testing-runbook.md`.
 Wiki: [[accessibility-testing-capability]].
 
 [^src: management/kanban/EP-007-accessibility-testing-capability/US-024-skill-accessibility-testing-protocol/US-024.md §Business Rules]
@@ -177,7 +177,7 @@ motore di scan web non si applica. Procedura ridotta in 4 sub-step:
    (caso più estremo della regola di neutralità: copertura automatica 0% → 100% manuale).
 
 Dettaglio narrativo + esempi React Native:
-[`wiki/runbooks/accessibility-testing-runbook.md`](../../wiki/runbooks/accessibility-testing-runbook.md).
+`wiki/runbooks/accessibility-testing-runbook.md`.
 
 [^src: design_&_architecture/decisions/ADR-015.md §Decisione]
 
@@ -189,7 +189,7 @@ Quando il target richiede autenticazione: preferire uno **staging con bypass**; 
 disponibile, usare un utente di test dedicato con step di login nell'adapter Playwright
 (`page.fill()` + `page.click()`); riportare nel report
 `summary.auth_note: "scan eseguita su sessione autenticata"`. Riferimento operativo nel
-[runbook](../../wiki/runbooks/accessibility-testing-runbook.md).
+runbook.
 
 ---
 

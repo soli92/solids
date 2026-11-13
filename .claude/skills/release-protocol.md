@@ -268,10 +268,10 @@ Per check pre-tag su SHA immutabile: vedi `.claude/skills/worktree-gate.md`
 
 ## Skill correlate
 
-- [release-validation-gate](.claude/skills/release-validation-gate.md) — delegata in Fase 2 (CHECKs)
-- [dev-handoff](.claude/skills/dev-handoff.md) — pattern append wiki/log.md
-- [vcs-handoff](.claude/skills/vcs-handoff.md) — pattern VCS post-commit
-- [worktree-gate](.claude/skills/worktree-gate.md) — gate locali su SHA immutabile (opzione per pre-tag check)
+- [release-validation-gate](release-validation-gate.md) — delegata in Fase 2 (CHECKs)
+- [dev-handoff](dev-handoff.md) — pattern append wiki/log.md
+- [vcs-handoff](vcs-handoff.md) — pattern VCS post-commit
+- [worktree-gate](worktree-gate.md) — gate locali su SHA immutabile (opzione per pre-tag check)
 
 [^src: US-225 EP-059 — TSK-520 creazione release-protocol generalizzato 2026-09-02]
 [^src: TSK-519 analisi comparativa release-protocol (portale) vs release-validation-gate (soli)]

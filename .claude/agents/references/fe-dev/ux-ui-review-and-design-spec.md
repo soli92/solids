@@ -71,6 +71,6 @@ design. Il fe-dev non scrive mai `ui_design_spec:` (scope esclusivo del TPM).
 
 **No-op a campo assente**: un TSK FE senza `ui_design_spec:` è pienamente valido (0 ERROR).
 
-Cross-link: [ADR-019](../../../design_&_architecture/decisions/ADR-019.md),
-[ADR-020](../../../design_&_architecture/decisions/ADR-020.md),
-[US-032](../../../management/kanban/EP-008-ux-ui-review-design-capability/US-032-integrazione-visual-oracle-cqrl-scheduler/US-032.md).
+Cross-link: ADR-019,
+ADR-020,
+US-032.

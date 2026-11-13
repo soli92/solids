@@ -19,8 +19,8 @@ Il fe-dev e i generatori sono **read-only** sul tema. La DSL (`art_director_spec
 l'**unico canale autorizzato** tra art-director e fe-dev per le istruzioni stilistiche —
 nessun canale laterale, nessuno stile inline al di fuori della DSL. Bypass = violazione R.D1.
 
-Riferimenti: [`ADR-068`](../../design_&_architecture/decisions/ADR-068.md) (forma skill,
-single-writer, contratto DSL, no-op), [`ADR-071`](../../design_&_architecture/decisions/ADR-071.md)
+Riferimenti: `ADR-068` (forma skill,
+single-writer, contratto DSL, no-op), `ADR-071`
 (schema config `design_intelligence:`, R.D1 in PATTERN §24).
 Wiki: [[art-director-coordination]], [[llm-generator-separation]].
 

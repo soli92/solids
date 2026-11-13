@@ -84,8 +84,8 @@ AND scan NON già eseguita da fe-dev (a11y_status assente sul TSK target)
 
 A queste condizioni, per ogni TSK FE `done` con `a11y_status: pending` (o
 assente), il qa-dev invoca la skill
-[`accessibility-testing-protocol`](.claude/skills/accessibility-testing-protocol.md)
-(US-024), che delega al tool [`a11y-scan.sh`](tools/a11y/a11y-scan.sh) (US-025,
+[`accessibility-testing-protocol`](../skills/accessibility-testing-protocol.md)
+(US-024), che delega al tool [`a11y-scan.sh`](../../tools/a11y/a11y-scan.sh) (US-025,
 `run_a11y_scan`), e scrive `a11y_status: pass|major|critical` +
 `a11y_report: <path>` nel frontmatter del TSK target.
 
@@ -108,15 +108,15 @@ blocco `a11y` è assente da `factory.config.yaml` — nessuna invocazione del to
 nessun `a11y_status:` scritto: comportamento qa-dev identico a v2.17. La sezione è
 puramente additiva.
 
-Cross-link: [ADR-014](design_&_architecture/decisions/ADR-014.md),
-[US-024](management/kanban/EP-007-accessibility-testing-capability/US-024-skill-accessibility-testing-protocol/US-024.md),
-[US-025](management/kanban/EP-007-accessibility-testing-capability/US-025-tool-run-a11y-scan/US-025.md).
+Cross-link: ADR-014,
+US-024,
+US-025.
 
 ## Modalità functional-oracle (EP-018, opt-in)
 
 **Sub-skill, non un nuovo agente** (ADR-067 §A). Il `qa-dev` esegue il functional oracle
 come **modalità aggiuntiva**, invocando la skill
-[`functional-oracle-protocol`](.claude/skills/functional-oracle-protocol.md) nello stesso
+[`functional-oracle-protocol`](../skills/functional-oracle-protocol.md) nello stesso
 thread — riuso diretto del precedente ADR-009 (critic visivo = fe-dev in review mode, no
 proliferazione di agenti). L'accettazione funzionale è dominio QA: `qa-dev` è la sede
 naturale.
@@ -170,15 +170,15 @@ dedicata in `fe-dev.md`). Report side-channel:
   campi: `{ verdict, iterations, assertions_results, critic_findings, trace_path, timestamp }`)
   + `.md` (digest umano).
 
-Cross-link: [ADR-067](design_&_architecture/decisions/ADR-067.md),
-[ADR-065](design_&_architecture/decisions/ADR-065.md),
-[ADR-066](design_&_architecture/decisions/ADR-066.md),
-[US-071](management/kanban/EP-018-fe-functional-oracle/US-071-integrazione-ordering-qa-dev-config-frontmatter/US-071.md).
+Cross-link: ADR-067,
+ADR-065,
+ADR-066,
+US-071.
 
 ## Modalità Cypress (opt-in, se `cypress_pipeline.enabled`)
 
 Sezione additiva, sul modello della modalità functional-oracle: **generatore** della pipeline
-analisi → generazione → verifica di [`cypress-generation-protocol`](.claude/skills/cypress-generation-protocol.md).
+analisi → generazione → verifica di [`cypress-generation-protocol`](../skills/cypress-generation-protocol.md).
 Le regole comuni stanno nel protocollo: qui non si ripetono.
 
 **Trigger.** TSK `layer: qa` che chiede spec Cypress in un repo di test registrato in
@@ -192,7 +192,7 @@ e `test-cases.json` (agente `cypress-test-analyst`). Se manca → STOP, prima l'
 l'analisi di fattibilità, si verificano solo i selettori sul sorgente.
 
 **Procedura.** Il qa-dev si invoca **due volte**, separate dai gate umani del comando
-[`/cypress-gen`](.claude/commands/cypress-gen.md): la Fase 3 è di `cypress-test-reviewer`, mai del
+[`/cypress-gen`](../commands/cypress-gen.md): la Fase 3 è di `cypress-test-reviewer`, mai del
 qa-dev, e fra le due invocazioni ci sono la verifica e il gate 2.
 
 *Invocazione 1 — generazione (Fase 2), dopo il gate 1 sull'analisi:*

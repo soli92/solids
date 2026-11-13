@@ -13,11 +13,11 @@ PATTERN §3 «Develop» — variante «Visual Verification») attivata solo da
 (backward compat totale, R.P3 opt-in totale).
 
 Riferimenti: PATTERN §3 (operazioni canoniche — Visual Verification come variante di
-Develop FE). Sintesi: [`wiki/syntheses/fe-agent-correctness-strategy.md §Leva 1`](../../wiki/syntheses/fe-agent-correctness-strategy.md).
-ADR: [`ADR-008`](../../design_&_architecture/decisions/ADR-008.md) (Playwright via Bash,
-no MCP, runner in `.factory-runners/`, fail-loud), [`ADR-009`](../../design_&_architecture/decisions/ADR-009.md)
-(critic = stesso fe-dev in review multimodale), [`ADR-012`](../../design_&_architecture/decisions/ADR-012.md)
-(schema dati §A/§H), [`ADR-013`](../../design_&_architecture/decisions/ADR-013.md) (ordering
+Develop FE). Sintesi: `wiki/syntheses/fe-agent-correctness-strategy.md §Leva 1`.
+ADR: `ADR-008` (Playwright via Bash,
+no MCP, runner in `.factory-runners/`, fail-loud), `ADR-009`
+(critic = stesso fe-dev in review multimodale), `ADR-012`
+(schema dati §A/§H), `ADR-013` (ordering
 develop → visual-oracle → review).
 
 Sub-skill / cross-link: questa skill è invocata inline da `dev-protocol` Fase 4-bis

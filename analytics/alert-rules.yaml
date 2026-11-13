@@ -1,0 +1,77 @@
+# analytics/alert-rules.yaml — regole di alert sui costi in token (capability cost-alert).
+#
+# Single-writer logico: PM/Arch, manuale via PR. Nessun tool del framework modifica
+# questo file a runtime (stessa policy di analytics/pricing.yaml e analytics/rates.yaml):
+# un alert che può riscrivere la propria soglia non è un controllo.
+#
+# Letto da tools/analytics/cost_alert.py, che valida ogni regola alla lettura e scarta
+# (con nota visibile) quelle non valide.
+#
+# Campi per regola:
+#   period         obbligatorio  session | daily | weekly | monthly
+#                                session = la chat corrente (principale + subagenti);
+#                                daily   = da mezzanotte locale;
+#                                weekly  = dal lunedì della settimana ISO;
+#                                monthly = dal primo del mese.
+#   threshold_usd  obbligatorio  numero > 0, in USD (la valuta di analytics/pricing.yaml)
+#   action         obbligatorio  warn     → avviso in chat e nella statusLine
+#                                escalate → avviso + record in analytics/alerts/ (agente
+#                                           cost-alert), mostrato a session-start e in /run
+#                                           finché l'operatore non lo prende in carico
+#                                           (/cost-alert --ack); con analytics.cost_alert.agent
+#                                           false vale come warn
+#   notes          opzionale     razionale della soglia
+#   operator       opzionale     nome git (`git config user.name`) dell'operatore a cui la
+#                                regola si applica. Senza, la regola vale per tutti. Con, vale
+#                                solo per lui e, per quel periodo, sostituisce le regole
+#                                generali. La statusLine considera solo le regole generali di
+#                                sessione (non lancia `git` per riconoscere l'operatore).
+#                                Esempio: { period: weekly, threshold_usd: 250, action: escalate,
+#                                           operator: mario.rossi }
+#
+# Le soglie generali valgono per ogni operatore (ognuno ha i propri transcript).
+#
+# Precedenza per periodo: regola personale > quota del piano dell'operatore > regola generale.
+#
+# Le soglie qui sotto sono ESEMPI, non una raccomandazione: ogni factory le tara sui propri
+# costi. Per misurarli: `python3 tools/analytics/cost_alert.py breakdown --period daily`
+# (e --period weekly) su qualche giornata tipica, poi soglia ≈ un po' sopra la norma.
+# I costi sono equivalenti a listino API, non la fattura di un abbonamento.
+version: 1
+rules:
+  - period: session
+    threshold_usd: 25.0
+    action: warn
+    notes: "esempio: una sessione fuori dall'ordinario"
+  - period: daily
+    threshold_usd: 100.0
+    action: escalate
+    notes: "esempio: giornata intensa con subagenti"
+  - period: weekly
+    threshold_usd: 400.0
+    action: escalate
+    notes: "esempio: tetto settimanale per operatore"
+
+# Piani di abbonamento (opzionale). Un operatore assegnato a un piano in `subscriptions`
+# riceve una regola sulla quota inclusa e, nell'output di /cost-alert, la stima di addebito
+# sul proprio centro di costo: quota fissa mensile più eccedenza sulla quota.
+#   label                      nome del piano nei messaggi
+#   license_usd_month          costo della licenza al mese
+#   central_funding_usd_month  quota coperta centralmente, per persona: copre prima la
+#                              licenza, il resto della licenza è la quota fissa
+#   included_usd               consumo incluso per included_period (0 = nessuna regola)
+#   included_period            weekly | monthly
+#   action                     warn | escalate (default escalate) sulla quota inclusa
+# Esempio (valori inventati):
+#   plans:
+#     piano-esempio:
+#       label: "Piano di esempio"
+#       license_usd_month: 100
+#       central_funding_usd_month: 20      # 80 USD/mese fissi sul centro di costo
+#       included_usd: 150
+#       included_period: weekly
+#   subscriptions:
+#     - operator: mario.rossi              # nome git
+#       plan: piano-esempio
+plans: {}
+subscriptions: []

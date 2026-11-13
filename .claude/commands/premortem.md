@@ -204,7 +204,7 @@ Per verifica funzionale post-installazione:
 ## Riferimenti
 
 - Skill implementativa: `.claude/skills/premortem-protocol.md` (TSK-001)
-- Design doc completo: [wiki/concepts/factory-premortem-integration.md](../../wiki/concepts/factory-premortem-integration.md)
+- Design doc completo: wiki/concepts/factory-premortem-integration.md
 - ADR-003: argomento `/premortem` esplicito, no phrase-trigger
 - ADR-006: telemetria → `memory/episodic/premortem-runs.md`
 - PATTERN §3 (operazione opzionale), §5 (frontmatter opt-in `risk_classification:`),

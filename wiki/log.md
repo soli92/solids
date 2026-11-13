@@ -80,3 +80,11 @@ updated: 2026-07-17
 - **sources**: `code_quality/reports/motion-review-2026-11-11.md`, `code_quality/worst-case/2026-11-11-lista-membri/`, `output/prototypes/toast-notifica/index.html`
 - **files touched**: `src/stories/lista-membri.{stories.tsx,fixtures.ts}`, report e screenshot in `code_quality/`, prototipo in `output/`, `vendor/`, correzioni del master alle skill EP-090
 - **note**: proposte non applicate, sono decisioni di design. Motion: 23 finding (focus animato su ogni Tab, reduced-motion che azzera tutto, `origin-top-center` e `animate-caret-blink` senza CSS, `animate-in` con `ease` di default). Caso peggiore: 9 rotture (AvatarImage senza `object-cover`, email che esce a zoom 200%, troncamento silenzioso, badge a capo, nome mancante, iniziali con emoji, BiDi, 1284 righe senza virtualizzazione, plurale). Varianti del toast: Quieta / Pila / Banner, la scelta e' umana.
+
+## [2026-11-13] upgrade | factory 2.45 → 2.46
+
+- **entry_type**: upgrade
+- **trigger**: richiesta del maintainer di aggiornare la flotta dopo EP-096 del master (perimetro unico installer/upgrade)
+- **sources**: `tools/factory-upgrade-apply.py --prune-meta-only` dal master (main 6b0c0575 + fix/upgrade-gitattributes); classificazione dei CONFLICT per impronta git contro `git rev-list --all --objects` del master
+- **files touched**: PATTERN.md e moduli (replace), 27 file di `.claude/` e `adapters/cursor/templates/` e `tools/tests/test_verify_vendor_multi.py` sostituiti dal master (tutti versioni storiche del master, nessuna personalizzazione; originali in `.factory-upgrade-backup/`), nuovi `tools/factory_scope.py`, `tools/tests/test_factory_scope.py`, `CAPABILITIES.md` per derivata, `.gitattributes`, `analytics/` (file di framework), rimossi `.claude/commands/release.md` e `tools/tests/test_installer.py` (solo meta-framework), `factory.config.yaml`
+- **note**: in `factory.config.yaml` il blocco `factory:` diventa `project:` (lo schema e `smlib.factory_name` leggono `project.name`: prima il nome non si leggeva) e si toglie `wiki_purpose:` (chiave inesistente nel master, spenta, nessun lettore). Prima falliva `test_config_schema_coverage` anche su main; ora `pytest tools/tests` → 1174 passed, 25 skipped. Il driver di merge di `wiki/log.md` si registra in locale con `python3 tools/vcs/install_factory_hooks.py`.

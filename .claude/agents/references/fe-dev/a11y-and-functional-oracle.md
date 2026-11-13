@@ -44,9 +44,9 @@ Single-writer garantito dall'ordering inline → post-Develop → standalone (AD
 se fe-dev ha già scritto `a11y_status`, qa-dev non lo sovrascrive.
 Report side-channel: `code_quality/reports/<TSK-id>-a11y-iter-<N>.{json,md}`.
 
-Cross-link: [ADR-014](../../../design_&_architecture/decisions/ADR-014.md),
-[US-024](../../../management/kanban/EP-007-accessibility-testing-capability/US-024-skill-accessibility-testing-protocol/US-024.md),
-[US-025](../../../management/kanban/EP-007-accessibility-testing-capability/US-025-tool-run-a11y-scan/US-025.md).
+Cross-link: ADR-014,
+US-024,
+US-025.
 
 ---
 
@@ -81,6 +81,6 @@ Se `functional_oracle.enabled: false` (**default**) o il blocco è assente: ness
 invocazione della skill, nessun `functional_status:` scritto. Comportamento fe-dev
 identico a v2.19.
 
-Cross-link: [ADR-067](../../../design_&_architecture/decisions/ADR-067.md),
-[ADR-014](../../../design_&_architecture/decisions/ADR-014.md),
-[US-071](../../../management/kanban/EP-018-fe-functional-oracle/US-071-integrazione-ordering-qa-dev-config-frontmatter/US-071.md).
+Cross-link: ADR-067,
+ADR-014,
+US-071.

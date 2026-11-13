@@ -138,7 +138,7 @@ se `release_governance.battle_test_gate.enabled: true`. Implementata da skill
 
 > **Aggiornamento (2026-06-08, EP-016 US-063, ADR-055 §Revisione):** `N` ricalibrato da 3 a **5**
 > (additivo, §7 r.7 — il resto di §23 resta invariato). Il finding empirico di TSK-125
-> ([`AUDIT-REPORT.md`](validation/runs/v2.19-section-removal-audit/AUDIT-REPORT.md)) ha dimostrato
+> (`AUDIT-REPORT.md`) ha dimostrato
 > che il bloat del PATTERN (rischio E1) è strutturalmente nei **sotto-blocchi**, nelle regole `R.xN`
 > e nelle voci di changelog — **non in sezioni `##` top-level rimovibili** che decrementino
 > `count_sections()`. N=3 avrebbe quindi forzato l'archiviazione di sezioni operative attive (il
@@ -228,7 +228,7 @@ Le sezioni rimosse (non solo deprecate) vivono in `PATTERN-historical.md` (TSK-1
   sezioni `##` top-level rimovibili senza forzature (il bloat è nei sotto-blocchi); §22 e §23 sono
   sezioni-capability attive, escluse dal trigger «must-remove».
 - Debito di complessità (+2 sezioni) tracciato e monitorato verso v2.20:
-  [`complexity/budget-report-v2.19.md`](complexity/budget-report-v2.19.md).
+  `complexity/budget-report-v2.19.md`.
 
 ### §23.5.1 — Self-application nel repo del meta-framework (v2.21, EP-016 US-085)
 

@@ -1,0 +1,16 @@
+{
+  "_nota": "Esempio di configurazione di tools/analytics/team-velocity.py. Copia in analytics/velocity/config.json per usarla; senza file valgono i default (tutte le epiche, scala sotto). Ogni chiave e' opzionale.",
+  "kanban": "management/kanban",
+  "epiche": [],
+  "_nota_epiche": "Vuoto = tutte le epiche. Oppure [{\"id\": \"EP-001\", \"gruppo\": \"nome\"}]: l'id e' il prefisso della cartella dell'epica, il gruppo apre una colonna a parte.",
+  "includi_archivio": false,
+  "punti": { "XS": 1, "S": 2, "M": 3, "L": 5, "XL": 8 },
+  "giorni": { "XS": 0.25, "S": 0.5, "M": 1.0, "L": 2.0, "XL": 4.0 },
+  "stati_chiusi_esclusi": ["superseded", "cancelled", "on_hold"],
+  "finestra_settimane": 3,
+  "soglia_chiusura_in_blocco": 5,
+  "team": [],
+  "_nota_team": "Solo per --per-persona: [{\"id\": \"sigla\", \"nome\": \"Nome Cognome\", \"alias\": [\"handle\"]}].",
+  "agenti": [],
+  "obiettivo": null
+}

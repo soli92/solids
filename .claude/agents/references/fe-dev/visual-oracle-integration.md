@@ -54,6 +54,6 @@ Quando `fe_correctness.enabled: true`, la Fase 0 di `code-review-protocol` ha un
 precondition additiva che **blocca** `/review` su un TSK FE finché `visual_status != pass`
 (ADR-013 §Punto 2). A flag spento la review parte normalmente.
 
-Cross-link: [US-017](../../../management/kanban/EP-005-fe-visual-oracle/US-017-skill-visual-oracle-protocol/US-017.md),
-[ADR-009](../../../design_&_architecture/decisions/ADR-009.md),
-[ADR-013](../../../design_&_architecture/decisions/ADR-013.md).
+Cross-link: US-017,
+ADR-009,
+ADR-013.

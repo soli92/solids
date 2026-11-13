@@ -18,8 +18,8 @@ Develop FE.
 Il branch fuori-template + la nuova-spec su reject del Critic/Judge preservano questa
 separazione nel ciclo di refinement (ADR-069 §D §E).
 
-Riferimenti: [`ADR-069`](../../design_&_architecture/decisions/ADR-069.md) (confine
-responsabilità, opzione b, fuori-template, no-op), [`ADR-068`](../../design_&_architecture/decisions/ADR-068.md)
+Riferimenti: `ADR-069` (confine
+responsabilità, opzione b, fuori-template, no-op), `ADR-068`
 (tema read-only R.D1, theme_tokens dall'art_director_spec).
 Wiki: [[llm-generator-separation]], [[art-director-coordination]].
 

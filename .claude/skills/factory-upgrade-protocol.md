@@ -104,6 +104,13 @@ locali lasciate dentro sezioni comuni il piano le elenca e `--apply` le salva so
 (`righe-locali-PATTERN.md`): da riunire a mano. Le §N locali collidono con le §N future del master:
 una derivata che ne aggiunge le dichiara in `## Locale — …` o si aspetta il conflitto all'upgrade.
 
+**Unita' del solo meta-framework nella derivata** (`META_ONLY_PATHS` di `tools/factory_scope.py`:
+`/factory-bootstrap`, `/factory-upgrade`, `/release`, `pattern-b-testbed`, lo strumento di upgrade e i
+suoi test). Le portava l'installer fino a v2.46.1, e l'upgrade e' add-only: non le toglie da solo. Il
+piano le riporta sempre, divise in identiche al master e modificate nella factory. Con
+`--prune-meta-only` (opt-in, solo con `--apply`) si rimuovono le **identiche**, con copia nel backup
+(`meta-only/<path>`); le **modificate restano**: sono della factory e si decidono a mano.
+
 > La catena è la stessa documentata nel seed consolidato
 > `meta-prompts/v2-18/factory-bootstrap-full.md` (utile come riferimento unico del «cosa
 > dovrebbe esserci alla fine»).

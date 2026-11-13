@@ -94,5 +94,5 @@ dello scenario):
 Se nessun messaggio console matcha i 4 pattern durante l'intera esecuzione dello scenario:
 il check è **silenzioso** — nessun output prodotto, nessuna nota nel report.
 
-Cross-link: [EP-030](../../../management/kanban/EP-030-ssr-aware-test-generation/EP-030.md),
-[US-106](../../../management/kanban/EP-030-ssr-aware-test-generation/US-106-hydration-drift-check/US-106.md).
+Cross-link: EP-030,
+US-106.

@@ -32,7 +32,7 @@ problema rilevato; lista vuota `[]` se nessun difetto.
 Questa fase è un'istanza del pattern **evaluator-optimizer**: il producer (fe-dev) ha
 scritto il codice, il critic (stesso fe-dev in review) critica lo screenshot, il producer
 itera sul feedback. La fonte del pattern è
-[`wiki/syntheses/fe-agent-correctness-strategy.md §Leva 1`](../../../../wiki/syntheses/fe-agent-correctness-strategy.md)
+`wiki/syntheses/fe-agent-correctness-strategy.md §Leva 1`
 («È un'istanza del pattern evaluator-optimizer: il producer scrive il codice, il reviewer
 critica lo screenshot, il producer itera sul feedback»).
 
