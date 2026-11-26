@@ -144,9 +144,11 @@ I token motion di soli-ds (`--sd-easing-standard`, `--sd-easing-emphasized-*`, `
 
 **Azione raccomandata**: confronto mirato prima di qualunque modifica; decidere se mantenere durata+easing (riformulando «allineato a M3») o introdurre un'equivalenza a molle sul web. Il refactor del codice non e' ancora fatto (altra sessione).
 
-**Stato**: PARZIALMENTE RISOLTO
+**Stato**: CHIUSO
 
-**Aggiornamento 2026-11-26** — EP-002 / US-002: aggiunti i 12 token ufficiali molla→cubic-bezier (`base.motion.expressive/standard`), gli alias `--sd-motion-spring-<fast|default|slow>-<spatial|effects>-<easing|duration>` (schema expressive di default, `[data-motion="standard"]` per lo standard), le utility `.sd-motion*` e `ease-sd-*` in Tailwind v4; `--sd-duration-*`, `--sd-easing-*`, `.sd-transition*` invariati.[^src: src/tokens/base.json §motion] **Resta aperta**, come decisione del maintainer (breaking, major 3.0.0): portare i default `.sd-transition*` sulle molle.[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Decisioni aperte (maintainer)]
+**Risolto:** 2026-11-26 — 3.0.0 (EP-002 / US-003): `.sd-transition`, `.sd-transition-fast`, `.sd-transition-emphasized` (= molle slow) e `.sd-link` usano le molle M3 (`--sd-motion-spring-*`): spatial su transform, effects su colore/ombra/opacita'. In `base.css`, con reduced motion, una `transition-timing-function` unica (`--sd-motion-spring-fast-effects-easing`) evita che il colore erediti la curva spatial con overshoot (difetto trovato in Chromium, presente anche in 2.1.0 su `.sd-motion*`). `--sd-duration-*` e `--sd-easing-*` restano come fallback. In 2.x erano durata + easing. Migrazione: README §Migrazione 2.x → 3.0 (`data-motion="standard"` per meno rimbalzo).[^src: src/css/utilities.css §Transition (M3 Expressive springs, since 3.0.0)][^src: src/css/base.css §prefers-reduced-motion: reduce][^src: README.md §Migrazione 2.x → 3.0] Fuori da questa chiusura: GAP-010, GAP-011.
+
+**Storico — aggiornamento 2026-11-26 (US-002, 2.1.0)** — aggiunti i 12 token ufficiali molla→cubic-bezier (`base.motion.expressive/standard`), gli alias `--sd-motion-spring-<fast|default|slow>-<spatial|effects>-<easing|duration>` (schema expressive di default, `[data-motion="standard"]` per lo standard), le utility `.sd-motion*` e `ease-sd-*` in Tailwind v4; `--sd-duration-*`, `--sd-easing-*`, `.sd-transition*` invariati.[^src: src/tokens/base.json §motion] **Resta aperta**, come decisione del maintainer (breaking, major 3.0.0): portare i default `.sd-transition*` sulle molle.[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Decisioni aperte (maintainer)]
 
 ---
 
@@ -160,9 +162,11 @@ I passi semantici sm→xl di light/dark (8/12/16/20px) sono dichiarati «in line
 
 **Azione raccomandata**: confronto token-per-token con la scala M3; decisione umana se riallineare o dichiarare lo scarto.
 
-**Stato**: PARZIALMENTE RISOLTO
+**Stato**: CHIUSO
 
-**Aggiornamento 2026-11-26** — EP-002 / US-002: aggiunta la scala `--sd-corner-*` a 10 gradi con valori M3 esatti su light/dark (0/4/8/12/16/20/28/32/48/full), declinata per tema; `--sd-radius-*` invariati.[^src: src/tokens/semantic.json §corner] **Resta aperta**, come decisione del maintainer (breaking, major 3.0.0): `--sd-radius-2xl` / `--sd-radius-3xl` da 20/24px a 28/32px.[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Decisioni aperte (maintainer)]
+**Risolto:** 2026-11-26 — 3.0.0 (EP-002 / US-003): `--sd-radius-2xl` / `--sd-radius-3xl` = 28/32px in `base.json`, light/dark e `semantic.json`; nei temi nominati = corner M3 `extra-large` / `extra-large-increased` del tema. In 2.x erano 20/24px in tutti i temi. Migrazione: README §Migrazione 2.x → 3.0.[^src: src/tokens/base.json §radius][^src: src/tokens/themes/light.json §radius][^src: README.md §Migrazione 2.x → 3.0]
+
+**Storico — aggiornamento 2026-11-26 (US-002, 2.1.0)** — aggiunta la scala `--sd-corner-*` a 10 gradi con valori M3 esatti su light/dark (0/4/8/12/16/20/28/32/48/full), declinata per tema; `--sd-radius-*` invariati.[^src: src/tokens/semantic.json §corner] **Resta aperta**, come decisione del maintainer (breaking, major 3.0.0): `--sd-radius-2xl` / `--sd-radius-3xl` da 20/24px a 28/32px.[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Decisioni aperte (maintainer)]
 
 ---
 
@@ -178,7 +182,7 @@ M3 ha una scala lineare a 8dp (`space100 = 8dp`, token `spaceXXX` da space0 a sp
 
 **Stato**: CHIUSO
 
-**Risolto:** 2026-11-26 — EP-002 / US-002: aggiunti `--sd-measurement-space0..space900` (18 token, valori M3); la scala `--sd-space-*` e' invariata.[^src: src/tokens/base.json §measurement] Target: `--sd-layout-touch-target-material` 48px e `.sd-touch-target-material` disponibili come **opt-in**; il default `--sd-layout-touch-target-min` resta 44px. Il passaggio del default 44→48 e' una **decisione breaking del maintainer** (vedi US-002 §Decisioni aperte).[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Decisioni aperte (maintainer)]
+**Risolto:** 2026-11-26 — EP-002 / US-002: aggiunti `--sd-measurement-space0..space900` (18 token, valori M3); la scala `--sd-space-*` e' invariata.[^src: src/tokens/base.json §measurement] Target (2.1.0): `--sd-layout-touch-target-material` 48px e `.sd-touch-target-material` come opt-in, default 44px.[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Decisioni aperte (maintainer)] **Target: default 48px dalla 3.0.0** (EP-002 / US-003): `--sd-layout-touch-target-min` = 48px e `.sd-min-touch-target` 48×48; in 2.x era 44px. Migrazione: README §Migrazione 2.x → 3.0 (`:root { --sd-layout-touch-target-min: 44px; }` per tornare indietro).[^src: src/tokens/base.json §layout][^src: src/css/utilities.css §Touch target (Material 3: 48×48)][^src: README.md §Migrazione 2.x → 3.0]
 
 ---
 
@@ -195,6 +199,34 @@ M3 definisce cinque breakpoint (compact <600, medium 600–839, expanded 840–1
 **Stato**: CHIUSO
 
 **Risolto:** 2026-11-26 — EP-002 / US-002 (TSK-008..013): token `--sd-breakpoint-{compact,medium,expanded,large,extra-large}` = 0/600/840/1200/1600px e varianti Tailwind v4 `medium:` `expanded:` `large:` `extra-large:`; `sm..2xl` invariati; preset Tailwind v3 non toccato (legacy). Verificato da `tokens-sanity` e compilazione Tailwind v4.[^src: src/tokens/base.json §breakpoint][^src: src/css/tailwind.css §M3 breakpoints]
+
+---
+
+## GAP-010 — Typography emphasized M3 e layout scaffold non coperti
+
+**Data**: 2026-11-26
+**Fonte**: raw/2026-11-26-material-design-novita-2026.md §4, §1.2, §8; escluso dal perimetro di EP-002
+**Priorita'**: P3 (Mantenibilita')
+
+Il refactor 3.0.0 non copre: (a) la scala tipografica M3 a 30 stili (15 baseline + 15 **emphasized**) e l'adattamento all'altezza della scrittura; (b) il **layout scaffold** (bars, rails, panes, pannelli fixed/flexible, drag handle) come componenti. Sono stati aggiunti solo i token dei breakpoint. Vedi [[material-3-expressive-2026]] §1 e §6.
+
+**Azione raccomandata**: decidere se la scala emphasized e lo scaffold entrano nel perimetro di soli-ds (nuova storia di EP-002 o epica separata).
+
+**Stato**: APERTO
+
+---
+
+## GAP-011 — Overlay Tailwind (animate-in/out) ancora su `--sd-easing-ease-out`
+
+**Data**: 2026-11-26
+**Fonte**: coordinatore 2026-11-26 (3.0.0)
+**Priorita'**: P3 (Mantenibilita')
+
+Gli overlay in `src/css/tailwind.css` (`animate-in` / `animate-out`) usano ancora `--sd-easing-ease-out` e non sono stati migrati alle molle M3, mentre `.sd-transition*` e `.sd-link` lo sono dalla 3.0.0 (vedi GAP-006).
+
+**Azione raccomandata**: valutare la migrazione a `ease-sd-*` / `--sd-motion-spring-*`, tenendo conto dell'overshoot su overlay.
+
+**Stato**: APERTO
 
 ---
 

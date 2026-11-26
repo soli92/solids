@@ -54,7 +54,7 @@ Implicazione operativa: ogni parte del DS deve poter essere importata indipenden
 
 L'accessibilita' e' progettata, non aggiunta a posteriori. Il DS include:[^src: docs/raw/analisi-repository-2026-07-17.txt §1.2 docs/foundations/ — Storybook MDX]
 
-- Utility `sd-min-touch-target` — area interattiva minima 44px (WCAG 2.2 SC 2.5.5)
+- Utility `sd-min-touch-target` — area interattiva minima 48px dalla 3.0.0 (in 2.x 44px; sopra i minimi WCAG 2.2)
 - Utility `sd-link` — underline semantico per i link
 - Motion: `standard` / `emphasized` (allineato a Material Design 3 + Apple HIG)
 - Ratio di contrasto WCAG 2.2 AA verificati nei token semantici (vedi [wiki/design/a11y-token-audit.md](../design/a11y-token-audit.md))
@@ -88,7 +88,7 @@ Questa sezione integra il testo autoritativo da `docs/principles.mdx` (pagina St
 
 ## Aggiornamento 2026-11-26 — allineamento a Material Design 3
 
-Gli «allineamenti a Material Design 3» di questa pagina (motion `standard` / `emphasized`, shape dei default light/dark) si riferiscono a **M3 pre-Expressive**. I token M3 Expressive (spaziatura, breakpoint, corner, motion a molle, target 48px) sono stati aggiunti in modo **additivo** (EP-002): GAP-008/009 chiusi, GAP-006/007 parzialmente risolti, con le parti breaking in attesa di decisione del maintainer; vedi [[material-3-expressive-2026]] §8. Nessun principio o valore esistente e' cambiato.
+Gli «allineamenti a Material Design 3» storici di questa pagina (motion `standard` / `emphasized` a durata + easing) si riferiscono a **M3 pre-Expressive**. Con la **3.0.0** (EP-002, US-002 + US-003) i default sono allineati a M3 Expressive: motion a molle su `.sd-transition*`, raggi 2xl/3xl 28/32px, target 48px; spaziatura, breakpoint e corner aggiunti in modo additivo. GAP-006..009 chiusi; restano GAP-010 (typography emphasized, scaffold) e GAP-011 (overlay Tailwind). Migrazione: README §Migrazione 2.x → 3.0; vedi [[material-3-expressive-2026]] §8. I sei principi non cambiano.[^src: README.md §Migrazione 2.x → 3.0]
 
 ## Fonte primaria
 

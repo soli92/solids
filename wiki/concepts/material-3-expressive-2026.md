@@ -96,7 +96,7 @@ Tre leve: rimappare un componente nel prodotto; aggiungere token di sistema e pa
 - La densita' e' **opt-in dell'utente**: non cambia da sola tra breakpoint o orientamento e non si applica a componenti di task focalizzati (menu) o di allerta (snackbar, dialog).[^src: raw/2026-11-26-material-design-novita-2026.md §2.4 Uso espressivo e densità]
 - **Target minimo 48×48dp** (48×48 CSS px sul web), anche se l'icona e' piu' piccola; la dimensione del testo non cambia con la densita'.[^src: raw/2026-11-26-material-design-novita-2026.md §2.4 Uso espressivo e densità]
 
-Nota di confronto: il default di soli-ds resta `--sd-layout-touch-target-min = 44px` (vedi [[foundations/accessibility-and-motion]]); il target M3 da 48px e' disponibile come opt-in (`--sd-layout-touch-target-material`, `.sd-touch-target-material`). Il passaggio del default 44→48 e' una decisione breaking del maintainer (GAP-008, nota).
+Nota di confronto: dalla **3.0.0** il default di soli-ds e' `--sd-layout-touch-target-min = 48px` (in 2.x 44px; vedi [[foundations/accessibility-and-motion]]); `--sd-layout-touch-target-material` e `.sd-touch-target-material` (introdotti in 2.1.0) coincidono con il default (GAP-008).[^src: src/tokens/base.json §layout]
 
 ---
 
@@ -140,25 +140,40 @@ Search unico (contained/divided), vertical menu (standard/vibrant), expressive l
 
 ---
 
-## 8. Stato in soli-ds (refactor additivo EP-002 / US-002, 2026-11-26)
+## 8. Stato in soli-ds (EP-002: 2.1.0 additivo + 3.0.0 default M3, 2026-11-26)
 
-La sezione 9 della sorgente registrava quattro scarti, **non verificati a fondo**.[^src: raw/2026-11-26-material-design-novita-2026.md §9. Impatto su soli-ds (osservazione, non verificata a fondo)] Il refactor **additivo** (TSK-008..013) e' implementato e verificato: nessun token esistente cambia nome o valore (dist: 0 righe rimosse, 192 token aggiunti).[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Esito (2026-11-26)]
+La sezione 9 della sorgente registrava quattro scarti, **non verificati a fondo**.[^src: raw/2026-11-26-material-design-novita-2026.md §9. Impatto su soli-ds (osservazione, non verificata a fondo)] Il refactor in due passi e' implementato:
 
-| Area | Token aggiunti | Invariato | Gap |
+1. **2.1.0, additivo** (US-002, TSK-008..013): nessun token esistente cambia nome o valore (dist: 0 righe rimosse, 192 token aggiunti).[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Esito (2026-11-26)]
+2. **3.0.0, default M3 (breaking)** (US-003, TSK-014..017): decisione del maintainer di eseguire le tre «Decisioni aperte» di US-002 in una major. Nessun token cambia nome.[^src: management/kanban/EP-002-allineamento-m3-expressive/US-003-default-m3-breaking/US-003.md §US-003 — Default allineati a M3 Expressive (3.0.0)]
+
+### Introdotto in 2.1.0 (additivo)
+
+| Area | Token aggiunti | Invariato in 2.1.0 | Gap |
 |---|---|---|---|
 | Spaziatura | `--sd-measurement-space0..space900` (18 token, valori M3)[^src: src/tokens/base.json §measurement] | scala `--sd-space-*` | GAP-008 chiuso |
 | Breakpoint | `--sd-breakpoint-*` compact 0 / medium 600 / expanded 840 / large 1200 / extra-large 1600px[^src: src/tokens/base.json §breakpoint]; varianti Tailwind v4 `medium:` `expanded:` `large:` `extra-large:`[^src: src/css/tailwind.css §M3 breakpoints] | `sm..2xl`; preset Tailwind v3 non toccato (legacy) | GAP-009 chiuso |
-| Corner | `--sd-corner-*` a 10 gradi, valori M3 esatti su light/dark (0/4/8/12/16/20/28/32/48/full)[^src: src/tokens/semantic.json §corner] | `--sd-radius-*` | GAP-007 parziale |
-| Motion | 12 curve ufficiali molla→cubic-bezier in `base.motion.expressive/standard`[^src: src/tokens/base.json §motion]; alias `--sd-motion-spring-<fast\|default\|slow>-<spatial\|effects>-<easing\|duration>` su schema expressive[^src: src/tokens/semantic.json §motion.spring]; `[data-motion="standard"]` cambia schema (generato da `scripts/build.mjs`); utility `.sd-motion`, `.sd-motion-fast`, `.sd-motion-slow`[^src: src/css/utilities.css §Motion physics (M3 Expressive)]; `ease-sd-*` in Tailwind v4[^src: src/css/tailwind.css §ease-sd] | `--sd-duration-*`, `--sd-easing-*`, `.sd-transition*` | GAP-006 parziale |
-| Target | `--sd-layout-touch-target-material` 48px + `.sd-touch-target-material` (opt-in)[^src: src/css/utilities.css §Touch target M3 (48×48dp)] | default `--sd-layout-touch-target-min` 44px | GAP-008 (nota) |
+| Corner | `--sd-corner-*` a 10 gradi, valori M3 esatti su light/dark (0/4/8/12/16/20/28/32/48/full)[^src: src/tokens/semantic.json §corner] | `--sd-radius-*` (poi 2xl/3xl cambiati in 3.0.0) | GAP-007 chiuso in 3.0.0 |
+| Motion | 12 curve ufficiali molla→cubic-bezier in `base.motion.expressive/standard`[^src: src/tokens/base.json §motion]; alias `--sd-motion-spring-<fast\|default\|slow>-<spatial\|effects>-<easing\|duration>` su schema expressive[^src: src/tokens/semantic.json §motion.spring]; `[data-motion="standard"]` cambia schema (generato da `scripts/build.mjs`); utility `.sd-motion`, `.sd-motion-fast`, `.sd-motion-slow`[^src: src/css/utilities.css §Motion physics (M3 Expressive)]; `ease-sd-*` in Tailwind v4[^src: src/css/tailwind.css §ease-sd] | `--sd-duration-*`, `--sd-easing-*`, `.sd-transition*` (poi migrati alle molle in 3.0.0) | GAP-006 chiuso in 3.0.0 |
+| Target | `--sd-layout-touch-target-material` 48px + `.sd-touch-target-material` (opt-in in 2.1.0)[^src: src/css/utilities.css §Touch target M3 (48×48dp)] | default `--sd-layout-touch-target-min` 44px (poi 48px in 3.0.0) | GAP-008 chiuso |
+
+### Cambiato in 3.0.0 (breaking)
+
+| Cosa | In 2.x | Dalla 3.0.0 |
+|---|---|---|
+| `--sd-radius-2xl` / `--sd-radius-3xl` | 20 / 24px in tutti i temi | 28 / 32px su light/dark; nei temi nominati = corner `extra-large` / `extra-large-increased` del tema[^src: src/tokens/base.json §radius] |
+| `--sd-layout-touch-target-min`, `.sd-min-touch-target` | 44px | 48px[^src: src/tokens/base.json §layout] |
+| `.sd-transition`, `-fast`, `-emphasized`, `.sd-link` | durata + easing (`--sd-duration-*`, `--sd-easing-*`) | molle M3: default / fast / slow; spatial su transform, effects su colore, ombra, opacita'[^src: src/css/utilities.css §Transition (M3 Expressive springs, since 3.0.0)] |
+
+Per tornare al comportamento 2.x: README §Migrazione 2.x → 3.0.[^src: README.md §Migrazione 2.x → 3.0] Fuori perimetro, ancora aperti: typography emphasized e layout scaffold (GAP-010), overlay `animate-in/out` di Tailwind su `--sd-easing-ease-out` (GAP-011).
 
 Dettagli:
 
 - **Corner per tema**: per i temi nominati `small`..`large-increased` = radius sm..xl del tema, `extra-small` = sm/2, gradi ampi = xl x1.4 / x1.6 / x2.4 (`src/tokens/themes/*.json`, §corner).
 - **Motion e reduced motion**: la regola globale di `base.css` resta valida (verificato in Chromium: restano solo colore e opacita' a 100ms). Le curve spatial hanno overshoot (y > 1), le effects no.[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Esito (2026-11-26)]
-- **Breaking ancora aperto (decisione del maintainer, major 3.0.0)**: `.sd-transition*` sulle molle; `--sd-radius-2xl`/`3xl` da 20/24 a 28/32px; `--sd-layout-touch-target-min` da 44 a 48px.[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Decisioni aperte (maintainer)]
+- **Reduced motion (3.0.0)**: `base.css` aggiunge una `transition-timing-function` unica (`--sd-motion-spring-fast-effects-easing`) perche' il colore non erediti la curva spatial con overshoot (difetto trovato in Chromium, presente anche in 2.1.0 su `.sd-motion*`).[^src: src/css/base.css §prefers-reduced-motion: reduce]
 
-L'allineamento «a Material Design 3» dichiarato dai **default** delle pagine foundations resta riferito a **M3 pre-Expressive**; i token M3 Expressive sono disponibili in aggiunta.
+I default delle pagine foundations sono allineati a **M3 Expressive dalla 3.0.0** per motion, raggi 2xl/3xl e target; restano riferiti a M3 pre-Expressive solo i token `--sd-easing-*` / `--sd-duration-*` (fallback) e i raggi sm..xl.
 
 ## Pagine correlate
 

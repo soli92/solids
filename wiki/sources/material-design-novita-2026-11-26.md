@@ -34,4 +34,4 @@ Tutto in [[material-3-expressive-2026]]. Fuori scope per un design system web e 
 
 - [[material-3-expressive-2026]] — dati di riferimento per il design system web
 - [[foundations/spacing]], [[foundations/radius]], [[foundations/accessibility-and-motion]], [[foundations/tokens]], [[foundations/typography]]
-- `wiki/gaps.md` — GAP-006..GAP-009 (scarti soli-ds vs M3 attuale; aggiornamento 2026-11-26: GAP-008/009 chiusi, GAP-006/007 parziali dopo il refactor additivo EP-002)
+- `wiki/gaps.md` — GAP-006..GAP-009 (scarti soli-ds vs M3 attuale; aggiornamento 2026-11-26: GAP-006..009 chiusi con EP-002, 2.1.0 additivo + 3.0.0 default M3; nuovi GAP-010/011 aperti)

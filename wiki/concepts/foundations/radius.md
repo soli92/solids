@@ -28,8 +28,8 @@ Per **light** / **dark** i passi semantici tipici sono **8px / 12px / 16px / 20p
 | `--sd-radius-md` | Standard (shadcn `--radius`) | 12px |
 | `--sd-radius-lg` | Grande | ~16px |
 | `--sd-radius-xl` | Extra large | ~20px |
-| `--sd-radius-2xl` | Molto arrotondato | ~24px |
-| `--sd-radius-3xl` | Ancora piu' ampio | ~32px |
+| `--sd-radius-2xl` | Molto arrotondato | 28px (dalla 3.0.0; in 2.x 20px) |
+| `--sd-radius-3xl` | Ancora piu' ampio | 32px (dalla 3.0.0; in 2.x 24px) |
 | `--sd-radius-full` | Pill / cerchio | `9999px` |
 
 `--sd-radius-md` e' il valore usato da shadcn/ui (`--radius` nel layer `shadcn.css`).
@@ -82,7 +82,7 @@ Con il preset Tailwind SoliDS, `rounded-lg` / `rounded-md` / `rounded-sm` dei co
 
 ## Aggiornamenti (v2026-11-26)
 
-Il «in linea con Material Design 3» di questa pagina si riferisce a **M3 pre-Expressive**. M3 Expressive ha una scala dei raggi diversa; vedi [[material-3-expressive-2026]] §5. Stato in soli-ds (EP-002, GAP-007 parziale): aggiunta la scala **`--sd-corner-*` a 10 gradi** (`none`, `extra-small`, `small`, `medium`, `large`, `large-increased`, `extra-large`, `extra-large-increased`, `extra-extra-large`, `full`) con valori M3 esatti su light/dark: 0/4/8/12/16/20/28/32/48px/full.[^src: src/tokens/semantic.json §corner] Per i temi nominati: `small`..`large-increased` = radius sm..xl del tema, `extra-small` = sm/2, gradi ampi = xl x1.4 / x1.6 / x2.4. Utility `.sd-corner-*` in `utilities.css`.[^src: src/css/utilities.css §Corner scale (M3, 10 steps; per-theme values)] I token `--sd-radius-*` della tabella sopra sono **invariati**. Resta aperta, come decisione del maintainer (breaking), la riallineatura di `--sd-radius-2xl`/`3xl` da 20/24 a 28/32px.
+Il «in linea con Material Design 3» di questa pagina si riferisce a **M3 pre-Expressive**. M3 Expressive ha una scala dei raggi diversa; vedi [[material-3-expressive-2026]] §5. Stato in soli-ds (EP-002, GAP-007 chiuso con la 3.0.0): in 2.1.0 aggiunta la scala **`--sd-corner-*` a 10 gradi** (`none`, `extra-small`, `small`, `medium`, `large`, `large-increased`, `extra-large`, `extra-large-increased`, `extra-extra-large`, `full`) con valori M3 esatti su light/dark: 0/4/8/12/16/20/28/32/48px/full.[^src: src/tokens/semantic.json §corner] Per i temi nominati: `small`..`large-increased` = radius sm..xl del tema, `extra-small` = sm/2, gradi ampi = xl x1.4 / x1.6 / x2.4. Utility `.sd-corner-*` in `utilities.css`.[^src: src/css/utilities.css §Corner scale (M3, 10 steps; per-theme values)] Dalla **3.0.0** (EP-002 / US-003, breaking) `--sd-radius-2xl` / `--sd-radius-3xl` valgono 28/32px su light/dark e nei temi nominati coincidono con il corner `extra-large` / `extra-large-increased` del tema (in 2.x: 20/24px in tutti i temi).[^src: src/tokens/base.json §radius][^src: src/tokens/themes/light.json §radius] Gli altri `--sd-radius-*` sono invariati. Migrazione e ripristino dei valori 2.x: README §Migrazione 2.x → 3.0.[^src: README.md §Migrazione 2.x → 3.0]
 
 ## Pagine correlate
 

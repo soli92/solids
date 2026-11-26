@@ -37,7 +37,7 @@ Come SoliDS si allinea a linee guida riconosciute (WCAG 2.2, Material Design 3, 
 |--------------|-----------|
 | **Focus visibile** (`:focus-visible`) | Anello 2px + offset, colore `--sd-color-border-focus` |
 | **`prefers-reduced-motion: reduce`** | In `base.css` vengono disattivate transizioni, animazioni e scroll animato globalmente |
-| **Curve e durate** | `--sd-easing-*`, `--sd-duration-*` con naming coerente con MD3 (`standard`, `emphasized-decelerate`) |
+| **Curve e durate** | dalla 3.0.0 le transizioni usano le molle M3 Expressive (`--sd-motion-spring-*`); `--sd-easing-*` e `--sd-duration-*` (sistema M3 precedente: `standard`, `emphasized-decelerate`) restano come fallback[^src: src/css/utilities.css §Transition] |
 | **Tema e `color-scheme`** | Valorizzato per light/dark e temi scuri, per controlli nativi coerenti |
 
 [^src: docs/foundations/accessibility-and-motion.mdx §Cosa fa gia' SoliDS]
@@ -59,7 +59,7 @@ Font predefiniti ottimizzati per leggibilita': Inter / DM Sans / JetBrains Mono 
 
 | Artefatto | Dettaglio |
 |-----------|-----------|
-| `--sd-layout-touch-target-min` | `44px` in `base.json` — allineato a WCAG 2.5.8 e Apple HIG 44×44px |
+| `--sd-layout-touch-target-min` | `48px` in `base.json` dalla 3.0.0 (target M3 48×48; in 2.x era 44px, Apple HIG); sopra il minimo WCAG 2.5.8[^src: src/tokens/base.json §layout] |
 | `.sd-min-touch-target` | Applica `min-width` / `min-height` al token (pulsanti, chip, icone cliccabili) |
 | `.sd-link` | Colore token + sottolineatura con offset e spessore minimi — non dipende solo dal colore (cfr. WCAG 1.4.1) |
 
@@ -67,9 +67,9 @@ Font predefiniti ottimizzati per leggibilita': Inter / DM Sans / JetBrains Mono 
 
 | Classe | Comportamento |
 |--------|--------------|
-| `.sd-transition` | Durate e easing da token |
-| `.sd-transition-fast` | Durata rapida da token |
-| `.sd-transition-emphasized` | Attiva solo con `prefers-reduced-motion: no-preference`; durata `--sd-duration-emphasized` (350ms); easing emphasized-decelerate |
+| `.sd-transition` | Molle M3 `default` dalla 3.0.0: spatial su transform, effects su colore/ombra/opacita' (in 2.x durata + easing da token)[^src: src/css/utilities.css §Transition (M3 Expressive springs, since 3.0.0)] |
+| `.sd-transition-fast` | Molle M3 `fast` (in 2.x durata rapida da token) |
+| `.sd-transition-emphasized` | Molle M3 `slow`; attiva solo con `prefers-reduced-motion: no-preference` (in 2.x `--sd-duration-emphasized` 350ms + emphasized-decelerate) |
 
 ### Interlinea
 
@@ -103,7 +103,7 @@ Font predefiniti ottimizzati per leggibilita': Inter / DM Sans / JetBrains Mono 
 
 ## Aggiornamenti (v2026-11-26)
 
-Il «naming coerente con MD3» di curve e durate si riferisce a **M3 pre-Expressive** (durata + easing). M3 Expressive sostituisce questo sistema con il motion a molle e indica un target minimo di 48×48 (CSS px sul web); vedi [[material-3-expressive-2026]] §3-§4. Stato in soli-ds (EP-002, GAP-006 parziale, GAP-008 chiuso), tutto **additivo**:
+Il «naming coerente con MD3» dei token `--sd-easing-*` / `--sd-duration-*` si riferisce a **M3 pre-Expressive** (durata + easing), ora fallback. M3 Expressive sostituisce questo sistema con il motion a molle e indica un target minimo di 48×48; vedi [[material-3-expressive-2026]] §3-§4. Stato in soli-ds: **3.0.0** (EP-002 / US-003, GAP-006 e GAP-008 chiusi) con i default `.sd-transition*`, `.sd-link` e target 48px su M3 Expressive (migrazione: README §Migrazione 2.x → 3.0).[^src: README.md §Migrazione 2.x → 3.0] Artefatti introdotti (la base e' additiva dalla 2.1.0):
 
 | Artefatto | Dettaglio |
 |-----------|-----------|
@@ -111,9 +111,9 @@ Il «naming coerente con MD3» di curve e durate si riferisce a **M3 pre-Express
 | `--sd-motion-spring-<fast\|default\|slow>-<spatial\|effects>-<easing\|duration>` | alias sullo schema expressive; `[data-motion="standard"]` (generato da `scripts/build.mjs`) passa allo schema standard[^src: src/tokens/semantic.json §motion.spring] |
 | `.sd-motion`, `.sd-motion-fast`, `.sd-motion-slow` | spatial su transform/size/raggi, effects su colore/opacita'[^src: src/css/utilities.css §Motion physics (M3 Expressive)] |
 | `ease-sd-*` | easing Tailwind v4 (`ease-sd-spatial`, `ease-sd-effects-fast`, ...)[^src: src/css/tailwind.css §ease-sd] |
-| `--sd-layout-touch-target-material` + `.sd-touch-target-material` | 48px, **opt-in**[^src: src/css/utilities.css §Touch target M3 (48×48dp)] |
+| `--sd-layout-touch-target-material` + `.sd-touch-target-material` | 48px (opt-in in 2.1.0; dalla 3.0.0 coincide con il default `--sd-layout-touch-target-min`)[^src: src/css/utilities.css §Touch target M3 (48×48dp) — since 3.0.0 same as .sd-min-touch-target] |
 
-Reduced motion: vale la regola globale di `base.css` (verificato in Chromium: restano solo colore e opacita' a 100ms). **Invariati**: `--sd-duration-*`, `--sd-easing-*`, `.sd-transition*`, `--sd-layout-touch-target-min` 44px. Restano decisioni breaking del maintainer: `.sd-transition*` sulle molle e default target 44→48.
+Reduced motion: vale la regola globale di `base.css` (verificato in Chromium: restano solo colore e opacita' a 100ms). Dalla 3.0.0 aggiunge una `transition-timing-function` unica (`--sd-motion-spring-fast-effects-easing`), cosi' il colore non eredita la curva spatial con overshoot (difetto trovato in Chromium, presente anche in 2.1.0 su `.sd-motion*`).[^src: src/css/base.css §prefers-reduced-motion: reduce] **Invariati**: `--sd-duration-*` e `--sd-easing-*` (fallback). Fuori perimetro: overlay `animate-in/out` di `tailwind.css` ancora su `--sd-easing-ease-out` (GAP-011).
 
 ## Pagine correlate
 

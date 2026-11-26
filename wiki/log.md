@@ -106,3 +106,13 @@ updated: 2026-07-17
 - **verifica**: dist confrontato con la fotografia pre-modifica (0 righe rimosse, 0 token cambiati, 192 aggiunti); `npm run test:tokens` con i nuovi controlli M3, mutazione rossa (corner light 30px → FAIL); Chromium sul CSS generato (schema expressive/standard, corner per tema, 48px, reduced motion); `@tailwindcss/node` compila medium:/expanded:/large:/extra-large: e ease-sd-*; `npm test` exit 0
 - **note**: tutto additivo, release minor. Restano decisioni del maintainer (breaking, 3.0.0): default `.sd-transition*` sulle molle, `--sd-radius-2xl/3xl` 20/24 → 28/32, target 44 → 48. Preset Tailwind v3 non toccato (legacy). Non coperti: typography emphasized (15 stili), layout scaffold come componenti
 - **rilascio**: `@soli92/solids@2.1.0` pubblicata su npm (dist-tag latest) e GitHub Release v2.1.0 dal run Release 45818317065 sul commit 7d8071c, su autorizzazione del maintainer
+
+## [2026-11-26] develop | EP-002 US-003: default allineati a M3 Expressive, rilascio 3.0.0 (TSK-014..017)
+
+- **entry_type**: develop
+- **trigger**: decisione del maintainer: eseguire in una major le tre «Decisioni aperte» di US-002
+- **files touched (dichiarati)**: `src/tokens/base.json`, `src/tokens/semantic.json`, `src/tokens/themes/*.json` (radius 2xl/3xl per tema, touch target 48), `src/css/utilities.css` (.sd-transition*, .sd-link, .sd-min-touch-target), `src/css/base.css` (curva unica con reduced motion), `scripts/tokens-sanity.mjs`, `README.md` (migrazione 2.x → 3.0), `docs/foundations/{radius,accessibility-and-motion,tokens}.mdx`, kanban US-003 e TSK-014..017, EP-002 chiusa
+- **verifica**: diff del dist contro la 2.1.0 limitato ai tre cambi; `tokens-sanity` con mutazione rossa; Chromium (raggi per tema, 48px, curve delle transizioni, schema standard, reduced motion); `npm test` exit 0
+- **difetto trovato**: con reduced motion il colore ereditava la curva spatial con overshoot (anche `.sd-motion*` in 2.1.0); corretto in `base.css`
+- **rilascio**: `@soli92/solids@3.0.0` su npm (latest) e GitHub Release v3.0.0 dal run Release 45820336531 sul commit e119b5a, su decisione del maintainer
+- **note**: restano GAP-010 (typography emphasized, scaffold come componenti) e GAP-011 (overlay di `tailwind.css` ancora su `--sd-easing-ease-out`)

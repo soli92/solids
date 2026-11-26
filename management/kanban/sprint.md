@@ -25,4 +25,9 @@ Sprint 1 — Design Intelligence v2.21.0 validation
 | TSK-012 | Target 48dp M3 come token opzionale | fe | done |
 | TSK-013 | Test: tokens-sanity sui nuovi token e npm test | qa | done |
 
-Aperto: decisione del maintainer sui default breaking (US-002 §Decisioni aperte).
+| TSK-014 | Raggi 2xl/3xl sulla scala corner M3, per tema | fe | done |
+| TSK-015 | Touch target di default a 48px | fe | done |
+| TSK-016 | Transizioni di default sulle molle M3 | fe | done |
+| TSK-017 | Test, migrazione e rilascio 3.0.0 | qa | done |
+
+Rilasci: 2.1.0 (US-002, additivo) e 3.0.0 (US-003, default M3, breaking) il 2026-11-26.
