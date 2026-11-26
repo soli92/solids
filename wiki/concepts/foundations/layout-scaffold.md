@@ -13,7 +13,7 @@ sources:
 
 # Foundations — Layout scaffold (M3)
 
-Dalla 3.1.0 (EP-003 / US-005, GAP-010 chiuso) SoliDS offre lo scaffold Material 3 come **primitive CSS**, non come componente React. Riferimento esterno: [[material-3-expressive-2026]] §1.[^src: src/css/utilities.css §Layout scaffold M3 (bars → rails → panes)]
+Dalla 3.1.0 (EP-003 / US-005, GAP-010 chiuso; completato in 3.2.0, vedi sotto) SoliDS offre lo scaffold Material 3 come **primitive CSS**, non come componente React. Riferimento esterno: [[material-3-expressive-2026]] §1.[^src: src/css/utilities.css §Layout scaffold M3 (bars → rails → panes)]
 
 ## Struttura
 
@@ -36,9 +36,35 @@ Regole M3 rispettate: da 1 a 3 pannelli, almeno uno flessibile; pannelli fissi 3
 
 Verifica: in Chromium a 400, 900 e 1700px (US-005).[^src: management/kanban/EP-003-completamento-m3/US-005-scaffold-css/US-005.md]
 
+## Completamento (3.2.0, EP-004 / US-007, GAP-012 chiuso)
+
+### Drag handle
+
+Modulo `@soli92/solids/scaffold`, senza dipendenze, con tipi `.d.ts`: `attachPaneResize(handle, {pane, storageKey, mode})`.[^src: src/scaffold/pane-resize.ts §attachPaneResize]
+
+- Aggancio a **360/412px** entro 24px; minimo 240, massimo 640; sotto meta' del minimo il pannello si chiude.
+- Doppio clic, Enter o Spazio chiudono e riaprono il pannello; frecce (Shift ×5), Home, End; in RTL le frecce si invertono.
+- `role="separator"` con `aria-controls`, `aria-valuenow`, `aria-expanded`.
+- Modalita' `persistent` (localStorage) o `temporary`.
+- Classi `.sd-pane-handle` e `.sd-pane-resizable`. Per React resta il componente `Resizable`.
+
+### Levitate
+
+- `.sd-pane-floating`: per un pannello modale usare `<dialog>` con `showModal()` (focus gestito dal browser); scrim opzionale.
+- `.sd-pane-docked`: agganciato a un bordo.
+- `.sd-pane-adaptive`: docked sotto 600px, floating 600–1199px, co-planar da 1200px.[^src: src/css/utilities.css §Levitate: floating and docked panes]
+
+### Reflow
+
+`.sd-panes-reflow-below-{medium,expanded,large}` e `.sd-panes-reflow-portrait`: i pannelli si impilano in verticale.[^src: src/css/utilities.css §Reflow: when there is not enough width, panes stack vertically]
+
+### Verifica
+
+`test:scaffold` (logica pura), `tokens-sanity`, Chromium end-to-end (US-007): frecce 368 / Shift 328 / End 640 / Home 240; trascinamento 405 → 412 al rilascio; Enter chiude (`aria-expanded=false`); adaptive fixed in basso a 400px, centrato a 700/900px, static a 1300px; reflow column a 400/700px, row a 900/1300px.[^src: management/kanban/EP-004-residui-m3/US-007-scaffold-completo/US-007.md §AC2-AC4]
+
 ## Non coperto
 
-Drag handle, pannelli floating/docked (*levitate*), reflow: vedi GAP-012.
+Nessun componente React per lo scaffold oltre a `Resizable` (GAP-013).
 
 ## Pagine correlate
 

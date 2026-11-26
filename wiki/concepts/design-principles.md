@@ -88,7 +88,7 @@ Questa sezione integra il testo autoritativo da `docs/principles.mdx` (pagina St
 
 ## Aggiornamento 2026-11-26 — allineamento a Material Design 3
 
-Gli «allineamenti a Material Design 3» storici di questa pagina (motion `standard` / `emphasized` a durata + easing) si riferiscono a **M3 pre-Expressive**. Con la **3.0.0** (EP-002, US-002 + US-003) i default sono allineati a M3 Expressive: motion a molle su `.sd-transition*`, raggi 2xl/3xl 28/32px, target 48px; spaziatura, breakpoint e corner aggiunti in modo additivo. GAP-006..009 chiusi; con la 3.1.0 (EP-003) chiusi anche GAP-010 (scala tipografica M3, scaffold CSS) e GAP-011 (overlay a molle); resta GAP-012 (language height, scaffold avanzato). Migrazione: README §Migrazione 2.x → 3.0; vedi [[material-3-expressive-2026]] §8. I sei principi non cambiano.[^src: README.md §Migrazione 2.x → 3.0]
+Gli «allineamenti a Material Design 3» storici di questa pagina (motion `standard` / `emphasized` a durata + easing) si riferiscono a **M3 pre-Expressive**. Con la **3.0.0** (EP-002, US-002 + US-003) i default sono allineati a M3 Expressive: motion a molle su `.sd-transition*`, raggi 2xl/3xl 28/32px, target 48px; spaziatura, breakpoint e corner aggiunti in modo additivo. GAP-006..009 chiusi; con la 3.1.0 (EP-003) chiusi anche GAP-010 (scala tipografica M3, scaffold CSS) e GAP-011 (overlay a molle); con la 3.2.0 (EP-004) chiuso anche GAP-012 (language height, drag handle, levitate, reflow); resta GAP-013 (token language height per categoria non letti, nessun componente React per lo scaffold). Migrazione: README §Migrazione 2.x → 3.0; vedi [[material-3-expressive-2026]] §8. I sei principi non cambiano.[^src: README.md §Migrazione 2.x → 3.0]
 
 ## Fonte primaria
 

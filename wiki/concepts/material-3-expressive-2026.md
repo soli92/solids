@@ -181,7 +181,14 @@ Dettagli:
 | Scaffold (US-005, GAP-010) | primitive CSS `.sd-scaffold`, `.sd-pane*`, `.sd-hide-below-*` / `.sd-hide-from-*` ai breakpoint 600/840/1200/1600; margine 16→24px da medium, spacer 24px[^src: src/css/utilities.css §Layout scaffold M3 (bars → rails → panes)]. Vedi [[foundations/layout-scaffold]] |
 | Overlay (US-006, GAP-011) | `animate-in` → spatial fast 350ms, `animate-out` → effects fast 150ms, accordion/collapsible → spatial dello schema standard 350ms; `duration-*`/`ease-*` del componente prioritari; reduced motion forza `--tw-ease` senza overshoot. Cambio visibile ma non di API[^src: src/css/tailwind.css §Overlay motion (M3 springs)] |
 
-Residui (GAP-012): language height M3 non gestita; scaffold senza drag handle, pannelli floating/docked e reflow.
+### Aggiunto in 3.2.0 (EP-004, minor, in attesa del maintainer)
+
+| Area | Stato |
+|---|---|
+| Language height (GAP-012) | `.sd-type-*` con `line-height = token × --sd-language-height`: 1 / 1.07 / 1.3 / 2 da `:lang()` o `data-language-height`; medium opt-in[^src: src/tokens/base.json §language-height]. Vedi [[foundations/typography]] |
+| Scaffold avanzato (GAP-012) | drag handle `attachPaneResize` (`@soli92/solids/scaffold`), levitate `.sd-pane-floating/-docked/-adaptive`, reflow `.sd-panes-reflow-*`[^src: src/css/utilities.css §Levitate: floating and docked panes][^src: src/scaffold/pane-resize.ts §attachPaneResize]. Vedi [[foundations/layout-scaffold]] |
+
+Residui (GAP-013): token M3 per categoria di language height non letti (si usano le percentuali); nessun componente React per lo scaffold oltre a `Resizable`.
 
 I default delle pagine foundations sono allineati a **M3 Expressive dalla 3.0.0** per motion, raggi 2xl/3xl e target; restano riferiti a M3 pre-Expressive solo i token `--sd-easing-*` / `--sd-duration-*` (fallback) e i raggi sm..xl.
 

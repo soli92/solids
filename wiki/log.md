@@ -126,3 +126,11 @@ updated: 2026-07-17
 - **verifica**: diff del dist contro la 3.0.0; `tokens-sanity` con due mutazioni rosse (peso emphasized, curva di uscita); Chromium a 400/900/1700px (scaffold, visibilita' per breakpoint, tipografia, variabili degli overlay); `npm test` exit 0 con la pagina Storybook «Layout scaffold»
 - **difetto trovato**: le utility tipografiche leggevano `--sd-typescale-*-font`, risolto su `:root`, quindi un `[data-theme]` annidato non cambiava font (fantasy restava DM Sans); ora leggono `--sd-font-heading`/`--sd-font-body`, coperto da `tokens-sanity`
 - **note**: commit c0a1ee2 non ancora pushato (il push pubblica la 3.1.0 su npm: in attesa del maintainer). Residui in GAP-012: language height, drag handle, levitate, reflow
+
+## [2026-11-26] develop | EP-004: language height, drag handle, levitate, reflow (TSK-021, GAP-012)
+
+- **entry_type**: develop
+- **trigger**: richiesta del maintainer di chiudere GAP-012
+- **files touched (dichiarati)**: `src/scaffold/{pane-resize,index}.ts` (nuovo export `./scaffold` con tipi), `scripts/build.mjs` (transpile + dichiarazioni), `package.json` (export, `test:scaffold`), `src/tokens/base.json` (`language-height`), `src/css/utilities.css`, `scripts/{tokens-sanity,scaffold-test}.mjs`, `docs/foundations/{layout,typography}.mdx`, `README.md`, kanban EP-004
+- **verifica**: `test:scaffold` sulla logica pura dal dist (due attese sbagliate nel test, corrette: 385 e 386 sono fuori soglia da entrambe le larghezze); `tokens-sanity`; Chromium via HTTP locale (interlinea per lingua, tastiera, trascinamento con aggancio 405 → 412, persistenza dopo reload, focus del dialog, adaptive e reflow a 400/700/900/1300px); `npm test` exit 0; dist contro la 3.1.0: cambiano solo le 30 line-height `.sd-type-*`, identiche per il latino
+- **note**: commit 1bbdc50 non pushato in attesa del maintainer (rilascio 3.2.0). Residui in GAP-013

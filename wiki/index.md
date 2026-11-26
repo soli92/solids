@@ -27,7 +27,7 @@ Design system personale @soli92/solids — token semantici (light/dark), shadcn/
 | [Registry Model 1](concepts/registry-model-1.md) | draft | Flusso consumer, namespace @solids, blocchi shadcn, workflow manutentori |
 | [Shadcn Integration](concepts/shadcn-integration.md) | draft | Setup rapido, temi, token CSS, mapping shadcn vars |
 | [Roadmap](concepts/roadmap.md) | draft | Stato attuale completato, prossimi step, visione |
-| [Material 3 Expressive (2026)](concepts/material-3-expressive-2026.md) | draft | Riferimento esterno: breakpoint, spaziatura 8dp, densita', motion a molle, shape, typography; stato in soli-ds: 2.1.0 additivo + 3.0.0 default M3 (EP-002) + 3.1.0 typescale/scaffold/overlay (EP-003); GAP-006..011 chiusi, aperto GAP-012 |
+| [Material 3 Expressive (2026)](concepts/material-3-expressive-2026.md) | draft | Riferimento esterno: breakpoint, spaziatura 8dp, densita', motion a molle, shape, typography; stato in soli-ds: 2.1.0 additivo + 3.0.0 default M3 (EP-002) + 3.1.0 typescale/scaffold/overlay (EP-003) + 3.2.0 language height/scaffold completo (EP-004); GAP-006..012 chiusi, aperto GAP-013 |
 
 ### Sources
 
@@ -42,7 +42,7 @@ Design system personale @soli92/solids — token semantici (light/dark), shadcn/
 | [Typography](concepts/foundations/typography.md) | draft | Font stack per tema, token --sd-font-*, scale dimensioni e pesi |
 | [Spacing](concepts/foundations/spacing.md) | draft | Scala numerica --sd-space-*, alias semantici, regole fondamentali |
 | [Colors](concepts/foundations/colors.md) | draft | Catalogo token colore semantico (text, bg, border, intent, icon) |
-| [Layout scaffold (M3)](concepts/foundations/layout-scaffold.md) | draft | Primitive CSS `.sd-scaffold`, `.sd-pane*`, visibilita' per breakpoint (3.1.0) |
+| [Layout scaffold (M3)](concepts/foundations/layout-scaffold.md) | draft | Primitive CSS `.sd-scaffold`, `.sd-pane*`, visibilita' per breakpoint (3.1.0); drag handle, levitate, reflow (3.2.0) |
 | [Border Radius](concepts/foundations/radius.md) | draft | Token --sd-radius-*, valori per tema, utility CSS |
 | [Tokens (pipeline)](concepts/foundations/tokens.md) | draft | Struttura JSON pubblicato, pipeline CSS, token motion (easing/duration) |
 | [Themes](concepts/foundations/themes.md) | draft | 12 temi, token chiave per tema, attivazione data-theme |

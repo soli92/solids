@@ -41,3 +41,11 @@ Rilasci: 2.1.0 (US-002, additivo) e 3.0.0 (US-003, default M3, breaking) il 2026
 | TSK-018 | Scala tipografica M3: token, utility, test, docs | fe | done |
 | TSK-019 | Scaffold M3 come primitive CSS | fe | done |
 | TSK-020 | Overlay sulle molle M3 | fe | done |
+
+---
+
+# Sprint 4 — EP-004 Residui M3 (GAP-012)
+
+| TSK | Titolo | layer | status |
+|-----|--------|-------|--------|
+| TSK-021 | Language height, drag handle, levitate, reflow: codice, test, docs | fe | done |

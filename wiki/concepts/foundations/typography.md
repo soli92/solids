@@ -98,7 +98,21 @@ Con EP-003 / US-004 (3.1.0, GAP-010 chiuso) e' stata aggiunta, **senza modificar
 - **Emphasized** cambia solo il peso: 400→500, 500→700 per title medium/small e label.
 - Utility `.sd-type-<stile>` e `.sd-type-<stile>-emphasized`: font heading (`--sd-font-heading`) per display/headline/title large, font body (`--sd-font-body`) per il resto.[^src: src/css/utilities.css §Type scale M3 (15 baseline + 15 emphasized)]
 - Le utility leggono `--sd-font-heading` / `--sd-font-body` **direttamente**, non `--sd-typescale-*-font`: difetto trovato in Chromium, perche' il token risolto su `:root` non seguiva un `[data-theme]` annidato (fantasy restava DM Sans invece di Cinzel). Corretto e coperto da `tokens-sanity`.
-- **Non gestita**: l'adattamento all'altezza della scrittura (*language height*) M3 (GAP-012).
+
+### Language height (3.2.0, EP-004 / US-007, GAP-012 chiuso)
+
+Le utility `.sd-type-*` calcolano `line-height` come `calc(token × --sd-language-height)`. La categoria viene da `:lang()` oppure e' forzata con `data-language-height="small|medium|large|extra-large"`.[^src: src/css/utilities.css §Language height (M3)]
+
+| Categoria | Moltiplicatore | Lingue (`:lang()`) |
+|---|---|---|
+| small (default) | 1 | latino, cirillico, greco, ebraico e ogni lingua non elencata |
+| medium | 1.07 | am ar hy bn zh gu hi ja kn km ko lo ml or pa si ta th vi fa mr ne |
+| large | 1.3 | my, te |
+| extra-large | 2 | ur |
+
+[^src: src/tokens/base.json §language-height]
+
+Note: M3 consiglia *medium* come default; qui e' opt-in per non cambiare le pagine latine. I moltiplicatori sono le percentuali pubblicate da M3 (i token per categoria non sono leggibili, GAP-013). Rispetto alla 3.1.0 cambiano solo le 30 line-height `.sd-type-*`, identiche per il latino. Verifica in Chromium (body-large 24px): it 24, ja 25.68, te 31.2, ur 48.[^src: management/kanban/EP-004-residui-m3/US-007-scaffold-completo/US-007.md §AC1]
 
 ## Pagine correlate
 

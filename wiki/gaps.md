@@ -244,6 +244,22 @@ Fuori dal perimetro di EP-003 / 3.1.0: (a) l'adattamento dell'interlinea alla **
 
 **Azione raccomandata**: valutare solo su richiesta di un consumer; il drag handle richiederebbe JS (non nel perimetro CSS-first).
 
+**Stato**: CHIUSO
+
+**Risolto:** 2026-11-26 — EP-004 (US-007, TSK-021), rilascio **3.2.0** (in attesa del maintainer). (a) Language height: le utility `.sd-type-*` calcolano `line-height` come `calc(token × --sd-language-height)`, con categoria da `:lang()` o `data-language-height`; moltiplicatori 1 / 1.07 / 1.3 / 2.[^src: src/tokens/base.json §language-height][^src: src/css/utilities.css §Language height (M3)] (b) Drag handle: modulo `@soli92/solids/scaffold` con `attachPaneResize`.[^src: src/scaffold/pane-resize.ts §attachPaneResize] Levitate: `.sd-pane-floating`, `.sd-pane-docked`, `.sd-pane-adaptive`. Reflow: `.sd-panes-reflow-*`.[^src: src/css/utilities.css §Levitate: floating and docked panes] Evidenza (Chromium, `test:scaffold`, `tokens-sanity`): US-007 §AC.[^src: management/kanban/EP-004-residui-m3/US-007-scaffold-completo/US-007.md §AC1-AC4] Residui in GAP-013. Vedi [[foundations/layout-scaffold]], [[foundations/typography]].
+
+---
+
+## GAP-013 — Residui M3 dopo 3.2.0: token language height e componente scaffold
+
+**Data**: 2026-11-26
+**Fonte**: EP-004 (US-007), coordinatore 2026-11-26
+**Priorita'**: P4 (Nice to have)
+
+(a) I **token M3 per categoria di language height** non sono leggibili: si usano i moltiplicatori percentuali pubblicati da M3 (1 / 1.07 / 1.3 / 2), non i valori di riga per stile. (b) Lo scaffold non ha un **componente React**: restano le primitive CSS, il modulo `attachPaneResize` e, per React, il componente `Resizable` esistente. Inoltre `medium` e' **opt-in** (M3 lo consiglia come default) per non cambiare le pagine latine: le lingue non elencate restano a 1.
+
+**Azione raccomandata**: rivalutare se M3 pubblica i token per categoria; componente React solo su richiesta di un consumer.
+
 **Stato**: APERTO
 
 ---
