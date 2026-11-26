@@ -23,6 +23,8 @@ mkdirSync(join(REG, "utils"), { recursive: true });
 
 cpSync(join(ROOT, "src", "lib", "utils.ts"), join(REG, "utils", "utils.ts"));
 cpSync(join(ROOT, "src", "lib", "initials.ts"), join(REG, "utils", "initials.ts"));
+// Drag handle of the layout scaffold: standalone source, installed as lib/pane-resize.ts.
+cpSync(join(ROOT, "src", "scaffold", "pane-resize.ts"), join(REG, "utils", "pane-resize.ts"));
 
 const hooksSrc = join(ROOT, "src", "hooks");
 const hooksDest = join(REG, "hooks");
@@ -79,11 +81,12 @@ const registry = {
       name: "solids-utils",
       type: "registry:lib",
       title: "SoliDS utils",
-      description: "Helper cn() (clsx + tailwind-merge) e getInitials() (grafemi con Intl.Segmenter).",
+      description: "Helper cn() (clsx + tailwind-merge), getInitials() (grafemi con Intl.Segmenter) e attachPaneResize() (drag handle dello scaffold M3).",
       dependencies: ["clsx", "tailwind-merge@^3.0.0"],
       files: [
         { path: "registry/solids/utils/utils.ts", type: "registry:lib" },
         { path: "registry/solids/utils/initials.ts", type: "registry:lib" },
+        { path: "registry/solids/utils/pane-resize.ts", type: "registry:lib" },
       ],
     },
     {

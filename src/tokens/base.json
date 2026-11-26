@@ -402,11 +402,66 @@
   },
 
   "language-height": {
-    "_comment": "Moltiplicatori M3 dell'interlinea per categoria di scrittura: small (latino, cirillico, greco, ebraico), medium ~7% (arabo, CJK, indiane, thai, vietnamita...), large ~30% (birmano, telugu), extra-large ~100% (nastaliq). Applicati da :lang() o [data-language-height] alle utility .sd-type-*.",
+    "_comment": "DEPRECATO dalla 3.3.0: moltiplicatori approssimati dalle percentuali di M3, non piu' usati dalle utility. Le interlinee esatte per categoria sono in typescale-language.",
     "small": "1",
     "medium": "1.07",
     "large": "1.3",
     "extra-large": "2"
+  },
+
+  "typescale-language": {
+    "_comment": "Interlinee M3 per categoria di scrittura (md.ref.typeface.<stile>.line-height, contesto language.height) dal database token di Material (m3.material.io, 2026-11-19). small = --sd-typescale-<stile>-line-height.",
+    "medium": {
+      "display-large": "4.5625rem",
+      "display-medium": "3.5rem",
+      "display-small": "2.9375rem",
+      "headline-large": "2.625rem",
+      "headline-medium": "2.375rem",
+      "headline-small": "2.1875rem",
+      "title-large": "1.9375rem",
+      "title-medium": "1.6875rem",
+      "title-small": "1.4375rem",
+      "body-large": "1.6875rem",
+      "body-medium": "1.4375rem",
+      "body-small": "1.125rem",
+      "label-large": "1.4375rem",
+      "label-medium": "1.125rem",
+      "label-small": "1.125rem"
+    },
+    "large": {
+      "display-large": "5.5625rem",
+      "display-medium": "4.4375rem",
+      "display-small": "3.5625rem",
+      "headline-large": "3.125rem",
+      "headline-medium": "2.8125rem",
+      "headline-small": "2.5625rem",
+      "title-large": "2.25rem",
+      "title-medium": "1.9375rem",
+      "title-small": "1.625rem",
+      "body-large": "1.9375rem",
+      "body-medium": "1.625rem",
+      "body-small": "1.3125rem",
+      "label-large": "1.625rem",
+      "label-medium": "1.3125rem",
+      "label-small": "1.3125rem"
+    },
+    "extra-large": {
+      "display-large": "7.5rem",
+      "display-medium": "6.1875rem",
+      "display-small": "5rem",
+      "headline-large": "4.6875rem",
+      "headline-medium": "4.125rem",
+      "headline-small": "3.6875rem",
+      "title-large": "3.3125rem",
+      "title-medium": "2.625rem",
+      "title-small": "2.25rem",
+      "body-large": "2.5625rem",
+      "body-medium": "2.1875rem",
+      "body-small": "1.875rem",
+      "label-large": "2.25rem",
+      "label-medium": "1.875rem",
+      "label-small": "1.8125rem"
+    }
   },
 
   "measurement": {

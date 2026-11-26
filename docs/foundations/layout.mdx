@@ -11,8 +11,28 @@ Lo scaffold di Material 3 (Google I/O 2026) organizza ogni layout adattivo su tr
 - **rails**: il perimetro attorno ai pannelli, con navigation rail all'inizio e controlli di supporto alla fine;
 - **panes**: il contenuto. Da 1 a 3 visibili, almeno uno flessibile.
 
-SoliDS lo offre come **primitive CSS** in `utilities.css`. Non c'è un componente React: le classi
-vanno bene con qualsiasi markup.
+SoliDS lo offre come **primitive CSS** in `utilities.css`, valide con qualsiasi markup, e dalla 3.3.0
+come **componenti React** nel registry (`scaffold.tsx`): `Scaffold`, `ScaffoldBar`, `ScaffoldRail`,
+`ScaffoldPanes`, `Pane`, `PaneHandle`.
+
+```tsx
+const lista = React.useRef<HTMLElement>(null)
+
+<Scaffold>
+  <ScaffoldBar>…app bar…</ScaffoldBar>
+  <ScaffoldRail hideBelow="medium">…navigation rail…</ScaffoldRail>
+  <ScaffoldPanes reflow="below-medium">
+    <Pane ref={lista} variant="resizable" scroll>…lista…</Pane>
+    <PaneHandle pane={lista} storageKey="app:lista" className="sd-hide-below-expanded" />
+    <Pane hideBelow="expanded">…dettaglio…</Pane>
+  </ScaffoldPanes>
+  <ScaffoldBar position="bottom" hideFrom="medium">…navigation bar…</ScaffoldBar>
+</Scaffold>
+```
+
+`Pane` accetta `variant` = `flexible` (default), `fixed`, `fixed-412`, `resizable`, `floating`, `docked`,
+`adaptive`. `PaneHandle` usa `attachPaneResize()` (installato con `solids-utils` come `lib/pane-resize`).
+Esempio dal vivo: **SoliDS / UI / Scaffold**.
 
 ## Struttura
 

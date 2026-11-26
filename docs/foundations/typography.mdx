@@ -80,17 +80,34 @@ headline, title, body, label) per tre taglie (large, medium, small). Gli emphasi
 - **Emphasized**: per selezione, azioni principali, elementi non letti e momenti editoriali, insieme
   agli stili baseline. Material non lo usa di default nei componenti.
 - **Language height** (M3): le scritture più alte del latino hanno bisogno di più interlinea, altrimenti
-  le righe si sovrappongono. Le utility `.sd-type-*` moltiplicano l'interlinea per `--sd-language-height`,
-  scelto dall'attributo `lang`:
+  le righe si sovrappongono. Material definisce per ogni stile un'interlinea per categoria di scrittura.
+  Dalla 3.3.0 SoliDS usa i valori ufficiali del database token di Material (prima c'erano moltiplicatori
+  approssimati), esposti come `--sd-typescale-language-<categoria>-<stile>`. Interlinea in px:
 
-  | Categoria | Moltiplicatore | Lingue (`lang`) |
-  | --------- | -------------- | --------------- |
-  | small | 1 | latino, cirillico, greco, ebraico e ogni lingua non elencata |
-  | medium | 1.07 | am, ar, hy, bn, zh, gu, hi, ja, kn, km, ko, lo, ml, or, pa, si, ta, th, vi, fa, mr, ne |
-  | large | 1.3 | my (birmano), te (telugu) |
-  | extra-large | 2 | ur (nastaliq) |
+  | Stile | small | medium | large | extra-large |
+  | ----- | ----- | ------ | ----- | ----------- |
+  | display-large | 64 | 73 | 89 | 120 |
+  | display-medium | 52 | 56 | 71 | 99 |
+  | display-small | 44 | 47 | 57 | 80 |
+  | headline-large | 40 | 42 | 50 | 75 |
+  | headline-medium | 36 | 38 | 45 | 66 |
+  | headline-small | 32 | 35 | 41 | 59 |
+  | title-large | 28 | 31 | 36 | 53 |
+  | title-medium | 24 | 27 | 31 | 42 |
+  | title-small | 20 | 23 | 26 | 36 |
+  | body-large | 24 | 27 | 31 | 41 |
+  | body-medium | 20 | 23 | 26 | 35 |
+  | body-small | 16 | 18 | 21 | 30 |
+  | label-large | 20 | 23 | 26 | 36 |
+  | label-medium | 16 | 18 | 21 | 30 |
+  | label-small | 16 | 18 | 21 | 29 |
 
-  Per forzarla usa `data-language-height="small|medium|large|extra-large"`. Material consiglia
-  *medium* come default, ma in SoliDS un default medium cambierebbe le pagine latine: per questo
-  medium si attiva solo con l'attributo. I moltiplicatori sono le percentuali pubblicate da Material
-  (~7 %, ~30 %, ~100 %); i token per categoria non sono leggibili sul sito.
+  Le categorie si scelgono dall'attributo `lang`:
+  - **small**: latino, cirillico, greco, ebraico e ogni lingua non elencata;
+  - **medium**: am, ar, hy, bn, zh, gu, hi, ja, kn, km, ko, lo, ml, or, pa, si, ta, th, vi, fa, mr, ne;
+  - **large**: my, te;
+  - **extra-large**: ur (nastaliq).
+
+  Per forzarla usa `data-language-height="small|medium|large|extra-large"`. Material consiglia *medium* come
+  default; in SoliDS medium si attiva solo con l'attributo, per non cambiare le pagine latine. I vecchi
+  token `--sd-language-height-*` (moltiplicatori) sono deprecati e non vengono più usati dalle utility.

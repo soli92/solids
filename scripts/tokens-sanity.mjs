@@ -361,22 +361,43 @@ if (!/--tw-ease:\s*var\(--sd-motion-spring-fast-effects-easing[^;]*!important/.t
 ok("overlay: entrata spatial, uscita effects, accordion standard, reduced motion senza overshoot");
 
 /* ── EP-004 (GAP-012): language height, drag handle, levitate, reflow ── */
-const lhExpected = { small: "1", medium: "1.07", large: "1.3", "extra-large": "2" };
-for (const [k, v] of Object.entries(lhExpected)) {
-  if (base["language-height"]?.[k] !== v) fail(`base.language-height.${k} atteso ${v}`);
-}
-for (const name of Object.keys(m3Type)) {
-  for (const cls of [`.sd-type-${name}`, `.sd-type-${name}-emphasized`]) {
-    if (!/line-height: calc\(var\(--sd-typescale-[a-z-]+-line-height\) \* var\(--sd-language-height, 1\)\)/.test(ruleOf(cls))) {
-      fail(`${cls}: line-height non moltiplicata per --sd-language-height`);
-    }
+// Interlinee M3 per categoria di scrittura [small, medium, large, extra-large] in pt,
+// dal database token di Material (m3.material.io, _dsm/data/dsdb-m3 2026-11-19, TYPOGRAPHY).
+const m3LangLH = {
+  "display-large": [64, 73, 89, 120],
+  "display-medium": [52, 56, 71, 99],
+  "display-small": [44, 47, 57, 80],
+  "headline-large": [40, 42, 50, 75],
+  "headline-medium": [36, 38, 45, 66],
+  "headline-small": [32, 35, 41, 59],
+  "title-large": [28, 31, 36, 53],
+  "title-medium": [24, 27, 31, 42],
+  "title-small": [20, 23, 26, 36],
+  "body-large": [24, 27, 31, 41],
+  "body-medium": [20, 23, 26, 35],
+  "body-small": [16, 18, 21, 30],
+  "label-large": [20, 23, 26, 36],
+  "label-medium": [16, 18, 21, 30],
+  "label-small": [16, 18, 21, 29],
+};
+const cats = ["medium", "large", "extra-large"];
+for (const [st, [sm, ...rest]] of Object.entries(m3LangLH)) {
+  if (remOf(base.typescale[st]["line-height"]) !== sm) fail(`typescale.${st}.line-height diverso da small M3 (${sm})`);
+  cats.forEach((c, i) => {
+    if (remOf(base["typescale-language"]?.[c]?.[st] ?? "x") !== rest[i]) fail(`typescale-language.${c}.${st} atteso ${rest[i]}pt`);
+  });
+  for (const [cls, tok] of [[`.sd-type-${st}`, `--sd-typescale-${st}-line-height`], [`.sd-type-${st}-emphasized`, `--sd-typescale-emphasized-${st}-line-height`]]) {
+    if (!ruleOf(cls).includes(`line-height: var(--_sd-lh-${st}, var(${tok}))`)) fail(`${cls}: line-height non legge --_sd-lh-${st}`);
   }
 }
-for (const [sel, cat] of [[":lang(ja)", "medium"], [":lang(ar)", "medium"], [":lang(te)", "large"], [":lang(ur)", "extra-large"]]) {
-  const i = utilFlat.indexOf(sel);
-  if (i < 0 || !utilFlat.slice(i, utilFlat.indexOf("}", i)).includes(`--sd-language-height-${cat}`)) fail(`language height: ${sel} non mappato su ${cat}`);
+const langBlock = (sel) => { const i = utilFlat.indexOf(sel); return i < 0 ? "" : utilFlat.slice(i, utilFlat.indexOf("}", i)); };
+for (const [sel, cat] of [[":lang(ja)", "medium"], [":lang(ar)", "medium"], [":lang(te)", "large"], [":lang(ur) {", "extra-large"],
+  ['[data-language-height="medium"]', "medium"], ['[data-language-height="extra-large"]', "extra-large"]]) {
+  const b = langBlock(sel);
+  if (Object.keys(m3LangLH).some((st) => !b.includes(`--_sd-lh-${st}: var(--sd-typescale-language-${cat}-${st});`))) fail(`language height: ${sel} non mappa i 15 stili su ${cat}`);
 }
-ok("language height M3: 4 categorie, :lang() e data-language-height, applicata alle 30 utility .sd-type-*");
+if (Object.keys(m3LangLH).some((st) => !langBlock('[data-language-height="small"]').includes(`--_sd-lh-${st}: initial;`))) fail("language height: small non ripristina i valori di base");
+ok("language height M3: interlinee ufficiali per 15 stili x 4 categorie, da :lang() o data-language-height");
 
 for (const sel of [".sd-pane-handle", ".sd-pane-resizable", ".sd-pane-floating", ".sd-pane-docked"]) ruleOf(sel);
 for (const [bp, v] of [["medium", "600px"], ["expanded", "840px"], ["large", "1200px"]]) {
@@ -385,8 +406,40 @@ for (const [bp, v] of [["medium", "600px"], ["expanded", "840px"], ["large", "12
 if (!utilFlat.includes("@media (width < 600px) { .sd-pane-adaptive") || !utilFlat.includes("@media (600px <= width < 1200px) { .sd-pane-adaptive") || !utilFlat.includes("@media (width >= 1200px) { .sd-pane-adaptive")) {
   fail(".sd-pane-adaptive: docked < 600, floating 600-1199, co-planar >= 1200");
 }
+for (const r of ["below-medium", "below-expanded", "below-large", "portrait"]) {
+  if (!utilFlat.includes(`.sd-panes-reflow-${r} > :is(.sd-pane-fixed, .sd-pane-resizable) { flex-basis: auto; }`)) {
+    fail(`reflow ${r}: in colonna i pannelli fissi e ridimensionabili devono perdere la base (diventerebbe un'altezza)`);
+  }
+}
 const scaffoldJs = join(root, "dist", "scaffold", "index.js");
 if (!existsSync(scaffoldJs) || !existsSync(join(root, "dist", "scaffold", "index.d.ts"))) fail("dist/scaffold: manca index.js o index.d.ts");
 ok("scaffold: drag handle (dist/scaffold con tipi), pannelli floating/docked/adaptive, reflow ai breakpoint");
+
+/* ── Contrasto (WCAG 2.2): intent-*-text come testo, border-strong come componente ── */
+const lin = (x) => (x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4);
+const lumOf = (hex) => {
+  let h = hex.replace("#", "");
+  if (h.length === 3) h = [...h].map((c) => c + c).join("");
+  const [r, g, b] = [0, 2, 4].map((i) => lin(parseInt(h.slice(i, i + 2), 16) / 255));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrast = (a, b) => { const [x, y] = [lumOf(a), lumOf(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+for (const [name, theme] of Object.entries(themes)) {
+  const c = (grp, key) => theme.color?.[grp]?.[key] ?? semantic.color[grp][key];
+  const bgs = ["canvas", "surface", "elevated"].map((k) => c("bg", k));
+  for (const it of ["success", "warning", "danger", "info"]) {
+    const v = c("intent", `${it}-text`);
+    if (!v) fail(`themes.${name}: manca color.intent.${it}-text`);
+    const w = Math.min(...bgs.map((b) => contrast(v, b)));
+    if (w < 4.5) fail(`themes.${name}: intent.${it}-text ${v} a ${w.toFixed(2)}:1 (< 4.5:1 su un fondo)`);
+  }
+  const bs = Math.min(...bgs.map((b) => contrast(c("border", "strong"), b)));
+  if (bs < 3) fail(`themes.${name}: border.strong a ${bs.toFixed(2)}:1 (< 3:1, WCAG 1.4.11)`);
+}
+ok(`contrasto: intent-*-text >= 4.5:1 e border-strong >= 3:1 su canvas/surface/elevated in ${Object.keys(themes).length} temi`);
+
+const license = readFileSync(join(root, "LICENSE"), "utf8");
+if (!license.startsWith("MIT License") || !/Copyright \(c\) \d{4} \S+/.test(license)) fail("LICENSE: testo MIT con anno e titolare mancante");
+ok("LICENSE: testo MIT con anno e titolare");
 
 console.log("tokens-sanity: tutte le verifiche passate.");
