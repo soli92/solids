@@ -48,7 +48,7 @@ alias `semantic.motion.spring` → `--sd-motion-spring-<velocità>-<spatial|effe
 `themes.css` contiene il blocco `[data-motion="standard"]`, che cambia schema a un sottoalbero.
 Dettagli in **Foundations / Accessibility and Motion**.
 
-## Token Material 3 (aggiunti in 2.x, senza cambiare quelli esistenti)
+## Token Material 3 (aggiunti in 2.1, default allineati in 3.0)
 
 | Gruppo | Variabili | Pagina |
 | ------ | --------- | ------ |
@@ -56,7 +56,9 @@ Dettagli in **Foundations / Accessibility and Motion**.
 | Breakpoint | `--sd-breakpoint-{compact,medium,expanded,large,extra-large}` | Spacing |
 | Corner a 10 gradi (per tema) | `--sd-corner-*` | Radius |
 | Motion a molle | `--sd-motion-spring-*`, `--sd-motion-{expressive,standard}-*` | Accessibility and Motion |
-| Target 48 | `--sd-layout-touch-target-material` | Accessibility and Motion |
+| Target 48 | `--sd-layout-touch-target-min` (48px dalla 3.0.0), alias `--sd-layout-touch-target-material` | Accessibility and Motion |
+
+Migrazione da 2.x: vedi il README, sezione «Migrazione 2.x → 3.0».
 
 ## Riferimento rapido
 

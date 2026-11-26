@@ -37,7 +37,7 @@ In sviluppo, dopo `npm install`: `npm run storybook` avvia la documentazione su 
 | 🌗 Themes | `dist/css/themes.css` | Override **dark**, **fantasy**, **cyberpunk**, **90s-party**, **steampunk**, temi **personaggio** (`ichigo`, `vegeta`, `zoro`, `captain-america`, `sasuke`, `inuyasha`) + `prefers-color-scheme: dark` quando `data-theme` non è impostato |
 | 🔗 shadcn | `dist/css/shadcn.css` | Mapping variabili shadcn/ui → token SoliDS |
 | 🧱 Base | `dist/css/base.css` | Reset, body, `scroll-padding` / `scroll-behavior` (rispetto `prefers-reduced-motion`), focus-visible, `text-rendering`, box-sizing |
-| 🛠️ Utilities | `dist/css/utilities.css` | Classi `sd-*` (flex, spacing, colori, badge, card, **`.sd-min-touch-target`**, **`.sd-link`**, leading da token, **`.sd-transition-emphasized`**) |
+| 🛠️ Utilities | `dist/css/utilities.css` | Classi `sd-*` (flex, spacing, colori, badge, card, **`.sd-min-touch-target`** (48px), **`.sd-link`**, leading da token, **`.sd-transition*`** e **`.sd-motion*`** sulle molle M3, **`.sd-corner-*`**) |
 | 📦 Index | `dist/css/index.css` | Entrypoint unico che importa tutto nell'ordine corretto |
 | 🪪 Brand assets | `dist/brand-assets/**` | Set Soli (`soli-icons`, `soli-category-icons`) + raccolta workspace raw/normalized con index typed |
 
@@ -185,9 +185,22 @@ import { LogoLoader, LogoLoaderOverlay } from "@/components/ui/logo-loader";
 `sm` `md` `lg` `xl`
 
 ### Layout e motion (UX / a11y)
-- `--sd-layout-touch-target-min` — **44px**, target comodi (WCAG 2.5.8 / HIG; vedi doc *Accessibility and Motion*)
-- `--sd-duration-fast` / `normal` / `slow` / **`emphasized`** (350ms, transizioni più evidenti)
-- `--sd-easing-standard` (curva MD3) / `emphasized-decelerate` / `emphasized-accelerate` / `ease-inout` / `ease-out` / …
+- `--sd-layout-touch-target-min` — **48px** dalla 3.0.0 (Material 3; sopra WCAG 2.5.8 e i 44pt delle Apple HIG; vedi doc *Accessibility and Motion*)
+- `--sd-motion-spring-<fast|default|slow>-<spatial|effects>-<easing|duration>` — molle **M3 Expressive** come curve web; schema expressive di default, `data-motion="standard"` per lo schema standard. Le usano `.sd-transition*`, `.sd-link` e `.sd-motion*`
+- `--sd-duration-*` / `--sd-easing-*` — sistema M3 precedente, ancora disponibile come fallback
+- `--sd-measurement-space0…space900` (spaziatura M3 a 8dp), `--sd-breakpoint-*` (600/840/1200/1600), `--sd-corner-*` (scala M3 a 10 gradi, per tema)
+
+### Migrazione 2.x → 3.0
+
+La 3.0.0 porta tre default a Material 3 Expressive. Nessun token cambia nome.
+
+| Cambia | Prima (2.x) | Dalla 3.0.0 | Per tornare al comportamento di prima |
+|---|---|---|---|
+| `--sd-radius-2xl` / `--sd-radius-3xl` | 20px / 24px in tutti i temi | corner M3 extra-large / extra-large-increased del tema (28/32px su light/dark) | `:root, [data-theme] { --sd-radius-2xl: 20px; --sd-radius-3xl: 24px; }` (dopo il CSS di SoliDS: ora ogni tema definisce i propri valori) |
+| `--sd-layout-touch-target-min` (e `.sd-min-touch-target`) | 44px | 48px | `:root { --sd-layout-touch-target-min: 44px; }` |
+| `.sd-transition`, `-fast`, `-emphasized`, `.sd-link` | durata + easing (`--sd-duration-*`, `--sd-easing-*`) | molle M3 (spatial su transform, effects su colore/opacità/ombra) | `data-motion="standard"` per meno rimbalzo, oppure transizioni proprie con i token `--sd-duration-*`/`--sd-easing-*` |
+
+Con `prefers-reduced-motion: reduce` tutte le transizioni rimaste usano una sola curva, senza overshoot.
 
 ### Documentazione accessibilità
 

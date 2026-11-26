@@ -101,8 +101,8 @@
     "md":   "8px",
     "lg":   "12px",
     "xl":   "16px",
-    "2xl":  "20px",
-    "3xl":  "24px",
+    "2xl":  "28px",
+    "3xl":  "32px",
     "full": "9999px"
   },
 
@@ -181,7 +181,7 @@
   },
 
   "layout": {
-    "touch-target-min": "44px",
+    "touch-target-min": "48px",
     "touch-target-material": "48px"
   },
 

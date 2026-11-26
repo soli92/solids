@@ -82,6 +82,8 @@
     "md": "4px",
     "lg": "8px",
     "xl": "12px",
+    "2xl": "17px",
+    "3xl": "19px",
     "full": "9999px"
   },
   "corner": {

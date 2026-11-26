@@ -98,6 +98,10 @@ body {
     transition-property: color, background-color, border-color,
       text-decoration-color, fill, stroke, opacity, box-shadow !important;
     transition-duration: 100ms !important;
+    /* Replacing the property list re-pairs the timing functions by position:
+       colour could inherit a spatial spring and overshoot. One curve with no
+       overshoot (M3 fast effects spring) for everything that is left. */
+    transition-timing-function: var(--sd-motion-spring-fast-effects-easing, ease-out) !important;
   }
 
   /* Height reveal is movement of the layout: show the content at once. */

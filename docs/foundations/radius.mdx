@@ -15,8 +15,8 @@ I border radius sono esposti come **CSS variables** `--sd-radius-*`, da `src/tok
 | `--sd-radius-md` | Standard (shadcn usa spesso questo come `--radius`) |
 | `--sd-radius-lg` | Grande |
 | `--sd-radius-xl` | Extra large |
-| `--sd-radius-2xl` | Molto arrotondato |
-| `--sd-radius-3xl` | Ancora più ampio |
+| `--sd-radius-2xl` | Molto arrotondato: dalla 3.0.0 = `--sd-corner-extra-large` del tema (28px su light/dark; in 2.x 20px fisso) |
+| `--sd-radius-3xl` | Ancora più ampio: dalla 3.0.0 = `--sd-corner-extra-large-increased` del tema (32px su light/dark; in 2.x 24px fisso) |
 | `--sd-radius-full` | Pill / cerchio |
 
 ## Utility
@@ -26,7 +26,8 @@ Le classi in `utilities.css` includono ad esempio `.sd-rounded-sm`, `.sd-rounded
 ## Scala corner Material 3 (10 gradi)
 
 Material 3 Expressive definisce i raggi con una scala a **10 gradi**. SoliDS la espone come
-`--sd-corner-*`, accanto a `--sd-radius-*`, che resta invariata (ed è quella che usa shadcn).
+`--sd-corner-*`, accanto a `--sd-radius-*` (quella che usa shadcn). Dalla 3.0.0 i due gradi più ampi di `--sd-radius-*`
+(`2xl`, `3xl`) coincidono con extra-large ed extra-large-increased di ogni tema.
 
 | Variabile | Light / dark (M3) | Utility |
 | --------- | ----------------- | ------- |

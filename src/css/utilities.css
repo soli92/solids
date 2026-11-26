@@ -204,10 +204,10 @@
 .sd-cursor-default { cursor: default; }
 .sd-cursor-not-allowed { cursor: not-allowed; }
 
-/* ─── Touch target (WCAG 2.2 — min ~44×44 CSS px; Apple HIG 44pt equivalent) ─ */
+/* ─── Touch target (Material 3: 48×48; above WCAG 2.5.8 and Apple HIG 44pt) ─ */
 .sd-min-touch-target {
-  min-height: var(--sd-layout-touch-target-min, 44px);
-  min-width: var(--sd-layout-touch-target-min, 44px);
+  min-height: var(--sd-layout-touch-target-min, 48px);
+  min-width: var(--sd-layout-touch-target-min, 48px);
 }
 
 /* Link testuale con offset underline (WCAG 2.2 G183 / contrasto percepibile dei link) */
@@ -216,31 +216,54 @@
   text-decoration: underline;
   text-underline-offset: max(0.12em, 2px);
   text-decoration-thickness: max(0.06em, 1px);
-  transition: color var(--sd-duration-fast) var(--sd-easing-standard, ease);
+  transition: color var(--sd-motion-spring-fast-effects-duration) var(--sd-motion-spring-fast-effects-easing);
 }
 .sd-link:hover {
   color: var(--sd-color-text-link-hover);
 }
 
-/* ─── Transition (curve standard MD3: m3.material.io/styles/motion) ─ */
+/* ─── Transition (M3 Expressive springs, since 3.0.0) ────────
+ * Same properties as before: transform takes the spatial spring, colour,
+ * shadow and opacity take the effects spring. Default speed for
+ * .sd-transition, fast for .sd-transition-fast, slow for -emphasized.
+ * The scheme follows [data-motion]. For width/height/radius as well, use
+ * .sd-motion*. The old --sd-duration-* / --sd-easing-* tokens remain as
+ * fallback (Material's legacy easing and duration system).
+ */
+.sd-transition,
+.sd-transition-fast {
+  transition:
+    transform var(--_sd-t-spatial-d) var(--_sd-t-spatial-e),
+    color var(--_sd-t-effects-d) var(--_sd-t-effects-e),
+    background-color var(--_sd-t-effects-d) var(--_sd-t-effects-e),
+    border-color var(--_sd-t-effects-d) var(--_sd-t-effects-e),
+    box-shadow var(--_sd-t-effects-d) var(--_sd-t-effects-e),
+    opacity var(--_sd-t-effects-d) var(--_sd-t-effects-e);
+}
 .sd-transition {
-  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
-  transition-duration: var(--sd-duration-normal);
-  transition-timing-function: var(--sd-easing-standard, var(--sd-easing-ease-inout));
+  --_sd-t-spatial-d: var(--sd-motion-spring-default-spatial-duration);
+  --_sd-t-spatial-e: var(--sd-motion-spring-default-spatial-easing);
+  --_sd-t-effects-d: var(--sd-motion-spring-default-effects-duration);
+  --_sd-t-effects-e: var(--sd-motion-spring-default-effects-easing);
 }
 .sd-transition-fast {
-  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
-  transition-duration: var(--sd-duration-fast);
-  transition-timing-function: var(--sd-easing-standard, var(--sd-easing-ease-inout));
+  --_sd-t-spatial-d: var(--sd-motion-spring-fast-spatial-duration);
+  --_sd-t-spatial-e: var(--sd-motion-spring-fast-spatial-easing);
+  --_sd-t-effects-d: var(--sd-motion-spring-fast-effects-duration);
+  --_sd-t-effects-e: var(--sd-motion-spring-fast-effects-easing);
 }
 
-/* Emphasized: deliberately longer than the 300ms UI ceiling, for
-   explanatory or marketing motion only. Not used by the components. */
+/* Emphasized: slow springs, for explanatory or full-screen motion only.
+   Not used by the components. */
 @media (prefers-reduced-motion: no-preference) {
   .sd-transition-emphasized {
-    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
-    transition-duration: var(--sd-duration-emphasized, 350ms);
-    transition-timing-function: var(--sd-easing-emphasized-decelerate, cubic-bezier(0, 0, 0, 1));
+    transition:
+      transform var(--sd-motion-spring-slow-spatial-duration) var(--sd-motion-spring-slow-spatial-easing),
+      color var(--sd-motion-spring-slow-effects-duration) var(--sd-motion-spring-slow-effects-easing),
+      background-color var(--sd-motion-spring-slow-effects-duration) var(--sd-motion-spring-slow-effects-easing),
+      border-color var(--sd-motion-spring-slow-effects-duration) var(--sd-motion-spring-slow-effects-easing),
+      box-shadow var(--sd-motion-spring-slow-effects-duration) var(--sd-motion-spring-slow-effects-easing),
+      opacity var(--sd-motion-spring-slow-effects-duration) var(--sd-motion-spring-slow-effects-easing);
   }
 }
 
@@ -304,7 +327,7 @@
 .sd-corner-extra-extra-large     { border-radius: var(--sd-corner-extra-extra-large); }
 .sd-corner-full                  { border-radius: var(--sd-corner-full); }
 
-/* ─── Touch target M3 (48×48dp) — opt-in; .sd-min-touch-target stays 44px ─ */
+/* ─── Touch target M3 (48×48dp) — since 3.0.0 same as .sd-min-touch-target ─ */
 .sd-touch-target-material {
   min-height: var(--sd-layout-touch-target-material, 48px);
   min-width: var(--sd-layout-touch-target-material, 48px);

@@ -62,10 +62,10 @@ const { base, semantic, themes } = tokens;
 if (!base || !semantic || !themes) fail("struttura tokens: servono base, semantic, themes");
 
 // Base: layout touch target + durata emphasized (a11y / motion)
-if (base.layout?.["touch-target-min"] !== "44px") {
-  fail(`base.layout.touch-target-min atteso "44px", trovato ${JSON.stringify(base.layout)}`);
+if (base.layout?.["touch-target-min"] !== "48px") {
+  fail(`base.layout.touch-target-min atteso "48px" (M3, da 3.0.0), trovato ${JSON.stringify(base.layout)}`);
 }
-ok('base.layout["touch-target-min"] === "44px"');
+ok('base.layout["touch-target-min"] === "48px"');
 
 if (base.duration?.emphasized !== "350ms") {
   fail(`base.duration.emphasized atteso "350ms", trovato ${JSON.stringify(base.duration?.emphasized)}`);
@@ -274,6 +274,39 @@ if (!/\[data-motion="standard"\] \{[^}]*--sd-motion-spring-fast-spatial-easing: 
 ok('motion M3: 12 curve ufficiali, alias spring su expressive, [data-motion="standard"] generato');
 
 if (base.layout?.["touch-target-material"] !== "48px") fail("base.layout.touch-target-material atteso 48px");
-ok('base.layout["touch-target-material"] === "48px" (default 44px invariato)');
+ok('base.layout["touch-target-material"] === "48px" (alias del default)');
+
+/* ── 3.0.0: default allineati a M3 (EP-002 US-003) ───────── */
+if (semantic.radius["2xl"] !== "28px" || semantic.radius["3xl"] !== "32px") fail("semantic.radius 2xl/3xl attesi 28px/32px (M3)");
+if (base.radius["2xl"] !== "28px" || base.radius["3xl"] !== "32px") fail("base.radius 2xl/3xl attesi 28px/32px (M3)");
+for (const [name, theme] of Object.entries(themes)) {
+  if (theme.radius?.["2xl"] !== theme.corner["extra-large"] || theme.radius?.["3xl"] !== theme.corner["extra-large-increased"]) {
+    fail(`themes.${name}: radius 2xl/3xl devono coincidere con corner extra-large/extra-large-increased`);
+  }
+}
+ok("radius 2xl/3xl = corner M3 extra-large/extra-large-increased su semantic e su ogni tema (28/32 su light/dark)");
+
+const utilCss = readFileSync(join(root, "dist", "css", "utilities.css"), "utf8");
+// Regola a selettore singolo (esclude i gruppi `a,\nb {` che portano solo la shorthand).
+const ruleOf = (sel) => {
+  const m = new RegExp(`(?<!,\\s*)(^|\\n)[ \\t]*${sel.replace(".", "\\.")} \\{([^}]*)\\}`).exec(utilCss);
+  if (!m) fail(`utilities.css: manca la regola ${sel}`);
+  return m[2];
+};
+for (const [sel, speed] of [[".sd-transition", "default"], [".sd-transition-fast", "fast"]]) {
+  const r = ruleOf(sel);
+  if (!r.includes(`--sd-motion-spring-${speed}-spatial-easing`) || !r.includes(`--sd-motion-spring-${speed}-effects-easing`)) fail(`${sel}: non usa le molle M3 ${speed}`);
+}
+const emph = ruleOf(".sd-transition-emphasized");
+if (!emph.includes("--sd-motion-spring-slow-spatial-easing") || emph.includes("--sd-duration-")) fail(".sd-transition-emphasized: non usa le molle M3 slow");
+if (/\.sd-(transition|link)[^{]*\{[^}]*--sd-(duration|easing)-/.test(utilCss)) fail("utilities.css: .sd-transition*/.sd-link usano ancora --sd-duration-*/--sd-easing-*");
+ok(".sd-transition / -fast / -emphasized e .sd-link sulle molle M3");
+
+const baseCss = readFileSync(join(root, "dist", "css", "base.css"), "utf8");
+const reduce = baseCss.slice(baseCss.indexOf("prefers-reduced-motion: reduce"));
+if (!/transition-timing-function:\s*var\(--sd-motion-spring-fast-effects-easing[^;]*!important/.test(reduce)) {
+  fail("base.css: con reduced motion manca la curva unica senza overshoot");
+}
+ok("reduced motion: una sola curva effects, nessun overshoot sulle proprieta' rimaste");
 
 console.log("tokens-sanity: tutte le verifiche passate.");

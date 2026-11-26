@@ -21,7 +21,7 @@ Questa pagina riassume **come SoliDS si allinea** a linee guida riconosciute (WC
 
 - **Focus visibile** (`:focus-visible`): anello 2px + offset, colore da `--sd-color-border-focus` (allineato a pratiche Material / visibilità focus WCAG).
 - **`prefers-reduced-motion: reduce`**: in `base.css` vengono disattivate transizioni, animazioni e scroll animato globalmente, in linea con [WCAG 2.3.3](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) dove applicabile.
-- **Curve e durate** (`--sd-easing-*`, `--sd-duration-*`): naming coerente con **MD3** (es. `standard`, `emphasized-decelerate`).
+- **Motion a molle M3 Expressive** (`--sd-motion-spring-*`): dalla 3.0.0 lo usano `.sd-transition*`, `.sd-link` e `.sd-motion*`. Le curve precedenti (`--sd-easing-*`, `--sd-duration-*`) restano disponibili come fallback.
 - **Tema e `color-scheme`**: valorizzato per light/dark e temi scuri, per controlli nativi coerenti ([CSS `color-scheme`](https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme)).
 
 ## Migliorie introdotte (token + CSS + utility)
@@ -42,14 +42,14 @@ Questa pagina riassume **come SoliDS si allinea** a linee guida riconosciute (WC
 
 ### Touch target e link
 
-- Token **`--sd-layout-touch-target-min`** (`44px` in `base.json` → `layout.touch-target-min`): allineato a **WCAG 2.5.8** e alla convenzione **44×44 px** delle **Apple HIG** per target comodi.
+- Token **`--sd-layout-touch-target-min`** (**48px** dalla 3.0.0, `base.json` → `layout.touch-target-min`): segue **Material 3** (48×48) e supera il minimo di **WCAG 2.5.8** e i **44pt** delle **Apple HIG**. In 2.x valeva 44px.
 - Utility **`.sd-min-touch-target`**: applica `min-width` / `min-height` al token (pulsanti, chip, icone cliccabili).
 - Utility **`.sd-link`**: colore token + sottolineatura con **offset** e **spessore** minimi per non dipendere solo dal colore (cfr. [1.4.1 Use of Color](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color)).
 
 ### Motion nelle utility
 
-- **`.sd-transition`** / **`.sd-transition-fast`**: durate e easing da token.
-- **`.sd-transition-emphasized`**: attiva solo con **`prefers-reduced-motion: no-preference`**, durata `--sd-duration-emphasized` (default 350ms), easing **emphasized-decelerate** (vedi [MD3 easing](https://m3.material.io/styles/motion/easing-and-duration)).
+- **`.sd-transition`** / **`.sd-transition-fast`**: dalla 3.0.0 usano le molle M3 alla velocità default / fast, con spatial su `transform` ed effects su colore, ombra e opacità.
+- **`.sd-transition-emphasized`**: attiva solo con **`prefers-reduced-motion: no-preference`**; dalla 3.0.0 usa le molle M3 **slow** (prima: 350ms + emphasized-decelerate). È pensata per motion esplicativo o a schermo intero.
 
 ### Motion a molle (Material 3 Expressive)
 
@@ -80,16 +80,16 @@ proprietà di movimento e la molla effects a colore e opacità, in un'unica clas
 `duration-(--sd-motion-spring-default-spatial-duration)`.
 
 Con **`prefers-reduced-motion: reduce`** vale la regola globale di `base.css`: il movimento sparisce
-e colore e opacità restano, a 100ms.
+e colore e opacità restano, a 100ms, con una sola curva senza overshoot.
 
-`.sd-transition*` e `--sd-duration-*` / `--sd-easing-*` restano disponibili e invariati: sono il
-sistema M3 precedente, che Material indica come fallback.
+Dalla 3.0.0 anche `.sd-transition*` e `.sd-link` usano queste molle. `--sd-duration-*` / `--sd-easing-*`
+restano come token: sono il sistema M3 precedente, che Material indica come fallback.
 
 ### Touch target 48 (Material 3)
 
-`--sd-layout-touch-target-min` resta **44px** (Apple HIG). Per seguire Material 3 usa
-**`--sd-layout-touch-target-material`** (**48px**) e l'utility **`.sd-touch-target-material`**.
-Il target vale anche quando l'icona è più piccola.
+Dalla 3.0.0 **`--sd-layout-touch-target-min`** vale **48px**, e così **`.sd-min-touch-target`**.
+`--sd-layout-touch-target-material` e `.sd-touch-target-material` restano come alias. Il target vale
+anche quando l'icona è più piccola. Per tornare a 44px: `:root { --sd-layout-touch-target-min: 44px; }`.
 
 ### Interlinea
 
