@@ -1,3 +1,21 @@
+# [3.0.0](https://github.com/soli92/solids/compare/v2.1.0...v3.0.0) (2026-11-26)
+
+
+* feat(tokens)!: default allineati a Material 3 Expressive (raggi, touch target, transizioni) ([e119b5a](https://github.com/soli92/solids/commit/e119b5ad52a36aa6261fd89b489ed5e232ed77ad))
+
+
+### BREAKING CHANGES
+
+* --sd-radius-2xl e --sd-radius-3xl passano da 20/24px fissi ai
+valori corner M3 del tema (28/32px su light e dark); --sd-layout-touch-target-min
+passa da 44px a 48px; .sd-transition*, .sd-link usano le molle M3 al posto di
+--sd-duration-*/--sd-easing-*. Migrazione e override per tornare ai valori 2.x
+nel README, sezione «Migrazione 2.x -> 3.0».
+
+Refs: EP-002 US-003 TSK-014..017
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
 # [2.1.0](https://github.com/soli92/solids/compare/v2.0.0...v2.1.0) (2026-11-26)
 
 
