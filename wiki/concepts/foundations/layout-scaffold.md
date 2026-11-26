@@ -13,7 +13,7 @@ sources:
 
 # Foundations — Layout scaffold (M3)
 
-Dalla 3.1.0 (EP-003 / US-005, GAP-010 chiuso; completato in 3.2.0, vedi sotto) SoliDS offre lo scaffold Material 3 come **primitive CSS**, non come componente React. Riferimento esterno: [[material-3-expressive-2026]] §1.[^src: src/css/utilities.css §Layout scaffold M3 (bars → rails → panes)]
+Dalla 3.1.0 (EP-003 / US-005, GAP-010 chiuso; completato in 3.2.0, componenti React in 3.3.0, vedi sotto) SoliDS offre lo scaffold Material 3 come **primitive CSS**, non come componente React. Riferimento esterno: [[material-3-expressive-2026]] §1.[^src: src/css/utilities.css §Layout scaffold M3 (bars → rails → panes)]
 
 ## Struttura
 
@@ -62,9 +62,17 @@ Modulo `@soli92/solids/scaffold`, senza dipendenze, con tipi `.d.ts`: `attachPan
 
 `test:scaffold` (logica pura), `tokens-sanity`, Chromium end-to-end (US-007): frecce 368 / Shift 328 / End 640 / Home 240; trascinamento 405 → 412 al rilascio; Enter chiude (`aria-expanded=false`); adaptive fixed in basso a 400px, centrato a 700/900px, static a 1300px; reflow column a 400/700px, row a 900/1300px.[^src: management/kanban/EP-004-residui-m3/US-007-scaffold-completo/US-007.md §AC2-AC4]
 
+## Componenti React (3.3.0, EP-005 / US-008, GAP-013 chiuso)
+
+Nel registry: `Scaffold`, `ScaffoldBar`, `ScaffoldRail`, `ScaffoldPanes`, `Pane`, `PaneHandle` (`scaffold.tsx` in solids-ui). `pane-resize` e' spedito con solids-utils come `lib/pane-resize`.[^src: src/components/ui/scaffold.tsx §export] Verifica: `tsc --noEmit` pulito; storia «SoliDS / UI / Scaffold» in Chromium (visibilita' a 400/900/1700px, `aria-controls` corretto, frecce +8px, Enter chiude, nessun errore).[^src: management/kanban/EP-005-gap013-e-difetti-plancia/US-008-language-height-e-scaffold-react/US-008.md §AC3]
+
+## Difetto corretto in 3.3.0 (reflow)
+
+In colonna (`.sd-panes-reflow-*`) il pannello ridimensionabile aveva `flex-basis: 360px`, quindi altezza fissa 360px. Il difetto c'era gia' in 3.2.0 ed e' stato trovato in Chromium a 400px (segnalato dalla plancia); ora in colonna i pannelli ridimensionabili perdono la base fissa (GAP-014).[^src: management/kanban/EP-005-gap013-e-difetti-plancia/US-009-difetti-dalla-plancia/US-009.md §AC4]
+
 ## Non coperto
 
-Nessun componente React per lo scaffold oltre a `Resizable` (GAP-013).
+Nulla di noto: i residui GAP-012/013 sono chiusi.
 
 ## Pagine correlate
 

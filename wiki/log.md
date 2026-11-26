@@ -134,3 +134,13 @@ updated: 2026-07-17
 - **files touched (dichiarati)**: `src/scaffold/{pane-resize,index}.ts` (nuovo export `./scaffold` con tipi), `scripts/build.mjs` (transpile + dichiarazioni), `package.json` (export, `test:scaffold`), `src/tokens/base.json` (`language-height`), `src/css/utilities.css`, `scripts/{tokens-sanity,scaffold-test}.mjs`, `docs/foundations/{layout,typography}.mdx`, `README.md`, kanban EP-004
 - **verifica**: `test:scaffold` sulla logica pura dal dist (due attese sbagliate nel test, corrette: 385 e 386 sono fuori soglia da entrambe le larghezze); `tokens-sanity`; Chromium via HTTP locale (interlinea per lingua, tastiera, trascinamento con aggancio 405 → 412, persistenza dopo reload, focus del dialog, adaptive e reflow a 400/700/900/1300px); `npm test` exit 0; dist contro la 3.1.0: cambiano solo le 30 line-height `.sd-type-*`, identiche per il latino
 - **note**: commit 1bbdc50 non pushato in attesa del maintainer (rilascio 3.2.0). Residui in GAP-013
+
+## [2026-11-26] develop | EP-005: interlinee M3 ufficiali, scaffold React, difetti dalla plancia (TSK-022, TSK-023)
+
+- **entry_type**: develop
+- **trigger**: richiesta del maintainer di chiudere GAP-013; difetti segnalati dalla sessione della plancia del master adottando soli-ds 3.1.0 (LICENSE vuoto, contrasto dei colori di stato e di border-strong)
+- **sources**: database token di Material caricato da m3.material.io (`_dsm/data/dsdb-m3/2026-11-19_06-20-01/TYPOGRAPHY.*.json`), trovato registrando le richieste di rete della pagina: smentisce che i valori per categoria non fossero leggibili
+- **files touched (dichiarati)**: commit e2a9fa3 (base.json typescale-language, utilities.css, scaffold.tsx, lib/pane-resize.ts, storia, registry, sync-registry, tokens-sanity, docs typography/layout) e 083c9a0 (LICENSE, semantic.json e 12 temi con intent-*-text e border-strong, tailwind.css, docs colors); kanban EP-005
+- **verifica**: `tokens-sanity` (tabella ufficiale 15×4, contrasto calcolato in JS su 12 temi, LICENSE); `tsc --noEmit` sui file nuovi; storia React in Chromium (400/900/1700px, tastiera, nessun errore); `npm test` exit 0; dei token cambiano solo i tre `border-strong` (le righe `info-border` solo per la virgola)
+- **difetto trovato in verifica**: in reflow verticale il pannello ridimensionabile aveva altezza fissa 360px (presente in 3.2.0), corretto
+- **rilascio**: `@soli92/solids@3.3.0` dal run Release 45850855036, su autorizzazione del maintainer

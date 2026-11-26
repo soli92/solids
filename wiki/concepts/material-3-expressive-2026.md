@@ -188,7 +188,15 @@ Dettagli:
 | Language height (GAP-012) | `.sd-type-*` con `line-height = token × --sd-language-height`: 1 / 1.07 / 1.3 / 2 da `:lang()` o `data-language-height`; medium opt-in[^src: src/tokens/base.json §language-height]. Vedi [[foundations/typography]] |
 | Scaffold avanzato (GAP-012) | drag handle `attachPaneResize` (`@soli92/solids/scaffold`), levitate `.sd-pane-floating/-docked/-adaptive`, reflow `.sd-panes-reflow-*`[^src: src/css/utilities.css §Levitate: floating and docked panes][^src: src/scaffold/pane-resize.ts §attachPaneResize]. Vedi [[foundations/layout-scaffold]] |
 
-Residui (GAP-013): token M3 per categoria di language height non letti (si usano le percentuali); nessun componente React per lo scaffold oltre a `Resizable`.
+### Aggiunto in 3.3.0 (EP-005, minor, in attesa del maintainer)
+
+| Area | Stato |
+|---|---|
+| Language height (US-008, GAP-013) | interlinee **ufficiali** M3 per 15 stili × 4 categorie: `--sd-typescale-language-<cat>-<stile>`, utility su `--_sd-lh-<stile>`; fonte il database token di m3.material.io (`md.ref.typeface.<stile>.line-height`). I moltiplicatori 3.2.0 `--sd-language-height-*` sono deprecati[^src: src/tokens/base.json §typescale-language]. Vedi [[foundations/typography]] |
+| Scaffold React (US-008, GAP-013) | `Scaffold`, `ScaffoldBar`, `ScaffoldRail`, `ScaffoldPanes`, `Pane`, `PaneHandle` nel registry; `pane-resize` come `lib/pane-resize`[^src: src/components/ui/scaffold.tsx §export]. Vedi [[foundations/layout-scaffold]] |
+| Difetti dalla plancia (US-009, GAP-014) | `LICENSE` MIT; `--sd-color-intent-*-text` >= 4.5:1; `border-strong` >= 3:1; reflow senza base fissa in colonna[^src: management/kanban/EP-005-gap013-e-difetti-plancia/US-009-difetti-dalla-plancia/US-009.md §AC1-AC4]. Vedi [[foundations/colors]] |
+
+Nessun residuo M3 noto in questo perimetro (GAP-006..013 chiusi). Correzione: in §8 «Aggiunto in 3.2.0» i moltiplicatori 1 / 1.07 / 1.3 / 2 erano approssimazioni, superate dai valori ufficiali di 3.3.0.
 
 I default delle pagine foundations sono allineati a **M3 Expressive dalla 3.0.0** per motion, raggi 2xl/3xl e target; restano riferiti a M3 pre-Expressive solo i token `--sd-easing-*` / `--sd-duration-*` (fallback) e i raggi sm..xl.
 

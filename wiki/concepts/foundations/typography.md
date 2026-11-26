@@ -99,20 +99,22 @@ Con EP-003 / US-004 (3.1.0, GAP-010 chiuso) e' stata aggiunta, **senza modificar
 - Utility `.sd-type-<stile>` e `.sd-type-<stile>-emphasized`: font heading (`--sd-font-heading`) per display/headline/title large, font body (`--sd-font-body`) per il resto.[^src: src/css/utilities.css §Type scale M3 (15 baseline + 15 emphasized)]
 - Le utility leggono `--sd-font-heading` / `--sd-font-body` **direttamente**, non `--sd-typescale-*-font`: difetto trovato in Chromium, perche' il token risolto su `:root` non seguiva un `[data-theme]` annidato (fantasy restava DM Sans invece di Cinzel). Corretto e coperto da `tokens-sanity`.
 
-### Language height (3.2.0, EP-004 / US-007, GAP-012 chiuso)
+### Language height (3.2.0 EP-004, affinata in 3.3.0 EP-005; GAP-012 e GAP-013 chiusi)
 
-Le utility `.sd-type-*` calcolano `line-height` come `calc(token × --sd-language-height)`. La categoria viene da `:lang()` oppure e' forzata con `data-language-height="small|medium|large|extra-large"`.[^src: src/css/utilities.css §Language height (M3)]
+La categoria viene da `:lang()` oppure e' forzata con `data-language-height="small|medium|large|extra-large"`.[^src: src/css/utilities.css §Language height (M3)]
 
-| Categoria | Moltiplicatore | Lingue (`:lang()`) |
-|---|---|---|
-| small (default) | 1 | latino, cirillico, greco, ebraico e ogni lingua non elencata |
-| medium | 1.07 | am ar hy bn zh gu hi ja kn km ko lo ml or pa si ta th vi fa mr ne |
-| large | 1.3 | my, te |
-| extra-large | 2 | ur |
+| Categoria | Lingue (`:lang()`) |
+|---|---|
+| small (default) | latino, cirillico, greco, ebraico e ogni lingua non elencata |
+| medium | am ar hy bn zh gu hi ja kn km ko lo ml or pa si ta th vi fa mr ne |
+| large | my, te |
+| extra-large | ur |
 
-[^src: src/tokens/base.json §language-height]
+**Dalla 3.3.0 (EP-005 / US-008, GAP-013 chiuso)** le interlinee sono i **valori ufficiali M3** per 15 stili × 4 categorie, token `--sd-typescale-language-<cat>-<stile>` (small = `--sd-typescale-<stile>-line-height`); le utility `.sd-type-*` leggono `--_sd-lh-<stile>`. Fonte: database token che `m3.material.io` carica (`md.ref.typeface.<stile>.line-height`, contesto `language.height`).[^src: src/tokens/base.json §typescale-language][^src: management/kanban/EP-005-gap013-e-difetti-plancia/US-008-language-height-e-scaffold-react/US-008.md §AC1-AC2] Esempi: body-small medium = 18 (non 17), display-large extra-large = 120 (non 128).
 
-Note: M3 consiglia *medium* come default; qui e' opt-in per non cambiare le pagine latine. I moltiplicatori sono le percentuali pubblicate da M3 (i token per categoria non sono leggibili, GAP-013). Rispetto alla 3.1.0 cambiano solo le 30 line-height `.sd-type-*`, identiche per il latino. Verifica in Chromium (body-large 24px): it 24, ja 25.68, te 31.2, ur 48.[^src: management/kanban/EP-004-residui-m3/US-007-scaffold-completo/US-007.md §AC1]
+**Era (3.2.0)**: `line-height = calc(token × --sd-language-height)` con moltiplicatori approssimati 1 / 1.07 / 1.3 / 2 (percentuali). I `--sd-language-height-*` restano come **deprecati** e non sono piu' usati dalle utility.[^src: src/tokens/base.json §language-height]
+
+Note: M3 consiglia *medium* come default; qui e' opt-in per non cambiare le pagine latine. Il latino (small) e' identico a 3.1.0.
 
 ## Pagine correlate
 

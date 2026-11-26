@@ -260,7 +260,28 @@ Fuori dal perimetro di EP-003 / 3.1.0: (a) l'adattamento dell'interlinea alla **
 
 **Azione raccomandata**: rivalutare se M3 pubblica i token per categoria; componente React solo su richiesta di un consumer.
 
-**Stato**: APERTO
+**Stato**: CHIUSO
+
+**Risolto:** 2026-11-26 — EP-005 (US-008), rilascio **3.3.0** (in attesa del maintainer). (a) I valori ufficiali **erano leggibili** nel database token che `m3.material.io` carica (`_dsm/data/dsdb-m3/2026-11-19…/TYPOGRAPHY.*.json`, token `md.ref.typeface.<stile>.line-height` con contesto `language.height`): le interlinee esatte per 15 stili × 4 categorie sono ora i token `--sd-typescale-language-<cat>-<stile>`; le utility leggono `--_sd-lh-<stile>`. Gli approssimati (es. body-small medium 17 invece di 18, display-large extra-large 128 invece di 120) sono sostituiti. I vecchi `--sd-language-height-*` restano come **deprecati**.[^src: src/tokens/base.json §typescale-language][^src: src/tokens/base.json §language-height][^src: management/kanban/EP-005-gap013-e-difetti-plancia/US-008-language-height-e-scaffold-react/US-008.md §AC1, AC4] (b) Componenti React nel registry: `Scaffold`, `ScaffoldBar`, `ScaffoldRail`, `ScaffoldPanes`, `Pane`, `PaneHandle` (`scaffold.tsx` in solids-ui; `pane-resize` spedito con solids-utils come `lib/pane-resize`).[^src: src/components/ui/scaffold.tsx §export][^src: management/kanban/EP-005-gap013-e-difetti-plancia/US-008-language-height-e-scaffold-react/US-008.md §AC3] Nota: `medium` resta opt-in (M3 lo consiglia come default). Vedi [[foundations/typography]], [[foundations/layout-scaffold]].
+
+---
+
+## GAP-014 — Difetti dalla plancia: LICENSE vuoto, contrasto dei colori intent e border-strong, reflow
+
+**Data**: 2026-11-26
+**Fonte**: sessione della plancia del master (TSK-1258), adozione di soli-ds 3.1.0; EP-005 / US-009
+**Priorita'**: P2 (Importante)
+
+Quattro difetti, registrati gia' chiusi (convenzione: i difetti trovati e corretti nello stesso rilascio entrano come gap chiuso, come nei «Findings gia' risolti»):
+
+1. `LICENSE` era vuoto (0 byte) dal primo commit.
+2. I colori `--sd-color-intent-*` usati come **testo** erano sotto AA in vari temi. Misure prima: light success 2.94, warning 2.84, danger 4.31; captain-america info 2.82; fantasy warning 3.48; zoro, vegeta, 90s-party danger < 4.5.
+3. `--sd-color-border-strong` sotto 3:1 (WCAG 1.4.11): light 2.26, dark 2.06, captain-america 2.18.
+4. Reflow: in colonna il pannello ridimensionabile aveva `flex-basis: 360px` (altezza fissa 360px); difetto gia' presente in 3.2.0, trovato in Chromium a 400px.
+
+**Stato**: CHIUSO
+
+**Risolto:** 2026-11-26 — EP-005 (US-009), rilascio **3.3.0**: (1) `LICENSE` con testo MIT, 2026, titolare `soli92`; (2) nuovi `--sd-color-intent-{success,warning,danger,info}-text` >= 4.5:1 su canvas/surface/elevated in ogni tema, 7:1 dove la tinta lo consente (light e dark tutti a 7:1); (3) `border-strong` >= 3:1: light 3.14, dark 3.11, captain-america 3.11; (4) in colonna i pannelli ridimensionabili perdono la base fissa. Misure prima/dopo e coperture (`tokens-sanity`, Chromium): US-009. Vedi [[foundations/colors]], [[foundations/layout-scaffold]].[^src: management/kanban/EP-005-gap013-e-difetti-plancia/US-009-difetti-dalla-plancia/US-009.md §AC1-AC4]
 
 ---
 

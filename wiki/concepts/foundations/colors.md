@@ -104,6 +104,15 @@ Valori light/dark rapidi:
 
 ---
 
+## Aggiornamenti (v2026-11-26, 3.3.0)
+
+Difetti segnalati dalla sessione della plancia, corretti in EP-005 / US-009 (GAP-014):
+
+- **Intent come testo**: i colori `--sd-color-intent-*` usati come testo erano sotto AA in vari temi (light success 2.94, warning 2.84, danger 4.31; captain-america info 2.82; fantasy warning 3.48; zoro, vegeta, 90s-party danger < 4.5). Nuovi token **`--sd-color-intent-{success,warning,danger,info}-text`**: >= 4.5:1 su canvas/surface/elevated in ogni tema, 7:1 dove la tinta lo consente (light e dark tutti a 7:1). Per il testo usare `-text`, non il token base.[^src: management/kanban/EP-005-gap013-e-difetti-plancia/US-009-difetti-dalla-plancia/US-009.md §AC2][^src: src/tokens/themes/light.json §intent]
+- **`--sd-color-border-strong`** portato a >= 3:1 (WCAG 1.4.11): light 2.26 → 3.14, dark 2.06 → 3.11, captain-america 2.18 → 3.11.[^src: management/kanban/EP-005-gap013-e-difetti-plancia/US-009-difetti-dalla-plancia/US-009.md §AC3]
+
+Aggiornamento alla tabella Intent sopra: ogni intent ha anche la variante `-text`. Verifica: `tokens-sanity` (calcolo WCAG in JS).
+
 ## Principio di isolamento tematico
 
 Tutti i token semantici sono ridefiniti per ogni tema — un componente che usa solo token `--sd-color-*` non richiede modifiche al cambio di tema. Questo e' il nucleo del principio [[design-principles|Semantic over visual]].[^src: docs/foundations/colors.mdx §Anteprima visiva per tema]
