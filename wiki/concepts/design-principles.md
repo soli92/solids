@@ -86,6 +86,10 @@ Questa sezione integra il testo autoritativo da `docs/principles.mdx` (pagina St
 
 **Accessibilita' e motion**: "Linee guida con fonti ufficiali (WCAG 2.2, Material Design 3, Apple HIG) e mapping su token/utility: in Storybook apri dalla sidebar Foundations → Accessibility and Motion (sorgente `docs/foundations/accessibility-and-motion.mdx`)."[^src: docs/principles.mdx §Accessibilita' e motion]
 
+## Aggiornamento 2026-11-26 — allineamento a Material Design 3
+
+Gli «allineamenti a Material Design 3» di questa pagina (motion `standard` / `emphasized`, shape dei default light/dark) si riferiscono a **M3 pre-Expressive**. I token M3 Expressive (spaziatura, breakpoint, corner, motion a molle, target 48px) sono stati aggiunti in modo **additivo** (EP-002): GAP-008/009 chiusi, GAP-006/007 parzialmente risolti, con le parti breaking in attesa di decisione del maintainer; vedi [[material-3-expressive-2026]] §8. Nessun principio o valore esistente e' cambiato.
+
 ## Fonte primaria
 
 Questi principi sono documentati in `docs/principles.mdx` (pagina Storybook). Questa pagina wiki integra sia il testo derivato dall'analisi (ingest 2026-07-17) sia il testo autoritativo diretto dal MDX (aggiornamento 2026-07-17).

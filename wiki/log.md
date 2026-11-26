@@ -88,3 +88,21 @@ updated: 2026-07-17
 - **sources**: `tools/factory-upgrade-apply.py --prune-meta-only` dal master (main 6b0c0575 + fix/upgrade-gitattributes); classificazione dei CONFLICT per impronta git contro `git rev-list --all --objects` del master
 - **files touched**: PATTERN.md e moduli (replace), 27 file di `.claude/` e `adapters/cursor/templates/` e `tools/tests/test_verify_vendor_multi.py` sostituiti dal master (tutti versioni storiche del master, nessuna personalizzazione; originali in `.factory-upgrade-backup/`), nuovi `tools/factory_scope.py`, `tools/tests/test_factory_scope.py`, `CAPABILITIES.md` per derivata, `.gitattributes`, `analytics/` (file di framework), rimossi `.claude/commands/release.md` e `tools/tests/test_installer.py` (solo meta-framework), `factory.config.yaml`
 - **note**: in `factory.config.yaml` il blocco `factory:` diventa `project:` (lo schema e `smlib.factory_name` leggono `project.name`: prima il nome non si leggeva) e si toglie `wiki_purpose:` (chiave inesistente nel master, spenta, nessun lettore). Prima falliva `test_config_schema_coverage` anche su main; ora `pytest tools/tests` → 1174 passed, 25 skipped. Il driver di merge di `wiki/log.md` si registra in locale con `python3 tools/vcs/install_factory_hooks.py`.
+
+## [2026-11-26] ingest | raw/2026-11-26-material-design-novita-2026.md
+
+- **entry_type**: ingest
+- **trigger**: richiesta del maintainer: ingest del report sulle novita' di Material Design (M3 Expressive) prima del confronto con i token di soli-ds
+- **sources**: `raw/2026-11-26-material-design-novita-2026.md`
+- **files touched**: creati `wiki/sources/material-design-novita-2026-11-26.md` e `wiki/concepts/material-3-expressive-2026.md`; aggiunti rimandi e note «M3 pre-Expressive» (sezioni Aggiornamenti) in `wiki/concepts/foundations/{spacing,radius,accessibility-and-motion,tokens,typography}.md` e `wiki/concepts/design-principles.md`; `wiki/gaps.md` (GAP-006..GAP-009 aperti); `wiki/index.md`
+- **note**: nessun valore di token modificato, il refactor del codice non e' fatto. Gap aperti dagli scarti della sezione 9 (motion durata+easing vs molle, raggi, spaziatura, breakpoint). La sorgente dichiara la sezione 9 «non verificata a fondo»; il target 48 vs 44px (GAP-008) e' un'osservazione aggiunta dal keeper, non della sorgente. `wiki/purpose.md` descrive il meta-framework, non soli-ds: non applicato come contesto.
+
+## [2026-11-26] develop | EP-002 US-002: token Material 3 Expressive additivi (TSK-008..013)
+
+- **entry_type**: develop
+- **trigger**: richiesta del maintainer di allineare soli-ds alle direttive M3 Expressive dopo l'ingest del report
+- **sources**: `raw/2026-11-26-material-design-novita-2026.md`; tabella ufficiale molla→curva per il web e scala corner lette da m3.material.io/styles/motion/overview/specs e /styles/shape/corner-radius-scale
+- **files touched (dichiarati)**: `src/tokens/base.json` (measurement, breakpoint, motion, layout.touch-target-material), `src/tokens/semantic.json` (corner, motion.spring), `src/tokens/themes/*.json` (12 temi, blocco corner), `scripts/build.mjs` (blocco `[data-motion="standard"]`), `src/css/utilities.css` (.sd-motion*, .sd-corner-*, .sd-touch-target-material), `src/css/tailwind.css` (ease-sd-*, @theme breakpoint), `scripts/tokens-sanity.mjs`, `docs/foundations/{spacing,radius,accessibility-and-motion,tokens}.mdx`, `management/kanban/EP-002-*`, `management/kanban/sprint.md`
+- **verifica**: dist confrontato con la fotografia pre-modifica (0 righe rimosse, 0 token cambiati, 192 aggiunti); `npm run test:tokens` con i nuovi controlli M3, mutazione rossa (corner light 30px → FAIL); Chromium sul CSS generato (schema expressive/standard, corner per tema, 48px, reduced motion); `@tailwindcss/node` compila medium:/expanded:/large:/extra-large: e ease-sd-*; `npm test` exit 0
+- **note**: tutto additivo, release minor. Restano decisioni del maintainer (breaking, 3.0.0): default `.sd-transition*` sulle molle, `--sd-radius-2xl/3xl` 20/24 → 28/32, target 44 → 48. Preset Tailwind v3 non toccato (legacy). Non coperti: typography emphasized (15 stili), layout scaffold come componenti
+- **rilascio**: `@soli92/solids@2.1.0` pubblicata su npm (dist-tag latest) e GitHub Release v2.1.0 dal run Release 45818317065 sul commit 7d8071c, su autorizzazione del maintainer

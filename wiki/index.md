@@ -4,8 +4,8 @@ type: index
 title: SoliDS — Design System Wiki
 status: approved
 created: 2026-06-15
-updated: 2026-07-17
-sources: [README.md, AGENTS.md, src/tokens/, AI_LOG.md, docs/foundations/, docs/principles.mdx, docs/roadmap.mdx, docs/registry-model-1.md, docs/shadcn-integration.md]
+updated: 2026-11-26
+sources: [raw/2026-11-26-material-design-novita-2026.md, README.md, AGENTS.md, src/tokens/, AI_LOG.md, docs/foundations/, docs/principles.mdx, docs/roadmap.mdx, docs/registry-model-1.md, docs/shadcn-integration.md]
 ---
 
 # SoliDS Wiki
@@ -27,6 +27,13 @@ Design system personale @soli92/solids — token semantici (light/dark), shadcn/
 | [Registry Model 1](concepts/registry-model-1.md) | draft | Flusso consumer, namespace @solids, blocchi shadcn, workflow manutentori |
 | [Shadcn Integration](concepts/shadcn-integration.md) | draft | Setup rapido, temi, token CSS, mapping shadcn vars |
 | [Roadmap](concepts/roadmap.md) | draft | Stato attuale completato, prossimi step, visione |
+| [Material 3 Expressive (2026)](concepts/material-3-expressive-2026.md) | draft | Riferimento esterno: breakpoint, spaziatura 8dp, densita', motion a molle, shape, typography; stato del refactor additivo EP-002 in soli-ds (GAP-008/009 chiusi, GAP-006/007 parziali) |
+
+### Sources
+
+| Pagina | Stato | Descrizione |
+|--------|-------|-------------|
+| [Material Design — novita' 26/11/2026](sources/material-design-novita-2026-11-26.md) | draft | Report su M3 Expressive e direttive 2026 (`raw/2026-11-26-material-design-novita-2026.md`) |
 
 ### Concepts — Foundations
 

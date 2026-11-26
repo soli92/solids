@@ -80,8 +80,13 @@ Con il preset Tailwind SoliDS, `rounded-lg` / `rounded-md` / `rounded-sm` dei co
 
 ---
 
+## Aggiornamenti (v2026-11-26)
+
+Il «in linea con Material Design 3» di questa pagina si riferisce a **M3 pre-Expressive**. M3 Expressive ha una scala dei raggi diversa; vedi [[material-3-expressive-2026]] §5. Stato in soli-ds (EP-002, GAP-007 parziale): aggiunta la scala **`--sd-corner-*` a 10 gradi** (`none`, `extra-small`, `small`, `medium`, `large`, `large-increased`, `extra-large`, `extra-large-increased`, `extra-extra-large`, `full`) con valori M3 esatti su light/dark: 0/4/8/12/16/20/28/32/48px/full.[^src: src/tokens/semantic.json §corner] Per i temi nominati: `small`..`large-increased` = radius sm..xl del tema, `extra-small` = sm/2, gradi ampi = xl x1.4 / x1.6 / x2.4. Utility `.sd-corner-*` in `utilities.css`.[^src: src/css/utilities.css §Corner scale (M3, 10 steps; per-theme values)] I token `--sd-radius-*` della tabella sopra sono **invariati**. Resta aperta, come decisione del maintainer (breaking), la riallineatura di `--sd-radius-2xl`/`3xl` da 20/24 a 28/32px.
+
 ## Pagine correlate
 
+- [[material-3-expressive-2026]] — scala raggi e shape M3 Expressive (riferimento esterno)
 - [[foundations/themes]] — `--sd-radius-md` per tema
 - [[shadcn-integration]] — come `--radius` mappa su `--sd-radius-md`
 - [[token-architecture]] — struttura token base/semantic

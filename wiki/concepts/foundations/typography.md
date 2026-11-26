@@ -91,6 +91,7 @@ Con il **preset Tailwind**: `font-heading` e `font-serif` usano `--sd-font-headi
 
 ## Pagine correlate
 
+- [[material-3-expressive-2026]] — scala tipografica M3 (15 baseline + 15 emphasized) e altezza della scrittura (riferimento esterno, nessun valore di questa pagina modificato)
 - [[foundations/themes]] — identita' visiva per tema con valori token
 - [[token-architecture]] — struttura token base/semantic
 - [[foundations/tokens]] — pipeline CSS e JSON tokens

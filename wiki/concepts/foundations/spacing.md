@@ -55,8 +55,15 @@ Gli alias in `semantic.json` (es. `--sd-space-xs`, `--sd-space-sm`, `--sd-space-
 
 ---
 
+## Aggiornamenti (v2026-11-26)
+
+Material Design ha introdotto una scala di spaziatura a 8dp con token `spaceXXX` e la convenzione padding/gap/margin (dettagli in [[material-3-expressive-2026]] §2). Stato in soli-ds (EP-002, GAP-008 chiuso): aggiunti **`--sd-measurement-space0..space900`** (18 token, valori M3: 0, 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 32, 36, 40, 48, 56, 64, 72px).[^src: src/tokens/base.json §measurement] La scala numerica `--sd-space-*` e gli alias semantici sono **invariati**.
+
+Breakpoint M3 aggiunti in parallelo: `--sd-breakpoint-*` (compact 0, medium 600, expanded 840, large 1200, extra-large 1600px) e varianti Tailwind v4 `medium:` `expanded:` `large:` `extra-large:` (`sm..2xl` invariati; preset v3 legacy non toccato).[^src: src/tokens/base.json §breakpoint]
+
 ## Pagine correlate
 
+- [[material-3-expressive-2026]] — spaziatura, densita' e breakpoint M3 Expressive (riferimento esterno)
 - [[token-architecture]] — struttura completa token base/semantic
 - [[foundations/tokens]] — pipeline CSS e JSON tokens
 - [[foundations/radius]] — token border radius (stessa logica scalare)

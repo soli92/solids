@@ -85,6 +85,10 @@ Prefisso `--sd-duration-*`. Token chiavi:
 
 ---
 
+## Aggiornamenti (v2026-11-26)
+
+Le corrispondenze «M3 standard / emphasized» della tabella easing si riferiscono a **M3 pre-Expressive**: M3 Expressive ha sostituito durata + easing con il motion a molle; vedi [[material-3-expressive-2026]] §4 e §8. Stato (EP-002, GAP-006 parziale): aggiunti, senza toccare gli esistenti, i gruppi `measurement` (space0..space900), `breakpoint`, `motion.expressive/standard` (12 curve) e `layout.touch-target-material` in `base.json`, e `corner` e `motion.spring` in `semantic.json`.[^src: src/tokens/base.json §measurement][^src: src/tokens/semantic.json §corner] Totale: 192 token aggiunti, nessun token esistente cambiato o rimosso. `--sd-duration-*` e `--sd-easing-*` (tabelle sopra) sono invariati.
+
 ## Test automatici
 
 `scripts/tokens-sanity.mjs` verifica completezza di `dist/tokens/tokens.json` e `dist/css/variables.css` dopo ogni build. Eseguito come parte di `npm test`.
@@ -95,6 +99,7 @@ Prefisso `--sd-duration-*`. Token chiavi:
 
 - [[token-architecture]] — guida completa base/semantic/temi e naming
 - [[foundations/colors]] — catalogo token colore
+- [[material-3-expressive-2026]] — riferimento M3 Expressive (motion a molle, spaziatura, raggi)
 - [[foundations/spacing]] — scala spacing
 - [[foundations/radius]] — scala border radius
 - [[foundations/typography]] — token font

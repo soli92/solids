@@ -134,6 +134,70 @@ Due documenti tecnici di valore non ingested nella wiki:
 
 ---
 
+## GAP-006 — Motion: durata + easing vs molle M3 Expressive
+
+**Data**: 2026-11-26
+**Fonte**: raw/2026-11-26-material-design-novita-2026.md §9 (osservazione, non verificata a fondo)
+**Priorita'**: P2 (Importante)
+
+I token motion di soli-ds (`--sd-easing-standard`, `--sd-easing-emphasized-*`, `--sd-duration-*`), dichiarati «allineati a M3», seguono il sistema **durata + easing**. M3 Expressive lo ha sostituito con il motion a molle (schemi expressive/standard, token `spring.{fast|default|slow}.{spatial|effects}`). L'allineamento dichiarato si riferisce al sistema precedente. Vedi [[material-3-expressive-2026]] §4.
+
+**Azione raccomandata**: confronto mirato prima di qualunque modifica; decidere se mantenere durata+easing (riformulando «allineato a M3») o introdurre un'equivalenza a molle sul web. Il refactor del codice non e' ancora fatto (altra sessione).
+
+**Stato**: PARZIALMENTE RISOLTO
+
+**Aggiornamento 2026-11-26** — EP-002 / US-002: aggiunti i 12 token ufficiali molla→cubic-bezier (`base.motion.expressive/standard`), gli alias `--sd-motion-spring-<fast|default|slow>-<spatial|effects>-<easing|duration>` (schema expressive di default, `[data-motion="standard"]` per lo standard), le utility `.sd-motion*` e `ease-sd-*` in Tailwind v4; `--sd-duration-*`, `--sd-easing-*`, `.sd-transition*` invariati.[^src: src/tokens/base.json §motion] **Resta aperta**, come decisione del maintainer (breaking, major 3.0.0): portare i default `.sd-transition*` sulle molle.[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Decisioni aperte (maintainer)]
+
+---
+
+## GAP-007 — Radius: scala 8/12/16/20px vs scala raggi M3
+
+**Data**: 2026-11-26
+**Fonte**: raw/2026-11-26-material-design-novita-2026.md §9
+**Priorita'**: P3 (Mantenibilita')
+
+I passi semantici sm→xl di light/dark (8/12/16/20px) sono dichiarati «in linea con Material Design 3». La scala M3 attuale e' large 20dp, extra-large 32dp, extra-extra-large 48dp, piu' `full` (non piu' 50 %). Da riallineare solo se si vuole restare «in linea con M3». Vedi [[material-3-expressive-2026]] §5.
+
+**Azione raccomandata**: confronto token-per-token con la scala M3; decisione umana se riallineare o dichiarare lo scarto.
+
+**Stato**: PARZIALMENTE RISOLTO
+
+**Aggiornamento 2026-11-26** — EP-002 / US-002: aggiunta la scala `--sd-corner-*` a 10 gradi con valori M3 esatti su light/dark (0/4/8/12/16/20/28/32/48/full), declinata per tema; `--sd-radius-*` invariati.[^src: src/tokens/semantic.json §corner] **Resta aperta**, come decisione del maintainer (breaking, major 3.0.0): `--sd-radius-2xl` / `--sd-radius-3xl` da 20/24px a 28/32px.[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Decisioni aperte (maintainer)]
+
+---
+
+## GAP-008 — Spaziatura: scala `--sd-space-*` vs scala 8dp `spaceXXX` e target 48
+
+**Data**: 2026-11-26
+**Fonte**: raw/2026-11-26-material-design-novita-2026.md §9 (spaziatura «da confrontare»); target 48dp da §2.4
+**Priorita'**: P3 (Mantenibilita')
+
+M3 ha una scala lineare a 8dp (`space100 = 8dp`, token `spaceXXX` da space0 a space900) e la convenzione padding/gap/margin + posizione (padding e gap prima dei margin). soli-ds ha `--sd-space-0..64` con base 4px e alias xs..3xl, senza una convenzione equivalente documentata. In piu' il target minimo M3 e' 48×48 contro `--sd-layout-touch-target-min = 44px` (osservazione aggiuntiva, non nella sezione 9 della sorgente). Nota: i token `spaceXXX` esistono solo su Compose. Vedi [[material-3-expressive-2026]] §2-§3.
+
+**Azione raccomandata**: confronto con le sezioni 2 della sorgente; valutare tabella di corrispondenza e convenzione padding/gap/margin.
+
+**Stato**: CHIUSO
+
+**Risolto:** 2026-11-26 — EP-002 / US-002: aggiunti `--sd-measurement-space0..space900` (18 token, valori M3); la scala `--sd-space-*` e' invariata.[^src: src/tokens/base.json §measurement] Target: `--sd-layout-touch-target-material` 48px e `.sd-touch-target-material` disponibili come **opt-in**; il default `--sd-layout-touch-target-min` resta 44px. Il passaggio del default 44→48 e' una **decisione breaking del maintainer** (vedi US-002 §Decisioni aperte).[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Decisioni aperte (maintainer)]
+
+---
+
+## GAP-009 — Breakpoint: 600/840/1200/1600dp da confrontare
+
+**Data**: 2026-11-26
+**Fonte**: raw/2026-11-26-material-design-novita-2026.md §9 + §1.3
+**Priorita'**: P3 (Mantenibilita')
+
+M3 definisce cinque breakpoint (compact <600, medium 600–839, expanded 840–1199, large 1200–1599, extra-large >=1600dp) con pannelli consigliati. La wiki di soli-ds **non documenta breakpoint**: lo stato dei breakpoint nel codice e' da verificare. Vedi [[material-3-expressive-2026]] §1.
+
+**Azione raccomandata**: verificare nel codice (Tailwind preset / token layout) i breakpoint effettivi e confrontarli con M3.
+
+**Stato**: CHIUSO
+
+**Risolto:** 2026-11-26 — EP-002 / US-002 (TSK-008..013): token `--sd-breakpoint-{compact,medium,expanded,large,extra-large}` = 0/600/840/1200/1600px e varianti Tailwind v4 `medium:` `expanded:` `large:` `extra-large:`; `sm..2xl` invariati; preset Tailwind v3 non toccato (legacy). Verificato da `tokens-sanity` e compilazione Tailwind v4.[^src: src/tokens/base.json §breakpoint][^src: src/css/tailwind.css §M3 breakpoints]
+
+---
+
 ## Findings gia' risolti (per riferimento storico)
 
 ### FINDING #1 — docs/wiki/ ghost schema con alwaysApply:true [RISOLTO]
