@@ -181,7 +181,105 @@
   },
 
   "layout": {
-    "touch-target-min": "44px"
+    "touch-target-min": "44px",
+    "touch-target-material": "48px"
+  },
+
+  "measurement": {
+    "space0": "0px",
+    "space25": "2px",
+    "space50": "4px",
+    "space75": "6px",
+    "space100": "8px",
+    "space125": "10px",
+    "space150": "12px",
+    "space175": "14px",
+    "space200": "16px",
+    "space250": "20px",
+    "space300": "24px",
+    "space400": "32px",
+    "space450": "36px",
+    "space500": "40px",
+    "space600": "48px",
+    "space700": "56px",
+    "space800": "64px",
+    "space900": "72px"
+  },
+
+  "breakpoint": {
+    "compact": "0px",
+    "medium": "600px",
+    "expanded": "840px",
+    "large": "1200px",
+    "extra-large": "1600px"
+  },
+
+  "motion": {
+    "_comment": "Motion physics M3 Expressive: conversione ufficiale molla -> cubic-bezier per il web (m3.material.io/styles/motion/overview/specs). Spatial = posizione, dimensione, rotazione, raggi (overshoot); effects = colore e opacita' (nessun overshoot).",
+    "expressive": {
+      "fast": {
+        "spatial": {
+          "easing":   "cubic-bezier(0.42, 1.67, 0.21, 0.90)",
+          "duration": "350ms"
+        },
+        "effects": {
+          "easing":   "cubic-bezier(0.31, 0.94, 0.34, 1.00)",
+          "duration": "150ms"
+        }
+      },
+      "default": {
+        "spatial": {
+          "easing":   "cubic-bezier(0.38, 1.21, 0.22, 1.00)",
+          "duration": "500ms"
+        },
+        "effects": {
+          "easing":   "cubic-bezier(0.34, 0.80, 0.34, 1.00)",
+          "duration": "200ms"
+        }
+      },
+      "slow": {
+        "spatial": {
+          "easing":   "cubic-bezier(0.39, 1.29, 0.35, 0.98)",
+          "duration": "650ms"
+        },
+        "effects": {
+          "easing":   "cubic-bezier(0.34, 0.88, 0.34, 1.00)",
+          "duration": "300ms"
+        }
+      }
+    },
+    "standard": {
+      "fast": {
+        "spatial": {
+          "easing":   "cubic-bezier(0.27, 1.06, 0.18, 1.00)",
+          "duration": "350ms"
+        },
+        "effects": {
+          "easing":   "cubic-bezier(0.31, 0.94, 0.34, 1.00)",
+          "duration": "150ms"
+        }
+      },
+      "default": {
+        "spatial": {
+          "easing":   "cubic-bezier(0.27, 1.06, 0.18, 1.00)",
+          "duration": "500ms"
+        },
+        "effects": {
+          "easing":   "cubic-bezier(0.34, 0.80, 0.34, 1.00)",
+          "duration": "200ms"
+        }
+      },
+      "slow": {
+        "spatial": {
+          "easing":   "cubic-bezier(0.27, 1.06, 0.18, 1.00)",
+          "duration": "750ms"
+        },
+        "effects": {
+          "easing":   "cubic-bezier(0.34, 0.88, 0.34, 1.00)",
+          "duration": "300ms"
+        }
+      }
+    }
   },
 
   "z": {

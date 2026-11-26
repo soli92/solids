@@ -51,6 +51,46 @@ Questa pagina riassume **come SoliDS si allinea** a linee guida riconosciute (WC
 - **`.sd-transition`** / **`.sd-transition-fast`**: durate e easing da token.
 - **`.sd-transition-emphasized`**: attiva solo con **`prefers-reduced-motion: no-preference`**, durata `--sd-duration-emphasized` (default 350ms), easing **emphasized-decelerate** (vedi [MD3 easing](https://m3.material.io/styles/motion/easing-and-duration)).
 
+### Motion a molle (Material 3 Expressive)
+
+Da M3 Expressive (2025) Material usa un sistema di motion basato su **molle**, al posto della coppia
+durata + easing. Per il web Material pubblica la conversione di ogni molla in una curva
+(cubic-bezier + durata), e SoliDS usa quei valori così come sono.
+
+- **Spatial**: posizione, dimensione, rotazione, raggi. Ha overshoot e "rimbalza" in posizione.
+- **Effects**: colore e opacità, senza overshoot.
+- **Velocità**: `fast` (componenti piccoli: switch, bottoni), `default`, `slow` (transizioni a schermo intero).
+- **Schema**: `expressive` è il default di SoliDS (e quello consigliato da M3). `standard`, più
+  funzionale e con poco rimbalzo, si attiva su un sottoalbero con `data-motion="standard"`.
+
+| Alias | Expressive | Standard |
+| ----- | ---------- | -------- |
+| `--sd-motion-spring-fast-spatial-*` | `cubic-bezier(0.42, 1.67, 0.21, 0.90)` · 350ms | `cubic-bezier(0.27, 1.06, 0.18, 1.00)` · 350ms |
+| `--sd-motion-spring-default-spatial-*` | `cubic-bezier(0.38, 1.21, 0.22, 1.00)` · 500ms | `cubic-bezier(0.27, 1.06, 0.18, 1.00)` · 500ms |
+| `--sd-motion-spring-slow-spatial-*` | `cubic-bezier(0.39, 1.29, 0.35, 0.98)` · 650ms | `cubic-bezier(0.27, 1.06, 0.18, 1.00)` · 750ms |
+| `--sd-motion-spring-fast-effects-*` | `cubic-bezier(0.31, 0.94, 0.34, 1.00)` · 150ms | uguale |
+| `--sd-motion-spring-default-effects-*` | `cubic-bezier(0.34, 0.80, 0.34, 1.00)` · 200ms | uguale |
+| `--sd-motion-spring-slow-effects-*` | `cubic-bezier(0.34, 0.88, 0.34, 1.00)` · 300ms | uguale |
+
+Ogni alias ha due variabili: `…-easing` e `…-duration`. I valori dei due schemi stanno in `--sd-motion-expressive-*` e `--sd-motion-standard-*`.
+
+**Utility**: `.sd-motion`, `.sd-motion-fast`, `.sd-motion-slow`. Ognuna applica la molla spatial alle
+proprietà di movimento e la molla effects a colore e opacità, in un'unica classe.
+**Tailwind v4**: `ease-sd-spatial`, `ease-sd-spatial-fast`, `ease-sd-effects`, … insieme a
+`duration-(--sd-motion-spring-default-spatial-duration)`.
+
+Con **`prefers-reduced-motion: reduce`** vale la regola globale di `base.css`: il movimento sparisce
+e colore e opacità restano, a 100ms.
+
+`.sd-transition*` e `--sd-duration-*` / `--sd-easing-*` restano disponibili e invariati: sono il
+sistema M3 precedente, che Material indica come fallback.
+
+### Touch target 48 (Material 3)
+
+`--sd-layout-touch-target-min` resta **44px** (Apple HIG). Per seguire Material 3 usa
+**`--sd-layout-touch-target-material`** (**48px**) e l'utility **`.sd-touch-target-material`**.
+Il target vale anche quando l'icona è più piccola.
+
 ### Interlinea
 
 - Utility **`.sd-leading-*`** ora usano **`--sd-font-leading-*`** da `base.json` dove disponibili (`none`, `tight`, `snug`, `normal`, `relaxed`, `loose`).

@@ -41,7 +41,22 @@ Panoramica e attivazione: pagina **Foundations / Themes**.
 
 ## Motion (base)
 
-In `base.json`: durate (`--sd-duration-*`) e curve **MD3-friendly** (`--sd-easing-standard`, `--sd-easing-emphasized-decelerate`, `--sd-easing-emphasized-accelerate`) oltre a `ease-in` / `ease-out` / `ease-inout`.
+In `base.json`: durate (`--sd-duration-*`) e curve del sistema M3 precedente (`--sd-easing-standard`, `--sd-easing-emphasized-decelerate`, `--sd-easing-emphasized-accelerate`) oltre a `ease-in` / `ease-out` / `ease-inout`.
+
+Il **motion a molle di M3 Expressive** è in `base.motion` (schemi `expressive` e `standard`) e negli
+alias `semantic.motion.spring` → `--sd-motion-spring-<velocità>-<spatial|effects>-<easing|duration>`.
+`themes.css` contiene il blocco `[data-motion="standard"]`, che cambia schema a un sottoalbero.
+Dettagli in **Foundations / Accessibility and Motion**.
+
+## Token Material 3 (aggiunti in 2.x, senza cambiare quelli esistenti)
+
+| Gruppo | Variabili | Pagina |
+| ------ | --------- | ------ |
+| Spaziatura 8dp | `--sd-measurement-space0` … `space900` | Spacing |
+| Breakpoint | `--sd-breakpoint-{compact,medium,expanded,large,extra-large}` | Spacing |
+| Corner a 10 gradi (per tema) | `--sd-corner-*` | Radius |
+| Motion a molle | `--sd-motion-spring-*`, `--sd-motion-{expressive,standard}-*` | Accessibility and Motion |
+| Target 48 | `--sd-layout-touch-target-material` | Accessibility and Motion |
 
 ## Riferimento rapido
 

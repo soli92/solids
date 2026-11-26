@@ -244,6 +244,72 @@
   }
 }
 
+/* ─── Motion physics (M3 Expressive) ─────────────────────────
+ * Springs converted to curves for the web, as published by Material
+ * (m3.material.io/styles/motion/overview/specs). Spatial properties (movement,
+ * size, corners) take the spatial spring, which overshoots; colour and opacity
+ * take the effects spring, which does not. Scheme: expressive by default,
+ * standard inside [data-motion="standard"]. Reduced motion is handled
+ * globally in base.css (movement removed, colour/opacity kept short).
+ */
+.sd-motion,
+.sd-motion-fast,
+.sd-motion-slow {
+  transition:
+    transform var(--_sd-spatial-d) var(--_sd-spatial-e),
+    translate var(--_sd-spatial-d) var(--_sd-spatial-e),
+    scale var(--_sd-spatial-d) var(--_sd-spatial-e),
+    rotate var(--_sd-spatial-d) var(--_sd-spatial-e),
+    width var(--_sd-spatial-d) var(--_sd-spatial-e),
+    height var(--_sd-spatial-d) var(--_sd-spatial-e),
+    border-radius var(--_sd-spatial-d) var(--_sd-spatial-e),
+    color var(--_sd-effects-d) var(--_sd-effects-e),
+    background-color var(--_sd-effects-d) var(--_sd-effects-e),
+    border-color var(--_sd-effects-d) var(--_sd-effects-e),
+    box-shadow var(--_sd-effects-d) var(--_sd-effects-e),
+    opacity var(--_sd-effects-d) var(--_sd-effects-e),
+    fill var(--_sd-effects-d) var(--_sd-effects-e),
+    stroke var(--_sd-effects-d) var(--_sd-effects-e);
+}
+.sd-motion {
+  --_sd-spatial-d: var(--sd-motion-spring-default-spatial-duration);
+  --_sd-spatial-e: var(--sd-motion-spring-default-spatial-easing);
+  --_sd-effects-d: var(--sd-motion-spring-default-effects-duration);
+  --_sd-effects-e: var(--sd-motion-spring-default-effects-easing);
+}
+/* Small components: switches, buttons */
+.sd-motion-fast {
+  --_sd-spatial-d: var(--sd-motion-spring-fast-spatial-duration);
+  --_sd-spatial-e: var(--sd-motion-spring-fast-spatial-easing);
+  --_sd-effects-d: var(--sd-motion-spring-fast-effects-duration);
+  --_sd-effects-e: var(--sd-motion-spring-fast-effects-easing);
+}
+/* Full-screen transitions */
+.sd-motion-slow {
+  --_sd-spatial-d: var(--sd-motion-spring-slow-spatial-duration);
+  --_sd-spatial-e: var(--sd-motion-spring-slow-spatial-easing);
+  --_sd-effects-d: var(--sd-motion-spring-slow-effects-duration);
+  --_sd-effects-e: var(--sd-motion-spring-slow-effects-easing);
+}
+
+/* ─── Corner scale (M3, 10 steps; per-theme values) ──────── */
+.sd-corner-none                  { border-radius: var(--sd-corner-none); }
+.sd-corner-extra-small           { border-radius: var(--sd-corner-extra-small); }
+.sd-corner-small                 { border-radius: var(--sd-corner-small); }
+.sd-corner-medium                { border-radius: var(--sd-corner-medium); }
+.sd-corner-large                 { border-radius: var(--sd-corner-large); }
+.sd-corner-large-increased       { border-radius: var(--sd-corner-large-increased); }
+.sd-corner-extra-large           { border-radius: var(--sd-corner-extra-large); }
+.sd-corner-extra-large-increased { border-radius: var(--sd-corner-extra-large-increased); }
+.sd-corner-extra-extra-large     { border-radius: var(--sd-corner-extra-extra-large); }
+.sd-corner-full                  { border-radius: var(--sd-corner-full); }
+
+/* ─── Touch target M3 (48×48dp) — opt-in; .sd-min-touch-target stays 44px ─ */
+.sd-touch-target-material {
+  min-height: var(--sd-layout-touch-target-material, 48px);
+  min-width: var(--sd-layout-touch-target-material, 48px);
+}
+
 /* ─── Z-index ────────────────────────────────────────────── */
 .sd-z-dropdown { z-index: var(--sd-z-dropdown); }
 .sd-z-sticky   { z-index: var(--sd-z-sticky); }

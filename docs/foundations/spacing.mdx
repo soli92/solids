@@ -38,6 +38,55 @@ La lista completa (fino a `--sd-space-64`, più `px` / frazioni) è in `dist/tok
 
 ---
 
+## Sistema di spaziatura Material 3 (8dp)
+
+Da Google I/O 2026 Material ha un sistema di spaziatura a token su scala **8dp**, con `space100 = 8dp`
+e gli altri token come moltiplicatori (`space250` = 8 × 2.5 = 20dp). SoliDS lo espone con i nomi M3
+(`md.sys.measurement.spaceXXX` → `--sd-measurement-spaceXXX`), accanto alla scala numerica, che resta invariata.
+
+| Token | Valore | Token | Valore |
+| ----- | ------ | ----- | ------ |
+| `--sd-measurement-space0` | 0px | `--sd-measurement-space250` | 20px |
+| `--sd-measurement-space25` | 2px | `--sd-measurement-space300` | 24px |
+| `--sd-measurement-space50` | 4px | `--sd-measurement-space400` | 32px |
+| `--sd-measurement-space75` | 6px | `--sd-measurement-space450` | 36px |
+| `--sd-measurement-space100` | 8px | `--sd-measurement-space500` | 40px |
+| `--sd-measurement-space125` | 10px | `--sd-measurement-space600` | 48px |
+| `--sd-measurement-space150` | 12px | `--sd-measurement-space700` | 56px |
+| `--sd-measurement-space175` | 14px | `--sd-measurement-space800` | 64px |
+| `--sd-measurement-space200` | 16px | `--sd-measurement-space900` | 72px |
+
+Regole M3 da seguire con questi token:
+
+- **Padding** (spazio dentro un elemento), **gap** (tra elementi di un contenitore) e **margin** (fuori da un elemento).
+- **Prima padding e gap, poi margin**: definisci padding e gap sul contenitore padre, non margin sui figli.
+- Le posizioni sono `top`, `bottom`, `leading`, `trailing`: usa le proprietà logiche (`padding-inline-start`, …) così leading e trailing si invertono in RTL.
+- **Con il testo ingrandito al 200 % la spaziatura resta la stessa.**
+- Se manca un valore, aggiungi un token con lo stesso schema (`space225` = 18px) invece di un `px` libero.
+- La densità si applica solo su scelta dell'utente: ogni passo (−1, −2, −3) toglie circa 4px di padding verticale, e il target resta almeno 48×48.
+
+In Tailwind v4: `p-(--sd-measurement-space200)`, `gap-(--sd-measurement-space150)`.
+
+## Breakpoint Material 3
+
+I breakpoint (prima chiamati *window size classes*) sono in `base.json` → `--sd-breakpoint-*`.
+Le variabili CSS non funzionano dentro `@media`: servono per JS e per la documentazione.
+
+| Breakpoint | Larghezza | Pannelli consigliati | Variante Tailwind v4 |
+| ---------- | --------- | -------------------- | -------------------- |
+| compact | < 600px | 1 | (default) |
+| medium | 600–839px | 1 (2 se il contenuto è poco denso) | `medium:` |
+| expanded | 840–1199px | 2 | `expanded:` |
+| large | 1200–1599px | 2 | `large:` |
+| extra-large | ≥ 1600px | 2 (fino a 3) | `extra-large:` |
+
+Le varianti si aggiungono a `sm:`/`md:`/`lg:`/`xl:`/`2xl:` di Tailwind, che restano quelle di prima.
+Per passare da un breakpoint all'altro, M3 suggerisce di chiedersi cosa rivelare, dividere,
+ridimensionare, riposizionare e scambiare (es. navigation bar → navigation rail da medium). In ogni
+breakpoint le righe di testo vanno tenute tra 40 e 60 caratteri.
+
+---
+
 ## Anteprima visiva
 
 La scala sotto è mostrata con sfondo canvas di più temi (**light**, **dark**, **fantasy**, **cyberpunk**, **90s-party**, **steampunk**, es. **ichigo**; i valori in px non cambiano; cambiano colori e contrasto).

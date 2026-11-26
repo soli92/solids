@@ -83,6 +83,18 @@
     "lg": "8px",
     "xl": "10px"
   },
+  "corner": {
+    "none": "0px",
+    "extra-small": "2px",
+    "small": "3px",
+    "medium": "6px",
+    "large": "8px",
+    "large-increased": "10px",
+    "extra-large": "14px",
+    "extra-large-increased": "16px",
+    "extra-extra-large": "24px",
+    "full": "9999px"
+  },
   "shadow": {
     "sm": "0 1px 2px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,200,120,0.06)",
     "md": "0 4px 14px rgba(0,0,0,0.55), 0 0 0 1px rgba(201,162,39,0.12)",

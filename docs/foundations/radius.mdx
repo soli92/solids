@@ -23,6 +23,35 @@ I border radius sono esposti come **CSS variables** `--sd-radius-*`, da `src/tok
 
 Le classi in `utilities.css` includono ad esempio `.sd-rounded-sm`, `.sd-rounded-md`, `.sd-rounded-lg`, `.sd-rounded-xl`, `.sd-rounded-full`, `.sd-rounded-none`. In **Tailwind** con il preset SoliDS, `rounded-lg` / `rounded-md` / `rounded-sm` dei componenti shadcn seguono `--radius` → `--sd-radius-md` del tema attivo.
 
+## Scala corner Material 3 (10 gradi)
+
+Material 3 Expressive definisce i raggi con una scala a **10 gradi**. SoliDS la espone come
+`--sd-corner-*`, accanto a `--sd-radius-*`, che resta invariata (ed è quella che usa shadcn).
+
+| Variabile | Light / dark (M3) | Utility |
+| --------- | ----------------- | ------- |
+| `--sd-corner-none` | 0px | `.sd-corner-none` |
+| `--sd-corner-extra-small` | 4px | `.sd-corner-extra-small` |
+| `--sd-corner-small` | 8px | `.sd-corner-small` |
+| `--sd-corner-medium` | 12px | `.sd-corner-medium` |
+| `--sd-corner-large` | 16px | `.sd-corner-large` |
+| `--sd-corner-large-increased` | 20px | `.sd-corner-large-increased` |
+| `--sd-corner-extra-large` | 28px | `.sd-corner-extra-large` |
+| `--sd-corner-extra-large-increased` | 32px | `.sd-corner-extra-large-increased` |
+| `--sd-corner-extra-extra-large` | 48px | `.sd-corner-extra-extra-large` |
+| `--sd-corner-full` | pill | `.sd-corner-full` |
+
+**Temi nominati.** Small, medium, large e large-increased coincidono con `radius` sm/md/lg/xl del
+tema. Extra-small vale la metà di sm. I gradi più ampi applicano i rapporti M3 rispetto a
+large-increased (×1.4, ×1.6, ×2.4). Così cyberpunk resta spigoloso (extra-large 11px) e fantasy resta
+morbido (28px).
+
+Indicazioni M3:
+
+- **Raggio ottico** negli annidamenti: raggio interno = raggio esterno − padding (48 − 14 = 34).
+- Niente raggi large o full sui componenti densi di informazioni (es. card con molto testo).
+- Il contrasto tra forme tonde e squadrate crea tensione ed enfasi; si usa con parsimonia.
+
 ## Linee guida
 
 - Parti dal token più piccolo adeguato al contesto

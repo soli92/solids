@@ -84,6 +84,18 @@
     "xl": "16px",
     "full": "9999px"
   },
+  "corner": {
+    "none": "0px",
+    "extra-small": "2px",
+    "small": "4px",
+    "medium": "8px",
+    "large": "12px",
+    "large-increased": "16px",
+    "extra-large": "22px",
+    "extra-large-increased": "26px",
+    "extra-extra-large": "38px",
+    "full": "9999px"
+  },
   "shadow": {
     "sm": "0 1px 3px rgb(0 0 0 / 0.4), 0 0 0 1px rgb(37 99 235 / 0.2)",
     "md": "0 4px 16px rgb(0 0 0 / 0.45), 0 0 20px rgb(234 179 8 / 0.12)",

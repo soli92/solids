@@ -84,6 +84,18 @@
     "xl": "14px",
     "full": "9999px"
   },
+  "corner": {
+    "none": "0px",
+    "extra-small": "1px",
+    "small": "2px",
+    "medium": "6px",
+    "large": "10px",
+    "large-increased": "14px",
+    "extra-large": "20px",
+    "extra-large-increased": "22px",
+    "extra-extra-large": "34px",
+    "full": "9999px"
+  },
   "shadow": {
     "sm": "3px 3px 0 rgb(224 25 221 / 0.45), 0 0 12px rgb(0 229 255 / 0.12), inset 0 1px 0 rgb(255 255 255 / 0.06)",
     "md": "4px 4px 0 rgb(0 229 255 / 0.35), 0 0 20px rgb(224 25 221 / 0.2), 0 6px 16px rgb(0 0 0 / 0.5)",

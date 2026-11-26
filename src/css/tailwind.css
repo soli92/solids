@@ -109,6 +109,16 @@
   --font-mono: var(--sd-font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, "Liberation Mono", "Courier New", monospace;
 
+  /* M3 motion springs (web curves): `ease-sd-spatial`, `ease-sd-effects-fast`, …
+   * Pair with the matching duration, e.g.
+   * `duration-(--sd-motion-spring-default-spatial-duration)`. */
+  --ease-sd-spatial-fast: var(--sd-motion-spring-fast-spatial-easing);
+  --ease-sd-spatial: var(--sd-motion-spring-default-spatial-easing);
+  --ease-sd-spatial-slow: var(--sd-motion-spring-slow-spatial-easing);
+  --ease-sd-effects-fast: var(--sd-motion-spring-fast-effects-easing);
+  --ease-sd-effects: var(--sd-motion-spring-default-effects-easing);
+  --ease-sd-effects-slow: var(--sd-motion-spring-slow-effects-easing);
+
   --animate-accordion-down: accordion-down 0.2s cubic-bezier(0.23, 1, 0.32, 1);
   --animate-accordion-up: accordion-up 0.2s cubic-bezier(0.23, 1, 0.32, 1);
   --animate-caret-blink: caret-blink 1.25s ease-out infinite;
@@ -142,6 +152,19 @@
       height: 0;
     }
   }
+}
+
+/* ─── M3 breakpoints ───────────────────────────────────────
+ * Material breakpoints (previously window size classes) as extra variants:
+ * `medium:` 600px, `expanded:` 840px, `large:` 1200px, `extra-large:` 1600px.
+ * Tailwind's own sm/md/lg/xl/2xl are untouched. Breakpoints need literal
+ * values, so they mirror --sd-breakpoint-* (base.json) instead of var().
+ */
+@theme {
+  --breakpoint-medium: 600px;
+  --breakpoint-expanded: 840px;
+  --breakpoint-large: 1200px;
+  --breakpoint-extra-large: 1600px;
 }
 
 /* ─── Tailwind v3 → v4 compatibility ───────────────────────

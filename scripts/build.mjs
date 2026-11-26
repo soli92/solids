@@ -157,6 +157,19 @@ const main = () => {
     )}`;
   }
 
+  /* Motion scheme switch (M3 Expressive): :root maps --sd-motion-spring-* to the
+   * expressive scheme (semantic.json); [data-motion="standard"] remaps the same
+   * aliases to the standard scheme of base.json for its subtree. */
+  const springAliases = flattenToCssVars({ motion: { spring: semantic.motion.spring } });
+  const standardScheme = springAliases.map(([n]) => {
+    const target = n.replace("--sd-motion-spring-", "--sd-motion-standard-");
+    if (!baseVars.some(([b]) => b === target)) {
+      throw new Error(`SoliDS build: ${target} missing in base.json motion.standard`);
+    }
+    return [n, `var(${target})`];
+  });
+  themesCss += `\n${toBlock('[data-motion="standard"]', standardScheme)}`;
+
   const darkFlat = filterMetaVars(flattenToCssVars(dark));
   themesCss +=
     `\n@media (prefers-color-scheme: dark) {\n` +
