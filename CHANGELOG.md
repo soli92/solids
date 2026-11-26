@@ -1,3 +1,15 @@
+# [3.3.0](https://github.com/soli92/solids/compare/v3.2.0...v3.3.0) (2026-11-26)
+
+
+### Bug Fixes
+
+* **tokens:** LICENSE MIT e contrasto dei colori di stato e di border-strong ([083c9a0](https://github.com/soli92/solids/commit/083c9a08ff33c450bc7d966bf0850e1b5e6281b7))
+
+
+### Features
+
+* **scaffold:** interlinee M3 ufficiali per lingua e componenti React dello scaffold ([e2a9fa3](https://github.com/soli92/solids/commit/e2a9fa386a5e70db62ed3550c593c6d22b640546))
+
 # [3.2.0](https://github.com/soli92/solids/compare/v3.1.0...v3.2.0) (2026-11-26)
 
 
