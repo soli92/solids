@@ -85,6 +85,19 @@ e colore e opacità restano, a 100ms, con una sola curva senza overshoot.
 Dalla 3.0.0 anche `.sd-transition*` e `.sd-link` usano queste molle. `--sd-duration-*` / `--sd-easing-*`
 restano come token: sono il sistema M3 precedente, che Material indica come fallback.
 
+### Overlay (dialog, menu, popover, sheet, tooltip)
+
+Dalla 3.1.0 anche le animazioni degli overlay di `tailwind.css` (`animate-in` / `animate-out` di
+tw-animate-css, accordion, collapsible) usano le molle M3:
+
+- **entrata**: molla spatial fast, con un leggero rimbalzo, 350ms;
+- **uscita**: molla effects fast, senza rimbalzo, 150ms: uscire è più rapido che entrare;
+- **accordion / collapsible**: l'altezza è layout, quindi molla spatial dello **schema standard**
+  (rimbalzo minimo) a 350ms, anche con lo schema expressive.
+
+Un `duration-*` sul componente imposta ancora la durata, e un `ease-*` ancora la curva. Con
+reduced motion vale la regola globale: niente movimento, 100ms, curva senza overshoot.
+
 ### Touch target 48 (Material 3)
 
 Dalla 3.0.0 **`--sd-layout-touch-target-min`** vale **48px**, e così **`.sd-min-touch-target`**.

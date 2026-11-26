@@ -45,3 +45,40 @@ La tipografia in SoliDS è guidata da **token CSS** (`--sd-font-*`, `--sd-font-s
 In `utilities.css`, classi come `.sd-font-sans`, **`.sd-font-heading`**, `.sd-font-mono` e utility di testo (`sd-text-*`) si appoggiano ai token sopra. Con il **preset Tailwind**, `font-heading` e `font-serif` usano `--sd-font-heading`.
 
 La tipografia può evolvere nei JSON tema senza cambiare l’API dei consumer: restano gli stessi nomi di variabile.
+
+## Scala tipografica Material 3 (30 stili)
+
+Da Material 3 Expressive la scala ha **15 stili baseline** e **15 emphasized**: cinque ruoli (display,
+headline, title, body, label) per tre taglie (large, medium, small). Gli emphasized cambiano solo il
+**peso**. I valori vengono dai token generati da Material per Compose; le misure sono in **rem**
+(sp/16), quindi seguono le impostazioni di dimensione del testo dell'utente.
+
+| Stile | Size / line-height | Tracking | Peso (emphasized) | Font |
+| ----- | ------------------ | -------- | ----------------- | ---- |
+| display-large | 57 / 64px | −0.25px | 400 (500) | heading |
+| display-medium | 45 / 52px | 0 | 400 (500) | heading |
+| display-small | 36 / 44px | 0 | 400 (500) | heading |
+| headline-large | 32 / 40px | 0 | 400 (500) | heading |
+| headline-medium | 28 / 36px | 0 | 400 (500) | heading |
+| headline-small | 24 / 32px | 0 | 400 (500) | heading |
+| title-large | 22 / 28px | 0 | 400 (500) | heading |
+| title-medium | 16 / 24px | 0.15px | 500 (700) | body |
+| title-small | 14 / 20px | 0.1px | 500 (700) | body |
+| body-large | 16 / 24px | 0.5px | 400 (500) | body |
+| body-medium | 14 / 20px | 0.25px | 400 (500) | body |
+| body-small | 12 / 16px | 0.4px | 400 (500) | body |
+| label-large | 14 / 20px | 0.1px | 500 (700) | body |
+| label-medium | 12 / 16px | 0.5px | 500 (700) | body |
+| label-small | 11 / 16px | 0.5px | 500 (700) | body |
+
+- **Token**: `--sd-typescale-<stile>-{font,size,line-height,tracking,weight}` e
+  `--sd-typescale-emphasized-<stile>-*`.
+- **Utility**: `.sd-type-<stile>` e `.sd-type-<stile>-emphasized`, ad esempio `.sd-type-title-medium-emphasized`.
+- **Font**: il font *brand* di M3 corrisponde a `--sd-font-heading`, il *plain* a `--sd-font-body`. Le
+  utility leggono direttamente queste variabili, quindi anche un sotto-albero con un altro `data-theme`
+  usa il proprio font. Le variabili `--sd-typescale-*-font` invece sono risolte su `:root`.
+- **Emphasized**: per selezione, azioni principali, elementi non letti e momenti editoriali, insieme
+  agli stili baseline. Material non lo usa di default nei componenti.
+- Material ha anche la **language height** (interlinee più alte per alcune scritture: ~7 % per arabo,
+  CJK e indiane, ~30 % per birmano e telugu, ~100 % per nastaliq). SoliDS non la gestisce ancora:
+  per quelle lingue aumenta l'interlinea a mano.

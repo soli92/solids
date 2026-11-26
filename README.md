@@ -190,6 +190,9 @@ import { LogoLoader, LogoLoaderOverlay } from "@/components/ui/logo-loader";
 - `--sd-duration-*` / `--sd-easing-*` — sistema M3 precedente, ancora disponibile come fallback
 - `--sd-measurement-space0…space900` (spaziatura M3 a 8dp), `--sd-breakpoint-*` (600/840/1200/1600), `--sd-corner-*` (scala M3 a 10 gradi, per tema)
 
+- `--sd-typescale-<stile>-*` e `.sd-type-<stile>[-emphasized]` — scala tipografica M3 (15 + 15 stili, 3.1.0)
+- `.sd-scaffold`, `.sd-pane*`, `.sd-hide-below-*` / `.sd-hide-from-*` — layout scaffold M3 come primitive CSS (3.1.0; doc *Layout scaffold*)
+
 ### Migrazione 2.x → 3.0
 
 La 3.0.0 porta tre default a Material 3 Expressive. Nessun token cambia nome.

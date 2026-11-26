@@ -94,6 +94,7 @@ body {
     --tw-exit-rotate: 0 !important;
     --tw-exit-blur: 0 !important;
     --tw-animation-duration: 100ms !important;
+    --tw-ease: var(--sd-motion-spring-fast-effects-easing, ease-out) !important;
 
     transition-property: color, background-color, border-color,
       text-decoration-color, fill, stroke, opacity, box-shadow !important;

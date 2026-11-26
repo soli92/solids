@@ -1,0 +1,61 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Foundations / Layout scaffold" />
+
+# Layout scaffold (Material 3)
+
+Lo scaffold di Material 3 (Google I/O 2026) organizza ogni layout adattivo su tre livelli:
+
+- **bars**: incorniciano la pagina, cioè app bar in alto e navigation bar in basso. Stanno accanto alla
+  *safety region* (status bar, gesture bar), che non deve contenere contenuto primario;
+- **rails**: il perimetro attorno ai pannelli, con navigation rail all'inizio e controlli di supporto alla fine;
+- **panes**: il contenuto. Da 1 a 3 visibili, almeno uno flessibile.
+
+SoliDS lo offre come **primitive CSS** in `utilities.css`. Non c'è un componente React: le classi
+vanno bene con qualsiasi markup.
+
+## Struttura
+
+```html
+<div class="sd-scaffold">
+  <header class="sd-scaffold-bar-top">…app bar…</header>
+  <nav class="sd-scaffold-rail-start sd-hide-below-medium">…navigation rail…</nav>
+  <main class="sd-scaffold-panes">
+    <section class="sd-pane sd-pane-scroll">…lista…</section>
+    <section class="sd-pane sd-pane-scroll sd-hide-below-expanded">…dettaglio…</section>
+    <aside class="sd-pane-fixed sd-hide-below-extra-large">…side sheet…</aside>
+  </main>
+  <footer class="sd-scaffold-bar-bottom sd-hide-from-medium">…navigation bar…</footer>
+</div>
+```
+
+Su compact (sotto i 600px) si vedono la lista e la navigation bar. Da medium la navigation bar
+diventa navigation rail; da expanded (840px) compare il dettaglio; da extra-large (1600px) compare il
+side sheet come terzo pannello.
+
+| Classe | Ruolo |
+| ------ | ----- |
+| `.sd-scaffold` | griglia bar-top / rail-start · panes · rail-end / bar-bottom, alta almeno quanto la finestra |
+| `.sd-scaffold-bar-top`, `.sd-scaffold-bar-bottom` | bar, con padding `env(safe-area-inset-*)` per la safety region |
+| `.sd-scaffold-rail-start`, `.sd-scaffold-rail-end` | rail ai lati dei pannelli |
+| `.sd-scaffold-panes` | area dei pannelli: margine 16px su compact e 24px da medium, spacer 24px tra pannelli |
+| `.sd-pane` | pannello **flessibile**; due pannelli flessibili si dividono lo spazio 50/50 (split-pane) |
+| `.sd-pane-fixed`, `.sd-pane-fixed-412` | pannello **fisso** da 360px o 412px (side sheet, liste leggere) |
+| `.sd-pane-scroll` | scroll verticale interno al pannello |
+| `.sd-hide-below-{medium,expanded,large,extra-large}` | nasconde sotto il breakpoint |
+| `.sd-hide-from-{medium,expanded,large,extra-large}` | nasconde dal breakpoint in su |
+
+Margine e spacer si cambiano con `--sd-scaffold-margin` e `--sd-scaffold-spacer` su `.sd-scaffold`.
+
+## Regole Material 3
+
+- Pannelli consigliati: 1 su compact e medium, 2 su expanded e large, fino a 3 su extra-large. Mai più di tre.
+- Ogni layout ha almeno un pannello flessibile.
+- Su medium usa due pannelli solo con contenuto poco denso e azioni chiare.
+- Scambia solo componenti con la stessa funzione: navigation bar ↔ navigation rail, bottom sheet ↔ menu.
+- **Ordine del focus = ordine visivo dei pannelli.** Un pannello floating modale porta il focus al primo
+  elemento e, alla chiusura, lo restituisce a chi l'ha aperto.
+- Le righe di testo restano tra 40 e 60 caratteri a ogni breakpoint.
+
+Ancora non coperti: ridimensionamento dei pannelli con drag handle, pannelli floating o docked
+(*levitate*), *reflow* verticale automatico.

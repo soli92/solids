@@ -289,7 +289,7 @@ ok("radius 2xl/3xl = corner M3 extra-large/extra-large-increased su semantic e s
 const utilCss = readFileSync(join(root, "dist", "css", "utilities.css"), "utf8");
 // Regola a selettore singolo (esclude i gruppi `a,\nb {` che portano solo la shorthand).
 const ruleOf = (sel) => {
-  const m = new RegExp(`(?<!,\\s*)(^|\\n)[ \\t]*${sel.replace(".", "\\.")} \\{([^}]*)\\}`).exec(utilCss);
+  const m = new RegExp(`(?<!,\\s*)(^|\\n)[ \\t]*${sel.replace(".", "\\.")}\\s*\\{([^}]*)\\}`).exec(utilCss);
   if (!m) fail(`utilities.css: manca la regola ${sel}`);
   return m[2];
 };
@@ -308,5 +308,56 @@ if (!/transition-timing-function:\s*var\(--sd-motion-spring-fast-effects-easing[
   fail("base.css: con reduced motion manca la curva unica senza overshoot");
 }
 ok("reduced motion: una sola curva effects, nessun overshoot sulle proprieta' rimaste");
+
+/* ── EP-003: scala tipografica M3, scaffold, overlay ────────
+ * Valori: TypeScaleTokens.kt di Compose Material 3 (token generati da Material).
+ * [font, size sp, line-height sp, tracking sp, weight, weight emphasized]
+ */
+const m3Type = {
+  "display-large": ["brand", 57, 64, -0.25, 400, 500], "display-medium": ["brand", 45, 52, 0, 400, 500],
+  "display-small": ["brand", 36, 44, 0, 400, 500], "headline-large": ["brand", 32, 40, 0, 400, 500],
+  "headline-medium": ["brand", 28, 36, 0, 400, 500], "headline-small": ["brand", 24, 32, 0, 400, 500],
+  "title-large": ["brand", 22, 28, 0, 400, 500], "title-medium": ["plain", 16, 24, 0.15, 500, 700],
+  "title-small": ["plain", 14, 20, 0.1, 500, 700], "body-large": ["plain", 16, 24, 0.5, 400, 500],
+  "body-medium": ["plain", 14, 20, 0.25, 400, 500], "body-small": ["plain", 12, 16, 0.4, 400, 500],
+  "label-large": ["plain", 14, 20, 0.1, 500, 700], "label-medium": ["plain", 12, 16, 0.5, 500, 700],
+  "label-small": ["plain", 11, 16, 0.5, 500, 700],
+};
+const remOf = (v) => parseFloat(v) * 16;
+const fontOf = { brand: "var(--sd-font-heading)", plain: "var(--sd-font-body)" };
+for (const [name, [font, size, lh, tr, w, we]] of Object.entries(m3Type)) {
+  for (const [label, t, weight] of [[name, base.typescale?.[name], w], [`emphasized.${name}`, base.typescale?.emphasized?.[name], we]]) {
+    if (!t) fail(`base.typescale.${label} mancante`);
+    if (t.font !== fontOf[font]) fail(`typescale.${label}.font atteso ${fontOf[font]}`);
+    if (remOf(t.size) !== size || remOf(t["line-height"]) !== lh || Math.abs(remOf(t.tracking) - tr) > 1e-9 || t.weight !== String(weight)) {
+      fail(`typescale.${label} diverso da M3 (${size}/${lh}/${tr}/${weight})`);
+    }
+    const cls = `.sd-type-${name}${label.startsWith("emphasized") ? "-emphasized" : ""}`;
+    const rule = ruleOf(cls);
+    if (!rule.includes(`font-family: ${fontOf[font]}`)) fail(`${cls}: font-family deve leggere ${fontOf[font]} (i temi annidati devono cambiare font)`);
+  }
+}
+if (Object.keys(m3Type).length !== Object.keys(base.typescale).filter((k) => !k.startsWith("_") && k !== "emphasized").length) {
+  fail("base.typescale: stili in piu' o in meno rispetto a M3");
+}
+ok("scala tipografica M3: 15 baseline + 15 emphasized con valori ufficiali e 30 utility .sd-type-*");
+
+for (const sel of [".sd-scaffold", ".sd-scaffold-bar-top", ".sd-scaffold-bar-bottom", ".sd-scaffold-rail-start",
+  ".sd-scaffold-rail-end", ".sd-scaffold-panes", ".sd-pane", ".sd-pane-fixed"]) ruleOf(sel);
+const utilFlat = utilCss.replace(/\s+/g, " ");
+for (const [k, v] of Object.entries(m3Breakpoints)) {
+  if (k === "compact") continue;
+  if (!utilFlat.includes(`@media (width < ${v}) { .sd-hide-below-${k} `)) fail(`utilities.css: .sd-hide-below-${k} non usa ${v}`);
+  if (!utilFlat.includes(`@media (width >= ${v}) { .sd-hide-from-${k} `)) fail(`utilities.css: .sd-hide-from-${k} non usa ${v}`);
+}
+ok("scaffold M3: bars, rails, panes e visibilita' per breakpoint allineata a base.breakpoint");
+
+const overlay = twCss.slice(twCss.indexOf("Overlay motion"));
+if (/--sd-easing-|--sd-duration-/.test(overlay)) fail("tailwind.css: gli overlay usano ancora --sd-easing-*/--sd-duration-*");
+if (!/\[class\*="animate-in"\] \{[^}]*--tw-ease: var\(--sd-motion-spring-fast-spatial-easing\)/.test(overlay)) fail("tailwind.css: animate-in non usa la molla spatial fast");
+if (!/animate-out"\] \{[^}]*--tw-ease: var\(--sd-motion-spring-fast-effects-easing\)/.test(overlay)) fail("tailwind.css: animate-out non usa la molla effects fast");
+if (!/--animate-accordion-down: accordion-down[^;]*--sd-motion-standard-fast-spatial/.test(twCss)) fail("tailwind.css: accordion non usa la molla standard");
+if (!/--tw-ease:\s*var\(--sd-motion-spring-fast-effects-easing[^;]*!important/.test(reduce)) fail("base.css: con reduced motion le animazioni non hanno la curva senza overshoot");
+ok("overlay: entrata spatial, uscita effects, accordion standard, reduced motion senza overshoot");
 
 console.log("tokens-sanity: tutte le verifiche passate.");
