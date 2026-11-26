@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/soli92/solids/compare/v3.1.0...v3.2.0) (2026-11-26)
+
+
+### Features
+
+* **scaffold:** language height, drag handle dei pannelli, levitate e reflow ([1bbdc50](https://github.com/soli92/solids/commit/1bbdc501a134d7a6acece02ebe48638729c1242c))
+
 # [3.1.0](https://github.com/soli92/solids/compare/v3.0.0...v3.1.0) (2026-11-26)
 
 
