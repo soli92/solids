@@ -38,7 +38,11 @@
       "danger-border": "#fb7185",
       "info": "#00e5ff",
       "info-bg": "#082830",
-      "info-border": "#06b6d4"
+      "info-border": "#06b6d4",
+      "success-text": "#39ff14",
+      "warning-text": "#ffaa00",
+      "danger-text": "#ff80aa",
+      "info-text": "#00e5ff"
     },
     "primary": {
       "default": "#e019dd",

@@ -44,6 +44,16 @@ I consumer **non devono mai** usare direttamente la palette base
 - `--sd-color-intent-danger` (+ `-bg`, `-border`)
 - `--sd-color-intent-info` (+ `-bg`, `-border`)
 
+**Testo di stato: usa le varianti `-text`** (da 3.3.0): `--sd-color-intent-success-text`,
+`-warning-text`, `-danger-text`, `-info-text` (in Tailwind v4: `text-sd-success-text`, …). Hanno almeno
+**4.5:1** (AA) contro `bg-canvas`, `bg-surface` e `bg-elevated` in ogni tema, e **7:1** (AAA) dove la
+tinta del tema lo consente: in light e dark sono tutte a 7:1, in zoro e in parte di captain-america a
+4.5:1. I colori `intent-*` di base restano per fondi, bordi e icone grandi; come testo nel tema light
+scendono sotto 4.5:1 (success 2.9, warning 2.8, danger 4.3), quindi non usarli per il testo.
+
+`--sd-color-border-strong` ha almeno **3:1** su tutti i fondi (WCAG 1.4.11, componenti non testuali). Nella
+3.3.0 è stato scurito o schiarito nei temi light, dark e captain-america, dove era sotto soglia.
+
 ### Icon (stroke / `currentColor`)
 
 Usate dalle icone SoliDS e dalle utility `.sd-icon`, `.sd-icon-muted`, …

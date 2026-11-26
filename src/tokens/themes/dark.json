@@ -22,7 +22,7 @@
     "border": {
       "default":  "#2E3545",
       "muted":    "#1A1F2A",
-      "strong":   "#4B5563",
+      "strong":   "#68707c",
       "focus":    "#60A5FA",
       "disabled": "#2E3545"
     },
@@ -38,7 +38,11 @@
       "danger-border":    "#991b1b",
       "info":             "#60A5FA",
       "info-bg":          "#0c1a3a",
-      "info-border":      "#1e3a8a"
+      "info-border":      "#1e3a8a",
+      "success-text": "#4ade80",
+      "warning-text": "#fbbf24",
+      "danger-text": "#fa9090",
+      "info-text": "#76b2fb"
     },
     "primary": {
       "default":    "#60A5FA",

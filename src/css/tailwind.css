@@ -89,6 +89,10 @@
   --color-sd-warning: var(--sd-color-intent-warning);
   --color-sd-danger: var(--sd-color-intent-danger);
   --color-sd-info: var(--sd-color-intent-info);
+  --color-sd-success-text: var(--sd-color-intent-success-text);
+  --color-sd-warning-text: var(--sd-color-intent-warning-text);
+  --color-sd-danger-text: var(--sd-color-intent-danger-text);
+  --color-sd-info-text: var(--sd-color-intent-info-text);
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
