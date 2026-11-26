@@ -41,6 +41,10 @@
     "./css/utilities.css": "./dist/css/utilities.css",
     "./css/tailwind.css": "./dist/css/tailwind.css",
     "./icons": "./dist/icons/index.js",
+    "./scaffold": {
+      "types": "./dist/scaffold/index.d.ts",
+      "default": "./dist/scaffold/index.js"
+    },
     "./brand-assets/workspace-icons-normalized": {
       "types": "./dist/brand-assets/workspace-icons-normalized/index.d.ts",
       "default": "./dist/brand-assets/workspace-icons-normalized/index.js"
@@ -62,7 +66,8 @@
     "registry:sync": "node ./scripts/sync-registry.mjs",
     "registry:build": "node ./scripts/sync-registry.mjs && shadcn build --output ./registry/r",
     "test:tokens": "node ./scripts/tokens-sanity.mjs",
-    "test": "npm run build && npm run test:tokens && npm run build-storybook"
+    "test:scaffold": "node ./scripts/scaffold-test.mjs",
+    "test": "npm run build && npm run test:tokens && npm run test:scaffold && npm run build-storybook"
   },
   "devDependencies": {
     "@hookform/resolvers": "^5.2.2",

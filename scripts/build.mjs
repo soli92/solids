@@ -53,6 +53,38 @@ const transpileTs = (sourcePath, outputPath) => {
   writeFileSync(outputPath, withEsmExtensions, "utf8");
 };
 
+/** Emits .d.ts for the given entry points (ESM: relative imports get .js). */
+const emitDeclarations = (entries, outDir) => {
+  const program = ts.createProgram(entries, {
+    declaration: true,
+    emitDeclarationOnly: true,
+    outDir,
+    rootDir: join(SRC, "scaffold"),
+    target: ts.ScriptTarget.ES2020,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+    lib: ["lib.es2020.d.ts", "lib.dom.d.ts"],
+    strict: true,
+    skipLibCheck: true,
+  });
+  const diagnostics = ts.getPreEmitDiagnostics(program);
+  if (diagnostics.length > 0) {
+    const msg = ts.formatDiagnostics(diagnostics, {
+      getCanonicalFileName: (f) => f,
+      getCurrentDirectory: () => process.cwd(),
+      getNewLine: () => "\n",
+    });
+    throw new Error(`SoliDS build: type errors\n${msg}`);
+  }
+  program.emit(undefined, (fileName, text) => {
+    writeFileSync(
+      fileName,
+      text.replace(/(from\s+["']\.{1,2}\/[^"']+?)(["'])/g, (_, a, q) => (a.endsWith(".js") ? `${a}${q}` : `${a}.js${q}`)),
+      "utf8"
+    );
+  });
+};
+
 const filterMetaVars = (pairs) => pairs.filter(([k]) => !k.startsWith("--sd-_"));
 
 /** Segmenti JSON tipo "0.5" → "0-5" così il nome `--sd-space-0-5` è valido per i parser CSS (es. Turbopack). */
@@ -90,6 +122,7 @@ const main = () => {
   ensureDir(join(DIST, "tokens"));
   ensureDir(join(DIST, "tailwind"));
   ensureDir(join(DIST, "icons"));
+  ensureDir(join(DIST, "scaffold"));
   ensureDir(join(DIST, "brand-assets"));
 
   /* 1 – Read sources */
@@ -202,6 +235,9 @@ const main = () => {
   transpileTs(join(SRC, "icons", "glyphs.tsx"), join(DIST, "icons", "glyphs.js"));
   transpileTs(join(SRC, "icons", "glyphs-themed.tsx"), join(DIST, "icons", "glyphs-themed.js"));
   transpileTs(join(SRC, "icons", "index.ts"), join(DIST, "icons", "index.js"));
+  transpileTs(join(SRC, "scaffold", "pane-resize.ts"), join(DIST, "scaffold", "pane-resize.js"));
+  transpileTs(join(SRC, "scaffold", "index.ts"), join(DIST, "scaffold", "index.js"));
+  emitDeclarations([join(SRC, "scaffold", "index.ts")], join(DIST, "scaffold"));
   cpSync(join("docs", "brand-assets", "soli-icons"), join(DIST, "brand-assets", "soli-icons"), {
     recursive: true,
   });
@@ -270,6 +306,7 @@ const main = () => {
   console.log(`   dist/tokens/tokens.json`);
   console.log(`   dist/css/index.css (variables → themes → shadcn → base → utilities)`);
   console.log(`   dist/icons/index.js`);
+  console.log(`   dist/scaffold/index.{js,d.ts} (pane drag handle)`);
   console.log(`   dist/brand-assets/soli-icons/*.{svg,png}`);
   console.log(`   dist/brand-assets/soli-category-icons/soli-icon-{app-icon|apple-touch|favicon|logo|symbol}.{svg,png}`);
   console.log(`   dist/brand-assets/workspace-icons/**/*.{svg,png}`);

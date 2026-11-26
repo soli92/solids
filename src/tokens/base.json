@@ -401,6 +401,14 @@
     }
   },
 
+  "language-height": {
+    "_comment": "Moltiplicatori M3 dell'interlinea per categoria di scrittura: small (latino, cirillico, greco, ebraico), medium ~7% (arabo, CJK, indiane, thai, vietnamita...), large ~30% (birmano, telugu), extra-large ~100% (nastaliq). Applicati da :lang() o [data-language-height] alle utility .sd-type-*.",
+    "small": "1",
+    "medium": "1.07",
+    "large": "1.3",
+    "extra-large": "2"
+  },
+
   "measurement": {
     "space0": "0px",
     "space25": "2px",

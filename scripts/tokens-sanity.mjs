@@ -360,4 +360,33 @@ if (!/--animate-accordion-down: accordion-down[^;]*--sd-motion-standard-fast-spa
 if (!/--tw-ease:\s*var\(--sd-motion-spring-fast-effects-easing[^;]*!important/.test(reduce)) fail("base.css: con reduced motion le animazioni non hanno la curva senza overshoot");
 ok("overlay: entrata spatial, uscita effects, accordion standard, reduced motion senza overshoot");
 
+/* ── EP-004 (GAP-012): language height, drag handle, levitate, reflow ── */
+const lhExpected = { small: "1", medium: "1.07", large: "1.3", "extra-large": "2" };
+for (const [k, v] of Object.entries(lhExpected)) {
+  if (base["language-height"]?.[k] !== v) fail(`base.language-height.${k} atteso ${v}`);
+}
+for (const name of Object.keys(m3Type)) {
+  for (const cls of [`.sd-type-${name}`, `.sd-type-${name}-emphasized`]) {
+    if (!/line-height: calc\(var\(--sd-typescale-[a-z-]+-line-height\) \* var\(--sd-language-height, 1\)\)/.test(ruleOf(cls))) {
+      fail(`${cls}: line-height non moltiplicata per --sd-language-height`);
+    }
+  }
+}
+for (const [sel, cat] of [[":lang(ja)", "medium"], [":lang(ar)", "medium"], [":lang(te)", "large"], [":lang(ur)", "extra-large"]]) {
+  const i = utilFlat.indexOf(sel);
+  if (i < 0 || !utilFlat.slice(i, utilFlat.indexOf("}", i)).includes(`--sd-language-height-${cat}`)) fail(`language height: ${sel} non mappato su ${cat}`);
+}
+ok("language height M3: 4 categorie, :lang() e data-language-height, applicata alle 30 utility .sd-type-*");
+
+for (const sel of [".sd-pane-handle", ".sd-pane-resizable", ".sd-pane-floating", ".sd-pane-docked"]) ruleOf(sel);
+for (const [bp, v] of [["medium", "600px"], ["expanded", "840px"], ["large", "1200px"]]) {
+  if (!utilFlat.includes(`@media (width < ${v}) { .sd-panes-reflow-below-${bp} { flex-direction: column; } }`)) fail(`reflow below-${bp} non usa ${v}`);
+}
+if (!utilFlat.includes("@media (width < 600px) { .sd-pane-adaptive") || !utilFlat.includes("@media (600px <= width < 1200px) { .sd-pane-adaptive") || !utilFlat.includes("@media (width >= 1200px) { .sd-pane-adaptive")) {
+  fail(".sd-pane-adaptive: docked < 600, floating 600-1199, co-planar >= 1200");
+}
+const scaffoldJs = join(root, "dist", "scaffold", "index.js");
+if (!existsSync(scaffoldJs) || !existsSync(join(root, "dist", "scaffold", "index.d.ts"))) fail("dist/scaffold: manca index.js o index.d.ts");
+ok("scaffold: drag handle (dist/scaffold con tipi), pannelli floating/docked/adaptive, reflow ai breakpoint");
+
 console.log("tokens-sanity: tutte le verifiche passate.");

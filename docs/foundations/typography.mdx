@@ -79,6 +79,18 @@ headline, title, body, label) per tre taglie (large, medium, small). Gli emphasi
   usa il proprio font. Le variabili `--sd-typescale-*-font` invece sono risolte su `:root`.
 - **Emphasized**: per selezione, azioni principali, elementi non letti e momenti editoriali, insieme
   agli stili baseline. Material non lo usa di default nei componenti.
-- Material ha anche la **language height** (interlinee più alte per alcune scritture: ~7 % per arabo,
-  CJK e indiane, ~30 % per birmano e telugu, ~100 % per nastaliq). SoliDS non la gestisce ancora:
-  per quelle lingue aumenta l'interlinea a mano.
+- **Language height** (M3): le scritture più alte del latino hanno bisogno di più interlinea, altrimenti
+  le righe si sovrappongono. Le utility `.sd-type-*` moltiplicano l'interlinea per `--sd-language-height`,
+  scelto dall'attributo `lang`:
+
+  | Categoria | Moltiplicatore | Lingue (`lang`) |
+  | --------- | -------------- | --------------- |
+  | small | 1 | latino, cirillico, greco, ebraico e ogni lingua non elencata |
+  | medium | 1.07 | am, ar, hy, bn, zh, gu, hi, ja, kn, km, ko, lo, ml, or, pa, si, ta, th, vi, fa, mr, ne |
+  | large | 1.3 | my (birmano), te (telugu) |
+  | extra-large | 2 | ur (nastaliq) |
+
+  Per forzarla usa `data-language-height="small|medium|large|extra-large"`. Material consiglia
+  *medium* come default, ma in SoliDS un default medium cambierebbe le pagine latine: per questo
+  medium si attiva solo con l'attributo. I moltiplicatori sono le percentuali pubblicate da Material
+  (~7 %, ~30 %, ~100 %); i token per categoria non sono leggibili sul sito.

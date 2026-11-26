@@ -57,5 +57,54 @@ Margine e spacer si cambiano con `--sd-scaffold-margin` e `--sd-scaffold-spacer`
   elemento e, alla chiusura, lo restituisce a chi l'ha aperto.
 - Le righe di testo restano tra 40 e 60 caratteri a ogni breakpoint.
 
-Ancora non coperti: ridimensionamento dei pannelli con drag handle, pannelli floating o docked
-(*levitate*), *reflow* verticale automatico.
+## Ridimensionare i pannelli (drag handle)
+
+Il comportamento sta nel modulo JS `@soli92/solids/scaffold`: nessuna dipendenza, tipi inclusi. In
+React puoi usare anche il componente `Resizable`.
+
+```html
+<main class="sd-scaffold-panes">
+  <section class="sd-pane-resizable" id="lista">…</section>
+  <div class="sd-pane-handle"></div>
+  <section class="sd-pane">…</section>
+</main>
+```
+
+```js
+import { attachPaneResize } from "@soli92/solids/scaffold";
+
+const detach = attachPaneResize(document.querySelector(".sd-pane-handle"), {
+  pane: document.getElementById("lista"),
+  storageKey: "app:lista-larghezza", // persistente: ricorda la larghezza
+  // mode: "temporary"               // supporting pane: torna al default alla riapertura
+});
+```
+
+| Interazione | Effetto |
+| ----------- | ------- |
+| Trascinamento | cambia la larghezza fra `min` (240) e `max` (640); al rilascio si **aggancia** a 360 o 412px se è entro 24px |
+| Trascinamento sotto metà del minimo | chiude il pannello |
+| Doppio clic, Enter o Spazio | chiude o riapre il pannello |
+| Frecce (Shift: ×5), Home, End | ridimensiona da tastiera; in RTL le frecce si invertono |
+
+L'handle riceve `role="separator"`, `aria-controls`, `aria-valuenow`/`min`/`max` e `aria-expanded`, ed è
+raggiungibile con Tab. Il pannello riceve `--sd-pane-width` e `data-collapsed`. Con `mode: "persistent"`
+(il default) la larghezza resta anche cambiando breakpoint e ricaricando la pagina: serve `storageKey`.
+
+## Pannelli floating e docked (*levitate*)
+
+| Classe | Uso |
+| ------ | --- |
+| `.sd-pane-floating` | pannello sopra il contenuto, centrato. Per un pannello **modale** usa `<dialog class="sd-pane-floating">` aperto con `showModal()`: il browser porta il focus dentro, blocca il contenuto dietro e restituisce il focus alla chiusura. Scrim da `--sd-color-bg-overlay`; `data-scrim="none"` lo toglie |
+| `.sd-pane-docked` | pannello agganciato al bordo inferiore, come un bottom sheet, con la safety region |
+| `.sd-pane-adaptive` | docked su compact, floating su medium ed expanded, **co-planar** (pannello fisso accanto agli altri) da large. Solo non modale |
+
+Un pannello floating **non modale** deve essere raggiungibile nell'ordine di lettura e lasciabile con
+il focus.
+
+## Reflow
+
+Quando la larghezza non basta, i pannelli si impilano in verticale:
+`.sd-panes-reflow-below-{medium,expanded,large}` sul contenitore `.sd-scaffold-panes`, oppure
+`.sd-panes-reflow-portrait` per l'orientamento verticale. In colonna il pannello fisso perde la
+larghezza fissa.
