@@ -165,13 +165,23 @@ La sezione 9 della sorgente registrava quattro scarti, **non verificati a fondo*
 | `--sd-layout-touch-target-min`, `.sd-min-touch-target` | 44px | 48px[^src: src/tokens/base.json §layout] |
 | `.sd-transition`, `-fast`, `-emphasized`, `.sd-link` | durata + easing (`--sd-duration-*`, `--sd-easing-*`) | molle M3: default / fast / slow; spatial su transform, effects su colore, ombra, opacita'[^src: src/css/utilities.css §Transition (M3 Expressive springs, since 3.0.0)] |
 
-Per tornare al comportamento 2.x: README §Migrazione 2.x → 3.0.[^src: README.md §Migrazione 2.x → 3.0] Fuori perimetro, ancora aperti: typography emphasized e layout scaffold (GAP-010), overlay `animate-in/out` di Tailwind su `--sd-easing-ease-out` (GAP-011).
+Per tornare al comportamento 2.x: README §Migrazione 2.x → 3.0.[^src: README.md §Migrazione 2.x → 3.0] I punti prima fuori perimetro (typography emphasized e scaffold, GAP-010; overlay Tailwind, GAP-011) sono chiusi in 3.1.0, vedi sotto.
 
 Dettagli:
 
 - **Corner per tema**: per i temi nominati `small`..`large-increased` = radius sm..xl del tema, `extra-small` = sm/2, gradi ampi = xl x1.4 / x1.6 / x2.4 (`src/tokens/themes/*.json`, §corner).
 - **Motion e reduced motion**: la regola globale di `base.css` resta valida (verificato in Chromium: restano solo colore e opacita' a 100ms). Le curve spatial hanno overshoot (y > 1), le effects no.[^src: management/kanban/EP-002-allineamento-m3-expressive/US-002-token-m3-additivi/US-002.md §Esito (2026-11-26)]
 - **Reduced motion (3.0.0)**: `base.css` aggiunge una `transition-timing-function` unica (`--sd-motion-spring-fast-effects-easing`) perche' il colore non erediti la curva spatial con overshoot (difetto trovato in Chromium, presente anche in 2.1.0 su `.sd-motion*`).[^src: src/css/base.css §prefers-reduced-motion: reduce]
+
+### Aggiunto in 3.1.0 (EP-003, minor)
+
+| Area | Stato |
+|---|---|
+| Typography (US-004, GAP-010) | `--sd-typescale-<stile>-*` e `--sd-typescale-emphasized-<stile>-*` (15 + 15 stili), utility `.sd-type-<stile>[-emphasized]`; valori da `TypeScaleTokens.kt` di Compose Material 3, rem = sp/16; emphasized cambia solo il peso[^src: src/tokens/base.json §typescale]. Vedi [[foundations/typography]] |
+| Scaffold (US-005, GAP-010) | primitive CSS `.sd-scaffold`, `.sd-pane*`, `.sd-hide-below-*` / `.sd-hide-from-*` ai breakpoint 600/840/1200/1600; margine 16→24px da medium, spacer 24px[^src: src/css/utilities.css §Layout scaffold M3 (bars → rails → panes)]. Vedi [[foundations/layout-scaffold]] |
+| Overlay (US-006, GAP-011) | `animate-in` → spatial fast 350ms, `animate-out` → effects fast 150ms, accordion/collapsible → spatial dello schema standard 350ms; `duration-*`/`ease-*` del componente prioritari; reduced motion forza `--tw-ease` senza overshoot. Cambio visibile ma non di API[^src: src/css/tailwind.css §Overlay motion (M3 springs)] |
+
+Residui (GAP-012): language height M3 non gestita; scaffold senza drag handle, pannelli floating/docked e reflow.
 
 I default delle pagine foundations sono allineati a **M3 Expressive dalla 3.0.0** per motion, raggi 2xl/3xl e target; restano riferiti a M3 pre-Expressive solo i token `--sd-easing-*` / `--sd-duration-*` (fallback) e i raggi sm..xl.
 

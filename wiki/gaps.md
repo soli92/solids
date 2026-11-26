@@ -212,7 +212,9 @@ Il refactor 3.0.0 non copre: (a) la scala tipografica M3 a 30 stili (15 baseline
 
 **Azione raccomandata**: decidere se la scala emphasized e lo scaffold entrano nel perimetro di soli-ds (nuova storia di EP-002 o epica separata).
 
-**Stato**: APERTO
+**Stato**: CHIUSO
+
+**Risolto:** 2026-11-26 — EP-003 (US-004, US-005), rilascio 3.1.0. (a) Scala tipografica: `--sd-typescale-<stile>-{font,size,line-height,tracking,weight}` e `--sd-typescale-emphasized-<stile>-*` (15 + 15 stili) con utility `.sd-type-<stile>[-emphasized]`; valori da `TypeScaleTokens.kt` di Compose Material 3 (m3.material.io carica i token da un servizio non leggibile), rem = sp/16.[^src: src/tokens/base.json §typescale][^src: src/css/utilities.css §Type scale M3 (15 baseline + 15 emphasized)] (b) Scaffold come **primitive CSS** (non componente React): `.sd-scaffold`, `.sd-pane*`, `.sd-hide-below-*` / `.sd-hide-from-*`.[^src: src/css/utilities.css §Layout scaffold M3 (bars → rails → panes)] Residui in GAP-012. Vedi [[foundations/layout-scaffold]] e [[foundations/typography]].
 
 ---
 
@@ -225,6 +227,22 @@ Il refactor 3.0.0 non copre: (a) la scala tipografica M3 a 30 stili (15 baseline
 Gli overlay in `src/css/tailwind.css` (`animate-in` / `animate-out`) usano ancora `--sd-easing-ease-out` e non sono stati migrati alle molle M3, mentre `.sd-transition*` e `.sd-link` lo sono dalla 3.0.0 (vedi GAP-006).
 
 **Azione raccomandata**: valutare la migrazione a `ease-sd-*` / `--sd-motion-spring-*`, tenendo conto dell'overshoot su overlay.
+
+**Stato**: CHIUSO
+
+**Risolto:** 2026-11-26 — EP-003 (US-006), rilascio 3.1.0 (minor: cambio visibile, non di API). `animate-in` → molla spatial fast 350ms; `animate-out` → effects fast 150ms; accordion/collapsible → spatial dello schema standard 350ms. Le classi `duration-*` ed `ease-*` del componente restano prioritarie. Con reduced motion `base.css` forza `--tw-ease` senza overshoot.[^src: src/css/tailwind.css §Overlay motion (M3 springs)][^src: src/css/base.css §prefers-reduced-motion: reduce]
+
+---
+
+## GAP-012 — Residui M3: language height e scaffold avanzato
+
+**Data**: 2026-11-26
+**Fonte**: EP-003 (US-004, US-005), coordinatore 2026-11-26
+**Priorita'**: P4 (Nice to have)
+
+Fuori dal perimetro di EP-003 / 3.1.0: (a) l'adattamento dell'interlinea alla **language height** M3 (small/medium/large/extra large) non e' gestito; (b) lo scaffold non copre **drag handle**, pannelli **floating/docked** (*levitate*) e **reflow**. Vedi [[material-3-expressive-2026]] §1.4, §6.
+
+**Azione raccomandata**: valutare solo su richiesta di un consumer; il drag handle richiederebbe JS (non nel perimetro CSS-first).
 
 **Stato**: APERTO
 

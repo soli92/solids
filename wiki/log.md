@@ -116,3 +116,13 @@ updated: 2026-07-17
 - **difetto trovato**: con reduced motion il colore ereditava la curva spatial con overshoot (anche `.sd-motion*` in 2.1.0); corretto in `base.css`
 - **rilascio**: `@soli92/solids@3.0.0` su npm (latest) e GitHub Release v3.0.0 dal run Release 45820336531 sul commit e119b5a, su decisione del maintainer
 - **note**: restano GAP-010 (typography emphasized, scaffold come componenti) e GAP-011 (overlay di `tailwind.css` ancora su `--sd-easing-ease-out`)
+
+## [2026-11-26] develop | EP-003: scala tipografica M3, scaffold, overlay sulle molle (TSK-018..020)
+
+- **entry_type**: develop
+- **trigger**: richiesta del maintainer di chiudere GAP-010 e GAP-011
+- **sources**: `TypeScaleTokens.kt` di Compose Material 3 (androidx-main), perche' m3.material.io carica i token da un servizio non leggibile; pagine m3.material.io su scaffold, breakpoint e applying type
+- **files touched (dichiarati)**: `src/tokens/base.json` (typescale), `src/css/utilities.css` (type scale, scaffold), `src/css/tailwind.css` (overlay, accordion), `src/css/base.css` (`--tw-ease` con reduced motion), `scripts/tokens-sanity.mjs`, `docs/foundations/{typography,layout,accessibility-and-motion}.mdx`, `README.md`, kanban EP-003 (US-004..006, TSK-018..020)
+- **verifica**: diff del dist contro la 3.0.0; `tokens-sanity` con due mutazioni rosse (peso emphasized, curva di uscita); Chromium a 400/900/1700px (scaffold, visibilita' per breakpoint, tipografia, variabili degli overlay); `npm test` exit 0 con la pagina Storybook «Layout scaffold»
+- **difetto trovato**: le utility tipografiche leggevano `--sd-typescale-*-font`, risolto su `:root`, quindi un `[data-theme]` annidato non cambiava font (fantasy restava DM Sans); ora leggono `--sd-font-heading`/`--sd-font-body`, coperto da `tokens-sanity`
+- **note**: commit c0a1ee2 non ancora pushato (il push pubblica la 3.1.0 su npm: in attesa del maintainer). Residui in GAP-012: language height, drag handle, levitate, reflow
