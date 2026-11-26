@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/soli92/solids/compare/v3.0.0...v3.1.0) (2026-11-26)
+
+
+### Features
+
+* **tokens:** scala tipografica M3, scaffold di layout e overlay sulle molle ([c0a1ee2](https://github.com/soli92/solids/commit/c0a1ee2bf295e6d68ebbbbc4686e383fdafcc220))
+
 # [3.0.0](https://github.com/soli92/solids/compare/v2.1.0...v3.0.0) (2026-11-26)
 
 
