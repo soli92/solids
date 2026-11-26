@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/soli92/solids/compare/v2.0.0...v2.1.0) (2026-11-26)
+
+
+### Features
+
+* **tokens:** token Material 3 Expressive additivi (spaziatura, breakpoint, corner, motion a molle) ([7d8071c](https://github.com/soli92/solids/commit/7d8071c9e0181933cb42d0b07b77d2185784f0dd))
+
 # [2.0.0](https://github.com/soli92/solids/compare/v1.15.1...v2.0.0) (2026-11-12)
 
 
