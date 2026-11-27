@@ -1,6 +1,6 @@
 {
   "name": "@soli92/solids",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "SoliDS – agnostic design system foundations (tokens + CSS) with shadcn/ui compatibility.",
   "license": "MIT",
   "repository": {

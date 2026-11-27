@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/soli92/solids/compare/v3.3.0...v3.4.0) (2026-11-27)
+
+
+### Features
+
+* **tokens:** spessori di bordo e anello di focus M3 come token ([8ef7cfe](https://github.com/soli92/solids/commit/8ef7cfe131ba7789e5f042b91292aa163987a16f))
+
 # [3.3.0](https://github.com/soli92/solids/compare/v3.2.0...v3.3.0) (2026-11-26)
 
 
