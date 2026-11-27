@@ -35,7 +35,7 @@ Come SoliDS si allinea a linee guida riconosciute (WCAG 2.2, Material Design 3, 
 
 | Funzionalita' | Dettaglio |
 |--------------|-----------|
-| **Focus visibile** (`:focus-visible`) | Anello 2px + offset, colore `--sd-color-border-focus` |
+| **Focus visibile** (`:focus-visible`) | Anello `--sd-focus-indicator-thickness` (**3px dalla 3.4.0**, in 3.3.0 2px) con offset `--sd-focus-indicator-outer-offset` (2px), colore `--sd-color-border-focus`[^src: src/css/base.css §:focus-visible] |
 | **`prefers-reduced-motion: reduce`** | In `base.css` vengono disattivate transizioni, animazioni e scroll animato globalmente |
 | **Curve e durate** | dalla 3.0.0 le transizioni usano le molle M3 Expressive (`--sd-motion-spring-*`); `--sd-easing-*` e `--sd-duration-*` (sistema M3 precedente: `standard`, `emphasized-decelerate`) restano come fallback[^src: src/css/utilities.css §Transition] |
 | **Tema e `color-scheme`** | Valorizzato per light/dark e temi scuri, per controlli nativi coerenti |
@@ -114,6 +114,10 @@ Il «naming coerente con MD3» dei token `--sd-easing-*` / `--sd-duration-*` si 
 | `--sd-layout-touch-target-material` + `.sd-touch-target-material` | 48px (opt-in in 2.1.0; dalla 3.0.0 coincide con il default `--sd-layout-touch-target-min`)[^src: src/css/utilities.css §Touch target M3 (48×48dp) — since 3.0.0 same as .sd-min-touch-target] |
 
 Reduced motion: vale la regola globale di `base.css` (verificato in Chromium: restano solo colore e opacita' a 100ms). Dalla 3.0.0 aggiunge una `transition-timing-function` unica (`--sd-motion-spring-fast-effects-easing`), cosi' il colore non eredita la curva spatial con overshoot (difetto trovato in Chromium, presente anche in 2.1.0 su `.sd-motion*`).[^src: src/css/base.css §prefers-reduced-motion: reduce] **Invariati**: `--sd-duration-*` e `--sd-easing-*` (fallback). **Overlay (3.1.0, EP-003 / US-006, GAP-011 chiuso)**: `animate-in` → molla spatial fast 350ms, `animate-out` → effects fast 150ms, accordion/collapsible → spatial dello schema standard 350ms; le classi `duration-*` / `ease-*` del componente restano prioritarie; con reduced motion `base.css` forza `--tw-ease` senza overshoot. Cambio visibile ma non di API.[^src: src/css/tailwind.css §Overlay motion (M3 springs)][^src: src/css/base.css §prefers-reduced-motion: reduce] Per il layout adattivo vedi [[foundations/layout-scaffold]].
+
+## Aggiornamento 3.4.0 — anello di focus (EP-006 / US-010)
+
+L'anello di focus usa i token M3 `md.sys.state.focus-indicator`: `--sd-focus-indicator-thickness` 3px e `--sd-focus-indicator-outer-offset` 2px (prima 2px scritti a mano). Lo spessore a 3px e' una **decisione del maintainer del 2026-11-27**; e' l'unico cambio visibile del rilascio, insieme all'anello interno della maniglia dello scaffold (`.sd-pane-handle:focus-visible`, 2→3px). Misurato in Chromium: focus del bottone `3px solid`, offset 2px (3.3.0: `2px solid`); `.sd-border*` identici.[^src: src/tokens/base.json §focus-indicator][^src: src/css/utilities.css §.sd-pane-handle:focus-visible][^src: management/kanban/EP-006-spessore-bordo/US-010-border-width/US-010.md §AC2, AC4] Spessori di bordo: [[foundations/tokens]] §Spessori di bordo e focus. Per riportare il focus a 2px basta ridefinire `--sd-focus-indicator-thickness` dopo il CSS di SoliDS.
 
 ## Pagine correlate
 

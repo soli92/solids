@@ -27,7 +27,7 @@ Design system personale @soli92/solids — token semantici (light/dark), shadcn/
 | [Registry Model 1](concepts/registry-model-1.md) | draft | Flusso consumer, namespace @solids, blocchi shadcn, workflow manutentori |
 | [Shadcn Integration](concepts/shadcn-integration.md) | draft | Setup rapido, temi, token CSS, mapping shadcn vars |
 | [Roadmap](concepts/roadmap.md) | draft | Stato attuale completato, prossimi step, visione |
-| [Material 3 Expressive (2026)](concepts/material-3-expressive-2026.md) | draft | Riferimento esterno: breakpoint, spaziatura 8dp, densita', motion a molle, shape, typography; stato in soli-ds: 2.1.0 additivo + 3.0.0 default M3 (EP-002) + 3.1.0 typescale/scaffold/overlay (EP-003) + 3.2.0 language height/scaffold completo (EP-004) + 3.3.0 interlinee ufficiali, scaffold React, difetti plancia (EP-005); GAP-006..014 chiusi |
+| [Material 3 Expressive (2026)](concepts/material-3-expressive-2026.md) | draft | Riferimento esterno: breakpoint, spaziatura 8dp, densita', motion a molle, shape, typography; stato in soli-ds: 2.1.0 additivo + 3.0.0 default M3 (EP-002) + 3.1.0 typescale/scaffold/overlay (EP-003) + 3.2.0 language height/scaffold completo (EP-004) + 3.3.0 interlinee ufficiali, scaffold React, difetti plancia (EP-005) + 3.4.0 spessori bordo e focus 3px (EP-006); GAP-006..015 chiusi |
 
 ### Sources
 

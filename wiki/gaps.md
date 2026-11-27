@@ -285,6 +285,20 @@ Quattro difetti, registrati gia' chiusi (convenzione: i difetti trovati e corret
 
 ---
 
+## GAP-015 — Token di spessore del bordo e dell'anello di focus mancanti
+
+**Data**: 2026-11-26
+**Fonte**: richiesta della sessione plancia del master; EP-006 / US-010
+**Priorita'**: P3 (Mantenibilita')
+
+Mancava un token per lo spessore del bordo: la plancia usava `--sd-measurement-space25/50` come spessori. Gli spessori di bordo e dell'anello di focus erano scritti a mano nel CSS (focus a 2px). Registrato gia' chiuso, come GAP-014 (richiesta dalla plancia, risolta nello stesso rilascio).
+
+**Stato**: CHIUSO
+
+**Risolto:** 2026-11-27 — EP-006 (US-010), rilascio **3.4.0** (in attesa del maintainer). Nuovi `--sd-border-width-{none,thin,medium,thick}` = 0/1/2/3px (M3: outline 1/2/3dp per taglia, DSDB `md.comp.button.*.outlined.outline.width`), `--sd-focus-indicator-thickness` 3px e `--sd-focus-indicator-outer-offset` 2px (M3 `md.sys.state.focus-indicator`), utility `.sd-border-w-{thin,medium,thick}`; il CSS esistente non ha piu' spessori scritti a mano. **Unico cambio visibile**: anello di focus 2px → 3px (decisione del maintainer del 2026-11-27) e anello interno della maniglia dello scaffold 2→3px; verificato in Chromium contro il pacchetto 3.3.0. Vedi [[foundations/tokens]], [[foundations/accessibility-and-motion]].[^src: src/tokens/base.json §border-width][^src: src/tokens/base.json §focus-indicator][^src: management/kanban/EP-006-spessore-bordo/US-010-border-width/US-010.md §AC1-AC4]
+
+---
+
 ## Findings gia' risolti (per riferimento storico)
 
 ### FINDING #1 — docs/wiki/ ghost schema con alwaysApply:true [RISOLTO]

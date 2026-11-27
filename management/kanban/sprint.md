@@ -58,3 +58,11 @@ Rilasci: 2.1.0 (US-002, additivo) e 3.0.0 (US-003, default M3, breaking) il 2026
 |-----|--------|-------|--------|
 | TSK-022 | Interlinee M3 ufficiali e componenti React dello scaffold | fe | done |
 | TSK-023 | LICENSE, token intent-*-text, border-strong, reflow | fe | done |
+
+---
+
+# Sprint 6 — EP-006 Spessore del bordo
+
+| TSK | Titolo | layer | status |
+|-----|--------|-------|--------|
+| TSK-024 | Token --sd-border-width-* e --sd-focus-indicator-*, usati dal CSS esistente | fe | done |

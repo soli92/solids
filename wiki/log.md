@@ -144,3 +144,12 @@ updated: 2026-07-17
 - **verifica**: `tokens-sanity` (tabella ufficiale 15×4, contrasto calcolato in JS su 12 temi, LICENSE); `tsc --noEmit` sui file nuovi; storia React in Chromium (400/900/1700px, tastiera, nessun errore); `npm test` exit 0; dei token cambiano solo i tre `border-strong` (le righe `info-border` solo per la virgola)
 - **difetto trovato in verifica**: in reflow verticale il pannello ridimensionabile aveva altezza fissa 360px (presente in 3.2.0), corretto
 - **rilascio**: `@soli92/solids@3.3.0` dal run Release 45850855036, su autorizzazione del maintainer
+
+## [2026-11-27] develop | EP-006: spessori di bordo e anello di focus M3 (TSK-024)
+
+- **entry_type**: develop
+- **trigger**: richiesta della plancia del master (usava `--sd-measurement-space25/50` per i bordi); decisione del maintainer del 27/11: anello di focus a 3px come M3
+- **sources**: DSDB di m3.material.io (`TOKEN_TABLE`): `md.comp.button.*.outlined.outline.width` 1/2/3dp, `md.sys.state.focus-indicator.thickness` 3dp e `outer-offset` 2dp
+- **files touched (dichiarati)**: commit 8ef7cfe (base.json border-width e focus-indicator, utilities.css, base.css, tokens-sanity, docs tokens e accessibility-and-motion, README); kanban EP-006 (US-010, TSK-024), sprint.md
+- **verifica**: `tokens-sanity` (valori e nessuno spessore scritto a mano); `npm test` exit 0; Chromium contro il pacchetto 3.3.0 scaricato da npm: bordi identici, cambiano solo l'anello di focus (2 → 3px) e l'anello interno della maniglia dello scaffold (2 → 3px)
+- **note**: sospeso il 26/11 sera su branch locale, ripreso e chiuso il 27/11; il commit wip e' stato sostituito da 8ef7cfe. Rilascio 3.4.0 in attesa dell'ok al push
