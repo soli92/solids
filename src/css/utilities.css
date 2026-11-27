@@ -147,11 +147,15 @@
 .sd-bg-elevated { background-color: var(--sd-color-bg-elevated); }
 
 /* ─── Borders ────────────────────────────────────────────── */
-.sd-border         { border: 1px solid var(--sd-color-border-default); }
-.sd-border-muted   { border: 1px solid var(--sd-color-border-muted); }
-.sd-border-strong  { border: 1px solid var(--sd-color-border-strong); }
-.sd-border-t       { border-top: 1px solid var(--sd-color-border-default); }
-.sd-border-b       { border-bottom: 1px solid var(--sd-color-border-default); }
+.sd-border         { border: var(--sd-border-width-thin) solid var(--sd-color-border-default); }
+.sd-border-muted   { border: var(--sd-border-width-thin) solid var(--sd-color-border-muted); }
+.sd-border-strong  { border: var(--sd-border-width-thin) solid var(--sd-color-border-strong); }
+.sd-border-t       { border-top: var(--sd-border-width-thin) solid var(--sd-color-border-default); }
+.sd-border-b       { border-bottom: var(--sd-border-width-thin) solid var(--sd-color-border-default); }
+/* Border width only (pair with .sd-border*): M3 outline 1 / 2 / 3px */
+.sd-border-w-thin   { border-width: var(--sd-border-width-thin); }
+.sd-border-w-medium { border-width: var(--sd-border-width-medium); }
+.sd-border-w-thick  { border-width: var(--sd-border-width-thick); }
 
 /* ─── Border Radius ──────────────────────────────────────── */
 .sd-rounded-none { border-radius: var(--sd-radius-none, 0); }
@@ -478,7 +482,7 @@
 }
 .sd-pane-handle:hover::before,
 .sd-pane-handle[data-dragging]::before { background: var(--sd-color-text-secondary); block-size: var(--sd-measurement-space700); }
-.sd-pane-handle:focus-visible { outline: 2px solid var(--sd-color-border-focus); outline-offset: -2px; }
+.sd-pane-handle:focus-visible { outline: var(--sd-focus-indicator-thickness) solid var(--sd-color-border-focus); outline-offset: calc(-1 * var(--sd-focus-indicator-thickness)); }
 .sd-pane-resizable { flex: 0 0 var(--sd-pane-width, 360px); min-width: 0; }
 .sd-pane-resizable[data-collapsed] { display: none; }
 
@@ -592,7 +596,7 @@
 /* Card */
 .sd-card {
   background-color: var(--sd-color-bg-elevated);
-  border: 1px solid var(--sd-color-border-default);
+  border: var(--sd-border-width-thin) solid var(--sd-color-border-default);
   border-radius: var(--sd-radius-lg);
   box-shadow: var(--sd-shadow-sm);
   padding: var(--sd-space-lg);
@@ -617,12 +621,12 @@
 /* Divider */
 .sd-divider {
   border: none;
-  border-top: 1px solid var(--sd-color-border-default);
+  border-top: var(--sd-border-width-thin) solid var(--sd-color-border-default);
   margin-block: var(--sd-space-md);
 }
 
 /* Focus ring */
 .sd-focus-ring:focus-visible {
-  outline: 2px solid var(--sd-color-border-focus);
-  outline-offset: 2px;
+  outline: var(--sd-focus-indicator-thickness) solid var(--sd-color-border-focus);
+  outline-offset: var(--sd-focus-indicator-outer-offset);
 }

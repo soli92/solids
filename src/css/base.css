@@ -58,8 +58,8 @@ body {
 
 /* ─── Focus (2px ring + offset, aligned with Material / WCAG focus visibility) ─ */
 :focus-visible {
-  outline: 2px solid var(--sd-color-border-focus);
-  outline-offset: 2px;
+  outline: var(--sd-focus-indicator-thickness) solid var(--sd-color-border-focus);
+  outline-offset: var(--sd-focus-indicator-outer-offset);
   /* No transition: focus comes from the keyboard, so it must show at once. */
 }
 

@@ -60,6 +60,25 @@ Dettagli in **Foundations / Accessibility and Motion**.
 
 Migrazione da 2.x: vedi il README, sezione «Migrazione 2.x → 3.0».
 
+## Spessori di bordo e focus (3.4.0)
+
+| Variabile | Valore | Uso |
+| --------- | ------ | --- |
+| `--sd-border-width-none` | 0px | nessun bordo |
+| `--sd-border-width-thin` | 1px | bordi e divisori (`.sd-border*`); contorno M3 dei componenti piccoli e medi |
+| `--sd-border-width-medium` | 2px | contorno M3 dei componenti large, enfasi |
+| `--sd-border-width-thick` | 3px | contorno M3 dei componenti xlarge |
+| `--sd-focus-indicator-thickness` | 3px | spessore dell'anello di focus (M3) |
+| `--sd-focus-indicator-outer-offset` | 2px | distanza dell'anello dal componente (M3) |
+
+Utility per il solo spessore, da combinare con `.sd-border*`: `.sd-border-w-thin`, `.sd-border-w-medium`,
+`.sd-border-w-thick`. In Tailwind v4: `border-(length:--sd-border-width-medium)`,
+`outline-(length:--sd-focus-indicator-thickness)`. I valori di spaziatura (`--sd-measurement-*`) non sono
+spessori: per i bordi usa questi token.
+
+**Dalla 3.4.0 l'anello di focus è di 3px** (prima 2px), come in Material 3. Per tornare a 2px:
+`:root { --sd-focus-indicator-thickness: 2px; }`.
+
 ## Riferimento rapido
 
 Per elenchi dettagliati di variabili (`--sd-color-*`, spacing, radius, font, shadow, …) vedi anche il **README** del pacchetto nella repo e le altre pagine Foundations (Colors, Spacing, Radius, Typography).

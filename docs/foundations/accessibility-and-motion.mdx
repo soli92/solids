@@ -19,7 +19,7 @@ Questa pagina riassume **come SoliDS si allinea** a linee guida riconosciute (WC
 
 ## Cosa fa già SoliDS
 
-- **Focus visibile** (`:focus-visible`): anello 2px + offset, colore da `--sd-color-border-focus` (allineato a pratiche Material / visibilità focus WCAG).
+- **Focus visibile** (`:focus-visible`): anello di **3px** a **2px** di distanza (Material 3, dalla 3.4.0; prima 2px), colore da `--sd-color-border-focus`. Spessore e distanza sono token: `--sd-focus-indicator-thickness` e `--sd-focus-indicator-outer-offset`.
 - **`prefers-reduced-motion: reduce`**: in `base.css` vengono disattivate transizioni, animazioni e scroll animato globalmente, in linea con [WCAG 2.3.3](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) dove applicabile.
 - **Motion a molle M3 Expressive** (`--sd-motion-spring-*`): dalla 3.0.0 lo usano `.sd-transition*`, `.sd-link` e `.sd-motion*`. Le curve precedenti (`--sd-easing-*`, `--sd-duration-*`) restano disponibili come fallback.
 - **Tema e `color-scheme`**: valorizzato per light/dark e temi scuri, per controlli nativi coerenti ([CSS `color-scheme`](https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme)).

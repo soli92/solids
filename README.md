@@ -193,6 +193,7 @@ import { LogoLoader, LogoLoaderOverlay } from "@/components/ui/logo-loader";
 - `--sd-typescale-<stile>-*` e `.sd-type-<stile>[-emphasized]` — scala tipografica M3 (15 + 15 stili, 3.1.0)
 - `.sd-scaffold`, `.sd-pane*`, `.sd-hide-below-*` / `.sd-hide-from-*` — layout scaffold M3 come primitive CSS (3.1.0; doc *Layout scaffold*)
 - `@soli92/solids/scaffold` — `attachPaneResize()` per il drag handle dei pannelli; `.sd-pane-floating` / `-docked` / `-adaptive`, `.sd-panes-reflow-*`, language height via `lang` (3.2.0)
+- `--sd-border-width-{none,thin,medium,thick}` (0/1/2/3px) e `--sd-focus-indicator-{thickness,outer-offset}` (3px/2px, M3): spessori di bordo e anello di focus (3.4.0; l'anello passa da 2 a 3px)
 
 ### Migrazione 2.x → 3.0
 

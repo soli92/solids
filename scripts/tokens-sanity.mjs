@@ -438,6 +438,17 @@ for (const [name, theme] of Object.entries(themes)) {
 }
 ok(`contrasto: intent-*-text >= 4.5:1 e border-strong >= 3:1 su canvas/surface/elevated in ${Object.keys(themes).length} temi`);
 
+/* ── Spessori di bordo e focus (richiesta della plancia, 3.4.0) ── */
+const bw = { none: "0px", thin: "1px", medium: "2px", thick: "3px" };
+for (const [k, v] of Object.entries(bw)) if (base["border-width"]?.[k] !== v) fail(`base.border-width.${k} atteso ${v}`);
+if (base["focus-indicator"]?.thickness !== "3px" || base["focus-indicator"]?.["outer-offset"] !== "2px") fail("base.focus-indicator: thickness/outer-offset attesi 3px/2px (M3)");
+for (const [file, css] of [["utilities.css", utilCss], ["base.css", baseCss]]) {
+  if (/(border(-top|-bottom)?|outline):\s*\d+px\s+solid/.test(css) || /outline-offset:\s*-?\d+px/.test(css)) fail(`${file}: spessore di bordo o di focus scritto a mano invece del token`);
+}
+if (!baseCss.includes("outline: var(--sd-focus-indicator-thickness) solid") || !baseCss.includes("outline-offset: var(--sd-focus-indicator-outer-offset)")) fail("base.css: il focus ring non usa --sd-focus-indicator-*");
+for (const w of ["thin", "medium", "thick"]) ruleOf(`.sd-border-w-${w}`);
+ok("border-width 0/1/2/3px e focus-indicator M3 3px/2px usati dal CSS; nessuno spessore scritto a mano");
+
 const license = readFileSync(join(root, "LICENSE"), "utf8");
 if (!license.startsWith("MIT License") || !/Copyright \(c\) \d{4} \S+/.test(license)) fail("LICENSE: testo MIT con anno e titolare mancante");
 ok("LICENSE: testo MIT con anno e titolare");

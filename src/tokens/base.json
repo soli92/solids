@@ -185,6 +185,20 @@
     "touch-target-material": "48px"
   },
 
+  "border-width": {
+    "_comment": "Spessori di bordo e contorno. M3: outline 1dp (componenti piccoli e medi), 2dp (large), 3dp (xlarge), da md.comp.button.*.outlined.outline.width.",
+    "none":   "0px",
+    "thin":   "1px",
+    "medium": "2px",
+    "thick":  "3px"
+  },
+
+  "focus-indicator": {
+    "_comment": "Anello di focus M3: md.sys.state.focus-indicator.thickness 3dp, outer-offset 2dp (dalla 3.4.0; prima lo spessore era 2px).",
+    "thickness":    "3px",
+    "outer-offset": "2px"
+  },
+
   "typescale": {
     "_comment": "Scala tipografica M3 (15 baseline + 15 emphasized) da TypeScaleTokens.kt di Compose Material 3. rem = sp/16; tracking in rem. Font brand = --sd-font-heading, plain = --sd-font-body.",
     "display-large": {
